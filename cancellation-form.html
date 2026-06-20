@@ -199,7 +199,6 @@ const client =
 JSON.parse(
 localStorage.getItem("tslaClient")
 );
-alert(localStorage.getItem("tslaClient"));
 if(client){
 document.getElementById("name").innerText =
 client.name || "-";
@@ -360,10 +359,10 @@ size:12
 );
 
 // Non Investment Linked Product
-tickBox(95, 365);
+tickBox(78, 342);
 
 // Personal Expenses
-tickBox(95, 165);
+tickBox(78, 235);
 const pdfBytes =
 await pdfDoc.save();
 const blob =
