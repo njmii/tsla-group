@@ -321,6 +321,22 @@ pdfDoc.getPages();
 
 const page =
 pages[0];
+const pages =
+pdfDoc.getPages();
+
+const page =
+pages[0];
+
+function tickBox(x, y){
+  page.drawText(
+    "X",
+    {
+      x,
+      y,
+      size:14
+    }
+  );
+}
 const { width, height } = page.getSize();
 
 alert(
@@ -345,6 +361,12 @@ y:665,
 size:12
 }
 );
+
+// Non Investment Linked Product
+tickBox(95, 365);
+
+// Personal Expenses
+tickBox(95, 165);
 const pdfBytes =
 await pdfDoc.save();
 const blob =
