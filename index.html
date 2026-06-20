@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TSLA Group</title>
+<title>TSLA Digital Hub</title>
 <style>
 *{
 margin:0;
@@ -11,46 +11,24 @@ padding:0;
 box-sizing:border-box;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
-html{
-scroll-behavior:smooth;
-}
 body{
 background:#f7f8fa;
 color:#111;
 overflow-x:hidden;
 }
-/* ORANGE GLOW */
 .glow{
 position:fixed;
 width:500px;
 height:500px;
-background:radial-gradient(
-circle,
+background:radial-gradient(circle,
 rgba(255,122,0,.18),
-transparent 70%
-);
+transparent 70%);
 top:-200px;
 left:50%;
 transform:translateX(-50%);
 pointer-events:none;
 z-index:-1;
-animation:pulse 6s ease-in-out infinite;
 }
-@keyframes pulse{
-0%{
-opacity:.5;
-transform:translateX(-50%) scale(1);
-}
-50%{
-opacity:1;
-transform:translateX(-50%) scale(1.15);
-}
-100%{
-opacity:.5;
-transform:translateX(-50%) scale(1);
-}
-}
-/* NAVBAR */
 .navbar{
 position:sticky;
 top:0;
@@ -81,9 +59,8 @@ text-decoration:none;
 font-weight:700;
 color:#333;
 }
-/* HERO */
 .hero{
-min-height:90vh;
+min-height:75vh;
 display:flex;
 flex-direction:column;
 justify-content:center;
@@ -96,20 +73,14 @@ width:min(260px,70vw);
 animation:float 4s ease-in-out infinite;
 }
 @keyframes float{
-0%{
-transform:translateY(0);
-}
-50%{
-transform:translateY(-10px);
-}
-100%{
-transform:translateY(0);
-}
+0%{transform:translateY(0);}
+50%{transform:translateY(-10px);}
+100%{transform:translateY(0);}
 }
 .hero h1{
 font-size:clamp(2.2rem,6vw,4rem);
-margin-top:20px;
 font-weight:900;
+margin-top:20px;
 }
 .hero p{
 margin-top:15px;
@@ -118,7 +89,7 @@ color:#666;
 line-height:1.6;
 }
 .hero-buttons{
-margin-top:35px;
+margin-top:30px;
 display:flex;
 gap:15px;
 flex-wrap:wrap;
@@ -129,7 +100,6 @@ padding:16px 24px;
 border-radius:18px;
 font-weight:700;
 text-decoration:none;
-transition:.2s;
 }
 .btn-primary{
 background:#ff7a00;
@@ -140,32 +110,6 @@ background:white;
 color:#111;
 border:1px solid #eee;
 }
-.btn:hover{
-transform:translateY(-3px);
-}
-/* TRUST STRIP */
-.trust-strip{
-margin-top:30px;
-overflow:hidden;
-width:100%;
-}
-.trust-track{
-display:flex;
-gap:50px;
-white-space:nowrap;
-animation:scroll 20s linear infinite;
-font-weight:700;
-color:#888;
-}
-@keyframes scroll{
-0%{
-transform:translateX(0);
-}
-100%{
-transform:translateX(-50%);
-}
-}
-/* CONTENT */
 .container{
 max-width:1200px;
 margin:auto;
@@ -179,15 +123,9 @@ margin-bottom:30px;
 }
 .cards{
 display:grid;
-grid-template-columns:repeat(2,1fr);
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
 gap:20px;
 }
-  .cards{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:20px;
-}
-
 .tool-card{
 background:white;
 padding:30px;
@@ -197,93 +135,27 @@ transition:.25s;
 text-decoration:none;
 color:#111;
 }
-
 .tool-card:hover{
 transform:translateY(-5px);
 }
-
 .tool-icon{
 font-size:3rem;
 margin-bottom:15px;
 }
-
 .tool-title{
-font-size:1.5rem;
+font-size:1.4rem;
 font-weight:800;
 margin-bottom:10px;
 }
-
 .tool-desc{
 color:#666;
 line-height:1.6;
 }
-
-.features{
-margin-top:80px;
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:20px;
-}
-
-.feature{
-background:white;
-padding:25px;
-border-radius:24px;
-box-shadow:0 4px 20px rgba(0,0,0,.05);
-text-align:center;
-}
-
-.feature-icon{
-font-size:2rem;
-margin-bottom:10px;
-}
-
-.feature-title{
-font-weight:800;
-margin-bottom:8px;
-}
-
-.feature-desc{
-color:#666;
-font-size:.95rem;
-}
-
-.cta{
-margin-top:80px;
-background:white;
-padding:40px;
-border-radius:30px;
-text-align:center;
-box-shadow:0 4px 20px rgba(0,0,0,.05);
-}
-
-.cta-title{
-font-size:2rem;
-font-weight:900;
-}
-
-.cta-desc{
-margin-top:12px;
-color:#666;
-}
-
-.cta-btn{
-display:inline-block;
-margin-top:20px;
-background:#ff7a00;
-color:white;
-padding:16px 24px;
-border-radius:18px;
-font-weight:700;
-text-decoration:none;
-}
-
 .footer{
 padding:40px 20px;
 text-align:center;
 color:#888;
 }
-
 .whatsapp{
 position:fixed;
 right:20px;
@@ -300,245 +172,108 @@ text-decoration:none;
 color:white;
 box-shadow:0 10px 25px rgba(0,0,0,.15);
 }
-
-@media(max-width:900px){
-
-.cards{
-grid-template-columns:1fr;
-}
-
-.features{
-grid-template-columns:1fr 1fr;
-}
-
-}
-
 @media(max-width:600px){
-
-.features{
-grid-template-columns:1fr;
-}
-
 .nav-links{
 display:none;
 }
-
 }
-
 </style>
 </head>
-
 <body>
-
 <div class="glow"></div>
-
 <div class="navbar">
-
 <div class="nav-content">
-
 <img
 src="https://njmii.github.io/tsla-group/assets/tslalogo.png"
 class="nav-logo">
-
 <div class="nav-links">
-
 <a href="price-checker.html">
 Price Checker
 </a>
-
 <a href="gaji-calculator.html">
 Gaji Calculator
 </a>
-
+<a href="client-profile.html">
+Client Profile
+</a>
 </div>
-
 </div>
-
 </div>
-
 <section class="hero">
-
 <img
 src="https://njmii.github.io/tsla-group/assets/tslalogo.png"
 class="hero-logo">
-
 <h1>
 TSLA Digital Hub
 </h1>
-
 <p>
-Tools built for modern insurance professionals.
-Fast quotations, income calculations and growth tools in one place.
+Quotation, Income & Sales Tools For Insurance Agents
 </p>
-
 <div class="hero-buttons">
-
 <a
 href="price-checker.html"
 class="btn btn-primary">
 Price Checker
 </a>
-
 <a
 href="gaji-calculator.html"
 class="btn btn-secondary">
-Peratus Gaji Calculator
+Kalkulator Peratus Gaji
 </a>
-
+<a
+href="client-profile.html"
+class="btn btn-secondary">
+Client Profile
+</a>
 </div>
-
-<div class="trust-strip">
-
-<div class="trust-track">
-
-<span>⚡ Fast Quotation</span>
-<span>📱 Mobile Friendly</span>
-<span>🚀 TSLA Group</span>
-<span>💰 Sales Focused</span>
-<span>⚡ Fast Quotation</span>
-<span>📱 Mobile Friendly</span>
-<span>🚀 TSLA Group</span>
-<span>💰 Sales Focused</span>
-
-</div>
-
-</div>
-
 </section>
-
 <div class="container">
-
 <h2 class="section-title">
-Everything You Need
+TSLA Tools
 </h2>
-
 <div class="cards">
-
 <a href="price-checker.html" class="tool-card">
-
 <div class="tool-icon">
 💰
 </div>
-
 <div class="tool-title">
 Price Checker
 </div>
-
 <div class="tool-desc">
 Find quotation rates instantly by year of birth.
 </div>
-
 </a>
-
 <a href="gaji-calculator.html" class="tool-card">
-
 <div class="tool-icon">
-📈
+📊
 </div>
-
 <div class="tool-title">
-Peratus Gaji Calculator
+Kalkulator Peratus Gaji
 </div>
-
 <div class="tool-desc">
-Calculate income and commission instantly.
+Calculate net salary percentage instantly.
 </div>
-
 </a>
-
+<a href="client-profile.html" class="tool-card">
+<div class="tool-icon">
+👤
 </div>
-
-<div class="features">
-
-<div class="feature">
-
-<div class="feature-icon">⚡</div>
-
-<div class="feature-title">
-Fast Quotation
+<div class="tool-title">
+Client Profile
 </div>
-
-<div class="feature-desc">
-Find quotations within seconds.
+<div class="tool-desc">
+Save customer details for forms and future use.
 </div>
-
-</div>
-
-<div class="feature">
-
-<div class="feature-icon">📱</div>
-
-<div class="feature-title">
-Mobile First
-</div>
-
-<div class="feature-desc">
-Optimized for phones and PWA.
-</div>
-
-</div>
-
-<div class="feature">
-
-<div class="feature-icon">💰</div>
-
-<div class="feature-title">
-Sales Focused
-</div>
-
-<div class="feature-desc">
-Built for productive agents.
-</div>
-
-</div>
-
-<div class="feature">
-
-<div class="feature-icon">🚀</div>
-
-<div class="feature-title">
-Growth Ready
-</div>
-
-<div class="feature-desc">
-Expand your team and business.
-</div>
-
-</div>
-
-</div>
-
-<div class="cta">
-
-<div class="cta-title">
-Join TSLA Group
-</div>
-
-<div class="cta-desc">
-Looking for a career in sales and financial services?
-Let's connect.
-</div>
-
-<a
-href="https://wa.me/60196267265"
-class="cta-btn">
-WhatsApp 019-6267265
 </a>
-
 </div>
-
 </div>
-
 <div class="footer">
 © 2026 TSLA Group
 </div>
-
 <a
 class="whatsapp"
 href="https://wa.me/60196267265">
 💬
 </a>
-
 </body>
 </html>
-
