@@ -323,14 +323,22 @@ const page =
 pages[0];
 
 page.drawText(
-"TEST",
+client?.certificate || "",
 {
-x:100,
-y:100,
-size:20
+x:140,
+y:1040,
+size:12
 }
 );
 
+page.drawText(
+client?.name || "",
+{
+x:590,
+y:1040,
+size:12
+}
+);
 const pdfBytes =
 await pdfDoc.save();
 const blob =
