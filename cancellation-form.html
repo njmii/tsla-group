@@ -300,9 +300,7 @@ async function testFwdPdf(){
 alert("Starting");
 
 const existingPdfBytes =
-await fetch(
-"assets/fwd-cancellation.pdf"
-).then(res => res.arrayBuffer());
+await fetch("./assets/fwd-cancellation.pdf").then(res => res.arrayBuffer());
 
 alert("File Fetched");
 
