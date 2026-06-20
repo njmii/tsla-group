@@ -304,11 +304,14 @@ await fetch(
 "assets/fwd-cancellation.pdf"
 ).then(res => res.arrayBuffer());
 
-alert(
-"PDF Loaded: " +
-existingPdfBytes.byteLength +
-" bytes"
+alert("File Fetched");
+
+const pdfDoc =
+await PDFDocument.load(
+existingPdfBytes
 );
+
+alert("PDF Parsed");
 
 }
 
