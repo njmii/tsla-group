@@ -109,6 +109,7 @@ margin-top:15px;
 line-height:1.6;
 }
 </style>
+<script src="https://unpkg.com/pdf-lib"></script>
 </head>
 <body>
 <div class="header">
@@ -173,6 +174,12 @@ onclick="generateForm()">
 class="btn secondary"
 onclick="shareWhatsApp()">
 📲 Share WhatsApp
+</button>
+
+<button
+class="btn primary"
+onclick="downloadPDF()">
+⬇ Download PDF
 </button>
 <div
 class="notice"
@@ -248,6 +255,109 @@ encodeURIComponent(text),
 "_blank"
 );
 }
+
+async function downloadPDF(){
+
+const { PDFDocument } = PDFLib;
+
+const pdfDoc =
+await PDFDocument.create();
+
+const page =
+pdfDoc.addPage([595,842]);
+
+page.drawText(
+"TSLA Cancellation Form",
+{
+x:50,
+y:780,
+size:20
+}
+);
+
+page.drawText(
+"Customer: " +
+(client?.name || "-"),
+{
+x:50,
+y:730,
+size:12
+}
+);
+
+page.drawText(
+"IC: " +
+(client?.ic || "-"),
+{
+x:50,
+y:710,
+size:12
+}
+);
+
+page.drawText(
+"Certificate No: " +
+(client?.certificate || "-"),
+{
+x:50,
+y:690,
+size:12
+}
+);
+
+page.drawText(
+"Bank Name: " +
+(client?.bank || "-"),
+{
+x:50,
+y:670,
+size:12
+}
+);
+
+page.drawText(
+"Account No: " +
+(client?.account || "-"),
+{
+x:50,
+y:650,
+size:12
+}
+);
+
+page.drawText(
+"Reason: " +
+(document.getElementById("reason").value || "-"),
+{
+x:50,
+y:630,
+size:12
+}
+);
+
+const pdfBytes =
+await pdfDoc.save();
+
+const blob =
+new Blob(
+[pdfBytes],
+{type:"application/pdf"}
+);
+
+const url =
+URL.createObjectURL(blob);
+
+const a =
+document.createElement("a");
+
+a.href = url;
+a.download =
+"Cancellation_Form.pdf";
+
+a.click();
+
+}
+
 </script>
 </body>
 </html>
