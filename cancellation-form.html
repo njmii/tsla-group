@@ -267,7 +267,14 @@ await fetch("assets/fwd-cancellation.pdf")
 
 alert("After Fetch");
 const pdfDoc =
-await PDFDocument.load(existingPdfBytes);
+await PDFDocument.load(
+existingPdfBytes,
+{
+ignoreEncryption:true
+}
+);
+
+alert("PDF Loaded");
 const pages =
 pdfDoc.getPages();
 const page =
