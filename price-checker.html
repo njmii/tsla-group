@@ -20,13 +20,18 @@ position:sticky;
 top:0;
 background:white;
 border-bottom:1px solid #eee;
-padding:12px;
+padding:4px 12px;
 z-index:100;
+min-height:55px;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 .logo{
 display:block;
 margin:auto;
-width:160px;
+width:50px;
+height:auto;
 }
 .container{
 max-width:1000px;
@@ -124,6 +129,18 @@ color:#ff7a00;
 .price-label{
 color:#666;
 font-size:.9rem;
+}
+.wa-btn{
+width:100%;
+margin-top:12px;
+padding:12px;
+border:none;
+border-radius:14px;
+background:#25D366;
+color:white;
+font-weight:700;
+font-size:15px;
+cursor:pointer;
 }
 .empty{
 background:white;
@@ -446,6 +463,17 @@ ${item[1]}
 <div class="price-label">
 Sebulan
 </div>
+
+<button
+class="wa-btn"
+onclick="shareWhatsApp(
+'${year}',
+'${hibah}',
+'${benefit}',
+'${item[1]}'
+)">
+📲 Share WhatsApp
+</button>
 </div>
 `;
 });
@@ -463,6 +491,33 @@ ${cards}
 </div>
 `;
 });
+
+function shareWhatsApp(
+year,
+hibah,
+benefit,
+price
+){
+
+const text =
+`TSLA Price Checker
+
+Tahun Lahir: ${year}
+
+Hibah: ${hibah}
+Cash Benefit: ${benefit}
+Sumbangan: ${price} sebulan
+
+Hubungi saya untuk maklumat lanjut.`;
+
+window.open(
+"https://wa.me/?text=" +
+encodeURIComponent(text),
+"_blank"
+);
+
+}
+
 </script>
 </body>
 </html>
