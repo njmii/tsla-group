@@ -199,6 +199,7 @@ const client =
 JSON.parse(
 localStorage.getItem("tslaClient")
 );
+alert(localStorage.getItem("tslaClient"));
 if(client){
 document.getElementById("name").innerText =
 client.name || "-";
@@ -316,11 +317,7 @@ existingPdfBytes,
 ignoreEncryption:true
 }
 );
-const pages =
-pdfDoc.getPages();
 
-const page =
-pages[0];
 const pages =
 pdfDoc.getPages();
 
