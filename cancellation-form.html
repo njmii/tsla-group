@@ -257,9 +257,15 @@ encodeURIComponent(text),
 }
 
 async function downloadPDF(){
+
+alert("Button Works");
+alert("Before Fetch");
+
 const existingPdfBytes =
 await fetch("assets/fwd-cancellation.pdf")
 .then(res => res.arrayBuffer());
+
+alert("After Fetch");
 const pdfDoc =
 await PDFDocument.load(existingPdfBytes);
 const pages =
@@ -268,6 +274,17 @@ const page =
 pages[0];
 
 alert("PDF Loaded");
+
+page.drawText(
+"TEST",
+{
+x:100,
+y:100,
+size:20
+}
+);
+
+alert("Text Drawn");
 page.drawText(
 client?.certificate || "",
 {
