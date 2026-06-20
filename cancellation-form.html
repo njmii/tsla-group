@@ -257,63 +257,19 @@ encodeURIComponent(text),
 }
 
 async function downloadPDF(){
-
 alert("Button Works");
-alert("Before Fetch");
-
-const existingPdfBytes =
-await fetch("assets/fwd-cancellation.pdf")
-.then(res => res.arrayBuffer());
-
-alert("After Fetch");
+const { PDFDocument } = PDFLib;
 const pdfDoc =
-await PDFDocument.load(
-existingPdfBytes,
-{
-ignoreEncryption:true
-}
-);
-
-alert("PDF Loaded");
-const pages =
-pdfDoc.getPages();
+await PDFDocument.create();
+alert("PDF Created");
 const page =
-pages[0];
-
-alert("PDF Loaded");
-
+pdfDoc.addPage([595,842]);
 page.drawText(
-"TEST",
+client?.name || "NO NAME",
 {
-x:100,
-y:100,
-size:20
-}
-);
-
-alert("Text Drawn");
-page.drawText(
-client?.certificate || "",
-{
-x:140,
-y:1040,
-size:12
-}
-);
-page.drawText(
-client?.name || "",
-{
-x:590,
-y:1040,
-size:12
-}
-);
-page.drawText(
-"X",
-{
-x:95,
-y:690,
-size:16
+x:50,
+y:750,
+size:18
 }
 );
 const pdfBytes =
@@ -329,8 +285,9 @@ const a =
 document.createElement("a");
 a.href = url;
 a.download =
-"FWD_Cancellation_Form.pdf";
+"test.pdf";
 a.click();
+alert("Download Started");
 }
 
 </script>
