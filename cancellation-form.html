@@ -181,6 +181,12 @@ class="btn primary"
 onclick="downloadPDF()">
 ⬇ Download PDF
 </button>
+
+<button
+class="btn secondary"
+onclick="testFwdPdf()">
+🧪 Test FWD Overlay
+</button>
 <div
 class="notice"
 id="output">
@@ -288,6 +294,11 @@ a.download =
 "test.pdf";
 a.click();
 alert("Download Started");
+}
+async function testFwdPdf(){
+
+alert("FWD Overlay Button Works");
+
 }
 
 </script>
