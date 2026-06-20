@@ -9,272 +9,236 @@
 <style>
 
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
 html{
-    scroll-behavior:smooth;
+scroll-behavior:smooth;
 }
 
 body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    background:#050505;
-    color:white;
-    overflow-x:hidden;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+background:#050505;
+color:white;
+overflow-x:hidden;
 }
 
-/* Glow Background */
+/* Background Glow */
 
 body::before{
-    content:"";
-    position:fixed;
-    top:-300px;
-    left:50%;
-    transform:translateX(-50%);
-    width:1200px;
-    height:1200px;
-    background:radial-gradient(circle,
-    rgba(255,0,0,.18),
-    transparent 70%);
-    z-index:-1;
+content:"";
+position:fixed;
+top:-300px;
+left:50%;
+transform:translateX(-50%);
+width:1200px;
+height:1200px;
+background:radial-gradient(
+circle,
+rgba(255,0,0,.18),
+transparent 70%
+);
+z-index:-1;
 }
 
 /* Navbar */
 
-header{
-    position:fixed;
-    width:100%;
-    top:0;
-    z-index:1000;
-    background:rgba(0,0,0,.75);
-    backdrop-filter:blur(20px);
-    border-bottom:1px solid rgba(255,255,255,.08);
+.navbar{
+position:fixed;
+top:0;
+width:100%;
+z-index:1000;
+background:rgba(0,0,0,.7);
+backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(255,255,255,.08);
 }
 
-.nav{
-    max-width:1400px;
-    margin:auto;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:18px 24px;
+.nav-content{
+max-width:1200px;
+margin:auto;
+padding:18px 20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
 .nav-logo{
-    height:40px;
+height:40px;
 }
 
 .nav-links{
-    display:flex;
-    gap:25px;
+display:flex;
+gap:20px;
 }
 
 .nav-links a{
-    color:white;
-    text-decoration:none;
-    opacity:.8;
-    font-weight:600;
+color:white;
+text-decoration:none;
+opacity:.8;
+font-weight:600;
 }
 
 .nav-links a:hover{
-    opacity:1;
+opacity:1;
 }
 
 /* Hero */
 
 .hero{
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    padding:120px 20px 60px;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:120px 20px 60px;
 }
 
 .hero-logo{
-    width:min(1000px,95vw);
-    animation:float 5s ease-in-out infinite;
+width:min(900px,95vw);
+animation:float 5s ease-in-out infinite;
 }
 
 @keyframes float{
-    0%{transform:translateY(0);}
-    50%{transform:translateY(-10px);}
-    100%{transform:translateY(0);}
+0%{transform:translateY(0);}
+50%{transform:translateY(-10px);}
+100%{transform:translateY(0);}
 }
 
 .hero h1{
-    font-size:clamp(2.5rem,6vw,5rem);
-    margin-top:20px;
+font-size:clamp(2.5rem,6vw,5rem);
+margin-top:20px;
 }
 
 .hero p{
-    max-width:700px;
-    margin-top:20px;
-    color:#b5b5b5;
-    font-size:1.1rem;
+max-width:700px;
+margin-top:20px;
+font-size:1.15rem;
+color:#aaa;
 }
 
 .hero-buttons{
-    margin-top:35px;
-    display:flex;
-    flex-wrap:wrap;
-    gap:15px;
+margin-top:40px;
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:15px;
 }
 
 .btn{
-    padding:16px 28px;
-    border-radius:14px;
-    text-decoration:none;
-    font-weight:700;
+padding:16px 28px;
+border-radius:16px;
+font-weight:700;
+text-decoration:none;
+transition:.25s;
 }
 
 .btn-primary{
-    background:#ff0000;
-    color:white;
+background:#ff0000;
+color:white;
 }
 
 .btn-secondary{
-    border:1px solid rgba(255,255,255,.15);
-    color:white;
+border:1px solid rgba(255,255,255,.15);
+color:white;
 }
 
-/* Sections */
+.btn:hover{
+transform:translateY(-3px);
+}
+
+/* Features */
 
 .section{
-    max-width:1400px;
-    margin:auto;
-    padding:100px 20px;
+max-width:1200px;
+margin:auto;
+padding:100px 20px;
 }
 
 .section-title{
-    text-align:center;
-    font-size:3rem;
-    margin-bottom:50px;
+font-size:2.5rem;
+text-align:center;
+margin-bottom:50px;
 }
 
-/* Cards */
-
 .grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-    gap:25px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:25px;
 }
 
 .card{
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.08);
-    backdrop-filter:blur(20px);
-    border-radius:24px;
-    padding:35px;
-    transition:.3s;
-}
-
-.card:hover{
-    transform:translateY(-6px);
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(20px);
+padding:30px;
+border-radius:24px;
 }
 
 .card h3{
-    margin-bottom:12px;
-    font-size:1.4rem;
+margin-bottom:12px;
 }
 
 .card p{
-    color:#b5b5b5;
-}
-
-.card-btn{
-    display:inline-block;
-    margin-top:18px;
-    color:#ff4d4d;
-    text-decoration:none;
-    font-weight:700;
-}
-
-/* Stats */
-
-.stats{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-}
-
-.stat{
-    text-align:center;
-    background:rgba(255,255,255,.05);
-    border-radius:20px;
-    padding:40px;
-}
-
-.stat h2{
-    font-size:3rem;
-    color:#ff0000;
+color:#aaa;
 }
 
 /* CTA */
 
 .cta{
-    text-align:center;
-}
-
-.cta h2{
-    font-size:3rem;
-    margin-bottom:15px;
+text-align:center;
 }
 
 .cta p{
-    color:#b5b5b5;
-    margin-bottom:30px;
+color:#aaa;
+margin-top:10px;
+margin-bottom:30px;
 }
 
 /* Footer */
 
 footer{
-    text-align:center;
-    padding:60px 20px;
-    color:#888;
+padding:60px 20px;
+text-align:center;
+color:#777;
 }
 
 /* WhatsApp */
 
 .whatsapp{
-    position:fixed;
-    right:20px;
-    bottom:20px;
-    width:65px;
-    height:65px;
-    border-radius:50%;
-    background:#25D366;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-decoration:none;
-    color:white;
-    font-size:30px;
-    box-shadow:0 10px 25px rgba(0,0,0,.4);
+position:fixed;
+right:20px;
+bottom:20px;
+width:65px;
+height:65px;
+border-radius:50%;
+background:#25D366;
+display:flex;
+align-items:center;
+justify-content:center;
+text-decoration:none;
+font-size:30px;
+color:white;
+box-shadow:0 10px 25px rgba(0,0,0,.4);
 }
 
 /* Mobile */
 
 @media(max-width:768px){
 
-.nav{
-    flex-direction:column;
-    gap:15px;
+.nav-content{
+flex-direction:column;
+gap:15px;
 }
 
-.nav-links{
-    gap:15px;
+.hero h1{
+font-size:2.5rem;
 }
 
 .section-title{
-    font-size:2rem;
-}
-
-.cta h2{
-    font-size:2rem;
+font-size:2rem;
 }
 
 }
@@ -284,8 +248,8 @@ footer{
 
 <body>
 
-<header>
-<div class="nav">
+<div class="navbar">
+<div class="nav-content">
 
 <img
 src="https://njmii.github.io/tsla-group/assets/tslalogo.png"
@@ -293,13 +257,12 @@ class="nav-logo"
 alt="TSLA Logo">
 
 <div class="nav-links">
-<a href="#tools">Tools</a>
-<a href="#stats">Stats</a>
-<a href="#join">Join Us</a>
+<a href="price-checker.html">Price Checker</a>
+<a href="gaji-calculator.html">Gaji Calculator</a>
 </div>
 
 </div>
-</header>
+</div>
 
 <section class="hero">
 
@@ -311,102 +274,78 @@ alt="TSLA Logo">
 <h1>TSLA Group Digital Hub</h1>
 
 <p>
-Tools, calculators, recruitment and resources
-for ambitious insurance professionals.
+Modern tools built for insurance professionals.
+Check quotations instantly and calculate income
+with a clean mobile-first experience.
 </p>
 
 <div class="hero-buttons">
 
-<a href="#tools" class="btn btn-primary">
-Explore Tools
+<a
+href="price-checker.html"
+class="btn btn-primary">
+Price Checker
 </a>
 
-<a href="https://wa.me/60196267265"
+<a
+href="gaji-calculator.html"
 class="btn btn-secondary">
-Contact Us
+Peratus Gaji Calculator
 </a>
 
 </div>
 
 </section>
 
-<section id="tools" class="section">
+<section class="section">
 
-<h2 class="section-title">Tools</h2>
+<h2 class="section-title">
+Why TSLA?
+</h2>
 
 <div class="grid">
 
 <div class="card">
-<h3>💰 Price Checker</h3>
+<h3>⚡ Fast Quotations</h3>
 <p>
-Instantly check pricing and quotations.
+Find pricing instantly using year of birth.
 </p>
-<a href="#" class="card-btn">
-Open →
-</a>
 </div>
 
 <div class="card">
-<h3>📊 Gaji Calculator</h3>
+<h3>📱 Mobile First</h3>
 <p>
-Estimate monthly income and commissions.
+Built for agents working on their phones.
 </p>
-<a href="#" class="card-btn">
-Open →
-</a>
+</div>
+
+<div class="card">
+<h3>🚀 Growth Focused</h3>
+<p>
+Tools designed to increase productivity.
+</p>
 </div>
 
 </div>
 
 </section>
 
-<section id="stats" class="section">
+<section class="section cta">
 
-<h2 class="section-title">TSLA Growth</h2>
-
-<div class="stats">
-
-<div class="stat">
-<h2>500+</h2>
-<p>Clients</p>
-</div>
-
-<div class="stat">
-<h2>50+</h2>
-<p>Agents</p>
-</div>
-
-<div class="stat">
-<h2>RM1M+</h2>
-<p>Production</p>
-</div>
-
-<div class="stat">
-<h2>24/7</h2>
-<p>Access</p>
-</div>
-
-</div>
-
-</section>
-
-<section id="join" class="section">
-
-<div class="cta">
-
-<h2>Join TSLA Group</h2>
+<h2 class="section-title">
+Join TSLA Group
+</h2>
 
 <p>
-Looking for a career in sales with unlimited growth potential?
-Let's talk.
+Looking for a career in sales and financial services?
+Let's connect.
 </p>
 
-<a href="https://wa.me/60196267265"
+<a
+href="https://wa.me/60196267265"
 class="btn btn-primary">
 WhatsApp 019-6267265
 </a>
-
-</div>
 
 </section>
 
