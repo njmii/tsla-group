@@ -322,6 +322,8 @@ pdfDoc.getPages();
 
 const page =
 pages[0];
+const page2 =
+pages[1];
 
 function tickBox(x, y){
   page.drawText(
@@ -355,6 +357,14 @@ client?.name || "",
 x:360,
 y:665,
 size:12
+}
+);
+page2.drawText(
+"TEST PAGE 2",
+{
+x:100,
+y:700,
+size:20
 }
 );
 
