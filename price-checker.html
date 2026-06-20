@@ -3,56 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>TSLA Price Checker</title>
-
 <style>
-
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
-
 body{
-background:#f8f9fb;
+background:#f7f8fa;
 color:#111;
 }
-
 .header{
-background:white;
-padding:20px;
 position:sticky;
 top:0;
-z-index:100;
+background:white;
 border-bottom:1px solid #eee;
+padding:12px;
+z-index:100;
 }
-
 .logo{
 display:block;
 margin:auto;
-width:min(500px,90vw);
+width:160px;
 }
-
 .container{
-max-width:900px;
+max-width:1000px;
 margin:auto;
-padding:25px;
+padding:20px;
 }
-
+.back{
+display:inline-block;
+margin-bottom:15px;
+text-decoration:none;
+color:#ff7a00;
+font-weight:700;
+}
 .search-card{
 background:white;
 padding:20px;
 border-radius:24px;
-box-shadow:0 10px 30px rgba(0,0,0,.05);
+box-shadow:0 4px 20px rgba(0,0,0,.05);
 margin-bottom:20px;
 }
-
-.search-card h2{
+.search-title{
+font-size:1.5rem;
+font-weight:800;
 margin-bottom:10px;
 }
-
 .search-card input{
 width:100%;
 padding:16px;
@@ -61,125 +60,123 @@ border:2px solid #eee;
 font-size:18px;
 outline:none;
 }
-
 .search-card input:focus{
 border-color:#ff7a00;
 }
-
 .badge{
 display:inline-block;
+margin-top:12px;
+padding:8px 14px;
 background:#fff3e8;
 color:#ff7a00;
-padding:8px 14px;
 border-radius:999px;
-font-weight:600;
-margin-top:10px;
+font-weight:700;
 }
-
-.quote-card{
+.result-head{
 background:white;
+padding:18px;
+border-radius:20px;
+margin-bottom:18px;
+box-shadow:0 4px 20px rgba(0,0,0,.05);
+}
+.year-title{
+font-size:1.4rem;
+font-weight:800;
+}
+.year-sub{
+margin-top:5px;
+color:#666;
+}
+.cards{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:16px;
+}
+.plan-card{
+background:white;
+padding:20px;
 border-radius:24px;
-overflow:hidden;
-box-shadow:0 10px 30px rgba(0,0,0,.05);
+box-shadow:0 4px 20px rgba(0,0,0,.05);
 }
-
-.quote-header{
-padding:18px 20px;
-background:#ff7a00;
-color:white;
+.plan-label{
+font-size:.85rem;
+color:#666;
+}
+.plan-name{
+font-size:1.8rem;
+font-weight:900;
+margin-top:5px;
+}
+.cash{
+margin-top:14px;
+background:#fff3e8;
+padding:12px;
+border-radius:14px;
+color:#ff7a00;
 font-weight:700;
-font-size:20px;
 }
-
-.quote-row{
-display:flex;
-justify-content:space-between;
-padding:16px 20px;
-border-bottom:1px solid #f1f1f1;
-}
-
-.quote-row:last-child{
-border-bottom:none;
-}
-
-.plan{
-font-weight:600;
-}
-
 .price{
-font-weight:700;
+margin-top:16px;
+font-size:2rem;
+font-weight:900;
 color:#ff7a00;
 }
-
+.price-label{
+color:#666;
+font-size:.9rem;
+}
 .empty{
 background:white;
 padding:30px;
 border-radius:24px;
 text-align:center;
 color:#888;
-box-shadow:0 10px 30px rgba(0,0,0,.05);
+box-shadow:0 4px 20px rgba(0,0,0,.05);
 }
-
-.back{
-display:inline-block;
-margin-bottom:20px;
-text-decoration:none;
-color:#ff7a00;
-font-weight:700;
+@media(max-width:700px){
+.cards{
+grid-template-columns:1fr;
 }
-
-.footer-space{
-height:50px;
+.plan-name{
+font-size:1.5rem;
 }
-
+.price{
+font-size:1.7rem;
+}
+}
 </style>
 </head>
 <body>
-
 <div class="header">
 <img
 src="https://njmii.github.io/tsla-group/assets/tslalogo.png"
 class="logo">
 </div>
-
 <div class="container">
-
 <a href="index.html" class="back">
-← Back to Home
+← Back
 </a>
-
 <div class="search-card">
-
-<h2>Price Checker</h2>
-
+<div class="search-title">
+Price Checker
+</div>
 <input
 id="search"
 type="number"
-placeholder="Search Tahun Lahir (Example: 1994)">
-
+placeholder="Cari Tahun Lahir">
 <div class="badge">
 Female Quotation Lookup
 </div>
-
 </div>
-
 <div id="results">
-
 <div class="empty">
-Search a Tahun Lahir to view quotations
+Cari tahun lahir untuk lihat kelayakan pelan
 </div>
-
 </div>
-
-<div class="footer-space"></div>
-
 </div>
-
 <script>
-
 const data = {
-
-1994:[
+  1994:[
 ["110+50 (1.5)","RM206.56"],
 ["110+60 (1.8)","RM226.02"],
 ["110+70 (2.1)","RM245.48"],
@@ -218,7 +215,7 @@ const data = {
 1990:[
 ["100+50 (1.5)","RM202.13"],
 ["100+60 (1.8)","RM222.22"],
-["110+70 (2.1)","RM242.32"],
+["100+70 (2.1)","RM242.32"],
 ["100+80 (2.4)","RM262.40"],
 ["100+90 (2.7)","RM282.50"],
 ["100+100 (3.0)","RM302.50"]
@@ -227,7 +224,7 @@ const data = {
 1989:[
 ["100+50 (1.5)","RM203.37"],
 ["100+60 (1.8)","RM223.55"],
-["110+70 (2.1)","RM243.73"],
+["100+70 (2.1)","RM243.73"],
 ["100+80 (2.4)","RM263.00"],
 ["100+90 (2.7)","RM284.08"],
 ["100+100 (3.0)","RM304.25"]
@@ -236,7 +233,7 @@ const data = {
 1988:[
 ["100+50 (1.5)","RM205.12"],
 ["100+60 (1.8)","RM225.38"],
-["110+70 (2.1)","RM245.64"],
+["100+70 (2.1)","RM245.64"],
 ["100+80 (2.4)","RM265.89"],
 ["100+90 (2.7)","RM286.16"],
 ["100+100 (3.0)","RM306.42"]
@@ -245,7 +242,7 @@ const data = {
 1987:[
 ["100+50 (1.5)","RM207.12"],
 ["100+60 (1.8)","RM227.48"],
-["110+70 (2.1)","RM247.84"],
+["100+70 (2.1)","RM247.84"],
 ["100+80 (2.4)","RM268.19"],
 ["100+90 (2.7)","RM288.56"],
 ["100+100 (3.0)","RM308.92"]
@@ -254,7 +251,7 @@ const data = {
 1986:[
 ["100+50 (1.5)","RM212.83"],
 ["100+60 (1.8)","RM234.00"],
-["110+70 (2.1)","RM255.17"],
+["100+70 (2.1)","RM255.17"],
 ["100+80 (2.4)","RM276.33"],
 ["100+90 (2.7)","RM297.50"],
 ["100+100 (3.0)","RM318.67"]
@@ -312,11 +309,9 @@ const data = {
 ["90+80 (2.4)","RM290.13"],
 ["90+90 (2.7)","RM312.39"],
 ["100+100 (3.0)","RM347.08"]
-]
+],
 
-,
-
-1979:[
+  1979:[
 ["80+50 (1.5)","RM215.20"],
 ["80+60 (1.8)","RM237.75"],
 ["80+70 (2.1)","RM260.31"],
@@ -324,7 +319,6 @@ const data = {
 ["90+90 (2.7)","RM318.23"],
 ["100+100 (3.0)","RM331.03"]
 ],
-
 1978:[
 ["80+50 (1.5)","RM219.72"],
 ["80+60 (1.8)","RM242.63"],
@@ -333,7 +327,6 @@ const data = {
 ["90+90 (2.7)","RM318.23"],
 ["100+100 (3.0)","RM331.00"]
 ],
-
 1977:[
 ["80+50 (1.5)","RM225.00"],
 ["80+60 (1.8)","RM248.43"],
@@ -342,7 +335,6 @@ const data = {
 ["90+90 (2.7)","RM308.68"],
 ["100+100 (3.0)","RM360.92"]
 ],
-
 1976:[
 ["70+50 (1.5)","RM221.06"],
 ["70+60 (1.8)","RM244.93"],
@@ -351,7 +343,6 @@ const data = {
 ["90+90 (2.7)","RM345.62"],
 ["100+100 (3.0)","RM384.00"]
 ],
-
 1975:[
 ["60+50 (1.5)","RM233.25"],
 ["60+60 (1.8)","RM257.70"],
@@ -360,7 +351,6 @@ const data = {
 ["90+90 (2.7)","RM386.00"],
 ["100+100 (3.0)","RM429.00"]
 ],
-
 1974:[
 ["60+50 (1.5)","RM239.73"],
 ["60+60 (1.8)","RM264.80"],
@@ -369,7 +359,6 @@ const data = {
 ["90+90 (2.7)","RM372.00"],
 ["100+100 (3.0)","RM416.00"]
 ],
-
 1973:[
 ["60+50 (1.5)","RM246.70"],
 ["60+60 (1.8)","RM272.00"],
@@ -378,7 +367,6 @@ const data = {
 ["90+90 (2.7)","RM409.00"],
 ["100+100 (3.0)","RM454.00"]
 ],
-
 1972:[
 ["50+50 (1.5)","RM234.00"],
 ["60+60 (1.8)","RM254.00"],
@@ -387,7 +375,6 @@ const data = {
 ["90+90 (2.7)","RM421.00"],
 ["100+100 (3.0)","RM468.00"]
 ],
-
 1971:[
 ["50+50 (1.5)","RM239.00"],
 ["60+60 (1.8)","RM287.00"],
@@ -396,78 +383,86 @@ const data = {
 ["90+90 (2.7)","RM404.00"],
 ["100+100 (3.0)","RM479.00"]
 ],
-
 1970:[
 ["50+40 (1.2)","RM219.60"],
 ["50+50 (1.5)","RM247.00"],
 ["60+60 (1.8)","RM296.00"],
 ["70+70 (2.1)","RM346.00"]
 ],
-
 1969:[
 ["50+40 (1.2)","RM227.00"],
 ["50+50 (1.5)","RM256.00"],
 ["60+60 (1.8)","RM307.00"],
 ["70+70 (2.1)","RM350.00"]
 ],
-
 1968:[
-["50+30 (900)","RM206.00"],
+["50+30 (0.9)","RM206.00"],
 ["50+50 (1.5)","RM266.00"],
 ["60+60 (1.8)","RM319.00"],
 ["70+70 (2.1)","RM343.00"]
 ],
-
 1967:[
-["50+30 (900)","RM216.00"],
+["50+30 (0.9)","RM216.00"],
 ["50+50 (1.5)","RM278.00"],
 ["60+60 (1.8)","RM333.90"]
 ]
-
 };
-
 const search = document.getElementById("search");
 const results = document.getElementById("results");
-
 search.addEventListener("input", function(){
-
 const year = this.value.trim();
-
 if(!data[year]){
 results.innerHTML = `
 <div class="empty">
-No quotation found
+Tiada data dijumpai
 </div>
 `;
 return;
 }
-
-let rows = "";
-
+let cards = "";
 data[year].forEach(item=>{
-rows += `
-<div class="quote-row">
-<div class="plan">${item[0]}</div>
-<div class="price">${item[1]}</div>
+let match = item[0].match(/\((.*?)\)/);
+let benefit = "-";
+if(match){
+benefit =
+"RM" +
+(parseFloat(match[1]) * 1000).toLocaleString();
+}
+let hibah = item[0].replace(/\s*\(.*?\)/,'');
+cards += `
+<div class="plan-card">
+<div class="plan-label">
+🛡️ Hibah
+</div>
+<div class="plan-name">
+${hibah}
+</div>
+<div class="cash">
+💵 Cash Benefit ${benefit}
+</div>
+<div class="price">
+${item[1]}
+</div>
+<div class="price-label">
+Sebulan
+</div>
 </div>
 `;
 });
-
 results.innerHTML = `
-<div class="quote-card">
-
-<div class="quote-header">
-Female • ${year}
+<div class="result-head">
+<div class="year-title">
+${year} Female
 </div>
-
-${rows}
-
+<div class="year-sub">
+${data[year].length} Kelayakan Pelan
+</div>
+</div>
+<div class="cards">
+${cards}
 </div>
 `;
-
 });
-
 </script>
-
 </body>
 </html>
