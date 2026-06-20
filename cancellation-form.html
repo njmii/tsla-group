@@ -297,10 +297,13 @@ alert("Download Started");
 }
 async function testFwdPdf(){
 
+const { PDFDocument } = PDFLib;
+
 alert("Starting");
 
 const existingPdfBytes =
-await fetch("./assets/fwd-cancellation.pdf").then(res => res.arrayBuffer());
+await fetch("./assets/fwd-cancellation.pdf")
+.then(res => res.arrayBuffer());
 
 alert("File Fetched");
 
@@ -318,17 +321,13 @@ alert("PDF Parsed");
 
 } catch(err){
 
-alert(
-"ERROR: " +
-err.message
-);
+alert(String(err));
 
 return;
 
 }
 
 }
-  
 
 </script>
 </body>
