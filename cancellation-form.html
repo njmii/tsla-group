@@ -299,13 +299,10 @@ async function testFwdPdf(){
 
 const { PDFDocument } = PDFLib;
 
-alert("Starting");
 
 const existingPdfBytes =
 await fetch("./assets/fwd-cancellation.pdf")
 .then(res => res.arrayBuffer());
-
-alert("File Fetched");
 
 try {
 
@@ -336,11 +333,6 @@ function tickBox(x, y){
   );
 }
 const { width, height } = page.getSize();
-
-alert(
-"Width: " + width +
-" Height: " + height
-);
 
 page.drawText(
 client?.certificate || "",
