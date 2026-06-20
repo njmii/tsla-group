@@ -360,11 +360,38 @@ size:12
 }
 );
 page2.drawText(
-"TEST PAGE 2",
+"DIRECT CREDIT",
 {
-x:100,
-y:700,
-size:20
+x:220,
+y:650,
+size:12
+}
+);
+
+page2.drawText(
+client?.holder || "",
+{
+x:220,
+y:610,
+size:12
+}
+);
+
+page2.drawText(
+client?.bank || "",
+{
+x:220,
+y:570,
+size:12
+}
+);
+
+page2.drawText(
+client?.account || "",
+{
+x:220,
+y:530,
+size:12
 }
 );
 
