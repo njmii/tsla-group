@@ -316,6 +316,20 @@ existingPdfBytes,
 ignoreEncryption:true
 }
 );
+const pages =
+pdfDoc.getPages();
+
+const page =
+pages[0];
+
+page.drawText(
+"TEST",
+{
+x:100,
+y:100,
+size:20
+}
+);
 
 const pdfBytes =
 await pdfDoc.save();
