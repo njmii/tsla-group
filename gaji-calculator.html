@@ -1,1 +1,294 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peratus Gaji Calculator</title>
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body{
+background:#f7f8fa;
+color:#111;
+}
+.header{
+position:sticky;
+top:0;
+background:white;
+border-bottom:1px solid #eee;
+padding:12px;
+z-index:100;
+}
+.logo{
+display:block;
+margin:auto;
+width:160px;
+}
+.container{
+max-width:900px;
+margin:auto;
+padding:20px;
+}
+.back{
+display:inline-block;
+margin-bottom:15px;
+text-decoration:none;
+color:#ff7a00;
+font-weight:700;
+}
+.card{
+background:white;
+padding:24px;
+border-radius:24px;
+box-shadow:0 4px 20px rgba(0,0,0,.05);
+margin-bottom:20px;
+}
+.title{
+font-size:1.8rem;
+font-weight:900;
+margin-bottom:8px;
+}
+.subtitle{
+color:#666;
+margin-bottom:20px;
+}
+.input-group{
+margin-bottom:18px;
+}
+.label{
+display:block;
+font-weight:700;
+margin-bottom:8px;
+color:#555;
+}
+.input{
+width:100%;
+padding:16px;
+border-radius:16px;
+border:2px solid #eee;
+font-size:18px;
+outline:none;
+transition:.2s;
+}
+.input:focus{
+border-color:#ff7a00;
+}
+.result-card{
+background:white;
+padding:24px;
+border-radius:24px;
+box-shadow:0 4px 20px rgba(0,0,0,.05);
+}
+.result-title{
+font-size:1.3rem;
+font-weight:800;
+margin-bottom:20px;
+}
+.result-box{
+background:#fff3e8;
+padding:20px;
+border-radius:20px;
+margin-bottom:15px;
+}
+.result-label{
+font-size:.9rem;
+color:#666;
+margin-bottom:5px;
+}
+.result-value{
+font-size:2rem;
+font-weight:900;
+color:#ff7a00;
+}
+.percent-value{
+font-size:2.5rem;
+font-weight:900;
+margin-top:5px;
+}
+.status{
+display:inline-block;
+margin-top:15px;
+padding:10px 16px;
+border-radius:999px;
+font-weight:700;
+}
+.breakdown{
+margin-top:15px;
+padding:18px;
+background:#f8f8f8;
+border-radius:18px;
+color:#666;
+line-height:1.8;
+}
+@media(max-width:700px){
+.result-value{
+font-size:1.8rem;
+}
+.percent-value{
+font-size:2rem;
+}
+}
+</style>
+</head>
+<body>
+<div class="header">
+<img
+src="https://njmii.github.io/tsla-group/assets/tslalogo.png"
+class="logo"
+alt="TSLA">
+</div>
+<div class="container">
+<a href="index.html" class="back">
+← Back
+</a>
+<div class="card">
+<div class="title">
+Peratus Gaji Calculator
+</div>
+<div class="subtitle">
+Kira gaji bersih dan peratus pendapatan selepas potongan.
+</div>
+<div class="input-group">
+<label class="label">
+Jumlah Pendapatan
+</label>
+<input
+type="number"
+class="input"
+id="pendapatan"
+placeholder="Contoh: 5000">
+</div>
+<div class="input-group">
+<label class="label">
+Jumlah Potongan
+</label>
+<input
+type="number"
+class="input"
+id="potongan"
+placeholder="Contoh: 800">
+</div>
+<div class="input-group">
+<label class="label">
+Penambahan Potongan
+</label>
+<input
+type="number"
+class="input"
+id="tambahan"
+placeholder="Contoh: 200">
+</div>
+</div>
+<div class="result-card">
+<div class="result-title">
+Keputusan
+</div>
+<div class="result-box">
+<div class="result-label">
+Gaji Bersih
+</div>
+<div
+class="result-value"
+id="gajiBersih">
+RM0.00
+</div>
+</div>
+<div class="result-box">
+<div class="result-label">
+Peratus Pendapatan
+</div>
+<div
+class="percent-value"
+id="peratus">
+0.00%
+</div>
+<div
+class="status"
+id="status">
+⚪ Menunggu Input
+</div>
+</div>
+<div
+class="breakdown"
+id="breakdown">
+RM0 - (RM0 + RM0) = RM0
+</div>
+</div>
+</div>
+<script>
+const pendapatan =
+document.getElementById("pendapatan");
+const potongan =
+document.getElementById("potongan");
+const tambahan =
+document.getElementById("tambahan");
+const gajiBersih =
+document.getElementById("gajiBersih");
+const peratus =
+document.getElementById("peratus");
+const status =
+document.getElementById("status");
+const breakdown =
+document.getElementById("breakdown");
+function kira(){
+const p =
+parseFloat(pendapatan.value) || 0;
+const pt =
+parseFloat(potongan.value) || 0;
+const t =
+parseFloat(tambahan.value) || 0;
+const bersih =
+p - (pt + t);
+const pct =
+p > 0
+? (bersih / p) * 100
+: 0;
+gajiBersih.innerHTML =
+"RM" + bersih.toFixed(2);
+peratus.innerHTML =
+pct.toFixed(2) + "%";
+breakdown.innerHTML =
+`RM${p.toFixed(2)} - (RM${pt.toFixed(2)} + RM${t.toFixed(2)}) = RM${bersih.toFixed(2)}`;
+if(p === 0){
+status.innerHTML =
+"⚪ Menunggu Input";
+status.style.background =
+"#efefef";
+status.style.color =
+"#555";
+}
+else if(pct >= 90){
+status.innerHTML =
+"🟢 Sangat Baik";
+status.style.background =
+"#e8f7ec";
+status.style.color =
+"#1f7a3f";
+}
+else if(pct >= 70){
+status.innerHTML =
+"🟡 Baik";
+status.style.background =
+"#fff7d6";
+status.style.color =
+"#8a6a00";
+}
+else{
+status.innerHTML =
+"🔴 Tinggi Potongan";
+status.style.background =
+"#ffe8e8";
+status.style.color =
+"#b00020";
+}
+}
+pendapatan.addEventListener("input", kira);
+potongan.addEventListener("input", kira);
+tambahan.addEventListener("input", kira);
+</script>
+</body>
+</html>
