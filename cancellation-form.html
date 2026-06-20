@@ -257,105 +257,54 @@ encodeURIComponent(text),
 }
 
 async function downloadPDF(){
-
-const { PDFDocument } = PDFLib;
-
+const existingPdfBytes =
+await fetch("assets/fwd-cancellation.pdf")
+.then(res => res.arrayBuffer());
 const pdfDoc =
-await PDFDocument.create();
-
+await PDFDocument.load(existingPdfBytes);
+const pages =
+pdfDoc.getPages();
 const page =
-pdfDoc.addPage([595,842]);
-
+pages[0];
 page.drawText(
-"TSLA Cancellation Form",
+client?.certificate || "",
 {
-x:50,
-y:780,
-size:20
-}
-);
-
-page.drawText(
-"Customer: " +
-(client?.name || "-"),
-{
-x:50,
-y:730,
+x:140,
+y:1040,
 size:12
 }
 );
-
 page.drawText(
-"IC: " +
-(client?.ic || "-"),
+client?.name || "",
 {
-x:50,
-y:710,
+x:590,
+y:1040,
 size:12
 }
 );
-
 page.drawText(
-"Certificate No: " +
-(client?.certificate || "-"),
+"X",
 {
-x:50,
+x:95,
 y:690,
-size:12
+size:16
 }
 );
-
-page.drawText(
-"Bank Name: " +
-(client?.bank || "-"),
-{
-x:50,
-y:670,
-size:12
-}
-);
-
-page.drawText(
-"Account No: " +
-(client?.account || "-"),
-{
-x:50,
-y:650,
-size:12
-}
-);
-
-page.drawText(
-"Reason: " +
-(document.getElementById("reason").value || "-"),
-{
-x:50,
-y:630,
-size:12
-}
-);
-
 const pdfBytes =
 await pdfDoc.save();
-
 const blob =
 new Blob(
 [pdfBytes],
 {type:"application/pdf"}
 );
-
 const url =
 URL.createObjectURL(blob);
-
 const a =
 document.createElement("a");
-
 a.href = url;
 a.download =
-"Cancellation_Form.pdf";
-
+"FWD_Cancellation_Form.pdf";
 a.click();
-
 }
 
 </script>
