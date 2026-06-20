@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TSLA Group</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:#050505;
+    color:white;
+    overflow-x:hidden;
+}
+
+/* Glow Background */
+
+body::before{
+    content:"";
+    position:fixed;
+    top:-300px;
+    left:50%;
+    transform:translateX(-50%);
+    width:1200px;
+    height:1200px;
+    background:radial-gradient(circle,
+    rgba(255,0,0,.18),
+    transparent 70%);
+    z-index:-1;
+}
+
+/* Navbar */
+
+header{
+    position:fixed;
+    width:100%;
+    top:0;
+    z-index:1000;
+    background:rgba(0,0,0,.75);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.nav{
+    max-width:1400px;
+    margin:auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 24px;
+}
+
+.nav-logo{
+    height:40px;
+}
+
+.nav-links{
+    display:flex;
+    gap:25px;
+}
+
+.nav-links a{
+    color:white;
+    text-decoration:none;
+    opacity:.8;
+    font-weight:600;
+}
+
+.nav-links a:hover{
+    opacity:1;
+}
+
+/* Hero */
+
+.hero{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:120px 20px 60px;
+}
+
+.hero-logo{
+    width:min(1000px,95vw);
+    animation:float 5s ease-in-out infinite;
+}
+
+@keyframes float{
+    0%{transform:translateY(0);}
+    50%{transform:translateY(-10px);}
+    100%{transform:translateY(0);}
+}
+
+.hero h1{
+    font-size:clamp(2.5rem,6vw,5rem);
+    margin-top:20px;
+}
+
+.hero p{
+    max-width:700px;
+    margin-top:20px;
+    color:#b5b5b5;
+    font-size:1.1rem;
+}
+
+.hero-buttons{
+    margin-top:35px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:15px;
+}
+
+.btn{
+    padding:16px 28px;
+    border-radius:14px;
+    text-decoration:none;
+    font-weight:700;
+}
+
+.btn-primary{
+    background:#ff0000;
+    color:white;
+}
+
+.btn-secondary{
+    border:1px solid rgba(255,255,255,.15);
+    color:white;
+}
+
+/* Sections */
+
+.section{
+    max-width:1400px;
+    margin:auto;
+    padding:100px 20px;
+}
+
+.section-title{
+    text-align:center;
+    font-size:3rem;
+    margin-bottom:50px;
+}
+
+/* Cards */
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:25px;
+}
+
+.card{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    backdrop-filter:blur(20px);
+    border-radius:24px;
+    padding:35px;
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-6px);
+}
+
+.card h3{
+    margin-bottom:12px;
+    font-size:1.4rem;
+}
+
+.card p{
+    color:#b5b5b5;
+}
+
+.card-btn{
+    display:inline-block;
+    margin-top:18px;
+    color:#ff4d4d;
+    text-decoration:none;
+    font-weight:700;
+}
+
+/* Stats */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.stat{
+    text-align:center;
+    background:rgba(255,255,255,.05);
+    border-radius:20px;
+    padding:40px;
+}
+
+.stat h2{
+    font-size:3rem;
+    color:#ff0000;
+}
+
+/* CTA */
+
+.cta{
+    text-align:center;
+}
+
+.cta h2{
+    font-size:3rem;
+    margin-bottom:15px;
+}
+
+.cta p{
+    color:#b5b5b5;
+    margin-bottom:30px;
+}
+
+/* Footer */
+
+footer{
+    text-align:center;
+    padding:60px 20px;
+    color:#888;
+}
+
+/* WhatsApp */
+
+.whatsapp{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    width:65px;
+    height:65px;
+    border-radius:50%;
+    background:#25D366;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-decoration:none;
+    color:white;
+    font-size:30px;
+    box-shadow:0 10px 25px rgba(0,0,0,.4);
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+.nav{
+    flex-direction:column;
+    gap:15px;
+}
+
+.nav-links{
+    gap:15px;
+}
+
+.section-title{
+    font-size:2rem;
+}
+
+.cta h2{
+    font-size:2rem;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="nav">
+
+<img
+src="https://njmii.github.io/tsla-group/assets/tslalogo.png"
+class="nav-logo"
+alt="TSLA Logo">
+
+<div class="nav-links">
+<a href="#tools">Tools</a>
+<a href="#stats">Stats</a>
+<a href="#join">Join Us</a>
+</div>
+
+</div>
+</header>
+
+<section class="hero">
+
+<img
+src="https://njmii.github.io/tsla-group/assets/tslalogo.png"
+class="hero-logo"
+alt="TSLA Logo">
+
+<h1>TSLA Group Digital Hub</h1>
+
+<p>
+Tools, calculators, recruitment and resources
+for ambitious insurance professionals.
+</p>
+
+<div class="hero-buttons">
+
+<a href="#tools" class="btn btn-primary">
+Explore Tools
+</a>
+
+<a href="https://wa.me/60196267265"
+class="btn btn-secondary">
+Contact Us
+</a>
+
+</div>
+
+</section>
+
+<section id="tools" class="section">
+
+<h2 class="section-title">Tools</h2>
+
+<div class="grid">
+
+<div class="card">
+<h3>💰 Price Checker</h3>
+<p>
+Instantly check pricing and quotations.
+</p>
+<a href="#" class="card-btn">
+Open →
+</a>
+</div>
+
+<div class="card">
+<h3>📊 Gaji Calculator</h3>
+<p>
+Estimate monthly income and commissions.
+</p>
+<a href="#" class="card-btn">
+Open →
+</a>
+</div>
+
+</div>
+
+</section>
+
+<section id="stats" class="section">
+
+<h2 class="section-title">TSLA Growth</h2>
+
+<div class="stats">
+
+<div class="stat">
+<h2>500+</h2>
+<p>Clients</p>
+</div>
+
+<div class="stat">
+<h2>50+</h2>
+<p>Agents</p>
+</div>
+
+<div class="stat">
+<h2>RM1M+</h2>
+<p>Production</p>
+</div>
+
+<div class="stat">
+<h2>24/7</h2>
+<p>Access</p>
+</div>
+
+</div>
+
+</section>
+
+<section id="join" class="section">
+
+<div class="cta">
+
+<h2>Join TSLA Group</h2>
+
+<p>
+Looking for a career in sales with unlimited growth potential?
+Let's talk.
+</p>
+
+<a href="https://wa.me/60196267265"
+class="btn btn-primary">
+WhatsApp 019-6267265
+</a>
+
+</div>
+
+</section>
+
+<footer>
+© 2026 TSLA Group. All Rights Reserved.
+</footer>
+
+<a
+class="whatsapp"
+href="https://wa.me/60196267265">
+💬
+</a>
+
+</body>
+</html>
