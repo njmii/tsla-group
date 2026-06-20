@@ -306,10 +306,26 @@ await fetch(
 
 alert("File Fetched");
 
+try {
+
 const pdfDoc =
 await PDFDocument.load(
-existingPdfBytes
+existingPdfBytes,
+{
+ignoreEncryption:true
+}
 );
+
+alert("PDF Parsed");
+
+} catch(err){
+
+alert(
+"ERROR: " +
+err.message
+);
+
+}
 
 alert("PDF Parsed");
 
