@@ -297,7 +297,18 @@ alert("Download Started");
 }
 async function testFwdPdf(){
 
-alert("FWD Overlay Button Works");
+alert("Starting");
+
+const existingPdfBytes =
+await fetch(
+"assets/fwd-cancellation.pdf"
+).then(res => res.arrayBuffer());
+
+alert(
+"PDF Loaded: " +
+existingPdfBytes.byteLength +
+" bytes"
+);
 
 }
 
