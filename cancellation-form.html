@@ -569,49 +569,29 @@ size:12
 // ======================
 // PAGE 6
 // ======================
-// =====================
-// L9 (Certificate Owner)
-// SAME X, ONLY Y
-// =====================
+// ======================
+// PAGE 6
+// ======================
 
-page6.drawText("L9-A",{x:170,y:305,size:10});
-page6.drawText("L9-B",{x:170,y:290,size:10});
-page6.drawText("L9-C",{x:170,y:275,size:10});
-page6.drawText("L9-D",{x:170,y:260,size:10});
-page6.drawText("L9-E",{x:170,y:245,size:10});
+for(let y=50;y<=350;y+=20){
 
-// =====================
-// C9 (Witness)
-// SAME X, ONLY Y
-// =====================
+for(let x=50;x<=550;x+=20){
 
-page6.drawText("C9-A",{x:470,y:305,size:10});
-page6.drawText("C9-B",{x:470,y:290,size:10});
-page6.drawText("C9-C",{x:470,y:275,size:10});
-page6.drawText("C9-D",{x:470,y:260,size:10});
-page6.drawText("C9-E",{x:470,y:245,size:10});
+page6.drawText(
+`${x},${y}`,
+{
+x:x,
+y:y,
+size:4
+}
+);
 
-// =====================
-// L10 (Checkbox)
-// SAME X, ONLY Y
-// =====================
+}
 
-page6.drawText("L10-A",{x:60,y:225,size:10});
-page6.drawText("L10-B",{x:60,y:210,size:10});
-page6.drawText("L10-C",{x:60,y:195,size:10});
-page6.drawText("L10-D",{x:60,y:180,size:10});
-page6.drawText("L10-E",{x:60,y:165,size:10});
+}
 
-// =====================
-// L12 (Agent)
-// SAME X, ONLY Y
-// =====================
-
-page6.drawText("L12-A",{x:170,y:120,size:10});
-page6.drawText("L12-B",{x:170,y:108,size:10});
-page6.drawText("L12-C",{x:170,y:96,size:10});
-page6.drawText("L12-D",{x:170,y:84,size:10});
-page6.drawText("L12-E",{x:170,y:72,size:10});
+const pdfBytes =
+await pdfDoc.save();
 const pdfBytes =
 await pdfDoc.save();
 
