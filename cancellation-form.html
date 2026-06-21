@@ -4,17 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cancellation Form Generator</title>
+
 <style>
+
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
+
 body{
 background:#f7f8fa;
 color:#111;
 }
+
 .header{
 position:sticky;
 top:0;
@@ -27,15 +31,18 @@ display:flex;
 align-items:center;
 justify-content:center;
 }
+
 .logo{
 width:50px;
 height:auto;
 }
+
 .container{
 max-width:900px;
 margin:auto;
 padding:20px;
 }
+
 .back{
 display:inline-block;
 margin-bottom:15px;
@@ -43,6 +50,7 @@ text-decoration:none;
 color:#ff7a00;
 font-weight:700;
 }
+
 .card{
 background:white;
 padding:24px;
@@ -50,28 +58,34 @@ border-radius:24px;
 box-shadow:0 4px 20px rgba(0,0,0,.05);
 margin-bottom:20px;
 }
+
 .title{
 font-size:1.8rem;
 font-weight:900;
 margin-bottom:8px;
 }
+
 .subtitle{
 color:#666;
 margin-bottom:20px;
 }
+
 .row{
 margin-bottom:16px;
 }
+
 .label{
 font-weight:700;
 color:#666;
 margin-bottom:6px;
 display:block;
 }
+
 .value{
 font-size:1rem;
 font-weight:600;
 }
+
 .input{
 width:100%;
 padding:15px;
@@ -79,10 +93,13 @@ border-radius:16px;
 border:2px solid #eee;
 font-size:16px;
 outline:none;
+margin-bottom:12px;
 }
+
 .input:focus{
 border-color:#ff7a00;
 }
+
 .btn{
 width:100%;
 padding:16px;
@@ -93,14 +110,17 @@ font-size:16px;
 cursor:pointer;
 margin-top:10px;
 }
+
 .primary{
 background:#ff7a00;
 color:white;
 }
+
 .secondary{
 background:#25D366;
 color:white;
 }
+
 .notice{
 background:#fff3e8;
 padding:18px;
@@ -108,59 +128,92 @@ border-radius:18px;
 margin-top:15px;
 line-height:1.6;
 }
+
 </style>
+
 <script src="https://unpkg.com/pdf-lib"></script>
+
 </head>
+
 <body>
+
 <div class="header">
+
 <img
 src="https://njmii.github.io/tsla-group/assets/tslalogo.png"
 class="logo">
+
 </div>
+
 <div class="container">
-<a href="index.html" class="back">
+
+<a
+href="index.html"
+class="back">
+
 ← Home
+
 </a>
+
 <div class="card">
+
 <div class="title">
+
 📄 Cancellation Form Generator
+
 </div>
+
 <div class="subtitle">
+
 Client data loaded automatically from Client Profile.
+
 </div>
+
 <div class="row">
 <div class="label">Customer Name</div>
 <div class="value" id="name">-</div>
 </div>
+
 <div class="row">
 <div class="label">IC Number</div>
 <div class="value" id="ic">-</div>
 </div>
+
 <div class="row">
 <div class="label">Phone Number</div>
 <div class="value" id="phone">-</div>
 </div>
+
 <div class="row">
 <div class="label">Certificate Number</div>
 <div class="value" id="certificate">-</div>
 </div>
+
 <div class="row">
 <div class="label">Bank Name</div>
 <div class="value" id="bank">-</div>
 </div>
+
 <div class="row">
 <div class="label">Account Number</div>
 <div class="value" id="account">-</div>
 </div>
+
 <div class="row">
 <div class="label">Account Holder</div>
 <div class="value" id="holder">-</div>
 </div>
+
 </div>
+
 <div class="card">
+
 <div class="title">
-Cancellation Details
+
+Additional Information
+
 </div>
+
 <input
 class="input"
 id="date"
@@ -190,57 +243,75 @@ placeholder="Agent IC">
 class="input"
 id="agentCode"
 placeholder="Agent Code">
+
 <button
 class="btn primary"
 onclick="generateForm()">
+
 📄 Generate Form
+
 </button>
+
 <button
 class="btn secondary"
 onclick="shareWhatsApp()">
+
 📲 Share WhatsApp
+
 </button>
 
 <button
 class="btn primary"
-onclick="downloadPDF()">
-⬇ Download PDF
+onclick="testFwdPdf()">
+
+📄 Generate FWD PDF
+
 </button>
 
-<button
-class="btn secondary"
-onclick="testFwdPdf()">
-🧪 Test FWD Overlay
-</button>
 <div
 class="notice"
 id="output">
+
 Waiting for generation...
+
 </div>
+
 </div>
-</div>
+
 <script>
+
 const client =
 JSON.parse(
 localStorage.getItem("tslaClient")
 );
+
 if(client){
+
 document.getElementById("name").innerText =
 client.name || "-";
+
 document.getElementById("ic").innerText =
 client.ic || "-";
+
 document.getElementById("phone").innerText =
 client.phone || "-";
+
 document.getElementById("certificate").innerText =
 client.certificate || "-";
+
 document.getElementById("bank").innerText =
 client.bank || "-";
+
 document.getElementById("account").innerText =
 client.account || "-";
+
 document.getElementById("holder").innerText =
 client.holder || "-";
+
 }
+
 function generateForm(){
+
 const date =
 document.getElementById("date").value;
 
@@ -258,32 +329,75 @@ document.getElementById("agentIc").value;
 
 const agentCode =
 document.getElementById("agentCode").value;
+
 document.getElementById("output").innerHTML =
+
 `
+
 <b>Certificate No:</b>
+
 ${client?.certificate || "-"}
+
 <br><br>
+
 <b>Customer:</b>
+
 ${client?.name || "-"}
+
 <br><br>
+
 <b>IC:</b>
+
 ${client?.ic || "-"}
+
 <br><br>
-<b>Bank:</b>
-${client?.bank || "-"}
+
+<b>Date:</b>
+
+${date || "-"}
+
 <br><br>
-<b>Account:</b>
-${client?.account || "-"}
+
+<b>Witness:</b>
+
+${witnessName || "-"}
+
 <br><br>
-<b>Reason:</b>
-${reason || "-"}
+
+<b>Witness IC:</b>
+
+${witnessIc || "-"}
+
 <br><br>
-✅ Ready for PDF generation
+
+<b>Agent:</b>
+
+${agentName || "-"}
+
+<br><br>
+
+<b>Agent IC:</b>
+
+${agentIc || "-"}
+
+<br><br>
+
+<b>Agent Code:</b>
+
+${agentCode || "-"}
+
+<br><br>
+
+✅ Ready for FWD PDF generation
+
 `;
+
 }
+
 function shareWhatsApp(){
 
 const text =
+
 `Cancellation Request
 
 Customer:
@@ -295,65 +409,37 @@ ${client?.certificate || "-"}
 IC:
 ${client?.ic || "-"}
 
+Date:
+${document.getElementById("date").value || "-"}
+
+Witness:
+${document.getElementById("witnessName").value || "-"}
+
 Generated via TSLA`;
 
 window.open(
-"https://wa.me/?text=" +
+
+"https://wa.me/?text="+
 encodeURIComponent(text),
+
 "_blank"
+
 );
 
 }
-window.open(
-"https://wa.me/?text=" +
-encodeURIComponent(text),
-"_blank"
-);
-}
 
-async function downloadPDF(){
-alert("Button Works");
-const { PDFDocument } = PDFLib;
-const pdfDoc =
-await PDFDocument.create();
-alert("PDF Created");
-const page =
-pdfDoc.addPage([595,842]);
-page.drawText(
-client?.name || "NO NAME",
-{
-x:50,
-y:750,
-size:18
-}
-);
-const pdfBytes =
-await pdfDoc.save();
-const blob =
-new Blob(
-[pdfBytes],
-{type:"application/pdf"}
-);
-const url =
-URL.createObjectURL(blob);
-const a =
-document.createElement("a");
-a.href = url;
-a.download =
-"test.pdf";
-a.click();
-alert("Download Started");
-}
 async function testFwdPdf(){
 
 const { PDFDocument } = PDFLib;
 
-
 const existingPdfBytes =
-await fetch("./assets/fwd-cancellation.pdf")
-.then(res => res.arrayBuffer());
+await fetch(
+"./assets/fwd-cancellation.pdf"
+).then(
+res => res.arrayBuffer()
+);
 
-try {
+try{
 
 const pdfDoc =
 await PDFDocument.load(
@@ -368,20 +454,47 @@ pdfDoc.getPages();
 
 const page =
 pages[0];
+
 const page2 =
 pages[1];
 
-function tickBox(x, y){
-  page.drawText(
-    "X",
-    {
-      x,
-      y,
-      size:14
-    }
-  );
+const page6 =
+pages[5];
+
+const date =
+document.getElementById("date").value;
+
+const witnessName =
+document.getElementById("witnessName").value;
+
+const witnessIc =
+document.getElementById("witnessIc").value;
+
+const agentName =
+document.getElementById("agentName").value;
+
+const agentIc =
+document.getElementById("agentIc").value;
+
+const agentCode =
+document.getElementById("agentCode").value;
+
+function tickBox(target,x,y){
+
+target.drawText(
+"X",
+{
+x:x,
+y:y,
+size:14
 }
-const { width, height } = page.getSize();
+);
+
+}
+
+// ======================
+// PAGE 1
+// ======================
 
 page.drawText(
 client?.certificate || "",
@@ -399,7 +512,25 @@ x:400,
 y:675,
 size:12
 }
-);page2.drawText(
+);
+
+tickBox(
+page,
+47,
+354
+);
+
+tickBox(
+page,
+47,
+240
+);
+
+// ======================
+// PAGE 2
+// ======================
+
+page2.drawText(
 "DIRECT CREDIT",
 {
 x:220,
@@ -435,38 +566,145 @@ size:12
 }
 );
 
-// Non Investment Linked Product
-tickBox(47, 354);
+// ======================
+// PAGE 6
+// ======================
 
-// Personal Expenses
-tickBox(47, 240);
+// Certificate Owner
+
+page6.drawText(
+client?.name || "",
+{
+x:115,
+y:620,
+size:11
+}
+);
+
+page6.drawText(
+date,
+{
+x:115,
+y:640,
+size:11
+}
+);
+
+tickBox(
+page6,
+70,
+603
+);
+
+// Witness
+
+page6.drawText(
+witnessName,
+{
+x:115,
+y:490,
+size:11
+}
+);
+
+page6.drawText(
+witnessIc,
+{
+x:115,
+y:470,
+size:11
+}
+);
+
+page6.drawText(
+date,
+{
+x:115,
+y:450,
+size:11
+}
+);
+
+// Agent
+
+page6.drawText(
+agentName,
+{
+x:350,
+y:490,
+size:11
+}
+);
+
+page6.drawText(
+agentIc,
+{
+x:350,
+y:470,
+size:11
+}
+);
+
+page6.drawText(
+agentCode,
+{
+x:350,
+y:450,
+size:11
+}
+);
+
+page6.drawText(
+date,
+{
+x:350,
+y:430,
+size:11
+}
+);
+
 const pdfBytes =
 await pdfDoc.save();
+
 const blob =
 new Blob(
 [pdfBytes],
-{type:"application/pdf"}
+{
+type:"application/pdf"
+}
 );
+
 const url =
-URL.createObjectURL(blob);
+URL.createObjectURL(
+blob
+);
+
 const a =
-document.createElement("a");
-a.href = url;
+document.createElement(
+"a"
+);
+
+a.href =
+url;
+
 a.download =
-"fwd-test.pdf";
+"fwd-cancellation.pdf";
+
 a.click();
-alert("Download Started");
 
-} catch(err){
+}
+catch(err){
 
-alert(String(err));
-
-return;
+alert(
+String(err)
+);
 
 }
 
 }
 
 </script>
+
 </body>
+
 </html>
