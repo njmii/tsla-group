@@ -565,24 +565,111 @@ y:560,
 size:12
 }
 );
-
-// ======================
-// PAGE 6
-// ======================
 // ======================
 // PAGE 6
 // ======================
 
-for(let y=50;y<=350;y+=20){
-
-for(let x=50;x<=550;x+=20){
+// Certificate Owner
 
 page6.drawText(
-`${x},${y}`,
+client?.name || "",
 {
-x:x,
-y:y,
-size:4
+x:110,
+y:330,
+size:11
+}
+);
+
+page6.drawText(
+client?.ic || "",
+{
+x:130,
+y:310,
+size:11
+}
+);
+
+page6.drawText(
+date,
+{
+x:110,
+y:290,
+size:11
+}
+);
+
+// Tick "I have advised..."
+
+tickBox(
+page6,
+50,
+270
+);
+
+// Witness
+
+page6.drawText(
+witnessName,
+{
+x:410,
+y:330,
+size:11
+}
+);
+
+page6.drawText(
+witnessIc,
+{
+x:430,
+y:310,
+size:11
+}
+);
+
+page6.drawText(
+date,
+{
+x:410,
+y:290,
+size:11
+}
+);
+
+// Agent
+
+page6.drawText(
+agentName,
+{
+x:110,
+y:170,
+size:11
+}
+);
+
+page6.drawText(
+agentIc,
+{
+x:110,
+y:150,
+size:11
+}
+);
+
+page6.drawText(
+date,
+{
+x:110,
+y:130,
+size:11
+}
+);
+
+page6.drawText(
+agentCode,
+{
+x:90,
+y:110,
+size:11
 }
 );
 
