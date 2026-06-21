@@ -569,19 +569,113 @@ size:12
 // ======================
 // PAGE 6
 // ======================
-page6.drawText("NAME",{x:90,y:300,size:10});
-page6.drawText("IC",{x:90,y:280,size:10});
-page6.drawText("DATE",{x:90,y:260,size:10});
+// ======================
+// PAGE 6
+// ======================
 
-page6.drawText("WNAME",{x:390,y:300,size:10});
-page6.drawText("WIC",{x:390,y:280,size:10});
-page6.drawText("WDATE",{x:390,y:260,size:10});
+// Certificate Owner
 
-page6.drawText("ANAME",{x:90,y:105,size:10});
-page6.drawText("AIC",{x:90,y:85,size:10});
-page6.drawText("ADATE",{x:90,y:65,size:10});
-page6.drawText("ACODE",{x:90,y:45,size:10});
+page6.drawText(
+client?.name || "",
+{
+x:95,
+y:310,
+size:11
+}
+);
 
+page6.drawText(
+client?.ic || "",
+{
+x:95,
+y:290,
+size:11
+}
+);
+
+page6.drawText(
+date,
+{
+x:95,
+y:270,
+size:11
+}
+);
+
+// Witness
+
+page6.drawText(
+witnessName,
+{
+x:605,
+y:310,
+size:11
+}
+);
+
+page6.drawText(
+witnessIc,
+{
+x:605,
+y:290,
+size:11
+}
+);
+
+page6.drawText(
+date,
+{
+x:605,
+y:270,
+size:11
+}
+);
+
+// Tick "I have advised..."
+
+tickBox(
+page6,
+70,
+205
+);
+
+// Agent
+
+page6.drawText(
+agentName,
+{
+x:95,
+y:120,
+size:11
+}
+);
+
+page6.drawText(
+agentIc,
+{
+x:95,
+y:100,
+size:11
+}
+);
+
+page6.drawText(
+date,
+{
+x:95,
+y:80,
+size:11
+}
+);
+
+page6.drawText(
+agentCode,
+{
+x:95,
+y:60,
+size:11
+}
+);
 const pdfBytes =
 await pdfDoc.save();
 
