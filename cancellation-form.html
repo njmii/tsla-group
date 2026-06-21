@@ -417,6 +417,17 @@ pages[1];
 const page6 =
 pages[5];
 
+const generateBtn =
+document.getElementById("generateBtn");
+
+generateBtn.disabled = true;
+
+generateBtn.innerText =
+"⏳ Generating...";
+
+document.getElementById("output").innerHTML =
+"⏳ Generating cancellation form...";
+
 const date =
 document.getElementById("date").value;
 
@@ -658,15 +669,30 @@ a.download =
 
 a.click();
 
+document.getElementById("output").innerHTML =
+"✅ Cancellation Form Generated Successfully";
+
+generateBtn.disabled = false;
+
+generateBtn.innerText =
+"📄 Generate Cancellation Form";
+
 }
 catch(err){
+
+generateBtn.disabled = false;
+
+generateBtn.innerText =
+"📄 Generate Cancellation Form";
+
+document.getElementById("output").innerHTML =
+"❌ Failed to Generate Cancellation Form";
 
 alert(
 String(err)
 );
 
 }
-
 }
 
 </script>
