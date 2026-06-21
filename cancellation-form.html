@@ -571,101 +571,57 @@ size:12
 // ======================
 // Certificate Owner
 
-page6.drawText(
-client?.name || "",
-{
-x:95,
-y:345,
-size:11
-}
-);
+// ======================
+// PAGE 6 GRID
+// ======================
 
-page6.drawText(
-client?.ic || "",
-{
-x:95,
-y:325,
-size:11
-}
-);
+// LEFT
 
-page6.drawText(
-date,
-{
-x:95,
-y:305,
-size:11
-}
-);
+page6.drawText("L1",{x:50,y:700,size:12});
+page6.drawText("L2",{x:50,y:650,size:12});
+page6.drawText("L3",{x:50,y:600,size:12});
+page6.drawText("L4",{x:50,y:550,size:12});
+page6.drawText("L5",{x:50,y:500,size:12});
+page6.drawText("L6",{x:50,y:450,size:12});
+page6.drawText("L7",{x:50,y:400,size:12});
+page6.drawText("L8",{x:50,y:350,size:12});
+page6.drawText("L9",{x:50,y:300,size:12});
+page6.drawText("L10",{x:50,y:250,size:12});
+page6.drawText("L11",{x:50,y:200,size:12});
+page6.drawText("L12",{x:50,y:150,size:12});
+page6.drawText("L13",{x:50,y:100,size:12});
 
-page6.drawText(
-witnessName,
-{
-x:605,
-y:345,
-size:11
-}
-);
+// CENTER
 
-page6.drawText(
-witnessIc,
-{
-x:605,
-y:325,
-size:11
-}
-);
+page6.drawText("C1",{x:300,y:700,size:12});
+page6.drawText("C2",{x:300,y:650,size:12});
+page6.drawText("C3",{x:300,y:600,size:12});
+page6.drawText("C4",{x:300,y:550,size:12});
+page6.drawText("C5",{x:300,y:500,size:12});
+page6.drawText("C6",{x:300,y:450,size:12});
+page6.drawText("C7",{x:300,y:400,size:12});
+page6.drawText("C8",{x:300,y:350,size:12});
+page6.drawText("C9",{x:300,y:300,size:12});
+page6.drawText("C10",{x:300,y:250,size:12});
+page6.drawText("C11",{x:300,y:200,size:12});
+page6.drawText("C12",{x:300,y:150,size:12});
+page6.drawText("C13",{x:300,y:100,size:12});
 
-page6.drawText(
-date,
-{
-x:605,
-y:305,
-size:11
-}
-);
+// RIGHT
 
-tickBox(
-page6,
-55,
-210
-);
-
-page6.drawText(
-agentName,
-{
-x:95,
-y:165,
-size:11
-}
-);
-
-page6.drawText(
-agentIc,
-{
-x:95,
-y:145,
-size:11
-}
-);
-
-page6.drawText(
-date,
-{
-x:95,
-y:125,
-size:11
-}
-);
-
-page6.drawText(
-agentCode,
-{
-x:95,
-y:105,
-size:11
-}
-);
+page6.drawText("R1",{x:550,y:700,size:12});
+page6.drawText("R2",{x:550,y:650,size:12});
+page6.drawText("R3",{x:550,y:600,size:12});
+page6.drawText("R4",{x:550,y:550,size:12});
+page6.drawText("R5",{x:550,y:500,size:12});
+page6.drawText("R6",{x:550,y:450,size:12});
+page6.drawText("R7",{x:550,y:400,size:12});
+page6.drawText("R8",{x:550,y:350,size:12});
+page6.drawText("R9",{x:550,y:300,size:12});
+page6.drawText("R10",{x:550,y:250,size:12});
+page6.drawText("R11",{x:550,y:200,size:12});
+page6.drawText("R12",{x:550,y:150,size:12});
+page6.drawText("R13",{x:550,y:100,size:12});
 const pdfBytes =
 await pdfDoc.save();
 
