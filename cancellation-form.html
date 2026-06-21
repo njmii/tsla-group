@@ -245,14 +245,6 @@ id="agentCode"
 placeholder="Agent Code">
 
 <button
-class="btn primary"
-onclick="generateForm()">
-
-📄 Generate Form
-
-</button>
-
-<button
 class="btn secondary"
 onclick="shareWhatsApp()">
 
@@ -262,9 +254,10 @@ onclick="shareWhatsApp()">
 
 <button
 class="btn primary"
+id="generateBtn"
 onclick="testFwdPdf()">
 
-📄 Generate FWD PDF
+📄 Generate Cancellation Form
 
 </button>
 
@@ -272,10 +265,9 @@ onclick="testFwdPdf()">
 class="notice"
 id="output">
 
-Waiting for generation...
+✅ Ready to Generate Cancellation Form
 
 </div>
-
 </div>
 
 <script>
@@ -310,89 +302,6 @@ client.holder || "-";
 
 }
 
-function generateForm(){
-
-const date =
-document.getElementById("date").value;
-
-const witnessName =
-document.getElementById("witnessName").value;
-
-const witnessIc =
-document.getElementById("witnessIc").value;
-
-const agentName =
-document.getElementById("agentName").value;
-
-const agentIc =
-document.getElementById("agentIc").value;
-
-const agentCode =
-document.getElementById("agentCode").value;
-
-document.getElementById("output").innerHTML =
-
-`
-
-<b>Certificate No:</b>
-
-${client?.certificate || "-"}
-
-<br><br>
-
-<b>Customer:</b>
-
-${client?.name || "-"}
-
-<br><br>
-
-<b>IC:</b>
-
-${client?.ic || "-"}
-
-<br><br>
-
-<b>Date:</b>
-
-${date || "-"}
-
-<br><br>
-
-<b>Witness:</b>
-
-${witnessName || "-"}
-
-<br><br>
-
-<b>Witness IC:</b>
-
-${witnessIc || "-"}
-
-<br><br>
-
-<b>Agent:</b>
-
-${agentName || "-"}
-
-<br><br>
-
-<b>Agent IC:</b>
-
-${agentIc || "-"}
-
-<br><br>
-
-<b>Agent Code:</b>
-
-${agentCode || "-"}
-
-<br><br>
-
-✅ Ready for FWD PDF generation
-
-`;
-
-}
 
 function shareWhatsApp(){
 
