@@ -274,6 +274,15 @@ placeholder="Agent Code">
 
 <button
 class="btn secondary"
+type="button"
+onclick="saveAgentProfile()">
+
+💾 Save Agent Profile
+
+</button>
+
+<button
+class="btn secondary"
 onclick="shareWhatsApp()">
 
 📲 Share WhatsApp
@@ -330,6 +339,32 @@ client.holder || "-";
 
 }
 
+const savedProfile =
+JSON.parse(
+localStorage.getItem(
+"tslaAgentProfile"
+)
+);
+
+if(savedProfile){
+
+document.getElementById("witnessName").value =
+savedProfile.witnessName || "";
+
+document.getElementById("witnessIc").value =
+savedProfile.witnessIc || "";
+
+document.getElementById("agentName").value =
+savedProfile.agentName || "";
+
+document.getElementById("agentIc").value =
+savedProfile.agentIc || "";
+
+document.getElementById("agentCode").value =
+savedProfile.agentCode || "";
+
+}
+
 
 function shareWhatsApp(){
 
@@ -381,6 +416,37 @@ today.getFullYear();
 
 document.getElementById("date").value =
 `${day}/${month}/${year}`;
+
+}
+
+function saveAgentProfile(){
+
+const profile={
+
+witnessName:
+document.getElementById("witnessName").value,
+
+witnessIc:
+document.getElementById("witnessIc").value,
+
+agentName:
+document.getElementById("agentName").value,
+
+agentIc:
+document.getElementById("agentIc").value,
+
+agentCode:
+document.getElementById("agentCode").value
+
+};
+
+localStorage.setItem(
+"tslaAgentProfile",
+JSON.stringify(profile)
+);
+
+document.getElementById("output").innerHTML=
+"💾 Agent Profile Saved";
 
 }
 
