@@ -214,10 +214,38 @@ Additional Information
 
 </div>
 
+<div
+style="
+display:flex;
+gap:10px;
+margin-bottom:12px;
+">
+
 <input
 class="input"
 id="date"
-placeholder="Date (DD/MM/YYYY)">
+placeholder="Date (DD/MM/YYYY)"
+style="
+margin-bottom:0;
+flex:1;
+">
+
+<button
+class="btn secondary"
+type="button"
+style="
+width:auto;
+margin-top:0;
+padding:0 20px;
+white-space:nowrap;
+"
+onclick="setToday()">
+
+📅 Today
+
+</button>
+
+</div>
 
 <input
 class="input"
@@ -334,6 +362,25 @@ encodeURIComponent(text),
 "_blank"
 
 );
+
+}
+
+function setToday(){
+
+const today =
+new Date();
+
+const day =
+String(today.getDate()).padStart(2,"0");
+
+const month =
+String(today.getMonth()+1).padStart(2,"0");
+
+const year =
+today.getFullYear();
+
+document.getElementById("date").value =
+`${day}/${month}/${year}`;
 
 }
 
