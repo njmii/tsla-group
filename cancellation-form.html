@@ -575,8 +575,17 @@ size:12
 page6.drawText(
 client?.name || "",
 {
-x:115,
-y:620,
+x:75,
+y:565,
+size:11
+}
+);
+
+page6.drawText(
+client?.ic || "",
+{
+x:75,
+y:545,
 size:11
 }
 );
@@ -584,16 +593,10 @@ size:11
 page6.drawText(
 date,
 {
-x:115,
-y:640,
+x:75,
+y:525,
 size:11
 }
-);
-
-tickBox(
-page6,
-70,
-603
 );
 
 // Witness
@@ -601,8 +604,8 @@ page6,
 page6.drawText(
 witnessName,
 {
-x:115,
-y:490,
+x:390,
+y:565,
 size:11
 }
 );
@@ -610,8 +613,8 @@ size:11
 page6.drawText(
 witnessIc,
 {
-x:115,
-y:470,
+x:390,
+y:545,
 size:11
 }
 );
@@ -619,10 +622,18 @@ size:11
 page6.drawText(
 date,
 {
-x:115,
-y:450,
+x:390,
+y:525,
 size:11
 }
+);
+
+// Tick "I have advised..."
+
+tickBox(
+page6,
+35,
+440
 );
 
 // Agent
@@ -630,8 +641,8 @@ size:11
 page6.drawText(
 agentName,
 {
-x:350,
-y:490,
+x:75,
+y:265,
 size:11
 }
 );
@@ -639,17 +650,8 @@ size:11
 page6.drawText(
 agentIc,
 {
-x:350,
-y:470,
-size:11
-}
-);
-
-page6.drawText(
-agentCode,
-{
-x:350,
-y:450,
+x:75,
+y:245,
 size:11
 }
 );
@@ -657,8 +659,17 @@ size:11
 page6.drawText(
 date,
 {
-x:350,
-y:430,
+x:75,
+y:225,
+size:11
+}
+);
+
+page6.drawText(
+agentCode,
+{
+x:75,
+y:205,
 size:11
 }
 );
