@@ -163,8 +163,33 @@ Cancellation Details
 </div>
 <input
 class="input"
-id="reason"
-placeholder="Reason for cancellation">
+id="date"
+placeholder="Date (DD/MM/YYYY)">
+
+<input
+class="input"
+id="witnessName"
+placeholder="Witness Name">
+
+<input
+class="input"
+id="witnessIc"
+placeholder="Witness IC">
+
+<input
+class="input"
+id="agentName"
+placeholder="Agent Name">
+
+<input
+class="input"
+id="agentIc"
+placeholder="Agent IC">
+
+<input
+class="input"
+id="agentCode"
+placeholder="Agent Code">
 <button
 class="btn primary"
 onclick="generateForm()">
@@ -216,8 +241,23 @@ document.getElementById("holder").innerText =
 client.holder || "-";
 }
 function generateForm(){
-const reason =
-document.getElementById("reason").value;
+const date =
+document.getElementById("date").value;
+
+const witnessName =
+document.getElementById("witnessName").value;
+
+const witnessIc =
+document.getElementById("witnessIc").value;
+
+const agentName =
+document.getElementById("agentName").value;
+
+const agentIc =
+document.getElementById("agentIc").value;
+
+const agentCode =
+document.getElementById("agentCode").value;
 document.getElementById("output").innerHTML =
 `
 <b>Certificate No:</b>
@@ -242,19 +282,28 @@ ${reason || "-"}
 `;
 }
 function shareWhatsApp(){
-const reason =
-document.getElementById("reason").value;
+
 const text =
 `Cancellation Request
+
 Customer:
 ${client?.name || "-"}
+
 Certificate:
 ${client?.certificate || "-"}
+
 IC:
 ${client?.ic || "-"}
-Reason:
-${reason || "-"}
+
 Generated via TSLA`;
+
+window.open(
+"https://wa.me/?text=" +
+encodeURIComponent(text),
+"_blank"
+);
+
+}
 window.open(
 "https://wa.me/?text=" +
 encodeURIComponent(text),
