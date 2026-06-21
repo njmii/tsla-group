@@ -571,33 +571,59 @@ size:12
 // ======================
 // Certificate Owner
 
-NAME
-x:95
-y:345
+page6.drawText(
+client?.name || "",
+{
+x:95,
+y:345,
+size:11
+}
+);
 
-IC
-x:95
-y:325
+page6.drawText(
+client?.ic || "",
+{
+x:95,
+y:325,
+size:11
+}
+);
 
-DATE
-x:95
-y:305
+page6.drawText(
+date,
+{
+x:95,
+y:305,
+size:11
+}
+);
 
-// Witness
+page6.drawText(
+witnessName,
+{
+x:605,
+y:345,
+size:11
+}
+);
 
-WNAME
-x:605
-y:345
+page6.drawText(
+witnessIc,
+{
+x:605,
+y:325,
+size:11
+}
+);
 
-WIC
-x:605
-y:325
-
-WDATE
-x:605
-y:305
-
-// Checkbox
+page6.drawText(
+date,
+{
+x:605,
+y:305,
+size:11
+}
+);
 
 tickBox(
 page6,
@@ -605,23 +631,41 @@ page6,
 210
 );
 
-// Agent
+page6.drawText(
+agentName,
+{
+x:95,
+y:165,
+size:11
+}
+);
 
-ANAME
-x:95
-y:165
+page6.drawText(
+agentIc,
+{
+x:95,
+y:145,
+size:11
+}
+);
 
-AIC
-x:95
-y:145
+page6.drawText(
+date,
+{
+x:95,
+y:125,
+size:11
+}
+);
 
-ADATE
-x:95
-y:125
-
-ACODE
-x:95
-y:105
+page6.drawText(
+agentCode,
+{
+x:95,
+y:105,
+size:11
+}
+);
 const pdfBytes =
 await pdfDoc.save();
 
