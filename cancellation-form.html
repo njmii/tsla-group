@@ -170,7 +170,7 @@ Certificate Number: ${client?.certificate||"-"}
 Thank you.
 
 Regards,`);
-window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${subject}&body=${body}`,"_blank");
+window.location.href=`mailto:${to}?subject=${subject}&body=${body}`;
 }
 
 </script>
@@ -856,7 +856,7 @@ Certificate Number: ${client?.certificate||"-"}
 Thank you.
 
 Regards,`);
-window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${subject}&body=${body}`,"_blank");
+window.location.href=`mailto:${to}?subject=${subject}&body=${body}`;
 }
 
 </script>
