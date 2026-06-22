@@ -535,10 +535,27 @@ document.getElementById("output").innerHTML=
 
 async function testFwdPdf(){
 
-// === TSLA v3.0.2 Signature Embed ===
+// === TSLA v3.0.3 Signature Embed ===
+
+async function makeTransparent(data){
+ const img=new Image();
+ await new Promise(r=>{img.onload=r;img.src=data;});
+ const c=document.createElement('canvas');
+ c.width=img.width;c.height=img.height;
+ const ctx=c.getContext('2d');
+ ctx.drawImage(img,0,0);
+ const d=ctx.getImageData(0,0,c.width,c.height);
+ for(let i=0;i<d.data.length;i+=4){
+  if(d.data[i]>235&&d.data[i+1]>235&&d.data[i+2]>235)d.data[i+3]=0;
+ }
+ ctx.putImageData(d,0,0);
+ return c.toDataURL('image/png');
+}
+
 async function drawSig(page,pdf,data,x,y,maxW,maxH){
  if(!data)return;
  try{
+  data=await makeTransparent(data);
   const img=await pdf.embedPng(data);
   const r=img.width/img.height;
   let w=maxW,h=maxW/r;
