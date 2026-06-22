@@ -1,0 +1,41 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
+<style>
+body{font-family:-apple-system;background:#f7f8fa;margin:20px}
+.card{background:#fff;padding:16px;border-radius:16px;max-width:900px;margin:auto}
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.box{flex:1;min-width:280px;border:1px solid #ddd;min-height:220px;display:flex;align-items:center;justify-content:center;
+background-image:linear-gradient(45deg,#eee 25%,transparent 25%),linear-gradient(-45deg,#eee 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eee 75%),linear-gradient(-45deg,transparent 75%,#eee 75%);
+background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+canvas,img{max-width:100%;max-height:210px}input,button{width:100%;padding:12px;margin-top:10px}
+</style></head><body><div class='card'><a href='clients.html'>← Back</a><h2>Signature Manager 1B.3</h2>
+<input id=file type=file accept=image/*>
+<label>Sensitivity: <span id=v>235</span></label>
+<input id=s type=range min=180 max=255 value=235 oninput='v.textContent=this.value;if(img.src)process()'>
+<button onclick='process()'>✨ Remove Background</button>
+<button onclick='save()'>💾 Save Processed PNG</button>
+<div class='row'><div><h3>Original</h3><div class='box'><img id=o></div></div><div><h3>Processed</h3><div class='box'><canvas id=c></canvas></div></div></div>
+</div>
+<script>
+let img=new Image();
+file.onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=x=>{o.src=x.target.result;img.src=x.target.result;img.onload=process};r.readAsDataURL(f)}
+function process(){let cv=c,ctx=cv.getContext('2d'),t=parseInt(s.value);cv.width=img.naturalWidth;cv.height=img.naturalHeight;ctx.drawImage(img,0,0);let d=ctx.getImageData(0,0,cv.width,cv.height);for(let i=0;i<d.data.length;i+=4){if(d.data[i]>t&&d.data[i+1]>t&&d.data[i+2]>t)d.data[i+3]=0;}ctx.putImageData(d,0,0)}
+
+function save(){
+ const sig=c.toDataURL('image/png');
+ localStorage.setItem('tslaProcessedSignature',sig);
+ const selected=JSON.parse(localStorage.getItem('tslaClient')||'null');
+ let clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+ if(selected){
+   const i=clients.findIndex(x=>x.id===selected.id);
+   if(i>=0){
+      clients[i].signature=sig;
+      localStorage.setItem('tslaClients',JSON.stringify(clients));
+      localStorage.setItem('tslaClient',JSON.stringify(clients[i]));
+      alert('Signature saved to selected client');
+      return;
+   }
+ }
+ alert('Processed PNG saved temporarily');
+}
+
+</script></body></html>
