@@ -32,9 +32,17 @@ button{width:100%;padding:14px;border:none;border-radius:12px;margin-top:8px;fon
 <input id="holder" placeholder="Account Holder"/>
 <button class="orange" onclick="saveNew()">➕ Save New Client</button>
 <button class="green" onclick="updateClient()">💾 Update Client</button>
-<button class="red" onclick="deleteClient()">🗑 Delete Client</button><button class="orange" type="button" onclick="window.location.href='signature-manager.html'">✍️ Manage Signature</button>
-<div id="sigStatus" class="small" style="margin-top:8px">No signature saved</div>
-</div><div class="card"><h2>⭐ Recent Clients</h2><div id="recent"></div></div>
+<button class="red" onclick="deleteClient()">🗑 Delete Client</button>
+</div><div class="card"><h2>✍️ Client Signature</h2><input type="file" id="signatureFile" accept="image/*" onchange="previewSignature(event)"><div id="signaturePreviewWrap" style="margin-top:12px;display:none">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div><div class="small">Original</div><img id="signaturePreview" style="max-width:100%;max-height:140px;border:1px solid #eee;border-radius:12px;padding:8px"></div>
+<div><div class="small">Processed</div><canvas id="processedCanvas" style="max-width:100%;max-height:140px;border:1px solid #eee;border-radius:12px;padding:8px"></canvas></div>
+</div>
+<button class="orange" type="button" onclick="previewProcessed()">✨ Remove Background</button>
+<button class="green" type="button" onclick="saveSignature()">💾 Save Signature</button>
+<button class="orange" type="button" onclick="replaceSignature()">🔄 Replace</button>
+<button class="red" type="button" onclick="removeSignature()">🗑 Remove</button>
+</div></div><div class="card"><h2>⭐ Recent Clients</h2><div id="recent"></div></div>
 <div class="card">
 <h2>📋 Clients</h2><input id="search" oninput="render()" placeholder="🔍 Search Client"/>
 <div id="list"></div>
@@ -43,12 +51,15 @@ button{width:100%;padding:14px;border:none;border-radius:12px;margin-top:8px;fon
 <script>
 let clients=JSON.parse(localStorage.getItem("tslaClients"))||[];
 let selectedId=null;
-
 let recent=JSON.parse(localStorage.getItem("tslaRecentClients"))||[];
+
+function val(id){return document.getElementById(id).value;}
+function setv(id,v){document.getElementById(id).value=v||"";}
+
 function renderRecent(){
- const el=document.getElementById("recent");
- if(!el)return;
- el.innerHTML="";
+ const list=document.getElementById("recent");
+ if(!list)return;
+ list.innerHTML="";
  recent.forEach(r=>{
    const d=document.createElement("div");
    d.className="client";
@@ -58,98 +69,109 @@ function renderRecent(){
    b.textContent="Open";
    b.onclick=()=>openClient(r.id);
    d.appendChild(b);
-   el.appendChild(d);
+   list.appendChild(d);
  });
 }
-
-let recent=JSON.parse(localStorage.getItem("tslaRecentClients"))||[];
-
-function val(id){return document.getElementById(id).value;}
-function setv(id,v){document.getElementById(id).value=v||"";}
 
 function persist(){
  localStorage.setItem("tslaClients",JSON.stringify(clients));
  render();
-renderRecent();
-showRecent();
+ renderRecent();
 }
 
 function clearForm(){
- ["name","ic","phone","certificate","bank","account","holder"].forEach(i=>setv(i,""));
- selectedId=null;
+["name","ic","phone","certificate","bank","account","holder"].forEach(i=>setv(i,""));
+selectedId=null;
 }
 
-function showRecent(){const list=document.getElementById("recent");if(!list)return;list.innerHTML=recent.map(r=>"<div class=\"small\">• "+r.name+"</div>").join("");}
-
 function saveNew(){
- const c={
- id:Date.now().toString(),
- name:val("name"),ic:val("ic"),phone:val("phone"),
- certificate:val("certificate"),bank:val("bank"),
- account:val("account"),holder:val("holder")
- };
- if(clients.some(x=>x.ic&&c.ic&&x.ic===c.ic)){alert("Duplicate IC detected");return;}
- clients.push(c);
- persist();
- clearForm();
+const c={id:Date.now().toString(),name:val("name"),ic:val("ic"),phone:val("phone"),certificate:val("certificate"),bank:val("bank"),account:val("account"),holder:val("holder")};
+if(clients.some(x=>x.ic&&c.ic&&x.ic===c.ic)){alert("Duplicate IC detected");return;}
+clients.push(c);persist();clearForm();
 }
 
 function openClient(id){
- const c=clients.find(x=>x.id===id);
- if(!c)return;
- selectedId=id;
- setv("name",c.name);setv("ic",c.ic);setv("phone",c.phone);
- setv("certificate",c.certificate);setv("bank",c.bank);
- setv("account",c.account);setv("holder",c.holder);
- localStorage.setItem("tslaClient",JSON.stringify(c));
-recent=[c].concat(recent.filter(x=>x.id!==c.id)).slice(0,5);localStorage.setItem('tslaRecentClients',JSON.stringify(recent));renderRecent();
-recent=[c].concat(recent.filter(x=>x.id!==c.id)).slice(0,5);localStorage.setItem("tslaRecentClients",JSON.stringify(recent));showRecent();
+const c=clients.find(x=>x.id===id);
+if(!c)return;
+selectedId=id;
+setv("name",c.name);setv("ic",c.ic);setv("phone",c.phone);setv("certificate",c.certificate);setv("bank",c.bank);setv("account",c.account);setv("holder",c.holder);
+localStorage.setItem("tslaClient",JSON.stringify(c));
+recent=[c].concat(recent.filter(x=>x.id!==c.id)).slice(0,5);
+localStorage.setItem("tslaRecentClients",JSON.stringify(recent));
+renderRecent();
 }
 
 function updateClient(){
- if(!selectedId){alert("Open a client first");return;}
- const i=clients.findIndex(x=>x.id===selectedId);
- if(i<0)return;
- clients[i]={
- id:selectedId,
- name:val("name"),ic:val("ic"),phone:val("phone"),
- certificate:val("certificate"),bank:val("bank"),
- account:val("account"),holder:val("holder")
- };
- localStorage.setItem("tslaClient",JSON.stringify(clients[i]));
- persist();
+if(!selectedId){alert("Open a client first");return;}
+const i=clients.findIndex(x=>x.id===selectedId);
+if(i<0)return;
+clients[i]={id:selectedId,name:val("name"),ic:val("ic"),phone:val("phone"),certificate:val("certificate"),bank:val("bank"),account:val("account"),holder:val("holder")};
+localStorage.setItem("tslaClient",JSON.stringify(clients[i]));
+persist();
 }
 
 function deleteClient(){
- if(!selectedId){alert("Open a client first");return;}
- if(!confirm("Delete client?"))return;
- clients=clients.filter(x=>x.id!==selectedId);
- localStorage.removeItem("tslaClient");
- persist();
- clearForm();
+if(!selectedId){alert("Open a client first");return;}
+if(!confirm("Delete client?"))return;
+clients=clients.filter(x=>x.id!==selectedId);
+localStorage.removeItem("tslaClient");
+persist();clearForm();
 }
 
 function render(){
- const list=document.getElementById("list");
- list.innerHTML="";
- const q=(document.getElementById("search")?.value||"").toLowerCase();
- clients.filter(c=>{
-   return !q||
-   (c.name||"").toLowerCase().includes(q)||
-   (c.ic||"").toLowerCase().includes(q)||
-   (c.phone||"").toLowerCase().includes(q);
- }).forEach(c=>{
-  const d=document.createElement("div");
-  d.className="client";
-  d.innerHTML="<b>"+(c.name||"-")+"</b><div class='small'>"+(c.ic||"")+"</div><div class='small'>"+(c.phone||"")+"</div>";
-  const b=document.createElement("button");
-  b.className="green";b.textContent="Open";
-  b.onclick=()=>openClient(c.id);
-  d.appendChild(b);
-  list.appendChild(d);
- });
+const list=document.getElementById("list");
+list.innerHTML="";
+const q=(document.getElementById("search")?.value||"").toLowerCase();
+clients.filter(c=>!q||(c.name||"").toLowerCase().includes(q)||(c.ic||"").toLowerCase().includes(q)||(c.phone||"").toLowerCase().includes(q)).forEach(c=>{
+ const d=document.createElement("div");
+ d.className="client";
+ d.innerHTML="<b>"+(c.name||"-")+"</b><div class='small'>"+(c.ic||"")+"</div><div class='small'>"+(c.phone||"")+"</div>";
+ const b=document.createElement("button");
+ b.className="green";b.textContent="Open";b.onclick=()=>openClient(c.id);
+ d.appendChild(b);list.appendChild(d);
+});
 }
 render();
+renderRecent();
+
+
+let currentSignature="";
+function previewSignature(e){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){currentSignature=ev.target.result;document.getElementById("signaturePreview").src=currentSignature;document.getElementById("signaturePreviewWrap").style.display="block";};r.readAsDataURL(f);}
+function saveSignature(){
+if(!selectedId){alert('Open a client first');return;}
+const i=clients.findIndex(x=>x.id===selectedId);if(i<0)return;
+let sig=currentSignature;
+const cv=document.getElementById('processedCanvas');
+try{
+ if(cv && cv.width>0){sig=cv.toDataURL('image/png');}
+}catch(e){}
+clients[i].signature=sig;
+localStorage.setItem('tslaClient',JSON.stringify(clients[i]));
+persist();
+alert('Processed signature saved');
+}
+function replaceSignature(){document.getElementById("signatureFile").click();}
+function removeSignature(){if(!selectedId){alert("Open a client first");return;}const i=clients.findIndex(x=>x.id===selectedId);if(i<0)return;delete clients[i].signature;currentSignature="";document.getElementById("signaturePreviewWrap").style.display="none";persist();}
+const _open=openClient;openClient=function(id){_open(id);const c=clients.find(x=>x.id===id);if(c&&c.signature){currentSignature=c.signature;document.getElementById("signaturePreview").src=currentSignature;document.getElementById("signaturePreviewWrap").style.display="block";}}
+
+
+function previewProcessed(){
+ if(!currentSignature){alert('Upload signature first');return;}
+ const img=new Image();
+ img.onload=function(){
+  const cv=document.getElementById('processedCanvas');
+  cv.width=img.width;cv.height=img.height;
+  const ctx=cv.getContext('2d');
+  ctx.drawImage(img,0,0);
+  let d=ctx.getImageData(0,0,cv.width,cv.height);
+  for(let i=0;i<d.data.length;i+=4){
+    if(d.data[i]>235&&d.data[i+1]>235&&d.data[i+2]>235)d.data[i+3]=0;
+  }
+  ctx.putImageData(d,0,0);
+ };
+ img.src=currentSignature;
+}
+
 </script>
 </body>
 </html>
