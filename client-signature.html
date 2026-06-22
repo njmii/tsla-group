@@ -86,20 +86,40 @@ function removeBg(){
  img.src=originalPreview.src;
 }
 function saveSig(){
- let c=JSON.parse(localStorage.getItem('tslaClient')||'null');
- if(!c||!processed){alert('Process signature first');return;}
- c.signature=processed;
- c.updatedAt=new Date().toLocaleString();
- localStorage.setItem('tslaClient',JSON.stringify(c));
- let clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
- const i=clients.findIndex(x=>x.id===c.id);
- if(i>=0){
-   clients[i].signature=processed;
-   clients[i].updatedAt=c.updatedAt;
-   localStorage.setItem('tslaClients',JSON.stringify(clients));
+
+ let current =
+ JSON.parse(localStorage.getItem("tslaClient") || "null");
+
+ if(!current || !processed){
+   alert("Process signature first");
+   return;
  }
- document.getElementById('updated').innerText=c.updatedAt;
- document.getElementById('status').innerText='✅ Signature saved';
+
+ current.signature = processed;
+ current.updatedAt = new Date().toLocaleString();
+
+ localStorage.setItem("tslaClient",JSON.stringify(current));
+
+ let clients =
+ JSON.parse(localStorage.getItem("tslaClients") || "[]");
+
+ const index = clients.findIndex(c => c.id === current.id);
+
+ if(index >= 0){
+   clients[index] = {...clients[index],...current};
+   localStorage.setItem("tslaClients",JSON.stringify(clients));
+ }
+
+ let recent =
+ JSON.parse(localStorage.getItem("tslaRecentClients") || "[]");
+
+ recent = recent.map(c => c.id === current.id ? {...c,...current} : c);
+
+ localStorage.setItem("tslaRecentClients",JSON.stringify(recent));
+
+ document.getElementById("updated").innerText=current.updatedAt;
+ document.getElementById("status").innerText="✅ Signature saved to client";
+
 }
 
 window.addEventListener('load',()=>{
@@ -160,6 +180,6 @@ window.addEventListener('load',()=>{
 function clearPad(){sigPadCtx.clearRect(0,0,pad.width,pad.height);}
 function useDrawing(){processed=pad.toDataURL('image/png');processedPreview.src=processed;}
 </script>
-<button class="btn orange" onclick="window.location.href='client.html'">⬅ Back to Client</button>
+<button class="btn orange" onclick="window.location.href='clients.html'">⬅ Back to Client</button>
 <button class="btn green" onclick="window.location.href='cancellation-form.html'">📄 Go to FWD Cancellation Form</button></body>
 </html>
