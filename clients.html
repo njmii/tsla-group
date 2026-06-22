@@ -33,7 +33,12 @@ button{width:100%;padding:14px;border:none;border-radius:12px;margin-top:8px;fon
 <button class="orange" onclick="saveNew()">➕ Save New Client</button>
 <button class="green" onclick="updateClient()">💾 Update Client</button>
 <button class="red" onclick="deleteClient()">🗑 Delete Client</button>
-</div><div class="card"><h2>⭐ Recent Clients</h2><div id="recent"></div></div>
+</div><div class="card"><h2>✍️ Client Signature</h2><input type="file" id="signatureFile" accept="image/*" onchange="previewSignature(event)"><div id="signaturePreviewWrap" style="margin-top:12px;display:none">
+<img id="signaturePreview" style="max-width:100%;max-height:140px;border:1px solid #eee;border-radius:12px;padding:8px">
+<button class="green" type="button" onclick="saveSignature()">💾 Save Signature</button>
+<button class="orange" type="button" onclick="replaceSignature()">🔄 Replace</button>
+<button class="red" type="button" onclick="removeSignature()">🗑 Remove</button>
+</div></div><div class="card"><h2>⭐ Recent Clients</h2><div id="recent"></div></div>
 <div class="card">
 <h2>📋 Clients</h2><input id="search" oninput="render()" placeholder="🔍 Search Client"/>
 <div id="list"></div>
@@ -125,6 +130,13 @@ clients.filter(c=>!q||(c.name||"").toLowerCase().includes(q)||(c.ic||"").toLower
 render();
 renderRecent();
 
+
+let currentSignature="";
+function previewSignature(e){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){currentSignature=ev.target.result;document.getElementById("signaturePreview").src=currentSignature;document.getElementById("signaturePreviewWrap").style.display="block";};r.readAsDataURL(f);}
+function saveSignature(){if(!selectedId){alert("Open a client first");return;}const i=clients.findIndex(x=>x.id===selectedId);if(i<0)return;clients[i].signature=currentSignature;persist();alert("Signature saved");}
+function replaceSignature(){document.getElementById("signatureFile").click();}
+function removeSignature(){if(!selectedId){alert("Open a client first");return;}const i=clients.findIndex(x=>x.id===selectedId);if(i<0)return;delete clients[i].signature;currentSignature="";document.getElementById("signaturePreviewWrap").style.display="none";persist();}
+const _open=openClient;openClient=function(id){_open(id);const c=clients.find(x=>x.id===id);if(c&&c.signature){currentSignature=c.signature;document.getElementById("signaturePreview").src=currentSignature;document.getElementById("signaturePreviewWrap").style.display="block";}}
 </script>
 </body>
 </html>
