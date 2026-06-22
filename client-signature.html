@@ -89,8 +89,17 @@ function saveSig(){
  let c=JSON.parse(localStorage.getItem('tslaClient')||'null');
  if(!c||!processed){alert('Process signature first');return;}
  c.signature=processed;
+ c.updatedAt=new Date().toLocaleString();
  localStorage.setItem('tslaClient',JSON.stringify(c));
- c.updatedAt=new Date().toLocaleString();document.getElementById('updated').innerText=c.updatedAt;localStorage.setItem('tslaClient',JSON.stringify(c));document.getElementById('status').innerText='✅ Signature saved';
+ let clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+ const i=clients.findIndex(x=>x.id===c.id);
+ if(i>=0){
+   clients[i].signature=processed;
+   clients[i].updatedAt=c.updatedAt;
+   localStorage.setItem('tslaClients',JSON.stringify(clients));
+ }
+ document.getElementById('updated').innerText=c.updatedAt;
+ document.getElementById('status').innerText='✅ Signature saved';
 }
 
 window.addEventListener('load',()=>{
