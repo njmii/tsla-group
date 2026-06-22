@@ -173,6 +173,20 @@ Regards,`);
 window.location.href=`mailto:${to}?subject=${subject}&body=${body}`;
 }
 
+
+function initPad(id){
+ const c=document.getElementById(id);const x=c.getContext('2d');let d=false;
+ function pos(e){const r=c.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*c.width/r.width,y:(t.clientY-r.top)*c.height/r.height};}
+ ['mousedown','touchstart'].forEach(ev=>c.addEventListener(ev,e=>{d=true;let p=pos(e);x.beginPath();x.moveTo(p.x,p.y);e.preventDefault();}));
+ ['mousemove','touchmove'].forEach(ev=>c.addEventListener(ev,e=>{if(!d)return;let p=pos(e);x.lineTo(p.x,p.y);x.stroke();e.preventDefault();}));
+ ['mouseup','mouseleave','touchend'].forEach(ev=>c.addEventListener(ev,()=>d=false));
+}
+function clearPad(id){const c=document.getElementById(id);c.getContext('2d').clearRect(0,0,c.width,c.height);}
+window.addEventListener('load',()=>{
+ initPad('witnessPad');initPad('agentPad');
+ const cl=JSON.parse(localStorage.getItem('tslaClient')||'null');
+ if(cl&&cl.signature){document.getElementById('clientSigPreview').src=cl.signature;}
+});
 </script>
 
 </head>
@@ -859,6 +873,20 @@ Regards,`);
 window.location.href=`mailto:${to}?subject=${subject}&body=${body}`;
 }
 
+
+function initPad(id){
+ const c=document.getElementById(id);const x=c.getContext('2d');let d=false;
+ function pos(e){const r=c.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*c.width/r.width,y:(t.clientY-r.top)*c.height/r.height};}
+ ['mousedown','touchstart'].forEach(ev=>c.addEventListener(ev,e=>{d=true;let p=pos(e);x.beginPath();x.moveTo(p.x,p.y);e.preventDefault();}));
+ ['mousemove','touchmove'].forEach(ev=>c.addEventListener(ev,e=>{if(!d)return;let p=pos(e);x.lineTo(p.x,p.y);x.stroke();e.preventDefault();}));
+ ['mouseup','mouseleave','touchend'].forEach(ev=>c.addEventListener(ev,()=>d=false));
+}
+function clearPad(id){const c=document.getElementById(id);c.getContext('2d').clearRect(0,0,c.width,c.height);}
+window.addEventListener('load',()=>{
+ initPad('witnessPad');initPad('agentPad');
+ const cl=JSON.parse(localStorage.getItem('tslaClient')||'null');
+ if(cl&&cl.signature){document.getElementById('clientSigPreview').src=cl.signature;}
+});
 </script>
 
 </body>
