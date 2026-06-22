@@ -155,6 +155,24 @@ function renderRecentClients(){
 }
 renderRecentClients();
 
+
+function emailCancellation(){
+const to="policyservicing.my@fwd.com";
+const subject=encodeURIComponent(`Cancellation Request - ${client?.name||"-"} - ${client?.certificate||"-"}`);
+const body=encodeURIComponent(`Dear Policy Servicing Team,
+
+Please process the cancellation request for the following policy:
+
+Name: ${client?.name||"-"}
+IC: ${client?.ic||"-"}
+Certificate Number: ${client?.certificate||"-"}
+
+Thank you.
+
+Regards,`);
+window.location.href=`mailto:${to}?subject=${subject}&body=${body}`;
+}
+
 </script>
 
 </head>
@@ -317,6 +335,11 @@ onclick="shareWhatsApp()">
 
 📲 Share WhatsApp
 
+</button>
+
+
+<button class="btn secondary" onclick="emailCancellation()">
+📧 Email Cancellation
 </button>
 
 <button
@@ -817,6 +840,24 @@ function renderRecentClients(){
  });
 }
 renderRecentClients();
+
+
+function emailCancellation(){
+const to="policyservicing.my@fwd.com";
+const subject=encodeURIComponent(`Cancellation Request - ${client?.name||"-"} - ${client?.certificate||"-"}`);
+const body=encodeURIComponent(`Dear Policy Servicing Team,
+
+Please process the cancellation request for the following policy:
+
+Name: ${client?.name||"-"}
+IC: ${client?.ic||"-"}
+Certificate Number: ${client?.certificate||"-"}
+
+Thank you.
+
+Regards,`);
+window.location.href=`mailto:${to}?subject=${subject}&body=${body}`;
+}
 
 </script>
 
