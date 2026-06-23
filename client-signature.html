@@ -1,8 +1,7 @@
-
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>client-signature.html FIX</title>
+<title>client-signature.html FIX v1.0.1</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,Segoe UI,sans-serif}
 body{background:#f7f8fa;padding:20px}.container{max-width:900px;margin:auto}
@@ -40,17 +39,25 @@ function current(){
 let processed="";
 const c=current();
 if(c){
- clientName.textContent=c.name||"-";
- clientIc.textContent=c.ic||"-";
- if(c.signature){processed=c.signature;processedPreview.src=processed;status.textContent="✅ Existing signature loaded";}
+ document.getElementById("clientName").textContent=c.name||"-";
+ document.getElementById("clientIc").textContent=c.ic||"-";
+ if(c.signature){
+   processed=c.signature;
+   document.getElementById("processedPreview").src=processed;
+   document.getElementById("status").textContent="✅ Existing signature loaded";
+ }
 }
-upload.onchange=e=>{
+document.getElementById("upload").onchange=e=>{
  const f=e.target.files[0];if(!f)return;
  const r=new FileReader();
- r.onload=()=>{originalPreview.src=r.result;processedPreview.src=r.result;processed=r.result;}
+ r.onload=()=>{
+   document.getElementById("originalPreview").src=r.result;
+   document.getElementById("processedPreview").src=r.result;
+   processed=r.result;
+ }
  r.readAsDataURL(f);
 }
-function removeBg(){processed=processedPreview.src||originalPreview.src;}
+function removeBg(){processed=document.getElementById("processedPreview").src||document.getElementById("originalPreview").src;}
 function saveSig(){
  const id=String(localStorage.getItem("tslaCurrentClientId")||"");
  let arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
@@ -59,7 +66,7 @@ function saveSig(){
  arr[idx].signature=processed;
  arr[idx].updatedAt=new Date().toLocaleString();
  localStorage.setItem("tslaClients",JSON.stringify(arr));
- status.textContent="✅ Signature saved";
+ document.getElementById("status").textContent="✅ Signature saved";
 }
 function downloadPNG(){
  if(!processed)return;
@@ -68,4 +75,3 @@ function downloadPNG(){
 }
 </script>
 </body></html>
-
