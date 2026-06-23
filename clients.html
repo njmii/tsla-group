@@ -1,70 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TSLA Clients</title>
+<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>clients.html v2</title>
 <style>
-*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-body{margin:0;background:#f4f5f7;color:#111}
-.header{position:sticky;top:0;background:#f4f5f7;padding:16px;z-index:10}
+*{box-sizing:border-box;font-family:-apple-system,Segoe UI,sans-serif}
+body{margin:0;background:#f4f5f7}
+.header{position:sticky;top:0;background:#f4f5f7;padding:12px 16px 8px}
+.wrap{max-width:900px;margin:auto}
 .back{color:#ff7a00;text-decoration:none;font-weight:700}
-.search{width:100%;padding:14px;border:none;border-radius:14px;margin-top:12px;font-size:16px}
-.wrap{max-width:900px;margin:auto;padding:0 16px 90px}
-.card{background:#fff;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-.client{display:flex;justify-content:space-between;align-items:center;padding:14px;border-bottom:1px solid #eee}
-.client:last-child{border-bottom:none}
-.badge{font-size:12px;padding:4px 8px;border-radius:999px;background:#eef}
-.open{background:#25D366;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-weight:700}
-.fab{position:fixed;right:20px;bottom:20px;width:60px;height:60px;border:none;border-radius:50%;background:#ff7a00;color:#fff;font-size:34px}
-.small{font-size:13px;color:#666}
-</style>
-</head>
-<body>
-<div class="header">
-<div class="wrap">
-<a class="back" href="index.html">← Back</a>
-<input id="q" class="search" placeholder="Search client..." oninput="render()">
-</div>
-</div>
-
-<div class="wrap">
-<div id="last"></div>
-<div class="card"><div id="list"></div></div>
-</div>
-
-<button class="fab" onclick="location.href='client-profile.html'">+</button>
-
+.search{width:100%;padding:14px;border:none;border-radius:14px;margin-top:10px}
+.card{background:#fff;border-radius:18px;padding:14px;margin:10px 16px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee}
+.row:last-child{border:none}
+.btn{border:none;border-radius:10px;padding:9px 14px;font-weight:700;color:#fff;margin-top:6px}
+.open{background:#22c55e}.del{background:#ef4444}
+.fab{position:fixed;right:18px;bottom:18px;width:62px;height:62px;border:none;border-radius:50%;background:#ff7a00;color:#fff;font-size:36px}
+.badge{font-size:12px;background:#eef;padding:4px 8px;border-radius:999px}
+.small{color:#666}
+</style></head><body>
+<div class='header'><div class='wrap'><a class='back' href='index.html'>← Back</a><input id='q' class='search' placeholder='Search client...' oninput='render()'></div></div>
+<div id='last'></div><div class='card'><div id='list'></div></div>
+<button class='fab' onclick='newClient()'>+</button>
 <script>
 let clients=JSON.parse(localStorage.getItem("tslaClients")||"[]");
-
+function newClient(){
+ localStorage.setItem("tslaClient",JSON.stringify({id:Date.now().toString(),name:"",ic:"",phone:"",bank:"",account:"",holder:"",certificate:""}));
+ location.href="client-profile.html";
+}
 function openClient(id){
  let c=clients.find(x=>x.id===id);
  localStorage.setItem("tslaClient",JSON.stringify(c));
  location.href="client-profile.html";
 }
-
+function del(id){
+ if(!confirm("Delete client?"))return;
+ clients=clients.filter(x=>x.id!==id);
+ localStorage.setItem("tslaClients",JSON.stringify(clients));
+ let cur=JSON.parse(localStorage.getItem("tslaClient")||"null");
+ if(cur&&cur.id===id)localStorage.removeItem("tslaClient");
+ render();
+}
 function render(){
- let q=(document.getElementById('q').value||'').toLowerCase();
+ let q=(qEl=document.getElementById("q")).value.toLowerCase();
  let last=JSON.parse(localStorage.getItem("tslaClient")||"null");
- document.getElementById("last").innerHTML=last?
- `<div class='card'><b>Last Opened</b>
- <div style='margin-top:10px'><b>${last.name||"-"}</b><div class='small'>${last.phone||""}</div>
- <button class='open' onclick="openClient('${last.id}')">Open</button></div></div>`:"";
-
+ document.getElementById("last").innerHTML=last&&last.name?`<div class='card'><b>Last Opened</b><div style='margin-top:8px'><b>${last.name}</b><div class='small'>${last.phone||""}</div><button class='btn open' onclick="openClient('${last.id}')">Open</button></div></div>`:"";
  let out="";
- clients.filter(c=>!q||(c.name||"").toLowerCase().includes(q)||(c.ic||"").includes(q)||(c.phone||"").includes(q))
- .forEach(c=>{
- out+=`<div class='client'>
- <div><b>${c.name||"-"}</b><div class='small'>${c.ic||""}<br>${c.phone||""}</div></div>
- <div style="text-align:right">
- <div class="badge">${c.signature?"✅ Signed":"❌ Unsigned"}</div><br>
- <button class="open" onclick="openClient('${c.id}')">Open</button>
- </div></div>`;
+ clients.filter(c=>!q||(c.name||"").toLowerCase().includes(q)||(c.phone||"").includes(q)||(c.ic||"").includes(q)).forEach(c=>{
+ out+=`<div class='row'><div><b>${c.name||"-"}</b><div class='small'>${c.ic||""}<br>${c.phone||""}</div></div><div style='text-align:right'><div class='badge'>${c.signature?"✅ Signed":"❌ Unsigned"}</div><button class='btn open' onclick="openClient('${c.id}')">Open</button><br><button class='btn del' onclick="del('${c.id}')">Delete</button></div></div>`;
  });
  document.getElementById("list").innerHTML=out||"<div style='padding:20px;text-align:center;color:#777'>No clients</div>";
 }
 render();
-</script>
-</body>
-</html>
+</script></body></html>
