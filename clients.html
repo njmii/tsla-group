@@ -1,52 +1,59 @@
-<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>clients.html v2</title>
+<!DOCTYPE html>
+<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>TSLA Clients Phase 1</title>
 <style>
 *{box-sizing:border-box;font-family:-apple-system,Segoe UI,sans-serif}
-body{margin:0;background:#f4f5f7}
-.header{position:sticky;top:0;background:#f4f5f7;padding:12px 16px 8px}
-.wrap{max-width:900px;margin:auto}
-.back{color:#ff7a00;text-decoration:none;font-weight:700}
-.search{width:100%;padding:14px;border:none;border-radius:14px;margin-top:10px}
-.card{background:#fff;border-radius:18px;padding:14px;margin:10px 16px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+body{margin:0;background:#f5f5f7}
+.header{position:sticky;top:0;background:#f5f5f7;padding:14px 16px;z-index:5}
+a{color:#ff7a00;text-decoration:none;font-weight:700}
+.search{width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px}
+.card{background:#fff;margin:10px 16px;padding:16px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee}
 .row:last-child{border:none}
-.btn{border:none;border-radius:10px;padding:9px 14px;font-weight:700;color:#fff;margin-top:6px}
-.open{background:#22c55e}.del{background:#ef4444}
-.fab{position:fixed;right:18px;bottom:18px;width:62px;height:62px;border:none;border-radius:50%;background:#ff7a00;color:#fff;font-size:36px}
-.badge{font-size:12px;background:#eef;padding:4px 8px;border-radius:999px}
+.btn{background:#22c55e;color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:700}
+.fab{position:fixed;right:20px;bottom:20px;width:62px;height:62px;border-radius:50%;border:none;background:#ff7a00;color:#fff;font-size:36px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end}
+.sheet{background:#fff;width:100%;border-radius:24px 24px 0 0;padding:18px;max-height:85vh;overflow:auto}
+input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:12px}
+.actions{display:flex;gap:10px}.actions button{flex:1;padding:13px;border:none;border-radius:12px;font-weight:700}
+.save{background:#ff7a00;color:#fff}.cancel{background:#eee}
 .small{color:#666}
 </style></head><body>
-<div class='header'><div class='wrap'><a class='back' href='index.html'>← Back</a><input id='q' class='search' placeholder='Search client...' oninput='render()'></div></div>
+<div class='header'><a href='index.html'>← Back</a><input id='q' class='search' placeholder='Search client' oninput='render()'></div>
 <div id='last'></div><div class='card'><div id='list'></div></div>
-<button class='fab' onclick='newClient()'>+</button>
+<button class='fab' onclick='showAdd()'>+</button>
+<div id='m' class='modal'><div class='sheet'>
+<h2 id='mt'>Add Client</h2>
+<input id='name' placeholder='Name'>
+<input id='ic' placeholder='IC Number'>
+<input id='phone' placeholder='Phone Number'>
+<input id='certificate' placeholder='Certificate Number'>
+<input id='bank' placeholder='Bank'>
+<input id='account' placeholder='Account Number'>
+<input id='holder' placeholder='Account Holder'>
+<div class='actions'><button class='cancel' onclick='hide()'>Cancel</button><button class='save' onclick='save()'>Save</button></div>
+</div></div>
 <script>
-let clients=JSON.parse(localStorage.getItem("tslaClients")||"[]");
-function newClient(){
- localStorage.setItem("tslaClient",JSON.stringify({id:Date.now().toString(),name:"",ic:"",phone:"",bank:"",account:"",holder:"",certificate:""}));
- location.href="client-profile.html";
-}
-function openClient(id){
- let c=clients.find(x=>x.id===id);
- localStorage.setItem("tslaClient",JSON.stringify(c));
- location.href="client-profile.html";
-}
-function del(id){
- if(!confirm("Delete client?"))return;
- clients=clients.filter(x=>x.id!==id);
- localStorage.setItem("tslaClients",JSON.stringify(clients));
- let cur=JSON.parse(localStorage.getItem("tslaClient")||"null");
- if(cur&&cur.id===id)localStorage.removeItem("tslaClient");
- render();
-}
+let clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');let edit=null;
 function render(){
- let q=(qEl=document.getElementById("q")).value.toLowerCase();
- let last=JSON.parse(localStorage.getItem("tslaClient")||"null");
- document.getElementById("last").innerHTML=last&&last.name?`<div class='card'><b>Last Opened</b><div style='margin-top:8px'><b>${last.name}</b><div class='small'>${last.phone||""}</div><button class='btn open' onclick="openClient('${last.id}')">Open</button></div></div>`:"";
- let out="";
- clients.filter(c=>!q||(c.name||"").toLowerCase().includes(q)||(c.phone||"").includes(q)||(c.ic||"").includes(q)).forEach(c=>{
- out+=`<div class='row'><div><b>${c.name||"-"}</b><div class='small'>${c.ic||""}<br>${c.phone||""}</div></div><div style='text-align:right'><div class='badge'>${c.signature?"✅ Signed":"❌ Unsigned"}</div><button class='btn open' onclick="openClient('${c.id}')">Open</button><br><button class='btn del' onclick="del('${c.id}')">Delete</button></div></div>`;
- });
- document.getElementById("list").innerHTML=out||"<div style='padding:20px;text-align:center;color:#777'>No clients</div>";
+let q=document.getElementById('q').value.toLowerCase();
+let last=JSON.parse(localStorage.getItem('tslaClient')||'null');
+document.getElementById('last').innerHTML=last&&last.name?`<div class='card'><b>Last Opened</b><div style='margin-top:8px'><b>${last.name}</b><div class='small'>${last.phone||''}</div><button class='btn' onclick="openClient('${last.id}')">Open</button></div></div>`:'';
+let h='';
+clients.filter(c=>!q||(c.name||'').toLowerCase().includes(q)).forEach(c=>{
+h+=`<div class='row'><div><b>${c.name}</b><div class='small'>${c.phone||''}</div></div><button class='btn' onclick="openClient('${c.id}')">Open</button></div>`;
+});
+list.innerHTML=h||"<div class='small'>No clients</div>";
+}
+function openClient(id){let c=clients.find(x=>x.id==id);localStorage.setItem('tslaClient',JSON.stringify(c));location.href='client-profile.html'}
+function showAdd(){edit=null;mt.innerText='Add Client';['name','ic','phone','certificate','bank','account','holder'].forEach(i=>window[i].value='');m.style.display='flex'}
+function hide(){m.style.display='none'}
+function save(){
+let c={id:edit||Date.now().toString(),name:name.value,ic:ic.value,phone:phone.value,certificate:certificate.value,bank:bank.value,account:account.value,holder:holder.value};
+if(edit){clients=clients.map(x=>x.id==edit?c:x)}else clients.unshift(c);
+localStorage.setItem('tslaClients',JSON.stringify(clients));
+localStorage.setItem('tslaClient',JSON.stringify(c));
+hide();render();
 }
 render();
 </script></body></html>
