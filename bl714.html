@@ -1,120 +1,53 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BL714 Generator</title>
+<title>BL714</title>
 <script src="assets/pdf-lib.min.js"></script>
 <style>
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial;background:#f5f5f7}
-.wrap{max-width:900px;margin:auto;padding:20px}
-.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.08);margin-bottom:18px}
-input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;margin:8px 0}
-button{width:100%;padding:15px;border:none;border-radius:14px;background:#0071e3;color:#fff;font-size:16px}
-canvas{width:100%;height:160px;border:1px solid #ccc;border-radius:12px}
+body{margin:0;background:#f5f5f7;font-family:-apple-system,sans-serif}
+.header{padding:18px;background:#fff;position:sticky;top:0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.wrap{max-width:900px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.btn{background:#ff7a00;color:#fff;padding:14px;border-radius:12px;border:0;width:100%}
+input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;margin:8px 0}
+canvas{width:100%;height:140px;border:1px solid #ddd;border-radius:10px}
 </style>
 </head>
 <body>
+<div class="header"><button onclick="history.back()">← Back</button><h2>BL714</h2></div>
 <div class="wrap">
 <div class="card">
-<h2>BL714 Official Form</h2>
-<label>Certificate Owner</label>
-<input id="owner">
+<h3>Certificate Owner</h3>
+<input id="owner" readonly>
+<input id="bank" readonly>
+<input id="acct" readonly>
 <label>Person Covered</label>
-<select id="pcmode">
-<option>Same as Certificate Owner</option>
-<option>Select Existing Client</option>
-</select>
-<select id="client"></select>
-<label>Bank Name</label><input id="bank">
-<label>Account No</label><input id="acct">
-<label>Witness 1</label><input id="w1">
-<label>Witness 2</label><input id="w2">
+<select id="mode"><option>Same as Certificate Owner</option><option>Different Person</option></select>
+<div id="pc" style="display:none">
+<input placeholder="Name">
+<input placeholder="IC">
+<input placeholder="Phone">
+<input placeholder="Address">
 </div>
-
+</div>
 <div class="card">
-<h3>Owner Signature</h3><canvas id="s1"></canvas>
-<h3>Covered Signature</h3><canvas id="s2"></canvas>
-<h3>Witness Signature</h3><canvas id="s3"></canvas>
+<h3>Witness</h3>
+<input placeholder="Witness Name">
+<input placeholder="Witness IC">
+<input placeholder="Witness Phone">
+<canvas id="sig"></canvas>
 </div>
-
-<div class="card">
-<button onclick="generate()">Generate Official PDF</button>
+<div class="card"><button class="btn">Generate Official PDF</button></div>
 </div>
-</div>
-
 <script>
-const owner=JSON.parse(localStorage.getItem("certificateOwner")||"{}");
-document.getElementById("owner").value=owner.name||"";
-const clients=JSON.parse(localStorage.getItem("clients")||"[]");
-const sel=document.getElementById("client");
-clients.forEach(c=>{
- let o=document.createElement("option");
- o.value=c.name;
- o.textContent=c.name;
- sel.appendChild(o);
-});
-document.getElementById("pcmode").onchange=e=>{
- if(e.target.selectedIndex===0){
-   document.getElementById("client").style.display="none";
- }else{
-   document.getElementById("client").style.display="block";
- }
-};
-document.getElementById("client").onchange=e=>{
- let c=clients.find(x=>x.name===e.target.value);
- if(c){
-   bank.value=c.bank||"";
-   acct.value=c.account||"";
- }
-};
-["s1","s2","s3"].forEach(id=>{
- let c=document.getElementById(id),ctx=c.getContext("2d");
- c.width=800;c.height=300;
- let d=false;
- const p=e=>{
-  const r=c.getBoundingClientRect();
-  const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
-  const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
-  return [x*c.width/r.width,y*c.height/r.height];
- };
- const start=e=>{d=true;let a=p(e);ctx.beginPath();ctx.moveTo(a[0],a[1]);};
- const move=e=>{if(!d)return;let a=p(e);ctx.lineTo(a[0],a[1]);ctx.stroke();e.preventDefault();};
- const end=()=>d=false;
- c.onmousedown=start;c.onmousemove=move;window.onmouseup=end;
- c.ontouchstart=start;c.ontouchmove=move;c.ontouchend=end;
-});
-
-async function generate(){
- const {PDFDocument}=PDFLib;
- const src=await fetch("assets/bl714form.pdf");
- const bytes=await src.arrayBuffer();
- const pdf=await PDFDocument.load(bytes);
- const page=pdf.getPages()[0];
-
- // mapped coordinates
- page.drawText(owner.value||"",{x:115,y:665,size:10});
- page.drawText(bank.value||"",{x:115,y:340,size:10});
- page.drawText(acct.value||"",{x:350,y:340,size:10});
- page.drawText(w1.value||"",{x:115,y:120,size:10});
- page.drawText(w2.value||"",{x:350,y:120,size:10});
-
- async function sig(id,x,y,w,h){
-   const png=await pdf.embedPng(document.getElementById(id).toDataURL());
-   page.drawImage(png,{x,y,width:w,height:h});
- }
- await sig("s1",90,70,120,35);
- await sig("s2",250,70,120,35);
- await sig("s3",410,70,120,35);
-
- const out=await pdf.save();
- const blob=new Blob([out],{type:"application/pdf"});
- const a=document.createElement("a");
- a.href=URL.createObjectURL(blob);
- a.download="BL714.pdf";
- a.click();
-}
+const c=JSON.parse(localStorage.getItem("currentClient")||localStorage.getItem("selectedClient")||"{}");
+owner.value=c.name||"";
+bank.value=c.bank||"";
+acct.value=c.account||"";
+mode.onchange=()=>pc.style.display=mode.selectedIndex? "block":"none";
 </script>
 </body>
 </html>
