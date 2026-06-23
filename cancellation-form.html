@@ -132,26 +132,26 @@ line-height:1.6;
 </style>
 
 <script src="https://unpkg.com/pdf-lib">
-
-const allClients=JSON.parse(localStorage.getItem("tslaClients"))||[];
 function renderClientPicker(){
- const box=document.getElementById("clientPicker");
+ const box=document.getElementById('clientPicker');
  if(!box)return;
- const q=(document.getElementById("clientSearch")?.value||"").toLowerCase();
- const current=JSON.parse(localStorage.getItem("tslaClient")||"null");
- let list=q?allClients.filter(c=>(c.name||"").toLowerCase().includes(q)):
- (current?[current,...allClients.filter(x=>x.id!==current.id)].slice(0,3):allClients.slice(0,3));
- box.innerHTML="";
+ const allClients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+ const current=JSON.parse(localStorage.getItem('tslaClient')||'null');
+ const q=(document.getElementById('clientSearch')?.value||'').toLowerCase().trim();
+ let list=q?allClients.filter(c=>
+ ((c.name||'')+' '+(c.ic||'')+' '+(c.phone||'')).toLowerCase().includes(q)
+):(current?[current,...allClients.filter(x=>x.id!==current.id)].slice(0,3):allClients.slice(0,3));
+ box.innerHTML='';
  list.forEach(c=>{
-  const d=document.createElement("div");
-  d.style="padding:10px;border:1px solid #eee;border-radius:12px;margin:8px 0";
-  d.innerHTML="<b>"+(c.name||"-")+"</b><br><small>"+(c.ic||"")+"</small>";
-  const b=document.createElement("button");
-  b.className="btn secondary";
-  b.textContent="Use";
-  b.onclick=()=>{localStorage.setItem("tslaClient",JSON.stringify(c));location.reload();};
-  d.appendChild(b);
-  box.appendChild(d);
+   const d=document.createElement('div');
+   d.style='padding:10px;border:1px solid #eee;border-radius:12px;margin:8px 0';
+   d.innerHTML='<b>'+(c.name||'-')+'</b><br><small>'+(c.ic||'')+'</small>';
+   const b=document.createElement('button');
+   b.className='btn secondary';
+   b.textContent='Use';
+   b.onclick=()=>{localStorage.setItem('tslaClient',JSON.stringify(c));location.reload();};
+   d.appendChild(b);
+   box.appendChild(d);
  });
 }
 window.addEventListener('load',renderClientPicker);
@@ -268,7 +268,7 @@ Client data loaded automatically from Client Profile.
 
 <div class="card">
 <div class="title">🔍 Search Client</div>
-<input class="input" id="clientSearch" placeholder="Search client..." oninput="renderClientPicker()">
+<input class="input" id="clientSearch" placeholder="Search name / IC / phone" oninput="renderClientPicker()">
 <div id="clientPicker"></div>
 </div><div class="card"><div class="title">Additional Information
 
@@ -880,29 +880,29 @@ String(err)
 }
 
 
-const allClients=JSON.parse(localStorage.getItem("tslaClients"))||[];
-function renderRecentClients(){
- const c=document.getElementById("recentClients");
- if(!c)return;
- c.innerHTML="";
- recentClients.forEach(r=>{
-  const row=document.createElement("div");
-  row.style="display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid #eee;border-radius:12px;margin:8px 0";
-  row.innerHTML="<div><b>"+(r.name||"-")+"</b><br><small>"+(r.phone||"")+"</small></div>";
-  const b=document.createElement("button");
-  b.className="btn secondary";
-  b.style.width="120px";
-  b.textContent="Use";
-  b.onclick=()=>{
-    localStorage.setItem("tslaClient",JSON.stringify(r));
-    location.reload();
-  };
-  row.appendChild(b);
-  c.appendChild(row);
+function renderClientPicker(){
+ const box=document.getElementById('clientPicker');
+ if(!box)return;
+ const allClients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+ const current=JSON.parse(localStorage.getItem('tslaClient')||'null');
+ const q=(document.getElementById('clientSearch')?.value||'').toLowerCase().trim();
+ let list=q?allClients.filter(c=>
+ ((c.name||'')+' '+(c.ic||'')+' '+(c.phone||'')).toLowerCase().includes(q)
+):(current?[current,...allClients.filter(x=>x.id!==current.id)].slice(0,3):allClients.slice(0,3));
+ box.innerHTML='';
+ list.forEach(c=>{
+   const d=document.createElement('div');
+   d.style='padding:10px;border:1px solid #eee;border-radius:12px;margin:8px 0';
+   d.innerHTML='<b>'+(c.name||'-')+'</b><br><small>'+(c.ic||'')+'</small>';
+   const b=document.createElement('button');
+   b.className='btn secondary';
+   b.textContent='Use';
+   b.onclick=()=>{localStorage.setItem('tslaClient',JSON.stringify(c));location.reload();};
+   d.appendChild(b);
+   box.appendChild(d);
  });
 }
-renderRecentClients();
-
+window.addEventListener('load',renderClientPicker);
 
 function emailCancellation(){
 const to="policyservicing.my@fwd.com";
@@ -959,4 +959,5 @@ window.addEventListener('load',()=>{
 </body>
 
 </html>
+
 
