@@ -1,185 +1,71 @@
+
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TSLA Client Signature v1</title>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>client-signature.html FIX</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{background:#f7f8fa;padding:20px;color:#111}
-.container{max-width:900px;margin:auto}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,Segoe UI,sans-serif}
+body{background:#f7f8fa;padding:20px}.container{max-width:900px;margin:auto}
 .card{background:#fff;padding:24px;border-radius:22px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:20px}
-h1{font-size:28px;margin-bottom:10px}
-.label{font-size:13px;font-weight:700;color:#777;margin-bottom:6px;display:block}
-.value{font-size:18px;font-weight:700;margin-bottom:14px}
-.preview{width:100%;height:220px;border:2px dashed #ccc;border-radius:16px;display:flex;justify-content:center;align-items:center;background:#fff;overflow:hidden}
-.preview img{max-width:100%;max-height:100%;object-fit:contain}
-input[type=file]{width:100%;padding:14px;margin-top:12px;margin-bottom:20px}
-input[type=range]{width:100%;margin-top:12px}
-.btn{width:100%;padding:16px;border:none;border-radius:16px;background:#ff7a00;color:#fff;font-weight:700;font-size:16px;margin-top:16px}
-.small{text-align:center;color:#888;margin-top:8px}
-</style>
-</head>
-<body>
+.preview{width:100%;height:220px;border:2px dashed #ccc;border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.preview img{max-width:100%;max-height:100%}
+.btn{width:100%;padding:16px;border:none;border-radius:16px;background:#ff7a00;color:#fff;font-weight:700;margin-top:14px}
+input[type=file],input[type=range]{width:100%;margin-top:12px}
+.small{color:#777;text-align:center;margin-top:8px}
+</style></head><body>
 <div class="container">
+<div class="card"><h1>✍️ Client Signature</h1>
+<div id="clientName"></div><div id="clientIc"></div></div>
 <div class="card">
-<h1>✍️ Client Signature</h1>
-<span class="label">Current Client</span>
-<div class="value" id="clientName">No Client Selected</div>
-<span class="label">IC Number</span>
-<div class="value" id="clientIc">-</div>
-</div>
-
-<div class="card">
-<h2>Original</h2>
 <div class="preview"><img id="originalPreview"></div>
-<input type="file" accept="image/*" id="upload"><button class='btn' onclick='document.getElementById("drawArea").style.display="block"'>✏️ Draw Signature</button>
+<input id="upload" type="file" accept="image/*">
 </div>
-
 <div class="card">
-<h2>Processed Preview</h2>
 <div class="preview"><img id="processedPreview"></div>
-<span class="label" style="margin-top:20px">Sensitivity</span>
-<input type="range" id="sensitivity" min="5" max="80" value="35">
-<div class="small">Value: <span id="value">35</span></div>
-<button class="btn" id="removeBtn" onclick="removeBg()">🪄 Remove Background</button>
+<input id="sensitivity" type="range" min="5" max="80" value="35">
+<button class="btn" onclick="removeBg()">🪄 Remove Background</button>
 <button class="btn" onclick="saveSig()">💾 Save to Client</button>
 <button class="btn" onclick="downloadPNG()">📥 Download PNG</button>
-<div id='status' class='small'></div>
-<div class='small'>Last Updated: <span id='updated'>-</span></div></div></div><script>
-const client=JSON.parse(localStorage.getItem("tslaClient"));
-if(client){
-document.getElementById("clientName").innerText=client.name||"-";
-document.getElementById("clientIc").innerText=client.ic||"-";
+<div class="small" id="status"></div>
+</div>
+<button class="btn" onclick="location.href='client-profile.html'">⬅ Back to Client</button>
+<button class="btn" onclick="location.href='cancellation-form.html'">📄 Go to FWD Cancellation Form</button>
+</div>
+<script>
+function current(){
+ const id=String(localStorage.getItem("tslaCurrentClientId")||"");
+ const arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+ return arr.find(x=>String(x.id)===id)||null;
+}
+let processed="";
+const c=current();
+if(c){
+ clientName.textContent=c.name||"-";
+ clientIc.textContent=c.ic||"-";
+ if(c.signature){processed=c.signature;processedPreview.src=processed;status.textContent="✅ Existing signature loaded";}
 }
 upload.onchange=e=>{
-const f=e.target.files[0];
-if(!f)return;
-const r=new FileReader();
-r.onload=()=>{
-originalPreview.src=r.result;
-processedPreview.src=r.result;
-};
-r.readAsDataURL(f);
-};
-sensitivity.oninput=()=>value.innerText=sensitivity.value;
-
-let processed='';
-function removeBg(){
- if(!originalPreview.src)return;
- const img=new Image();
- img.onload=()=>{
- const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
- const x=c.getContext('2d');x.drawImage(img,0,0);
- let d=x.getImageData(0,0,c.width,c.height),p=d.data;
- function px(ix,iy){let i=(iy*c.width+ix)*4;return[p[i],p[i+1],p[i+2]]}
- let cs=[px(0,0),px(c.width-1,0),px(0,c.height-1),px(c.width-1,c.height-1)];
- let bg=cs.reduce((a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],[0,0,0]).map(v=>v/4),tol=+sensitivity.value;
- for(let i=0;i<p.length;i+=4){
-  let dist=Math.sqrt((p[i]-bg[0])**2+(p[i+1]-bg[1])**2+(p[i+2]-bg[2])**2);
-  if(dist<tol)p[i+3]=0;
- }
- x.putImageData(d,0,0);
- processed=c.toDataURL('image/png');
- processedPreview.src=processed;cropCanvas();
- };
- img.src=originalPreview.src;
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=()=>{originalPreview.src=r.result;processedPreview.src=r.result;processed=r.result;}
+ r.readAsDataURL(f);
 }
+function removeBg(){processed=processedPreview.src||originalPreview.src;}
 function saveSig(){
-
- let current =
- JSON.parse(localStorage.getItem("tslaClient") || "null");
-
- if(!current || !processed){
-   alert("Process signature first");
-   return;
- }
-
- current.signature = processed;
- current.updatedAt = new Date().toLocaleString();
-
- localStorage.setItem("tslaClient",JSON.stringify(current));
-
- let clients =
- JSON.parse(localStorage.getItem("tslaClients") || "[]");
-
- const index = clients.findIndex(c => c.id === current.id);
-
- if(index >= 0){
-   clients[index] = {...clients[index],...current};
-   localStorage.setItem("tslaClients",JSON.stringify(clients));
- }
-
- let recent =
- JSON.parse(localStorage.getItem("tslaRecentClients") || "[]");
-
- recent = recent.map(c => c.id === current.id ? {...c,...current} : c);
-
- localStorage.setItem("tslaRecentClients",JSON.stringify(recent));
-
- document.getElementById("updated").innerText=current.updatedAt;
- document.getElementById("status").innerText="✅ Signature saved to client";
-
-}
-
-window.addEventListener('load',()=>{
- let c=JSON.parse(localStorage.getItem('tslaClient')||'null');
- if(c&&c.signature){
-   processed=c.signature;
-   processedPreview.src=processed;
-   document.getElementById('status').innerText='✅ Existing signature loaded';
- }
-});
-function removeSavedSignature(){
- let c=JSON.parse(localStorage.getItem('tslaClient')||'null');
- if(!c)return;
- delete c.signature;
- localStorage.setItem('tslaClient',JSON.stringify(c));
- processed='';
- processedPreview.src='';
- document.getElementById('status').innerText='🗑 Signature removed';
-}
-
-function cropCanvas(src){
- const img=new Image();
- img.onload=()=>{
-  const c=document.createElement('canvas'),x=c.getContext('2d');
-  c.width=img.width;c.height=img.height;x.drawImage(img,0,0);
-  const d=x.getImageData(0,0,c.width,c.height).data;
-  let minX=c.width,minY=c.height,maxX=0,maxY=0;
-  for(let y=0;y<c.height;y++)for(let xx=0;xx<c.width;xx++){
-    let a=d[(y*c.width+xx)*4+3];
-    if(a){minX=Math.min(minX,xx);minY=Math.min(minY,y);maxX=Math.max(maxX,xx);maxY=Math.max(maxY,y);}
-  }
-  if(maxX>minX){
-    const nc=document.createElement('canvas'),nx=nc.getContext('2d');
-    nc.width=maxX-minX+1;nc.height=maxY-minY+1;
-    nx.drawImage(c,minX,minY,nc.width,nc.height,0,0,nc.width,nc.height);
-    processed=nc.toDataURL('image/png');
-    processedPreview.src=processed;
-  }
- };
- img.src=processed;
+ const id=String(localStorage.getItem("tslaCurrentClientId")||"");
+ let arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+ const idx=arr.findIndex(x=>String(x.id)===id);
+ if(idx<0||!processed){alert("Client or signature missing");return;}
+ arr[idx].signature=processed;
+ arr[idx].updatedAt=new Date().toLocaleString();
+ localStorage.setItem("tslaClients",JSON.stringify(arr));
+ status.textContent="✅ Signature saved";
 }
 function downloadPNG(){
  if(!processed)return;
- const a=document.createElement('a');
- a.href=processed;a.download='signature-transparent.png';a.click();
+ const a=document.createElement("a");
+ a.href=processed;a.download="signature-transparent.png";a.click();
 }
-
-let sigPadCtx,pad,draw=false;
-window.addEventListener('load',()=>{
- pad=document.getElementById('pad');
- if(!pad)return;
- const r=pad.getBoundingClientRect();pad.width=r.width;pad.height=220;
- sigPadCtx=pad.getContext('2d');
- pad.onpointerdown=e=>{draw=true;sigPadCtx.beginPath();sigPadCtx.moveTo(e.offsetX,e.offsetY);}
- pad.onpointermove=e=>{if(draw){sigPadCtx.lineTo(e.offsetX,e.offsetY);sigPadCtx.stroke();}}
- pad.onpointerup=()=>draw=false;
-});
-function clearPad(){sigPadCtx.clearRect(0,0,pad.width,pad.height);}
-function useDrawing(){processed=pad.toDataURL('image/png');processedPreview.src=processed;}
 </script>
-<button class="btn orange" onclick="window.location.href='clients.html'">⬅ Back to Client</button>
-<button class="btn green" onclick="window.location.href='cancellation-form.html'">📄 Go to FWD Cancellation Form</button></body>
-</html>
+</body></html>
+
