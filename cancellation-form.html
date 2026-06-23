@@ -132,28 +132,21 @@ line-height:1.6;
 </style>
 
 <script src="https://unpkg.com/pdf-lib">
-const recentClients=JSON.parse(localStorage.getItem("tslaRecentClients"))||[];
+const allClients=JSON.parse(localStorage.getItem("tslaClients"))||[];
 function renderRecentClients(){
- const c=document.getElementById("recentClients");
+ const c=document.getElementById("clientPicker");
  if(!c)return;
- c.innerHTML="";
- recentClients.forEach(r=>{
-  const row=document.createElement("div");
-  row.style="display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid #eee;border-radius:12px;margin:8px 0";
-  row.innerHTML="<div><b>"+(r.name||"-")+"</b><br><small>"+(r.phone||"")+"</small></div>";
-  const b=document.createElement("button");
-  b.className="btn secondary";
-  b.style.width="120px";
-  b.textContent="Use";
-  b.onclick=()=>{
-    localStorage.setItem("tslaClient",JSON.stringify(r));
-    location.reload();
-  };
-  row.appendChild(b);
-  c.appendChild(row);
+ const current=JSON.parse(localStorage.getItem("tslaClient")||"null");
+ let html="";
+ if(current){
+ html+="<div class='card'><div class='title'>⭐ Last Opened Client</div><button class='btn secondary' onclick='location.reload()'>"+(current.name||"-")+"</button></div>";
+ }
+ allClients.forEach(r=>{
+ html+="<div style='padding:10px;border:1px solid #eee;border-radius:12px;margin:8px 0'><b>"+(r.name||"-")+"</b><button class='btn secondary' onclick='localStorage.setItem("tslaClient",JSON.stringify(allClients.find(x=>x.id===""+'${r.id}'+"")));location.reload()'>Use</button></div>";
  });
+ c.innerHTML=html;
 }
-renderRecentClients();
+
 
 
 function emailCancellation(){
@@ -265,15 +258,8 @@ Client data loaded automatically from Client Profile.
 </div>
 
 
-<div class="card">
-<div class="title">⭐ Recent Clients</div>
-<div id="recentClients"></div>
-</div>
-<div class="card">
 
-<div class="title">
-
-Additional Information
+<div class="card"><div class="title">🔍 Client List</div><div id="clientPicker"></div></div><div class="card"><div class="title">Additional Information
 
 </div>
 
@@ -883,7 +869,7 @@ String(err)
 }
 
 
-const recentClients=JSON.parse(localStorage.getItem("tslaRecentClients"))||[];
+const allClients=JSON.parse(localStorage.getItem("tslaClients"))||[];
 function renderRecentClients(){
  const c=document.getElementById("recentClients");
  if(!c)return;
@@ -962,3 +948,4 @@ window.addEventListener('load',()=>{
 </body>
 
 </html>
+
