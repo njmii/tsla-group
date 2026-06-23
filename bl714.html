@@ -1,68 +1,80 @@
 <!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>BL714 v1.2</title>
+<title>BL714 Stage 5</title>
 <style>
 *{box-sizing:border-box;font-family:-apple-system,Segoe UI,sans-serif}
 body{margin:0;background:#f5f5f7}
 .header{position:sticky;top:0;background:#f5f5f7;padding:14px 16px}
-a{color:#ff7a00;text-decoration:none;font-weight:700}
+.header a{color:#ff7a00;text-decoration:none;font-weight:700}
 .card{background:#fff;margin:10px 16px;padding:16px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.tag{display:inline-block;background:#fff3e6;color:#ff7a00;padding:5px 10px;border-radius:999px;font-weight:700;font-size:12px;margin-bottom:10px}
-.row{margin:8px 0}.lab{font-size:12px;color:#777;font-weight:700}.val{font-weight:700}
-input,textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;margin:7px 0}
+.tag{display:inline-block;background:#fff3e6;color:#ff7a00;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:10px}
+label{display:block;font-size:12px;color:#777;font-weight:700;margin-top:8px}
+input,textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;margin-top:6px}
+.value{font-weight:700;padding:10px 0}
 .btn{width:100%;padding:14px;border:none;border-radius:14px;font-weight:700;margin-top:10px}
 .orange{background:#ff7a00;color:#fff}.grey{background:#eee}
-.sig{height:120px;border:2px dashed #ccc;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.sig img{max-width:100%;max-height:100%}
 canvas{width:100%;height:140px;border:2px dashed #bbb;border-radius:12px}
 #covered{display:none}
-.ok{color:#0a9b43;font-weight:700}
+.badge{display:inline-block;background:#e8f7ea;color:#15803d;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}
+@media print{
+body{background:#fff}
+.header,.btn,.toggleWrap{display:none!important}
+.card{margin:0;padding:8px;border-radius:0;box-shadow:none;border:none;page-break-inside:avoid}
+input,textarea{border:none;padding:2px}
+}
 </style></head><body>
 <div class='header'><a href='client-profile.html'>← Back</a></div>
-<div class='card'><span class='tag'>📄 BL714</span><div id='owner'></div></div>
-<div class='card'>
-<span class='tag'>✍️ Policy Owner Signature</span>
-<div class='sig'><img id='ownersig'></div>
-<div id='sigstatus' class='ok'>⚪ No Saved Signature</div>
+
+<div class='card'><span class='tag'>📄 BL714 v1.0</span>
+<label>No Sijil *</label><input placeholder='Masukkan No Sijil'>
+<label>Tarikh</label><input id='dt' readonly>
+<div style='margin-top:10px'><span class='badge'>☑ Masalah Kewangan</span></div>
 </div>
-<div class='card'>
-<span class='tag'>👤 Witness</span>
+
+<div class='card'><span class='tag'>🏦 Bank Details</span>
+<div id='holder' class='value'></div>
+<div id='account' class='value'></div>
+<div id='bank' class='value'></div></div>
+
+<div class='card'><span class='tag'>👤 Pemilik Sijil</span>
+<div id='name' class='value'></div>
+<div id='ic' class='value'></div></div>
+
+<div class='card'><span class='tag'>👤 Saksi</span>
 <input placeholder='Name'><input placeholder='IC Number'><input placeholder='Phone Number'>
 <textarea placeholder='Current Address'></textarea>
-<canvas id='wpad'></canvas>
-<button class='btn grey' onclick='clearW()'>Clear Witness Signature</button>
+<canvas id='w'></canvas>
+<button class='btn grey' onclick='cw()'>Clear Witness Signature</button>
 </div>
-<div class='card'>
-<button id='toggle' class='btn grey' onclick='toggleCovered()'>➕ Add Person Covered (Optional)</button>
+
+<div class='card toggleWrap'>
+<button id='toggle' class='btn grey' onclick='tg()'>➕ Orang Yang Dilindungi (Optional)</button>
 <div id='covered'>
 <input placeholder='Name'><input placeholder='IC Number'><input placeholder='Phone Number'>
 <textarea placeholder='Current Address'></textarea>
-<canvas id='ppad'></canvas>
-<button class='btn grey' onclick='clearP()'>Clear Person Covered Signature</button>
+<canvas id='p'></canvas>
+<button class='btn grey' onclick='cp()'>Clear Person Covered Signature</button>
 </div>
 </div>
-<div class='card'><button class='btn orange'>📄 Generate BL714</button></div>
+
+<div class='card'><button class='btn orange' onclick='window.print()'>📄 Generate / Print BL714</button></div>
+
 <script>
 const id=localStorage.getItem('tslaCurrentClientId');
 const arr=JSON.parse(localStorage.getItem('tslaClients')||'[]');
 const c=arr.find(x=>String(x.id)===String(id))||{};
-document.getElementById('owner').innerHTML=
-`<div class=row><div class=lab>Name</div><div class=val>${c.name||'-'}</div></div>
-<div class=row><div class=lab>IC</div><div class=val>${c.ic||'-'}</div></div>
-<div class=row><div class=lab>Certificate</div><div class=val>${c.certificate||'-'}</div></div>`;
-if(c.signature){
-document.getElementById('ownersig').src=c.signature;
-document.getElementById('sigstatus').textContent='🟢 Signature Ready';
-}
-function toggleCovered(){
-const b=document.getElementById('covered'),t=document.getElementById('toggle');
-if(b.style.display==='block'){b.style.display='none';t.textContent='➕ Add Person Covered (Optional)';}
-else{b.style.display='block';t.textContent='➖ Hide Person Covered';}}
-function init(id){
-const cv=document.getElementById(id),ctx=cv.getContext('2d');
-cv.width=cv.getBoundingClientRect().width;cv.height=140;let d=false;
-cv.onpointerdown=e=>{d=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);}
-cv.onpointermove=e=>{if(d){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke();}}
+name.textContent=c.name||'-';
+ic.textContent=c.ic||'-';
+holder.textContent='Nama Pemegang Akaun: '+(c.holder||c.name||'-');
+account.textContent='No Akaun: '+(c.account||'-');
+bank.textContent='Nama Bank: '+(c.bank||'-');
+dt.value=new Date().toLocaleDateString('en-GB');
+function init(cv){cv.width=cv.getBoundingClientRect().width;cv.height=140;const x=cv.getContext('2d');let d=false;
+cv.onpointerdown=e=>{d=true;x.beginPath();x.moveTo(e.offsetX,e.offsetY)};
+cv.onpointermove=e=>{if(d){x.lineTo(e.offsetX,e.offsetY);x.stroke()}};
 window.addEventListener('pointerup',()=>d=false);
-return ()=>ctx.clearRect(0,0,cv.width,cv.height);}
-clearW=init('wpad');clearP=init('ppad');
-</script></body></html>
+return ()=>x.clearRect(0,0,cv.width,cv.height);}
+cw=init(w);cp=init(p);
+function tg(){covered.style.display=covered.style.display==='block'?'none':'block';
+toggle.textContent=covered.style.display==='block'?'➖ Hide Orang Yang Dilindungi':'➕ Orang Yang Dilindungi (Optional)';}
+</script>
+</body></html>
