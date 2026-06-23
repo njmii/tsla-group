@@ -3,49 +3,62 @@
 <title>TSLA Clients</title>
 <style>
 *{box-sizing:border-box;font-family:-apple-system,Segoe UI,sans-serif}
-body{margin:0;background:#f5f5f7}
-.header{position:sticky;top:0;background:#f5f5f7;padding:14px 16px;z-index:5}
-a{color:#ff7a00;text-decoration:none;font-weight:700}
-.search{width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px}
+body{margin:0;background:#f5f5f7}.header{position:sticky;top:0;background:#f5f5f7;padding:14px 16px}
+a{color:#ff7a00;text-decoration:none;font-weight:700}.search{width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px}
 .card{background:#fff;margin:10px 16px;padding:16px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee}
-.row:last-child{border:none}
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee}.row:last-child{border:none}
 .btn{background:#22c55e;color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:700}
-.fab{position:fixed;right:20px;bottom:20px;width:62px;height:62px;border-radius:50%;border:none;background:#ff7a00;color:#fff;font-size:36px}
+.fab{position:fixed;right:20px;bottom:20px;width:62px;height:62px;border:none;border-radius:50%;background:#ff7a00;color:#fff;font-size:36px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end}
-.sheet{background:#fff;width:100%;border-radius:24px 24px 0 0;padding:18px;max-height:85vh;overflow:auto}
+.sheet{background:#fff;width:100%;border-radius:24px 24px 0 0;padding:18px}
 input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:12px}
 .actions{display:flex;gap:10px}.actions button{flex:1;padding:13px;border:none;border-radius:12px;font-weight:700}
-.save{background:#ff7a00;color:#fff}.cancel{background:#eee}
-.small{color:#666;font-size:13px}.ok{color:#0a9b43;font-weight:700}.pending{color:#c77700;font-weight:700}
+.save{background:#ff7a00;color:#fff}.cancel{background:#eee}.small{color:#666;font-size:13px}.ok{color:#0a9b43}.pending{color:#c77700}
 </style></head><body>
-<div class='header'><a href='index.html'>← Back</a><input id='q' class='search' placeholder='🔍 Search name, IC, phone or certificate' oninput='render()'></div>
+<div class='header'><a href='index.html'>← Back</a><input id='q' class='search' placeholder='🔍 Search' oninput='render()'></div>
 <div id='last'></div><div class='card'><div id='list'></div></div>
 <button class='fab' onclick='showAdd()'>+</button>
 <div id='m' class='modal'><div class='sheet'>
-<h2 id='mt'>Add Client</h2>
+<h2>Add Client</h2>
 <input id='name' placeholder='Name'><input id='ic' placeholder='IC Number'><input id='phone' placeholder='Phone Number'><input id='certificate' placeholder='Certificate Number'><input id='bank' placeholder='Bank'><input id='account' placeholder='Account Number'><input id='holder' placeholder='Account Holder'>
 <div class='actions'><button class='cancel' onclick='hide()'>Cancel</button><button class='save' onclick='save()'>Save</button></div>
 </div></div>
 <script>
-let clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');let edit=null;
+let clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
 function sig(c){return c.signature?"<span class='ok'>🟢 Signature Saved</span>":"<span class='pending'>⚪ No Signature</span>";}
-function render(){
-let term=q.value.toLowerCase();
-let lastClient=JSON.parse(localStorage.getItem('tslaClient')||'null');
-last.innerHTML=lastClient&&lastClient.name?`<div class='card'><b>⭐ Last Opened</b><div style='margin-top:8px'><b>${lastClient.name}</b><div class='small'>${lastClient.phone||''}</div><div>${sig(lastClient)}</div><button class='btn' onclick="openClient('${lastClient.id}')">Open</button></div></div>`:'';
-let h='';
-clients.filter(c=>!term||[c.name,c.ic,c.phone,c.certificate].join(' ').toLowerCase().includes(term)).forEach(c=>{
-h+=`<div class='row'><div><b>${c.name||''}</b><div class='small'>${c.phone||''}</div><div class='small'>${sig(c)}</div></div><button class='btn' onclick="openClient('${c.id}')">Open</button></div>`;
-});
-list.innerHTML=h||"<div class='small'>👥 No clients yet</div>";
+function currentObj(){
+ const id=localStorage.getItem('tslaCurrentClientId');
+ return clients.find(x=>String(x.id)===String(id));
 }
-function openClient(id){let c=clients.find(x=>x.id==id);localStorage.setItem('tslaClient',JSON.stringify(c));location.href='client-profile.html'}
-function showAdd(){edit=null;mt.innerText='Add Client';['name','ic','phone','certificate','bank','account','holder'].forEach(i=>window[i].value='');m.style.display='flex'}
-function hide(){m.style.display='none'}
+function render(){
+ clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+ const term=document.getElementById('q').value.toLowerCase();
+ const lastClient=currentObj();
+ document.getElementById('last').innerHTML=lastClient?`<div class='card'><b>⭐ Last Opened</b><div style='margin-top:8px'><b>${lastClient.name||''}</b><div class='small'>${lastClient.phone||''}</div><div>${sig(lastClient)}</div><button class='btn' onclick="openClient('${lastClient.id}')">Open</button></div></div>`:'';
+ let h='';
+ clients.filter(c=>!term||[c.name,c.ic,c.phone,c.certificate].join(' ').toLowerCase().includes(term)).forEach(c=>{
+ h+=`<div class='row'><div><b>${c.name||''}</b><div class='small'>${c.phone||''}</div><div class='small'>${sig(c)}</div></div><button class='btn' onclick="openClient('${c.id}')">Open</button></div>`;
+ });
+ document.getElementById('list').innerHTML=h||"<div class='small'>👥 No clients yet</div>";
+}
+function openClient(id){
+ localStorage.setItem('tslaCurrentClientId',String(id));
+ location.href='client-profile.html';
+}
+function showAdd(){
+ ['name','ic','phone','certificate','bank','account','holder'].forEach(x=>document.getElementById(x).value='');
+ document.getElementById('m').style.display='flex';
+}
+function hide(){document.getElementById('m').style.display='none';}
 function save(){
-if(!name.value.trim()||!phone.value.trim())return alert('Name and Phone required');
-let c={id:Date.now().toString(),name:name.value,ic:ic.value,phone:phone.value,certificate:certificate.value,bank:bank.value,account:account.value,holder:holder.value};
-clients.unshift(c);localStorage.setItem('tslaClients',JSON.stringify(clients));localStorage.setItem('tslaClient',JSON.stringify(c));hide();render();}
+ const nm=document.getElementById('name').value;
+ const ph=document.getElementById('phone').value;
+ if(!nm.trim()||!ph.trim())return alert('Name and Phone required');
+ const c={id:Date.now().toString(),name:nm,ic:document.getElementById('ic').value,phone:ph,certificate:document.getElementById('certificate').value,bank:document.getElementById('bank').value,account:document.getElementById('account').value,holder:document.getElementById('holder').value};
+ clients.unshift(c);
+ localStorage.setItem('tslaClients',JSON.stringify(clients));
+ localStorage.setItem('tslaCurrentClientId',String(c.id));
+ hide();render();
+}
 render();
 </script></body></html>
