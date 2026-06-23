@@ -225,7 +225,7 @@ class="back">
 
 </a>
 
-<div class="card"><div class="title">👤 Current Client</div><div class="row"><div class="label">Name</div><div class="value" id="currentName">-</div></div><div class="row"><div class="label">IC</div><div class="value" id="currentIc">-</div></div><div class="row"><div class="label">Phone</div><div class="value" id="currentPhone">-</div></div></div>
+
 <div class="card">
 
 <div class="title">
@@ -279,11 +279,7 @@ Client data loaded automatically from Client Profile.
 
 
 
-<div class="card">
-<div class="title">🔍 Search Client</div>
-<input class="input" id="clientSearch" placeholder="Search name / IC / phone" oninput="renderClientPicker()">
-<div id="clientPicker"></div>
-</div><div class="card"><div class="title">Additional Information
+<div class="card"><div class="title">Additional Information Information
 
 </div>
 
@@ -354,18 +350,7 @@ onclick="saveAgentProfile()">
 
 </button>
 
-<button
-class="btn secondary"
-onclick="shareWhatsApp()">
 
-📲 Share WhatsApp
-
-</button>
-
-
-<button class="btn secondary" onclick="emailCancellation()">
-📧 Email Cancellation
-</button>
 
 
 <div class="card">
@@ -387,6 +372,10 @@ onclick="testFwdPdf()">
 📄 Generate Cancellation Form
 
 </button>
+
+<button class="btn secondary" onclick="shareWhatsApp()">📲 Share WhatsApp</button>
+
+<button class="btn secondary" onclick="emailCancellation()">📧 Email Cancellation</button>
 
 <div
 class="notice"
