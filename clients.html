@@ -3,96 +3,68 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TSLA Client Manager v2.1</title>
+<title>TSLA Clients</title>
 <style>
-*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;padding:0}
-body{background:#f7f8fa;color:#111}
-.wrap{max-width:900px;margin:auto;padding:18px}
-.card{background:#fff;border-radius:20px;padding:18px;box-shadow:0 3px 16px rgba(0,0,0,.06);margin-bottom:18px}
-h2{margin-bottom:14px}
-input{width:100%;padding:14px;margin:7px 0;border:2px solid #eee;border-radius:12px;font-size:16px}
-button{width:100%;padding:14px;border:none;border-radius:12px;margin-top:8px;font-weight:700;cursor:pointer}
-.orange{background:#ff7a00;color:#fff}.green{background:#25D366;color:#fff}.red{background:#e53935;color:#fff}
-.client{border:1px solid #eee;border-radius:12px;padding:12px;margin-top:10px}
-.small{color:#666;font-size:14px}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{margin:0;background:#f4f5f7;color:#111}
+.header{position:sticky;top:0;background:#f4f5f7;padding:16px;z-index:10}
+.back{color:#ff7a00;text-decoration:none;font-weight:700}
+.search{width:100%;padding:14px;border:none;border-radius:14px;margin-top:12px;font-size:16px}
+.wrap{max-width:900px;margin:auto;padding:0 16px 90px}
+.card{background:#fff;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.client{display:flex;justify-content:space-between;align-items:center;padding:14px;border-bottom:1px solid #eee}
+.client:last-child{border-bottom:none}
+.badge{font-size:12px;padding:4px 8px;border-radius:999px;background:#eef}
+.open{background:#25D366;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-weight:700}
+.fab{position:fixed;right:20px;bottom:20px;width:60px;height:60px;border:none;border-radius:50%;background:#ff7a00;color:#fff;font-size:34px}
+.small{font-size:13px;color:#666}
 </style>
 </head>
 <body>
+<div class="header">
 <div class="wrap">
-<a href="index.html" style="display:inline-block;margin:0 0 14px 4px;text-decoration:none;font-weight:700;color:#ff7a00;">← Home</a>
-
-<div class="card">
-<h2>👥 Client Manager</h2>
-<input id="name" placeholder="Name">
-<input id="ic" placeholder="IC">
-<input id="phone" placeholder="Phone">
-<input id="certificate" placeholder="Certificate">
-<input id="bank" placeholder="Bank">
-<input id="account" placeholder="Account">
-<input id="holder" placeholder="Account Holder">
-<button class="orange" onclick="saveNew()">➕ Save New Client</button>
-<button class="green" onclick="updateClient()">💾 Update Client</button>
-<button class="red" onclick="deleteClient()">🗑 Delete Client</button>
-</div>
-
-<div class="card">
-<h2>✍️ Client Signature</h2>
-<div id="sigStatus" class="small">❌ No Signature</div>
-<button class="orange" onclick="location.href='client-signature.html'">Manage Signature</button>
-</div>
-
-
-<div class="card">
-<h2>📋 Clients</h2>
-<input id="search" placeholder="🔍 Search Client" oninput="render()">
-<div id="lastOpened"></div><div id="list"></div>
+<a class="back" href="index.html">← Back</a>
+<input id="q" class="search" placeholder="Search client..." oninput="render()">
 </div>
 </div>
+
+<div class="wrap">
+<div id="last"></div>
+<div class="card"><div id="list"></div></div>
+</div>
+
+<button class="fab" onclick="location.href='client-profile.html'">+</button>
 
 <script>
-let clients=JSON.parse(localStorage.getItem("tslaClients"))||[];
-let selectedId=null;
-function v(id){return document.getElementById(id).value}
-function s(id,x){document.getElementById(id).value=x||""}
-function persist(){localStorage.setItem("tslaClients",JSON.stringify(clients));render();}
-function saveNew(){
- const c={id:Date.now().toString(),name:v("name"),ic:v("ic"),phone:v("phone"),certificate:v("certificate"),bank:v("bank"),account:v("account"),holder:v("holder")};
- clients.push(c);persist();
-}
+let clients=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+
 function openClient(id){
- const c=clients.find(x=>x.id===id);if(!c)return;
- selectedId=id;
- ["name","ic","phone","certificate","bank","account","holder"].forEach(k=>s(k,c[k]));
+ let c=clients.find(x=>x.id===id);
  localStorage.setItem("tslaClient",JSON.stringify(c));
- render();updateSig();
+ location.href="client-profile.html";
 }
-function updateClient(){
- if(!selectedId)return alert("Open a client first");
- const i=clients.findIndex(x=>x.id===selectedId);
- clients[i]={...clients[i],name:v("name"),ic:v("ic"),phone:v("phone"),certificate:v("certificate"),bank:v("bank"),account:v("account"),holder:v("holder")};
- localStorage.setItem("tslaClient",JSON.stringify(clients[i]));persist();updateSig();
-}
-function deleteClient(){
- if(!selectedId)return alert("Open a client first");
- clients=clients.filter(x=>x.id!==selectedId);
- localStorage.removeItem("tslaClient");persist();selectedId=null;
-}
+
 function render(){
- const q=(document.getElementById("search").value||"").toLowerCase();
- const list=document.getElementById("list");list.innerHTML="";renderLast();
- clients.filter(c=>!q||(c.name||"").toLowerCase().includes(q)).forEach(c=>{
-  const d=document.createElement("div");d.className="client";
-  d.innerHTML="<b>"+(c.name||"-")+"</b><div class='small'>"+(c.ic||"")+"</div>";
-  const b=document.createElement("button");b.className="green";b.textContent="Open";b.onclick=()=>openClient(c.id);
-  d.appendChild(b);list.appendChild(d);
+ let q=(document.getElementById('q').value||'').toLowerCase();
+ let last=JSON.parse(localStorage.getItem("tslaClient")||"null");
+ document.getElementById("last").innerHTML=last?
+ `<div class='card'><b>Last Opened</b>
+ <div style='margin-top:10px'><b>${last.name||"-"}</b><div class='small'>${last.phone||""}</div>
+ <button class='open' onclick="openClient('${last.id}')">Open</button></div></div>`:"";
+
+ let out="";
+ clients.filter(c=>!q||(c.name||"").toLowerCase().includes(q)||(c.ic||"").includes(q)||(c.phone||"").includes(q))
+ .forEach(c=>{
+ out+=`<div class='client'>
+ <div><b>${c.name||"-"}</b><div class='small'>${c.ic||""}<br>${c.phone||""}</div></div>
+ <div style="text-align:right">
+ <div class="badge">${c.signature?"✅ Signed":"❌ Unsigned"}</div><br>
+ <button class="open" onclick="openClient('${c.id}')">Open</button>
+ </div></div>`;
  });
+ document.getElementById("list").innerHTML=out||"<div style='padding:20px;text-align:center;color:#777'>No clients</div>";
 }
-function renderLast(){const box=document.getElementById('lastOpened');const c=JSON.parse(localStorage.getItem('tslaClient')||'null');if(!c){box.innerHTML='';return;}box.innerHTML=`<div class='client'><b>⭐ Last Opened</b><br><b>${c.name||'-'}</b><div class='small'>${c.ic||''}</div><button class='green' onclick="openClient('${c.id}')">Open</button></div>`;}
-function updateSig(){
- const c=JSON.parse(localStorage.getItem("tslaClient")||"null");
- document.getElementById("sigStatus").textContent=(c&&c.signature)?"✅ Signature Saved":"❌ No Signature";
-}
-render();renderLast();updateSig();
+render();
 </script>
 </body>
 </html>
