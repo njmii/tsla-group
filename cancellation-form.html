@@ -132,22 +132,29 @@ line-height:1.6;
 </style>
 
 <script src="https://unpkg.com/pdf-lib">
+
 const allClients=JSON.parse(localStorage.getItem("tslaClients"))||[];
-function renderRecentClients(){
- const c=document.getElementById("clientPicker");
- if(!c)return;
+function renderClientPicker(){
+ const box=document.getElementById("clientPicker");
+ if(!box)return;
+ const q=(document.getElementById("clientSearch")?.value||"").toLowerCase();
  const current=JSON.parse(localStorage.getItem("tslaClient")||"null");
- let html="";
- if(current){
- html+="<div class='card'><div class='title'>⭐ Last Opened Client</div><button class='btn secondary' onclick='location.reload()'>"+(current.name||"-")+"</button></div>";
- }
- allClients.forEach(r=>{
- html+="<div style='padding:10px;border:1px solid #eee;border-radius:12px;margin:8px 0'><b>"+(r.name||"-")+"</b><button class='btn secondary' onclick='localStorage.setItem("tslaClient",JSON.stringify(allClients.find(x=>x.id===""+'${r.id}'+"")));location.reload()'>Use</button></div>";
+ let list=q?allClients.filter(c=>(c.name||"").toLowerCase().includes(q)):
+ (current?[current,...allClients.filter(x=>x.id!==current.id)].slice(0,3):allClients.slice(0,3));
+ box.innerHTML="";
+ list.forEach(c=>{
+  const d=document.createElement("div");
+  d.style="padding:10px;border:1px solid #eee;border-radius:12px;margin:8px 0";
+  d.innerHTML="<b>"+(c.name||"-")+"</b><br><small>"+(c.ic||"")+"</small>";
+  const b=document.createElement("button");
+  b.className="btn secondary";
+  b.textContent="Use";
+  b.onclick=()=>{localStorage.setItem("tslaClient",JSON.stringify(c));location.reload();};
+  d.appendChild(b);
+  box.appendChild(d);
  });
- c.innerHTML=html;
 }
-
-
+window.addEventListener('load',renderClientPicker);
 
 function emailCancellation(){
 const to="policyservicing.my@fwd.com";
@@ -259,7 +266,11 @@ Client data loaded automatically from Client Profile.
 
 
 
-<div class="card"><div class="title">🔍 Client List</div><div id="clientPicker"></div></div><div class="card"><div class="title">Additional Information
+<div class="card">
+<div class="title">🔍 Search Client</div>
+<input class="input" id="clientSearch" placeholder="Search client..." oninput="renderClientPicker()">
+<div id="clientPicker"></div>
+</div><div class="card"><div class="title">Additional Information
 
 </div>
 
