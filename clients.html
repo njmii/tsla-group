@@ -41,21 +41,20 @@ button{width:100%;padding:14px;border:none;border-radius:12px;margin-top:8px;fon
 <button class="orange" onclick="location.href='client-signature.html'">Manage Signature</button>
 </div>
 
-<div class="card"><h2>⭐ Recent Clients</h2><div id="recent"></div></div>
+
 <div class="card">
 <h2>📋 Clients</h2>
 <input id="search" placeholder="🔍 Search Client" oninput="render()">
-<div id="list"></div>
+<div id="lastOpened"></div><div id="list"></div>
 </div>
 </div>
 
 <script>
 let clients=JSON.parse(localStorage.getItem("tslaClients"))||[];
-let recent=JSON.parse(localStorage.getItem("tslaRecentClients"))||[];
 let selectedId=null;
 function v(id){return document.getElementById(id).value}
 function s(id,x){document.getElementById(id).value=x||""}
-function persist(){localStorage.setItem("tslaClients",JSON.stringify(clients));render();renderRecent();}
+function persist(){localStorage.setItem("tslaClients",JSON.stringify(clients));render();}
 function saveNew(){
  const c={id:Date.now().toString(),name:v("name"),ic:v("ic"),phone:v("phone"),certificate:v("certificate"),bank:v("bank"),account:v("account"),holder:v("holder")};
  clients.push(c);persist();
@@ -65,9 +64,7 @@ function openClient(id){
  selectedId=id;
  ["name","ic","phone","certificate","bank","account","holder"].forEach(k=>s(k,c[k]));
  localStorage.setItem("tslaClient",JSON.stringify(c));
- recent=[c].concat(recent.filter(x=>x.id!==c.id)).slice(0,5);
- localStorage.setItem("tslaRecentClients",JSON.stringify(recent));
- renderRecent();updateSig();
+ render();updateSig();
 }
 function updateClient(){
  if(!selectedId)return alert("Open a client first");
@@ -82,7 +79,7 @@ function deleteClient(){
 }
 function render(){
  const q=(document.getElementById("search").value||"").toLowerCase();
- const list=document.getElementById("list");list.innerHTML="";
+ const list=document.getElementById("list");list.innerHTML="";renderLast();
  clients.filter(c=>!q||(c.name||"").toLowerCase().includes(q)).forEach(c=>{
   const d=document.createElement("div");d.className="client";
   d.innerHTML="<b>"+(c.name||"-")+"</b><div class='small'>"+(c.ic||"")+"</div>";
@@ -90,20 +87,12 @@ function render(){
   d.appendChild(b);list.appendChild(d);
  });
 }
-function renderRecent(){
- const r=document.getElementById("recent");r.innerHTML="";
- recent.forEach(c=>{
-  const d=document.createElement("div");d.className="client";
-  d.innerHTML="<b>"+c.name+"</b>";
-  const b=document.createElement("button");b.className="green";b.textContent="Open";b.onclick=()=>openClient(c.id);
-  d.appendChild(b);r.appendChild(d);
- });
-}
+function renderLast(){const box=document.getElementById('lastOpened');const c=JSON.parse(localStorage.getItem('tslaClient')||'null');if(!c){box.innerHTML='';return;}box.innerHTML=`<div class='client'><b>⭐ Last Opened</b><br><b>${c.name||'-'}</b><div class='small'>${c.ic||''}</div><button class='green' onclick="openClient('${c.id}')">Open</button></div>`;}
 function updateSig(){
  const c=JSON.parse(localStorage.getItem("tslaClient")||"null");
  document.getElementById("sigStatus").textContent=(c&&c.signature)?"✅ Signature Saved":"❌ No Signature";
 }
-render();renderRecent();updateSig();
+render();renderLast();updateSig();
 </script>
 </body>
 </html>
