@@ -1,82 +1,112 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TSLA Client Workspace</title>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>client-profile.html</title>
 <style>
-*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;padding:0}
-body{background:#f7f8fa;color:#111}
-.header{position:sticky;top:0;background:#fff;padding:10px;border-bottom:1px solid #eee;text-align:center}
-.container{max-width:900px;margin:auto;padding:18px}
-.back{text-decoration:none;color:#ff7a00;font-weight:700;display:inline-block;margin-bottom:14px}
+*{box-sizing:border-box;font-family:-apple-system,Segoe UI,sans-serif;margin:0;padding:0}
+body{background:#f7f8fa}.header{background:#fff;padding:14px;text-align:center;border-bottom:1px solid #eee;font-weight:700;position:sticky;top:0}
+.container{max-width:900px;margin:auto;padding:18px}.back{display:inline-block;margin-bottom:14px;color:#ff7a00;text-decoration:none;font-weight:700}
 .card{background:#fff;border-radius:20px;padding:18px;box-shadow:0 3px 16px rgba(0,0,0,.06);margin-bottom:18px}
-h2{margin-bottom:10px}
-.row{margin:8px 0}
-.label{color:#777;font-size:13px;font-weight:700}
-.value{font-weight:700}
+.label{font-size:12px;color:#777;font-weight:700}.value{font-weight:700;margin:4px 0 10px}
 button{width:100%;padding:14px;border:none;border-radius:14px;margin-top:10px;font-weight:700}
-.orange{background:#ff7a00;color:#fff}.green{background:#25D366;color:#fff}.red{background:#e53935;color:#fff}
-#edit{display:none}
-input{width:100%;padding:14px;border:2px solid #eee;border-radius:12px;margin:6px 0}
+.o{background:#ff7a00;color:#fff}.g{background:#25D366;color:#fff}.r{background:#e53935;color:#fff}
+#edit{display:none}input,textarea{width:100%;padding:13px;border:2px solid #eee;border-radius:12px;margin:6px 0 12px}
+h3{margin:10px 0;color:#777;font-size:14px}
 </style></head><body>
-<div class="header"><b>TSLA</b></div>
+<div class="header">TSLA</div>
 <div class="container">
 <a class="back" href="clients.html">← Clients</a>
 <div class="card">
 <h2 id="title">👤 Client Workspace</h2>
-<div class="row"><div class="label">IC</div><div class="value" id="icv"></div></div>
-<div class="row"><div class="label">Phone</div><div class="value" id="phonev"></div></div>
-<div class="row"><div class="label">Email</div><div class="value" id="emailv"></div></div>
-<div class="row"><div class="label">Address</div><div class="value" id="addressv"></div></div>
+<h3>PERSONAL</h3>
+<div class="label">Name</div><div id="namev" class="value">-</div>
+<div class="label">IC</div><div id="icv" class="value">-</div>
+<div class="label">Phone</div><div id="phonev" class="value">-</div>
+<div class="label">Email</div><div id="emailv" class="value">-</div>
+<div class="label">Address</div><div id="addressv" class="value">-</div>
+<h3>POLICY</h3>
+<div class="label">Certificate</div><div id="certificatev" class="value">-</div>
+<h3>BANK</h3>
+<div class="label">Bank</div><div id="bankv" class="value">-</div>
+<div class="label">Account</div><div id="accountv" class="value">-</div>
+<div class="label">Holder</div><div id="holderv" class="value">-</div>
 </div>
-
 <div class="card">
-<h2>📜 Policy</h2>
-<div class="row"><div class="label">Certificate</div><div class="value" id="certv"></div></div>
-<div class="row"><div class="label">Bank</div><div class="value" id="bankv"></div></div>
-<div class="row"><div class="label">Account</div><div class="value" id="accountv"></div></div>
-<div class="row"><div class="label">Holder</div><div class="value" id="holderv"></div></div>
+<button class="o" onclick="location.href='client-signature.html'">✍️ Manage Signature</button>
+<button class="o" onclick="location.href='cancellation-form.html'">📄 FWD Cancellation</button>
+<button class="g" onclick="location.href='bl714.html'">📄 BL714</button>
 </div>
-
 <div class="card">
-<h2>✍️ Signature</h2>
-<button class="orange" onclick="location.href='client-signature.html'">Manage Signature</button>
+<button class="o" onclick="toggleEdit()">✏️ Edit Client</button>
+<button class="r" onclick="removeClient()">🗑 Delete Client</button>
 </div>
-
-<div class="card">
-<h2>📄 Forms</h2>
-<button class="orange" onclick="location.href='cancellation-form.html'">FWD Cancellation</button>
-<button class="green" onclick="location.href='bl714.html'">BL714</button>
-</div>
-
-<div class="card">
-<h2>⚙️ Client Actions</h2>
-<button class="orange" onclick="toggleEdit()">✏️ Edit Client</button>
-<button class="red" onclick="clearClient()">🗑 Delete Client</button>
-</div>
-
 <div class="card" id="edit">
-<h2>Edit Client</h2>
-<input id="name"><input id="ic"><input id="phone"><input id="email"><input id="address">
-<input id="certificate"><input id="bank"><input id="account"><input id="holder">
-<button class="orange" onclick="save()">💾 Save</button>
-<button class="green" onclick="toggleEdit()">Cancel</button>
+<label>Name</label><input id="name">
+<label>IC</label><input id="ic">
+<label>Phone</label><input id="phone">
+<label>Email</label><input id="email">
+<label>Address</label><textarea id="address"></textarea>
+<label>Certificate</label><input id="certificate">
+<label>Bank</label><input id="bank">
+<label>Account</label><input id="account">
+<label>Holder</label><input id="holder">
+<button class="o" onclick="saveClient()">💾 Save</button>
+<button class="g" onclick="toggleEdit()">Cancel</button>
 </div>
 </div>
 <script>
+function migrate(){
+ const legacy=JSON.parse(localStorage.getItem("tslaClient")||"null");
+ if(legacy&&legacy.id&&legacy.name&&!localStorage.getItem("tslaCurrentClientId")){
+   localStorage.setItem("tslaCurrentClientId",String(legacy.id));
+ }
+}
+function current(){
+ migrate();
+ const id=String(localStorage.getItem("tslaCurrentClientId")||"");
+ const arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+ return arr.find(x=>String(x.id)===id)||{};
+}
 function load(){
-let c=JSON.parse(localStorage.getItem('tslaClient')||'{}');
-title.innerText='👤 '+(c.name||'No Client');
-['ic','phone','email','address','certificate','bank','account','holder'].forEach(k=>{
-let e=document.getElementById(k+'v');if(e)e.innerText=c[k]||'-';
-let i=document.getElementById(k);if(i)i.value=c[k]||'';
-});
-name.value=c.name||'';
+ const c=current();
+ document.getElementById("title").textContent="👤 "+(c.name||"Client Workspace");
+ ["name","ic","phone","email","address","certificate","bank","account","holder"].forEach(function(k){
+   const v=document.getElementById(k+"v"); if(v) v.textContent=c[k]||"-";
+   const inp=document.getElementById(k); if(inp) inp.value=c[k]||"";
+ });
 }
-function toggleEdit(){edit.style.display=edit.style.display=='block'?'none':'block'}
-function save(){
-let c={name:name.value,ic:ic.value,phone:phone.value,email:email.value,address:address.value,certificate:certificate.value,bank:bank.value,account:account.value,holder:holder.value};
-localStorage.setItem('tslaClient',JSON.stringify(c));toggleEdit();load();
+function toggleEdit(){
+ const e=document.getElementById("edit");
+ e.style.display=e.style.display==="block"?"none":"block";
 }
-function clearClient(){if(confirm('Delete current client?')){localStorage.removeItem('tslaClient');location.reload();}}
+function saveClient(){
+ const arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+ const id=String(localStorage.getItem("tslaCurrentClientId")||"");
+ const idx=arr.findIndex(x=>String(x.id)===id);
+ if(idx<0){alert("Client not found");return;}
+ arr[idx]={
+   ...arr[idx],
+   name:document.getElementById("name").value,
+   ic:document.getElementById("ic").value,
+   phone:document.getElementById("phone").value,
+   email:document.getElementById("email").value,
+   address:document.getElementById("address").value,
+   certificate:document.getElementById("certificate").value,
+   bank:document.getElementById("bank").value,
+   account:document.getElementById("account").value,
+   holder:document.getElementById("holder").value
+ };
+ localStorage.setItem("tslaClients",JSON.stringify(arr));
+ load();
+ toggleEdit();
+}
+function removeClient(){
+ const id=String(localStorage.getItem("tslaCurrentClientId")||"");
+ if(!confirm("Delete client?"))return;
+ const arr=JSON.parse(localStorage.getItem("tslaClients")||"[]").filter(x=>String(x.id)!==id);
+ localStorage.setItem("tslaClients",JSON.stringify(arr));
+ localStorage.removeItem("tslaCurrentClientId");
+ location.href="clients.html";
+}
 load();
 </script></body></html>
