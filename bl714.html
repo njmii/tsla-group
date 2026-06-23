@@ -1,34 +1,120 @@
-<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>BL714 Pass4</title>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BL714 Generator</title>
+<script src="assets/pdf-lib.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,Segoe UI,sans-serif}
-body{background:#f7f8fa}.header{background:#fff;padding:8px;text-align:center;border-bottom:1px solid #eee}.logo{width:48px}
-.container{max-width:900px;margin:auto;padding:20px}.back{color:#ff7a00;text-decoration:none;font-weight:700}
-.card{background:#fff;padding:22px;border-radius:22px;box-shadow:0 4px 18px rgba(0,0,0,.05);margin:18px 0}
-.title{font-size:1.4rem;font-weight:900;margin-bottom:10px}.label{font-weight:700;color:#666;margin:8px 0 4px}
-.value{font-weight:600}.input,.ta{width:100%;padding:14px;border:2px solid #eee;border-radius:16px}
-canvas{width:100%;height:150px;border:2px dashed #bbb;border-radius:12px;touch-action:none}
-.btn{width:100%;padding:15px;border:none;border-radius:16px;font-weight:700;margin-top:10px}.pri{background:#ff7a00;color:#fff}.sec{background:#25D366;color:#fff}
-#covered{display:none}.badge{display:inline-block;background:#e8f7ea;color:#15803d;padding:6px 10px;border-radius:999px;font-weight:700}
-@media print{
-body{background:#fff}.header,.back,.btn{display:none!important}
-.card{box-shadow:none;border-radius:0;margin:0;padding:8px;page-break-inside:avoid}
-.input,.ta{border:none;padding:4px}
-}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial;background:#f5f5f7}
+.wrap{max-width:900px;margin:auto;padding:20px}
+.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.08);margin-bottom:18px}
+input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;margin:8px 0}
+button{width:100%;padding:15px;border:none;border-radius:14px;background:#0071e3;color:#fff;font-size:16px}
+canvas{width:100%;height:160px;border:1px solid #ccc;border-radius:12px}
 </style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<h2>BL714 Official Form</h2>
+<label>Certificate Owner</label>
+<input id="owner">
+<label>Person Covered</label>
+<select id="pcmode">
+<option>Same as Certificate Owner</option>
+<option>Select Existing Client</option>
+</select>
+<select id="client"></select>
+<label>Bank Name</label><input id="bank">
+<label>Account No</label><input id="acct">
+<label>Witness 1</label><input id="w1">
+<label>Witness 2</label><input id="w2">
+</div>
+
+<div class="card">
+<h3>Owner Signature</h3><canvas id="s1"></canvas>
+<h3>Covered Signature</h3><canvas id="s2"></canvas>
+<h3>Witness Signature</h3><canvas id="s3"></canvas>
+</div>
+
+<div class="card">
+<button onclick="generate()">Generate Official PDF</button>
+</div>
+</div>
+
 <script>
-function gc(){const id=localStorage.getItem('tslaCurrentClientId');const a=JSON.parse(localStorage.getItem('tslaClients')||'[]');return a.find(x=>String(x.id)===String(id))||{}}
-function pad(id){const c=document.getElementById(id),x=c.getContext('2d');c.width=c.offsetWidth;c.height=150;let d=false;c.onpointerdown=e=>{d=true;x.beginPath();x.moveTo(e.offsetX,e.offsetY)};c.onpointermove=e=>{if(d){x.lineTo(e.offsetX,e.offsetY);x.stroke()}};window.addEventListener('pointerup',()=>d=false);return()=>x.clearRect(0,0,c.width,c.height)}
-let cw,cp;
-window.onload=()=>{const c=gc();name.textContent=c.name||'-';ic.textContent=c.ic||'-';holder.textContent=c.holder||'-';account.textContent=c.account||'-';bank.textContent=c.bank||'-';const d=new Date();date.value=("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+"/"+d.getFullYear();cw=pad('w');cp=pad('p')}
-function tg(){covered.style.display=covered.style.display==='block'?'none':'block';toggle.textContent=covered.style.display==='block'?'➖ Hide Person Covered':'➕ Add Person Covered (Optional)'}
-</script></head><body>
-<div class='header'><img class='logo' src='https://njmii.github.io/tsla-group/assets/tslalogo.png'></div>
-<div class='container'>
-<a class='back' href='client-profile.html'>← Back</a>
-<div class='card'><div class='title'>📄 BL714</div><div class='badge'>☑ Masalah Kewangan</div><div class='label'>No Sijil BL714</div><input class='input'><div class='label'>Tarikh</div><input id='date' class='input'></div>
-<div class='card'><div class='title'>Policy Owner</div><div class='label'>Name</div><div id='name' class='value'></div><div class='label'>IC</div><div id='ic' class='value'></div><div class='label'>Account Holder</div><div id='holder' class='value'></div><div class='label'>Account</div><div id='account' class='value'></div><div class='label'>Bank</div><div id='bank' class='value'></div></div>
-<div class='card'><div class='title'>👤 Witness</div><input class='input' placeholder='Name'><input class='input' placeholder='IC'><input class='input' placeholder='Phone'><textarea class='ta' placeholder='Address'></textarea><canvas id='w'></canvas><button class='btn sec' onclick='cw()'>Clear Witness</button></div>
-<div class='card'><button id='toggle' class='btn sec' onclick='tg()'>➕ Add Person Covered (Optional)</button><div id='covered'><input class='input' placeholder='Name'><input class='input' placeholder='IC'><input class='input' placeholder='Phone'><textarea class='ta' placeholder='Address'></textarea><canvas id='p'></canvas><button class='btn sec' onclick='cp()'>Clear Person Covered</button></div></div>
-<div class='card'><button class='btn pri' onclick='window.print()'>📄 Generate / Print BL714</button></div>
-</div></body></html>
+const owner=JSON.parse(localStorage.getItem("certificateOwner")||"{}");
+document.getElementById("owner").value=owner.name||"";
+const clients=JSON.parse(localStorage.getItem("clients")||"[]");
+const sel=document.getElementById("client");
+clients.forEach(c=>{
+ let o=document.createElement("option");
+ o.value=c.name;
+ o.textContent=c.name;
+ sel.appendChild(o);
+});
+document.getElementById("pcmode").onchange=e=>{
+ if(e.target.selectedIndex===0){
+   document.getElementById("client").style.display="none";
+ }else{
+   document.getElementById("client").style.display="block";
+ }
+};
+document.getElementById("client").onchange=e=>{
+ let c=clients.find(x=>x.name===e.target.value);
+ if(c){
+   bank.value=c.bank||"";
+   acct.value=c.account||"";
+ }
+};
+["s1","s2","s3"].forEach(id=>{
+ let c=document.getElementById(id),ctx=c.getContext("2d");
+ c.width=800;c.height=300;
+ let d=false;
+ const p=e=>{
+  const r=c.getBoundingClientRect();
+  const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+  const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+  return [x*c.width/r.width,y*c.height/r.height];
+ };
+ const start=e=>{d=true;let a=p(e);ctx.beginPath();ctx.moveTo(a[0],a[1]);};
+ const move=e=>{if(!d)return;let a=p(e);ctx.lineTo(a[0],a[1]);ctx.stroke();e.preventDefault();};
+ const end=()=>d=false;
+ c.onmousedown=start;c.onmousemove=move;window.onmouseup=end;
+ c.ontouchstart=start;c.ontouchmove=move;c.ontouchend=end;
+});
+
+async function generate(){
+ const {PDFDocument}=PDFLib;
+ const src=await fetch("assets/bl714form.pdf");
+ const bytes=await src.arrayBuffer();
+ const pdf=await PDFDocument.load(bytes);
+ const page=pdf.getPages()[0];
+
+ // mapped coordinates
+ page.drawText(owner.value||"",{x:115,y:665,size:10});
+ page.drawText(bank.value||"",{x:115,y:340,size:10});
+ page.drawText(acct.value||"",{x:350,y:340,size:10});
+ page.drawText(w1.value||"",{x:115,y:120,size:10});
+ page.drawText(w2.value||"",{x:350,y:120,size:10});
+
+ async function sig(id,x,y,w,h){
+   const png=await pdf.embedPng(document.getElementById(id).toDataURL());
+   page.drawImage(png,{x,y,width:w,height:h});
+ }
+ await sig("s1",90,70,120,35);
+ await sig("s2",250,70,120,35);
+ await sig("s3",410,70,120,35);
+
+ const out=await pdf.save();
+ const blob=new Blob([out],{type:"application/pdf"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="BL714.pdf";
+ a.click();
+}
+</script>
+</body>
+</html>
