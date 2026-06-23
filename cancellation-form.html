@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!--
+TSLA CRM
+Page: cancellation-form.html
+Version: 1.0.0-pass1
+-->
+<script>
+function getCurrentClient(){
+ const id=localStorage.getItem("tslaCurrentClientId");
+ const clients=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+ return clients.find(c=>String(c.id)===String(id))||{};
+}
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cancellation Form Generator</title>
@@ -136,7 +149,7 @@ function renderClientPicker(){
  const box=document.getElementById('clientPicker');
  if(!box)return;
  const allClients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
- const current=JSON.parse(localStorage.getItem('tslaClient')||'null');
+ const current=getCurrentClient();
  const q=(document.getElementById('clientSearch')?.value||'').toLowerCase().trim();
  let list=q?allClients.filter(c=>
  ((c.name||'')+' '+(c.ic||'')+' '+(c.phone||'')).toLowerCase().includes(q)
@@ -149,12 +162,12 @@ function renderClientPicker(){
    const b=document.createElement('button');
    b.className='btn secondary';
    b.textContent='Use';
-   b.onclick=()=>{localStorage.setItem('tslaClient',JSON.stringify(c));location.reload();};
+   b.onclick=()=>{localStorage.setItem('tslaCurrentClientId',String(c.id));location.reload();};
    d.appendChild(b);
    box.appendChild(d);
  });
 }
-window.addEventListener('load',renderClientPicker);
+
 
 function emailCancellation(){
 const to="policyservicing.my@fwd.com";
@@ -184,7 +197,7 @@ function initPad(id){
 function clearPad(id){const c=document.getElementById(id);c.getContext('2d').clearRect(0,0,c.width,c.height);}
 window.addEventListener('load',()=>{
  initPad('witnessPad');initPad('agentPad');
- const cl=JSON.parse(localStorage.getItem('tslaClient')||'null');
+ const cl=getCurrentClient();
  if(cl&&cl.signature){document.getElementById('clientSigPreview').src=cl.signature;}
 });
 </script>
@@ -386,10 +399,7 @@ id="output">
 
 <script>
 
-const client =
-JSON.parse(
-localStorage.getItem("tslaClient")
-);
+const client=getCurrentClient();
 
 if(client){
 
@@ -880,61 +890,6 @@ String(err)
 }
 
 
-function renderClientPicker(){
- const box=document.getElementById('clientPicker');
- if(!box)return;
- const allClients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
- const current=JSON.parse(localStorage.getItem('tslaClient')||'null');
- const q=(document.getElementById('clientSearch')?.value||'').toLowerCase().trim();
- let list=q?allClients.filter(c=>
- ((c.name||'')+' '+(c.ic||'')+' '+(c.phone||'')).toLowerCase().includes(q)
-):(current?[current,...allClients.filter(x=>x.id!==current.id)].slice(0,3):allClients.slice(0,3));
- box.innerHTML='';
- list.forEach(c=>{
-   const d=document.createElement('div');
-   d.style='padding:10px;border:1px solid #eee;border-radius:12px;margin:8px 0';
-   d.innerHTML='<b>'+(c.name||'-')+'</b><br><small>'+(c.ic||'')+'</small>';
-   const b=document.createElement('button');
-   b.className='btn secondary';
-   b.textContent='Use';
-   b.onclick=()=>{localStorage.setItem('tslaClient',JSON.stringify(c));location.reload();};
-   d.appendChild(b);
-   box.appendChild(d);
- });
-}
-window.addEventListener('load',renderClientPicker);
-
-function emailCancellation(){
-const to="policyservicing.my@fwd.com";
-const subject=encodeURIComponent(`Cancellation Request - ${client?.name||"-"} - ${client?.certificate||"-"}`);
-const body=encodeURIComponent(`Dear Policy Servicing Team,
-
-Please process the cancellation request for the following policy:
-
-Name: ${client?.name||"-"}
-IC: ${client?.ic||"-"}
-Certificate Number: ${client?.certificate||"-"}
-
-Thank you.
-
-Regards,`);
-window.location.href=`mailto:${to}?subject=${subject}&body=${body}`;
-}
-
-
-function initPad(id){
- const c=document.getElementById(id);const x=c.getContext('2d');let d=false;
- function pos(e){const r=c.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*c.width/r.width,y:(t.clientY-r.top)*c.height/r.height};}
- ['mousedown','touchstart'].forEach(ev=>c.addEventListener(ev,e=>{d=true;let p=pos(e);x.beginPath();x.moveTo(p.x,p.y);e.preventDefault();}));
- ['mousemove','touchmove'].forEach(ev=>c.addEventListener(ev,e=>{if(!d)return;let p=pos(e);x.lineTo(p.x,p.y);x.stroke();e.preventDefault();}));
- ['mouseup','mouseleave','touchend'].forEach(ev=>c.addEventListener(ev,()=>d=false));
-}
-function clearPad(id){const c=document.getElementById(id);c.getContext('2d').clearRect(0,0,c.width,c.height);}
-window.addEventListener('load',()=>{
- initPad('witnessPad');initPad('agentPad');
- const cl=JSON.parse(localStorage.getItem('tslaClient')||'null');
- if(cl&&cl.signature){document.getElementById('clientSigPreview').src=cl.signature;}
-});
 </script>
 
 
@@ -949,7 +904,7 @@ window.addEventListener('load',()=>{
    wpad=new SignaturePad(wc);
    apad=new SignaturePad(ac);
  }
- const cl=JSON.parse(localStorage.getItem('tslaClient')||'null');
+ const cl=getCurrentClient();
  if(cl&&cl.signature){
    const img=document.getElementById('clientSigPreview');
    if(img)img.src=cl.signature;
