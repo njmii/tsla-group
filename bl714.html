@@ -1,0 +1,68 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>BL714 v1.2</title>
+<style>
+*{box-sizing:border-box;font-family:-apple-system,Segoe UI,sans-serif}
+body{margin:0;background:#f5f5f7}
+.header{position:sticky;top:0;background:#f5f5f7;padding:14px 16px}
+a{color:#ff7a00;text-decoration:none;font-weight:700}
+.card{background:#fff;margin:10px 16px;padding:16px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.tag{display:inline-block;background:#fff3e6;color:#ff7a00;padding:5px 10px;border-radius:999px;font-weight:700;font-size:12px;margin-bottom:10px}
+.row{margin:8px 0}.lab{font-size:12px;color:#777;font-weight:700}.val{font-weight:700}
+input,textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;margin:7px 0}
+.btn{width:100%;padding:14px;border:none;border-radius:14px;font-weight:700;margin-top:10px}
+.orange{background:#ff7a00;color:#fff}.grey{background:#eee}
+.sig{height:120px;border:2px dashed #ccc;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.sig img{max-width:100%;max-height:100%}
+canvas{width:100%;height:140px;border:2px dashed #bbb;border-radius:12px}
+#covered{display:none}
+.ok{color:#0a9b43;font-weight:700}
+</style></head><body>
+<div class='header'><a href='client-profile.html'>← Back</a></div>
+<div class='card'><span class='tag'>📄 BL714</span><div id='owner'></div></div>
+<div class='card'>
+<span class='tag'>✍️ Policy Owner Signature</span>
+<div class='sig'><img id='ownersig'></div>
+<div id='sigstatus' class='ok'>⚪ No Saved Signature</div>
+</div>
+<div class='card'>
+<span class='tag'>👤 Witness</span>
+<input placeholder='Name'><input placeholder='IC Number'><input placeholder='Phone Number'>
+<textarea placeholder='Current Address'></textarea>
+<canvas id='wpad'></canvas>
+<button class='btn grey' onclick='clearW()'>Clear Witness Signature</button>
+</div>
+<div class='card'>
+<button id='toggle' class='btn grey' onclick='toggleCovered()'>➕ Add Person Covered (Optional)</button>
+<div id='covered'>
+<input placeholder='Name'><input placeholder='IC Number'><input placeholder='Phone Number'>
+<textarea placeholder='Current Address'></textarea>
+<canvas id='ppad'></canvas>
+<button class='btn grey' onclick='clearP()'>Clear Person Covered Signature</button>
+</div>
+</div>
+<div class='card'><button class='btn orange'>📄 Generate BL714</button></div>
+<script>
+const id=localStorage.getItem('tslaCurrentClientId');
+const arr=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+const c=arr.find(x=>String(x.id)===String(id))||{};
+document.getElementById('owner').innerHTML=
+`<div class=row><div class=lab>Name</div><div class=val>${c.name||'-'}</div></div>
+<div class=row><div class=lab>IC</div><div class=val>${c.ic||'-'}</div></div>
+<div class=row><div class=lab>Certificate</div><div class=val>${c.certificate||'-'}</div></div>`;
+if(c.signature){
+document.getElementById('ownersig').src=c.signature;
+document.getElementById('sigstatus').textContent='🟢 Signature Ready';
+}
+function toggleCovered(){
+const b=document.getElementById('covered'),t=document.getElementById('toggle');
+if(b.style.display==='block'){b.style.display='none';t.textContent='➕ Add Person Covered (Optional)';}
+else{b.style.display='block';t.textContent='➖ Hide Person Covered';}}
+function init(id){
+const cv=document.getElementById(id),ctx=cv.getContext('2d');
+cv.width=cv.getBoundingClientRect().width;cv.height=140;let d=false;
+cv.onpointerdown=e=>{d=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);}
+cv.onpointermove=e=>{if(d){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke();}}
+window.addEventListener('pointerup',()=>d=false);
+return ()=>ctx.clearRect(0,0,cv.width,cv.height);}
+clearW=init('wpad');clearP=init('ppad');
+</script></body></html>
