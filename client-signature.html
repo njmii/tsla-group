@@ -86,20 +86,14 @@ await new Promise((resolve, reject) => {
     );
 
     const data = imageData.data;
-
-    const threshold = 240;
+    const sens = parseInt(document.getElementById("sensitivity").value);
+    const threshold = 255 - sens;
 
     for (let i = 0; i < data.length; i += 4) {
-
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
-
-        if (
-            r > threshold &&
-            g > threshold &&
-            b > threshold
-        ) {
+        if ((r + g + b) / 3 > threshold) {
             data[i + 3] = 0;
         }
     }

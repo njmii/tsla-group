@@ -18,7 +18,7 @@ canvas,img{max-width:100%;max-height:210px}input,button{width:100%;padding:12px;
 <script>
 let img=new Image();
 file.onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=x=>{o.src=x.target.result;img.src=x.target.result;img.onload=process};r.readAsDataURL(f)}
-function process(){let cv=c,ctx=cv.getContext('2d'),t=parseInt(s.value);cv.width=img.naturalWidth;cv.height=img.naturalHeight;ctx.drawImage(img,0,0);let d=ctx.getImageData(0,0,cv.width,cv.height);for(let i=0;i<d.data.length;i+=4){if(d.data[i]>t&&d.data[i+1]>t&&d.data[i+2]>t)d.data[i+3]=0;}ctx.putImageData(d,0,0)}
+function process(){let cv=c,ctx=cv.getContext('2d'),t=parseInt(s.value);cv.width=img.naturalWidth;cv.height=img.naturalHeight;ctx.drawImage(img,0,0);let d=ctx.getImageData(0,0,cv.width,cv.height);for(let i=0;i<d.data.length;i+=4){if((d.data[i]+d.data[i+1]+d.data[i+2])/3>t)d.data[i+3]=0;}ctx.putImageData(d,0,0)}
 
 function save(){
  const sig=c.toDataURL('image/png');
