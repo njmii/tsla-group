@@ -268,7 +268,7 @@ async function generateGE() {
   btn.innerText = "⏳ Generating...";
 
   try {
-    const bytes = await fetch("./assets/geform.pdf").then(r => r.arrayBuffer());
+    const bytes = await fetch("./assets/Geform.pdf").then(r => r.arrayBuffer());
     const pdf   = await PDFDocument.load(bytes, { ignoreEncryption: true });
 
     const out  = await pdf.save();
