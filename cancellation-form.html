@@ -316,6 +316,8 @@ onclick="setToday()">
 
 </div>
 
+<button class="btn secondary" type="button" onclick="loadSavedWitness()" style="margin-bottom:8px">Load Saved Witness</button>
+
 <input
 class="input"
 id="witnessName"
@@ -325,6 +327,8 @@ placeholder="Witness Name">
 class="input"
 id="witnessIc"
 placeholder="Witness IC">
+
+<button class="btn secondary" type="button" onclick="loadSavedAgent()" style="margin:8px 0">Load Saved Agent</button>
 
 <input
 class="input"
@@ -535,6 +539,19 @@ ic:document.getElementById("witnessIc").value
 document.getElementById("output").innerHTML=
 "💾 Agent Profile Saved";
 
+}
+
+function loadSavedWitness(){
+ const w=JSON.parse(localStorage.getItem('tslaWitness')||'{}');
+ document.getElementById('witnessName').value=w.name||'';
+ document.getElementById('witnessIc').value=w.ic||'';
+}
+
+function loadSavedAgent(){
+ const a=JSON.parse(localStorage.getItem('tslaAgentProfile')||'{}');
+ document.getElementById('agentName').value=a.agentName||'';
+ document.getElementById('agentIc').value=a.agentIc||'';
+ document.getElementById('agentCode').value=a.agentCode||'';
 }
 
 async function testFwdPdf(){

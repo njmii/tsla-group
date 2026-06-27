@@ -18,6 +18,22 @@ input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:1
 <div class='header'><a href='index.html'>← Back</a><input id='q' class='search' placeholder='🔍 Search' oninput='render()'></div>
 <div id='last'></div><div class='card'><div id='list'></div></div>
 <button class='fab' onclick='showAdd()'>+</button>
+
+<div class='card' style='margin-top:10px'>
+<h3 style='font-size:1rem;font-weight:800;margin-bottom:12px'>⚙️ Settings</h3>
+<p style='font-size:12px;color:#888;margin-bottom:10px'>Witness Details</p>
+<input id='setWitnessName' placeholder='Witness Name'>
+<input id='setWitnessIc' placeholder='Witness IC'>
+<input id='setWitnessPhone' placeholder='Witness Phone'>
+<input id='setWitnessAddress' placeholder='Witness Address'>
+<p style='font-size:12px;color:#888;margin:10px 0'>Agent Details</p>
+<input id='setAgentName' placeholder='Agent Name'>
+<input id='setAgentIc' placeholder='Agent IC'>
+<input id='setAgentCode' placeholder='Agent Code'>
+<button class='save' style='width:100%;padding:13px;border:none;border-radius:12px;font-weight:700;margin-top:8px;cursor:pointer' onclick='saveSettings()'>💾 Save Settings</button>
+<div id='settingsSaved' style='color:#0a9b43;font-size:13px;text-align:center;margin-top:6px;display:none'>✅ Saved!</div>
+</div>
+
 <div id='m' class='modal'><div class='sheet'>
 <h2>Add Client</h2>
 <input id='name' placeholder='Name'><input id='ic' placeholder='IC Number'><input id='phone' placeholder='Phone Number'><input id='certificate' placeholder='Certificate Number'><input id='bank' placeholder='Bank'><input id='account' placeholder='Account Number'><input id='holder' placeholder='Account Holder'>
@@ -61,4 +77,30 @@ function save(){
  hide();render();
 }
 render();
+
+function saveSettings(){
+ const wn=document.getElementById('setWitnessName').value;
+ const wi=document.getElementById('setWitnessIc').value;
+ const wp=document.getElementById('setWitnessPhone').value;
+ const wa=document.getElementById('setWitnessAddress').value;
+ const an=document.getElementById('setAgentName').value;
+ const ai=document.getElementById('setAgentIc').value;
+ const ac=document.getElementById('setAgentCode').value;
+ localStorage.setItem('tslaWitness',JSON.stringify({name:wn,ic:wi,phone:wp,address:wa}));
+ localStorage.setItem('tslaAgentProfile',JSON.stringify({witnessName:wn,witnessIc:wi,agentName:an,agentIc:ai,agentCode:ac}));
+ const el=document.getElementById('settingsSaved');
+ el.style.display='block';setTimeout(()=>el.style.display='none',2000);
+}
+
+(function loadSettings(){
+ const w=JSON.parse(localStorage.getItem('tslaWitness')||'{}');
+ const a=JSON.parse(localStorage.getItem('tslaAgentProfile')||'{}');
+ document.getElementById('setWitnessName').value=w.name||'';
+ document.getElementById('setWitnessIc').value=w.ic||'';
+ document.getElementById('setWitnessPhone').value=w.phone||'';
+ document.getElementById('setWitnessAddress').value=w.address||'';
+ document.getElementById('setAgentName').value=a.agentName||'';
+ document.getElementById('setAgentIc').value=a.agentIc||'';
+ document.getElementById('setAgentCode').value=a.agentCode||'';
+})();
 </script></body></html>

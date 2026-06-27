@@ -114,6 +114,7 @@ canvas{width:100%;height:160px;display:block;}
 
   <div class="card">
     <h3>Witness</h3>
+    <button class="btn-sm" style="margin-bottom:14px" onclick="loadSavedWitness()">Load Saved Witness</button>
     <div class="row">
       <label class="label">Witness Name</label>
       <input id="witnessName" placeholder="Full name" oninput="saveWitness()">
@@ -169,6 +170,14 @@ function saveWitness() {
     phone:   document.getElementById("witnessPhone").value,
     address: document.getElementById("witnessAddress").value
   }));
+}
+function loadSavedWitness() {
+  const w = JSON.parse(localStorage.getItem("tslaWitness") || "{}");
+  document.getElementById("witnessName").value    = w.name    || "";
+  document.getElementById("witnessIc").value      = w.ic      || "";
+  document.getElementById("witnessPhone").value   = w.phone   || "";
+  document.getElementById("witnessAddress").value = w.address || "";
+  saveWitness();
 }
 const _w = JSON.parse(localStorage.getItem("tslaWitness") || "{}");
 document.getElementById("witnessName").value    = _w.name    || "";
@@ -284,7 +293,7 @@ async function generateBL714() {
     page.drawText(c.bank    || "",          { x: 330, y: 552, size: 10 });
 
     // ── Always tick Masalah Kewangan as reason ─────────────────────────────
-    page.drawText("X", { x: 35, y: 300, size: 10 });
+    page.drawText("X", { x: 35, y: 297, size: 10 });
 
     // ── Pemilik Sijil (Certificate Owner) ─────────────────────────────────
     if (c.signature) {
