@@ -1,53 +1,252 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BL714</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BL714 — TSLA Digital Hub</title>
 <script src="assets/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@5.0.3/dist/signature_pad.umd.min.js"></script>
 <style>
-body{margin:0;background:#f5f5f7;font-family:-apple-system,sans-serif}
-.header{padding:18px;background:#fff;position:sticky;top:0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.wrap{max-width:900px;margin:auto;padding:16px}
-.card{background:#fff;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 6px 18px rgba(0,0,0,.08)}
-.btn{background:#ff7a00;color:#fff;padding:14px;border-radius:12px;border:0;width:100%}
-input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;margin:8px 0}
-canvas{width:100%;height:140px;border:1px solid #ddd;border-radius:10px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+body{background:#f7f8fa;color:#111;}
+.header{position:sticky;top:0;background:white;border-bottom:1px solid #eee;padding:4px 12px;z-index:100;min-height:55px;display:flex;align-items:center;justify-content:center;}
+.logo{width:50px;height:auto;}
+.container{max-width:900px;margin:auto;padding:20px;}
+.back{display:inline-block;margin-bottom:15px;text-decoration:none;color:#ff7a00;font-weight:700;}
+.title{font-size:1.8rem;font-weight:900;margin-bottom:4px;}
+.subtitle{color:#666;margin-bottom:20px;font-size:.95rem;}
+.card{background:white;padding:24px;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:20px;}
+.card h3{font-size:1.1rem;font-weight:800;margin-bottom:16px;}
+.row{margin-bottom:14px;}
+.label{font-weight:700;color:#666;margin-bottom:6px;display:block;font-size:.85rem;}
+input,select{width:100%;padding:14px 16px;border-radius:16px;border:2px solid #eee;font-size:1rem;color:#111;background:white;appearance:none;}
+input:focus,select:focus{outline:none;border-color:#ff7a00;}
+input[readonly]{background:#f7f8fa;color:#555;}
+.sig-wrap{border:2px solid #eee;border-radius:16px;overflow:hidden;background:white;cursor:crosshair;}
+canvas{width:100%;height:160px;display:block;}
+.btn{background:#ff7a00;color:white;padding:16px;border-radius:16px;border:0;width:100%;font-size:1rem;font-weight:700;cursor:pointer;}
+.btn:hover{background:#e56d00;}
+.btn:disabled{opacity:.6;cursor:default;}
+.btn-sm{background:transparent;color:#ff7a00;border:2px solid #ff7a00;padding:8px 18px;border-radius:12px;font-weight:700;cursor:pointer;font-size:.85rem;margin-top:8px;}
+#pc{display:none;}
 </style>
 </head>
 <body>
-<div class="header"><button onclick="history.back()">← Back</button><h2>BL714</h2></div>
-<div class="wrap">
-<div class="card">
-<h3>Certificate Owner</h3>
-<input id="owner" readonly>
-<input id="bank" readonly>
-<input id="acct" readonly>
-<label>Person Covered</label>
-<select id="mode"><option>Same as Certificate Owner</option><option>Different Person</option></select>
-<div id="pc" style="display:none">
-<input placeholder="Name">
-<input placeholder="IC">
-<input placeholder="Phone">
-<input placeholder="Address">
+
+<div class="header">
+  <img src="assets/tslalogo.png" class="logo" alt="TSLA">
 </div>
+
+<div class="container">
+  <a href="javascript:history.back()" class="back">← Back</a>
+  <div class="title">BL714</div>
+  <div class="subtitle">Borang Serahan / Pembatalan Sijil</div>
+
+  <div class="card">
+    <h3>Certificate Owner</h3>
+    <div class="row">
+      <label class="label">Name</label>
+      <input id="owner" readonly placeholder="Owner name">
+    </div>
+    <div class="row">
+      <label class="label">IC Number</label>
+      <input id="ownerIc" readonly placeholder="IC number">
+    </div>
+    <div class="row">
+      <label class="label">Certificate Number</label>
+      <input id="certNo" readonly placeholder="Certificate number">
+    </div>
+    <div class="row">
+      <label class="label">Bank</label>
+      <input id="bank" readonly placeholder="Bank name">
+    </div>
+    <div class="row">
+      <label class="label">Account Number</label>
+      <input id="acct" readonly placeholder="Account number">
+    </div>
+    <div class="row">
+      <label class="label">Date</label>
+      <input type="date" id="sigDate">
+    </div>
+    <div class="row">
+      <label class="label">Person Covered</label>
+      <select id="mode">
+        <option>Same as Certificate Owner</option>
+        <option>Different Person</option>
+      </select>
+    </div>
+    <div id="pc">
+      <div class="row">
+        <label class="label">Person Covered — Name</label>
+        <input id="pcName" placeholder="Full name">
+      </div>
+      <div class="row">
+        <label class="label">Person Covered — IC</label>
+        <input id="pcIc" placeholder="IC number">
+      </div>
+      <div class="row">
+        <label class="label">Person Covered — Phone</label>
+        <input id="pcPhone" placeholder="Phone number">
+      </div>
+      <div class="row">
+        <label class="label">Person Covered — Address</label>
+        <input id="pcAddress" placeholder="Current address">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Witness</h3>
+    <div class="row">
+      <label class="label">Witness Name</label>
+      <input id="witnessName" placeholder="Full name">
+    </div>
+    <div class="row">
+      <label class="label">Witness IC</label>
+      <input id="witnessIc" placeholder="IC number">
+    </div>
+    <div class="row">
+      <label class="label">Witness Phone</label>
+      <input id="witnessPhone" placeholder="Phone number">
+    </div>
+    <div class="row">
+      <label class="label">Witness Signature</label>
+      <div class="sig-wrap">
+        <canvas id="sig"></canvas>
+      </div>
+      <button class="btn-sm" onclick="pad.clear()">Clear Signature</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <button id="generateBtn" class="btn" onclick="generateBL714()">Generate Official PDF</button>
+  </div>
 </div>
-<div class="card">
-<h3>Witness</h3>
-<input placeholder="Witness Name">
-<input placeholder="Witness IC">
-<input placeholder="Witness Phone">
-<canvas id="sig"></canvas>
-</div>
-<div class="card"><button class="btn">Generate Official PDF</button></div>
-</div>
+
 <script>
-const c=JSON.parse(localStorage.getItem("currentClient")||localStorage.getItem("selectedClient")||"{}");
-owner.value=c.name||"";
-bank.value=c.bank||"";
-acct.value=c.account||"";
-mode.onchange=()=>pc.style.display=mode.selectedIndex? "block":"none";
+const c = JSON.parse(localStorage.getItem("currentClient") || localStorage.getItem("selectedClient") || "{}");
+document.getElementById("owner").value   = c.name        || "";
+document.getElementById("ownerIc").value = c.ic          || "";
+document.getElementById("certNo").value  = c.certificate || "";
+document.getElementById("bank").value    = c.bank        || "";
+document.getElementById("acct").value    = c.account     || "";
+document.getElementById("sigDate").value = new Date().toISOString().split("T")[0];
+
+document.getElementById("mode").onchange = function() {
+  document.getElementById("pc").style.display = this.selectedIndex ? "block" : "none";
+};
+
+const sigCanvas = document.getElementById("sig");
+sigCanvas.width  = sigCanvas.offsetWidth  || 600;
+sigCanvas.height = 160;
+const pad = new SignaturePad(sigCanvas, { penColor: "#111" });
+
+// ── PDF helpers (same as cancellation-form.html) ───────────────────────────
+async function makeTransparent(data) {
+  const img = new Image();
+  await new Promise(r => { img.onload = r; img.src = data; });
+  const cv = document.createElement("canvas");
+  cv.width = img.width; cv.height = img.height;
+  const ctx = cv.getContext("2d");
+  ctx.drawImage(img, 0, 0);
+  const d = ctx.getImageData(0, 0, cv.width, cv.height);
+  for (let i = 0; i < d.data.length; i += 4) {
+    if (d.data[i] > 235 && d.data[i+1] > 235 && d.data[i+2] > 235) d.data[i+3] = 0;
+  }
+  ctx.putImageData(d, 0, 0);
+  return cv.toDataURL("image/png");
+}
+
+async function drawSig(page, pdf, data, x, y, maxW, maxH) {
+  if (!data) return;
+  try {
+    data = await makeTransparent(data);
+    const img = await pdf.embedPng(data);
+    const r = img.width / img.height;
+    let w = maxW, h = maxW / r;
+    if (h > maxH) { h = maxH; w = h * r; }
+    page.drawImage(img, { x, y, width: w, height: h });
+  } catch(e) {}
+}
+
+// ── PDF generation ─────────────────────────────────────────────────────────
+async function generateBL714() {
+  const { PDFDocument } = PDFLib;
+  const btn = document.getElementById("generateBtn");
+  btn.disabled = true;
+  btn.innerText = "⏳ Generating...";
+
+  try {
+    const bytes = await fetch("./assets/bl714form.pdf").then(r => r.arrayBuffer());
+    const pdf   = await PDFDocument.load(bytes, { ignoreEncryption: true });
+    const page  = pdf.getPages()[0];
+
+    // Format date as DD/MM/YYYY
+    const raw = document.getElementById("sigDate").value;
+    const [yr, mo, dy] = raw ? raw.split("-") : ["","",""];
+    const date = raw ? `${dy}/${mo}/${yr}` : "";
+
+    const isDiff = document.getElementById("mode").selectedIndex === 1;
+
+    // ── Header ────────────────────────────────────────────────────────────
+    page.drawText(c.certificate || "", { x:  75, y: 681, size: 11 });
+    page.drawText(date,                 { x: 430, y: 681, size: 11 });
+
+    // ── Bank account section ───────────────────────────────────────────────
+    page.drawText(c.holder || c.name || "", { x: 135, y: 561, size: 10 });
+    page.drawText(c.account || "",          { x: 330, y: 561, size: 10 });
+    page.drawText(c.bank    || "",          { x: 335, y: 549, size: 10 });
+
+    // ── Col 1 — Certificate Owner ──────────────────────────────────────────
+    page.drawText(c.name  || "", { x:  75, y: 454, size: 10 });
+    page.drawText(c.ic    || "", { x:  75, y: 432, size: 10 });
+    page.drawText(c.phone || "", { x:  75, y: 417, size: 10 });
+    if (c.address) page.drawText(String(c.address).slice(0, 42), { x: 75, y: 392, size: 9 });
+
+    if (c.signature) {
+      await drawSig(page, pdf, c.signature, 75, 462, 110, 18);
+    }
+
+    // ── Col 2 — Person Covered ─────────────────────────────────────────────
+    if (isDiff) {
+      const n = document.getElementById("pcName").value;
+      const i = document.getElementById("pcIc").value;
+      const p = document.getElementById("pcPhone").value;
+      const a = document.getElementById("pcAddress").value;
+      if (n) page.drawText(n,                   { x: 195, y: 454, size: 10 });
+      if (i) page.drawText(i,                   { x: 195, y: 432, size: 10 });
+      if (p) page.drawText(p,                   { x: 195, y: 417, size: 10 });
+      if (a) page.drawText(a.slice(0, 35),      { x: 195, y: 392, size:  9 });
+    } else {
+      page.drawText(c.name  || "", { x: 195, y: 454, size: 10 });
+      page.drawText(c.ic    || "", { x: 195, y: 432, size: 10 });
+      page.drawText(c.phone || "", { x: 195, y: 417, size: 10 });
+    }
+
+    // ── Col 3 — Witness ────────────────────────────────────────────────────
+    const wName  = document.getElementById("witnessName").value;
+    const wIc    = document.getElementById("witnessIc").value;
+    const wPhone = document.getElementById("witnessPhone").value;
+    if (wName)  page.drawText(wName,  { x: 385, y: 454, size: 10 });
+    if (wIc)    page.drawText(wIc,    { x: 385, y: 432, size: 10 });
+    if (wPhone) page.drawText(wPhone, { x: 385, y: 417, size: 10 });
+
+    if (!pad.isEmpty()) {
+      await drawSig(page, pdf, pad.toDataURL(), 385, 462, 110, 18);
+    }
+
+    const out  = await pdf.save();
+    const link = document.createElement("a");
+    link.href     = URL.createObjectURL(new Blob([out], { type: "application/pdf" }));
+    link.download = `BL714-${c.name || "form"}.pdf`;
+    link.click();
+  } catch(e) {
+    alert("PDF generation failed: " + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Generate Official PDF";
+  }
+}
 </script>
 </body>
 </html>
