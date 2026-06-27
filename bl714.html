@@ -110,6 +110,10 @@ canvas{width:100%;height:160px;display:block;}
       <input id="witnessPhone" placeholder="Phone number">
     </div>
     <div class="row">
+      <label class="label">Witness Address</label>
+      <input id="witnessAddress" placeholder="Current address">
+    </div>
+    <div class="row">
       <label class="label">Witness Signature</label>
       <div class="sig-wrap">
         <canvas id="sig"></canvas>
@@ -208,62 +212,63 @@ async function generateBL714() {
 
     const isDiff = document.getElementById("mode").selectedIndex === 1;
 
-    // ── Header — value row is at y=676 (below the label row at y=681) ─────
-    page.drawText(c.certificate || "", { x:  33, y: 676, size: 11 });
-    page.drawText(date,                 { x: 393, y: 676, size: 11 });
+    // ── Header ────────────────────────────────────────────────────────────
+    page.drawText(c.certificate || "", { x: 100, y: 682, size: 11 });
+    page.drawText(date,                 { x: 500, y: 682, size: 11 });
 
     // ── Bank account section ───────────────────────────────────────────────
-    page.drawText(c.holder || c.name || "", { x: 135, y: 561, size: 10 });
-    page.drawText(c.account || "",          { x: 330, y: 561, size: 10 });
-    page.drawText(c.bank    || "",          { x: 335, y: 549, size: 10 });
+    page.drawText(c.holder || c.name || "", { x: 120, y: 562, size: 10 });
+    page.drawText(c.account || "",          { x: 320, y: 562, size: 10 });
+    page.drawText(c.bank    || "",          { x: 330, y: 552, size: 10 });
 
     // ── Always tick Masalah Kewangan as reason ─────────────────────────────
-    page.drawText("X", { x: 38, y: 295, size: 10 });
+    page.drawText("X", { x: 35, y: 300, size: 10 });
 
-    // ── Col 1 — Pemilik Sijil (Certificate Owner) ──────────────────────────
-    // y+6 above label baseline so text sits inside the box, not on the border
-    page.drawText((c.name  || "").slice(0, 22), { x:  75, y: 460, size: 10 });
-    page.drawText((c.ic    || "").slice(0, 20), { x:  75, y: 438, size: 10 });
-    page.drawText((c.phone || "").slice(0, 20), { x:  75, y: 423, size: 10 });
-    const addrLines1 = wrapText(c.address || "", 22);
-    if (addrLines1[0]) page.drawText(addrLines1[0], { x: 75, y: 398, size: 9 });
-    if (addrLines1[1]) page.drawText(addrLines1[1], { x: 75, y: 387, size: 9 });
-
-    // Owner signature from client database
+    // ── Pemilik Sijil (Certificate Owner) ─────────────────────────────────
     if (c.signature) {
-      await drawSig(page, pdf, c.signature, 75, 456, 100, 22);
+      await drawSig(page, pdf, c.signature, 120, 482, 100, 20);
     }
+    page.drawText(c.name  || "", { x: 120, y: 452, size: 10 });
+    page.drawText(c.ic    || "", { x: 120, y: 432, size: 10 });
+    page.drawText(c.phone || "", { x: 120, y: 422, size: 10 });
+    const addrLines1 = wrapText(c.address || "", 28);
+    if (addrLines1[0]) page.drawText(addrLines1[0], { x:  90, y: 402, size: 9 });
+    if (addrLines1[1]) page.drawText(addrLines1[1], { x:  90, y: 392, size: 9 });
 
-    // ── Col 2 — Orang Yang Dilindungi (Person Covered) ────────────────────
+    // ── Orang Yang Dilindungi (Person Covered) ─────────────────────────────
     if (isDiff) {
       const n = document.getElementById("pcName").value;
       const i = document.getElementById("pcIc").value;
       const p = document.getElementById("pcPhone").value;
       const a = document.getElementById("pcAddress").value;
-      if (n) page.drawText(n.slice(0, 19), { x: 200, y: 460, size: 10 });
-      if (i) page.drawText(i.slice(0, 18), { x: 200, y: 438, size: 10 });
-      if (p) page.drawText(p.slice(0, 18), { x: 200, y: 423, size: 10 });
-      const addrLines2 = wrapText(a, 19);
-      if (addrLines2[0]) page.drawText(addrLines2[0], { x: 200, y: 398, size: 9 });
-      if (addrLines2[1]) page.drawText(addrLines2[1], { x: 200, y: 387, size: 9 });
+      if (c.signature) await drawSig(page, pdf, c.signature, 230, 482, 100, 20);
+      if (n) page.drawText(n, { x: 230, y: 452, size: 10 });
+      if (i) page.drawText(i, { x: 230, y: 432, size: 10 });
+      if (p) page.drawText(p, { x: 230, y: 422, size: 10 });
+      const addrLines2 = wrapText(a, 22);
+      if (addrLines2[0]) page.drawText(addrLines2[0], { x: 200, y: 402, size: 9 });
+      if (addrLines2[1]) page.drawText(addrLines2[1], { x: 200, y: 392, size: 9 });
     } else {
-      page.drawText((c.name  || "").slice(0, 19), { x: 200, y: 460, size: 10 });
-      page.drawText((c.ic    || "").slice(0, 18), { x: 200, y: 438, size: 10 });
-      page.drawText((c.phone || "").slice(0, 18), { x: 200, y: 423, size: 10 });
+      page.drawText(c.name  || "", { x: 230, y: 452, size: 10 });
+      page.drawText(c.ic    || "", { x: 230, y: 432, size: 10 });
+      page.drawText(c.phone || "", { x: 230, y: 422, size: 10 });
     }
 
-    // ── Col 5 — Saksi (Witness) — rightmost column at x≈525 ───────────────
-    const wName  = document.getElementById("witnessName").value;
-    const wIc    = document.getElementById("witnessIc").value;
-    const wPhone = document.getElementById("witnessPhone").value;
-    if (wName)  page.drawText(wName.slice(0, 16),  { x: 525, y: 460, size: 8 });
-    if (wIc)    page.drawText(wIc.slice(0, 14),    { x: 525, y: 438, size: 8 });
-    if (wPhone) page.drawText(wPhone.slice(0, 14), { x: 525, y: 423, size: 8 });
+    // ── Saksi (Witness) ────────────────────────────────────────────────────
+    const wName    = document.getElementById("witnessName").value;
+    const wIc      = document.getElementById("witnessIc").value;
+    const wPhone   = document.getElementById("witnessPhone").value;
+    const wAddress = document.getElementById("witnessAddress").value;
 
-    // Witness signature from canvas pad
     if (!pad.isEmpty()) {
-      await drawSig(page, pdf, pad.toDataURL(), 525, 456, 60, 22);
+      await drawSig(page, pdf, pad.toDataURL(), 530, 482, 60, 20);
     }
+    if (wName)    page.drawText(wName,    { x: 530, y: 452, size: 9 });
+    if (wIc)      page.drawText(wIc,      { x: 530, y: 432, size: 9 });
+    if (wPhone)   page.drawText(wPhone,   { x: 530, y: 422, size: 9 });
+    const addrLines3 = wrapText(wAddress || "", 18);
+    if (addrLines3[0]) page.drawText(addrLines3[0], { x: 490, y: 402, size: 9 });
+    if (addrLines3[1]) page.drawText(addrLines3[1], { x: 490, y: 392, size: 9 });
 
     const out  = await pdf.save();
     const link = document.createElement("a");
