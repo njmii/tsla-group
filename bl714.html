@@ -96,6 +96,19 @@ canvas{width:100%;height:160px;display:block;}
         <label class="label">Person Covered — Address</label>
         <input id="pcAddress" placeholder="Current address">
       </div>
+      <div class="row">
+        <label class="label">Person Covered — Signature</label>
+        <div class="sig-wrap">
+          <canvas id="pcSig"></canvas>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn-sm" onclick="clearPcSig()">Clear</button>
+          <label class="btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;">
+            Upload Signature
+            <input type="file" id="pcSigFile" accept="image/*" style="display:none" onchange="uploadPcSig(this)">
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -167,6 +180,31 @@ const sigCanvas = document.getElementById("sig");
 sigCanvas.width  = sigCanvas.offsetWidth  || 600;
 sigCanvas.height = 160;
 const pad = new SignaturePad(sigCanvas, { penColor: "#111" });
+
+const pcSigCanvas = document.getElementById("pcSig");
+pcSigCanvas.width  = pcSigCanvas.offsetWidth || 600;
+pcSigCanvas.height = 160;
+const pcPad = new SignaturePad(pcSigCanvas, { penColor: "#111" });
+let pcUploadedSig = null;
+
+function clearPcSig() { pcPad.clear(); pcUploadedSig = null; }
+
+async function uploadPcSig(input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    pcUploadedSig = await makeTransparent(e.target.result);
+    const img = new Image();
+    img.onload = () => {
+      pcPad.clear();
+      const scale = Math.min(pcSigCanvas.width / img.width, pcSigCanvas.height / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      pcSigCanvas.getContext("2d").drawImage(img, (pcSigCanvas.width - w) / 2, (pcSigCanvas.height - h) / 2, w, h);
+    };
+    img.src = pcUploadedSig;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
 
 // ── PDF helpers (same as cancellation-form.html) ───────────────────────────
 async function makeTransparent(data) {
@@ -250,7 +288,7 @@ async function generateBL714() {
 
     // ── Pemilik Sijil (Certificate Owner) ─────────────────────────────────
     if (c.signature) {
-      await drawSig(page, pdf, c.signature, 90, 479, 100, 20);
+      await drawSig(page, pdf, c.signature, 90, 477, 100, 20);
     }
     page.drawText(c.name  || "", { x: 90, y: 452, size: 10 });
     page.drawText(c.ic    || "", { x: 90, y: 432, size: 10 });
@@ -259,23 +297,20 @@ async function generateBL714() {
     if (addrLines1[0]) page.drawText(addrLines1[0], { x: 90, y: 402, size: 9 });
     if (addrLines1[1]) page.drawText(addrLines1[1], { x: 90, y: 392, size: 9 });
 
-    // ── Orang Yang Dilindungi (Person Covered) ─────────────────────────────
+    // ── Orang Yang Dilindungi (Person Covered — only when different person) ───
     if (isDiff) {
       const n = document.getElementById("pcName").value;
       const i = document.getElementById("pcIc").value;
       const p = document.getElementById("pcPhone").value;
       const a = document.getElementById("pcAddress").value;
-      if (c.signature) await drawSig(page, pdf, c.signature, 200, 479, 100, 20);
+      const pcSigData = pcUploadedSig || (!pcPad.isEmpty() ? pcPad.toDataURL() : null);
+      if (pcSigData) await drawSig(page, pdf, pcSigData, 200, 477, 100, 20);
       if (n) page.drawText(n, { x: 200, y: 452, size: 10 });
       if (i) page.drawText(i, { x: 200, y: 432, size: 10 });
       if (p) page.drawText(p, { x: 200, y: 417, size: 10 });
       const addrLines2 = wrapText(a, 22);
       if (addrLines2[0]) page.drawText(addrLines2[0], { x: 200, y: 402, size: 9 });
       if (addrLines2[1]) page.drawText(addrLines2[1], { x: 200, y: 392, size: 9 });
-    } else {
-      page.drawText(c.name  || "", { x: 200, y: 452, size: 10 });
-      page.drawText(c.ic    || "", { x: 200, y: 432, size: 10 });
-      page.drawText(c.phone || "", { x: 200, y: 417, size: 10 });
     }
 
     // ── Saksi (Witness) ────────────────────────────────────────────────────
@@ -285,7 +320,7 @@ async function generateBL714() {
     const wAddress = document.getElementById("witnessAddress").value;
 
     if (!pad.isEmpty()) {
-      await drawSig(page, pdf, pad.toDataURL(), 490, 479, 60, 20);
+      await drawSig(page, pdf, pad.toDataURL(), 490, 477, 60, 20);
     }
     if (wName)    page.drawText(wName,    { x: 490, y: 452, size: 9 });
     if (wIc)      page.drawText(wIc,      { x: 490, y: 432, size: 9 });
