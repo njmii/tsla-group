@@ -425,13 +425,17 @@ localStorage.getItem(
 )
 );
 
+const _savedWitness=JSON.parse(localStorage.getItem("tslaWitness")||"{}");
+document.getElementById("witnessName").value=_savedWitness.name||"";
+document.getElementById("witnessIc").value=_savedWitness.ic||"";
+
 if(savedProfile){
 
 document.getElementById("witnessName").value =
-savedProfile.witnessName || "";
+savedProfile.witnessName || document.getElementById("witnessName").value;
 
 document.getElementById("witnessIc").value =
-savedProfile.witnessIc || "";
+savedProfile.witnessIc || document.getElementById("witnessIc").value;
 
 document.getElementById("agentName").value =
 savedProfile.agentName || "";
@@ -523,6 +527,10 @@ localStorage.setItem(
 "tslaAgentProfile",
 JSON.stringify(profile)
 );
+localStorage.setItem("tslaWitness",JSON.stringify({
+name:document.getElementById("witnessName").value,
+ic:document.getElementById("witnessIc").value
+}));
 
 document.getElementById("output").innerHTML=
 "💾 Agent Profile Saved";

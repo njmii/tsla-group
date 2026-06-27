@@ -65,8 +65,8 @@ canvas{width:100%;height:160px;display:block;}
       <input id="acct" readonly placeholder="Account number">
     </div>
     <div class="row">
-      <label class="label">No Polisi</label>
-      <input id="noPolisi" placeholder="Policy number">
+      <label class="label">ETIQA POLICY NO</label>
+      <input id="noPolisi" placeholder="Etiqa policy number">
     </div>
     <div class="row">
       <label class="label">Date</label>
@@ -103,19 +103,19 @@ canvas{width:100%;height:160px;display:block;}
     <h3>Witness</h3>
     <div class="row">
       <label class="label">Witness Name</label>
-      <input id="witnessName" placeholder="Full name">
+      <input id="witnessName" placeholder="Full name" oninput="saveWitness()">
     </div>
     <div class="row">
       <label class="label">Witness IC</label>
-      <input id="witnessIc" placeholder="IC number">
+      <input id="witnessIc" placeholder="IC number" oninput="saveWitness()">
     </div>
     <div class="row">
       <label class="label">Witness Phone</label>
-      <input id="witnessPhone" placeholder="Phone number">
+      <input id="witnessPhone" placeholder="Phone number" oninput="saveWitness()">
     </div>
     <div class="row">
       <label class="label">Witness Address</label>
-      <input id="witnessAddress" placeholder="Current address">
+      <input id="witnessAddress" placeholder="Current address" oninput="saveWitness()">
     </div>
     <div class="row">
       <label class="label">Witness Signature</label>
@@ -138,17 +138,30 @@ function getCurrentClient() {
   return clients.find(c => String(c.id) === String(id)) || {};
 }
 const c = getCurrentClient();
-document.getElementById("owner").value    = c.name        || "";
-document.getElementById("ownerIc").value  = c.ic          || "";
-document.getElementById("certNo").value   = c.certificate || "";
-document.getElementById("bank").value     = c.bank        || "";
-document.getElementById("acct").value     = c.account     || "";
-document.getElementById("noPolisi").value = c.certificate || "";
+document.getElementById("owner").value   = c.name        || "";
+document.getElementById("ownerIc").value = c.ic          || "";
+document.getElementById("certNo").value  = c.certificate || "";
+document.getElementById("bank").value    = c.bank        || "";
+document.getElementById("acct").value    = c.account     || "";
 document.getElementById("sigDate").value = new Date().toISOString().split("T")[0];
 
 document.getElementById("mode").onchange = function() {
   document.getElementById("pc").style.display = this.selectedIndex ? "block" : "none";
 };
+
+function saveWitness() {
+  localStorage.setItem("tslaWitness", JSON.stringify({
+    name:    document.getElementById("witnessName").value,
+    ic:      document.getElementById("witnessIc").value,
+    phone:   document.getElementById("witnessPhone").value,
+    address: document.getElementById("witnessAddress").value
+  }));
+}
+const _w = JSON.parse(localStorage.getItem("tslaWitness") || "{}");
+document.getElementById("witnessName").value    = _w.name    || "";
+document.getElementById("witnessIc").value      = _w.ic      || "";
+document.getElementById("witnessPhone").value   = _w.phone   || "";
+document.getElementById("witnessAddress").value = _w.address || "";
 
 const sigCanvas = document.getElementById("sig");
 sigCanvas.width  = sigCanvas.offsetWidth  || 600;
@@ -237,7 +250,7 @@ async function generateBL714() {
 
     // ── Pemilik Sijil (Certificate Owner) ─────────────────────────────────
     if (c.signature) {
-      await drawSig(page, pdf, c.signature, 90, 482, 100, 20);
+      await drawSig(page, pdf, c.signature, 90, 479, 100, 20);
     }
     page.drawText(c.name  || "", { x: 90, y: 452, size: 10 });
     page.drawText(c.ic    || "", { x: 90, y: 432, size: 10 });
@@ -252,7 +265,7 @@ async function generateBL714() {
       const i = document.getElementById("pcIc").value;
       const p = document.getElementById("pcPhone").value;
       const a = document.getElementById("pcAddress").value;
-      if (c.signature) await drawSig(page, pdf, c.signature, 200, 482, 100, 20);
+      if (c.signature) await drawSig(page, pdf, c.signature, 200, 479, 100, 20);
       if (n) page.drawText(n, { x: 200, y: 452, size: 10 });
       if (i) page.drawText(i, { x: 200, y: 432, size: 10 });
       if (p) page.drawText(p, { x: 200, y: 417, size: 10 });
@@ -272,7 +285,7 @@ async function generateBL714() {
     const wAddress = document.getElementById("witnessAddress").value;
 
     if (!pad.isEmpty()) {
-      await drawSig(page, pdf, pad.toDataURL(), 490, 482, 60, 20);
+      await drawSig(page, pdf, pad.toDataURL(), 490, 479, 60, 20);
     }
     if (wName)    page.drawText(wName,    { x: 490, y: 452, size: 9 });
     if (wIc)      page.drawText(wIc,      { x: 490, y: 432, size: 9 });
