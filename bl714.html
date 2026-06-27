@@ -226,14 +226,14 @@ async function generateBL714() {
 
     // ── Pemilik Sijil (Certificate Owner) ─────────────────────────────────
     if (c.signature) {
-      await drawSig(page, pdf, c.signature, 120, 482, 100, 20);
+      await drawSig(page, pdf, c.signature, 90, 482, 100, 20);
     }
-    page.drawText(c.name  || "", { x: 120, y: 452, size: 10 });
-    page.drawText(c.ic    || "", { x: 120, y: 432, size: 10 });
-    page.drawText(c.phone || "", { x: 120, y: 422, size: 10 });
+    page.drawText(c.name  || "", { x: 90, y: 452, size: 10 });
+    page.drawText(c.ic    || "", { x: 90, y: 432, size: 10 });
+    page.drawText(c.phone || "", { x: 90, y: 422, size: 10 });
     const addrLines1 = wrapText(c.address || "", 28);
-    if (addrLines1[0]) page.drawText(addrLines1[0], { x:  90, y: 402, size: 9 });
-    if (addrLines1[1]) page.drawText(addrLines1[1], { x:  90, y: 392, size: 9 });
+    if (addrLines1[0]) page.drawText(addrLines1[0], { x: 90, y: 402, size: 9 });
+    if (addrLines1[1]) page.drawText(addrLines1[1], { x: 90, y: 392, size: 9 });
 
     // ── Orang Yang Dilindungi (Person Covered) ─────────────────────────────
     if (isDiff) {
@@ -241,17 +241,17 @@ async function generateBL714() {
       const i = document.getElementById("pcIc").value;
       const p = document.getElementById("pcPhone").value;
       const a = document.getElementById("pcAddress").value;
-      if (c.signature) await drawSig(page, pdf, c.signature, 230, 482, 100, 20);
-      if (n) page.drawText(n, { x: 230, y: 452, size: 10 });
-      if (i) page.drawText(i, { x: 230, y: 432, size: 10 });
-      if (p) page.drawText(p, { x: 230, y: 422, size: 10 });
+      if (c.signature) await drawSig(page, pdf, c.signature, 200, 482, 100, 20);
+      if (n) page.drawText(n, { x: 200, y: 452, size: 10 });
+      if (i) page.drawText(i, { x: 200, y: 432, size: 10 });
+      if (p) page.drawText(p, { x: 200, y: 422, size: 10 });
       const addrLines2 = wrapText(a, 22);
       if (addrLines2[0]) page.drawText(addrLines2[0], { x: 200, y: 402, size: 9 });
       if (addrLines2[1]) page.drawText(addrLines2[1], { x: 200, y: 392, size: 9 });
     } else {
-      page.drawText(c.name  || "", { x: 230, y: 452, size: 10 });
-      page.drawText(c.ic    || "", { x: 230, y: 432, size: 10 });
-      page.drawText(c.phone || "", { x: 230, y: 422, size: 10 });
+      page.drawText(c.name  || "", { x: 200, y: 452, size: 10 });
+      page.drawText(c.ic    || "", { x: 200, y: 432, size: 10 });
+      page.drawText(c.phone || "", { x: 200, y: 422, size: 10 });
     }
 
     // ── Saksi (Witness) ────────────────────────────────────────────────────
@@ -261,11 +261,11 @@ async function generateBL714() {
     const wAddress = document.getElementById("witnessAddress").value;
 
     if (!pad.isEmpty()) {
-      await drawSig(page, pdf, pad.toDataURL(), 530, 482, 60, 20);
+      await drawSig(page, pdf, pad.toDataURL(), 490, 482, 60, 20);
     }
-    if (wName)    page.drawText(wName,    { x: 530, y: 452, size: 9 });
-    if (wIc)      page.drawText(wIc,      { x: 530, y: 432, size: 9 });
-    if (wPhone)   page.drawText(wPhone,   { x: 530, y: 422, size: 9 });
+    if (wName)    page.drawText(wName,    { x: 490, y: 452, size: 9 });
+    if (wIc)      page.drawText(wIc,      { x: 490, y: 432, size: 9 });
+    if (wPhone)   page.drawText(wPhone,   { x: 490, y: 422, size: 9 });
     const addrLines3 = wrapText(wAddress || "", 18);
     if (addrLines3[0]) page.drawText(addrLines3[0], { x: 490, y: 402, size: 9 });
     if (addrLines3[1]) page.drawText(addrLines3[1], { x: 490, y: 392, size: 9 });
