@@ -65,6 +65,10 @@ canvas{width:100%;height:160px;display:block;}
       <input id="acct" readonly placeholder="Account number">
     </div>
     <div class="row">
+      <label class="label">No Polisi</label>
+      <input id="noPolisi" placeholder="Policy number">
+    </div>
+    <div class="row">
       <label class="label">Date</label>
       <input type="date" id="sigDate">
     </div>
@@ -128,12 +132,18 @@ canvas{width:100%;height:160px;display:block;}
 </div>
 
 <script>
-const c = JSON.parse(localStorage.getItem("currentClient") || localStorage.getItem("selectedClient") || "{}");
-document.getElementById("owner").value   = c.name        || "";
-document.getElementById("ownerIc").value = c.ic          || "";
-document.getElementById("certNo").value  = c.certificate || "";
-document.getElementById("bank").value    = c.bank        || "";
-document.getElementById("acct").value    = c.account     || "";
+function getCurrentClient() {
+  const id = localStorage.getItem("tslaCurrentClientId");
+  const clients = JSON.parse(localStorage.getItem("tslaClients") || "[]");
+  return clients.find(c => String(c.id) === String(id)) || {};
+}
+const c = getCurrentClient();
+document.getElementById("owner").value    = c.name        || "";
+document.getElementById("ownerIc").value  = c.ic          || "";
+document.getElementById("certNo").value   = c.certificate || "";
+document.getElementById("bank").value     = c.bank        || "";
+document.getElementById("acct").value     = c.account     || "";
+document.getElementById("noPolisi").value = c.certificate || "";
 document.getElementById("sigDate").value = new Date().toISOString().split("T")[0];
 
 document.getElementById("mode").onchange = function() {
@@ -213,7 +223,8 @@ async function generateBL714() {
     const isDiff = document.getElementById("mode").selectedIndex === 1;
 
     // ── Header ────────────────────────────────────────────────────────────
-    page.drawText(c.certificate || "", { x: 100, y: 682, size: 11 });
+    const noPolisi = document.getElementById("noPolisi").value;
+    page.drawText(noPolisi,            { x: 100, y: 682, size: 11 });
     page.drawText(date,                 { x: 500, y: 682, size: 11 });
 
     // ── Bank account section ───────────────────────────────────────────────
