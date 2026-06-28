@@ -234,62 +234,47 @@ async function generateWL513() {
   try {
     const bytes = await fetch("./assets/wl513form.pdf").then(r => r.arrayBuffer());
     const pdf   = await PDFDocument.load(bytes, { ignoreEncryption: true });
+    const form  = pdf.getForm();
 
     const raw = document.getElementById("sigDate").value;
     const [yr, mo, dy] = raw ? raw.split("-") : ["","",""];
     const date = raw ? `${dy}/${mo}/${yr}` : "";
 
-    const isMedical = document.getElementById("planType").selectedIndex === 1;
-    const isDiff    = document.getElementById("mode").selectedIndex === 1;
+    const w = JSON.parse(localStorage.getItem("tslaWitness") || "{}");
 
-    const p1 = pdf.getPages()[0];
-    const p2 = pdf.getPages()[1];
-    const w  = JSON.parse(localStorage.getItem("tslaWitness") || "{}");
-
-    // ── Page 1 ─────────────────────────────────────────────────────────────
-    p1.drawText(c.certificate || "", { x: 210, y: 635, size: 10 });
-    p1.drawText(c.name        || "", { x: 210, y: 615, size: 10 });
-    p1.drawText(c.ic          || "", { x: 210, y: 595, size: 10 });
-
-    // Correspondence address (wraps to next line)
-    const _addrWords = (c.address || "").split(" ");
-    const _addrLines = [];
-    let _addrCur = "", _addrLimit = 50;
-    for (const aw of _addrWords) {
-      const t = _addrCur ? _addrCur + " " + aw : aw;
-      if (t.length > _addrLimit) { if (_addrCur) _addrLines.push(_addrCur); _addrCur = aw; _addrLimit = 65; }
-      else _addrCur = t;
+    function setField(name, value) {
+      try { form.getTextField(name).setText(value || ""); } catch(e) {}
     }
-    if (_addrCur) _addrLines.push(_addrCur);
-    if (_addrLines[0]) p1.drawText(_addrLines[0], { x: 210, y: 435, size: 10 });
-    if (_addrLines[1]) p1.drawText(_addrLines[1], { x: 210, y: 423, size: 10 });
 
-    // Permanent address (same as correspondence)
-    if (_addrLines[0]) p1.drawText(_addrLines[0], { x: 210, y: 400, size: 10 });
-    if (_addrLines[1]) p1.drawText(_addrLines[1], { x: 210, y: 388, size: 10 });
+    // ── Page 1 — text fields ───────────────────────────────────────────────
+    setField("Takaful Certificate No  No Sijil Takaful", c.certificate);
+    setField("Name of Takaful Participant  Assignee Nama Peserta Takaful  Pemegang Serah Hak", c.name);
+    setField("NRIC  Passport No  No KP Baru  No Pasport", c.ic);
+    setField("Correspondence Address  Alamat Surat Menyurat", c.address);
+    setField("Permanent Address  Alamat tetap", c.address);
+    setField("Mobile Telephone Number  Nombor Telefon Bimbit", c.phone);
+    setField("Email Address  Alamat Emel", c.email);
+    setField("Bank Name", c.bank);
+    setField("Bank Name  Nama Bank", c.bank);
+    setField("Account Holders Full Name Nama Penuh Pemegang Akaun", c.holder || c.name);
 
-    p1.drawText(c.phone || "", { x: 210, y: 370, size: 10 });
-    p1.drawText(c.email || "", { x: 410, y: 375, size: 10 });
+    // ── Page 2 — signature section fields ─────────────────────────────────
+    setField("NAMA PESERTA TAKAFUL / PEMEGANG SERAH HAK", c.name);
+    setField("NRIC PESERTA TAKAFUL / PEMEGANG SERAH HAK", c.ic);
+    setField("TARIKH TANDATANGAN PESERTA TAKAFUL / PEMEGANG SERAH HAK", date);
+    setField("NAMA SAKSI (EKSEKUTIF CAWANGAN / WAKIL)", w.name);
+    setField("NRIC SAKSI (EKSEKUTIF CAWANGAN / WAKIL)", w.ic);
+    setField("TARIKH TANDATANGAN SAKSI (EKSEKUTIF CAWANGAN / WAKIL)", date);
 
-    // X — reason checkbox
-    p1.drawText("X", { x: 30, y: 138, size: 10 });
+    // ── Tick Masaalah Kewangan (CheckBox4) ────────────────────────────────
+    try { form.getCheckBox("Check Box4").check(); } catch(e) {}
 
-    // ── Page 2 ─────────────────────────────────────────────────────────────
-    p2.drawText(c.account        || "", { x: 220, y: 730, size: 10 });
-    p2.drawText(c.holder || c.name || "", { x: 220, y: 700, size: 10 });
-    p2.drawText(c.bank           || "", { x: 450, y: 728, size: 10 });
+    form.flatten();
 
-    // Client signature + details
+    // ── Signature images (coordinate-based, drawn after flatten) ──────────
+    const p2 = pdf.getPages()[1];
     if (c.signature) await drawSig(p2, pdf, c.signature, 250, 250, 100, 30);
-    p2.drawText(c.name  || "", { x: 170, y: 215, size: 10 });
-    p2.drawText(c.ic    || "", { x: 170, y: 198, size: 10 });
-    p2.drawText(date,          { x: 170, y: 178, size: 10 });
-
-    // Witness signature + details
     if (w.signature) await drawSig(p2, pdf, w.signature, 450, 250, 100, 30);
-    p2.drawText(w.name  || "", { x: 370, y: 215, size: 10 });
-    p2.drawText(w.ic    || "", { x: 370, y: 198, size: 10 });
-    p2.drawText(date,          { x: 370, y: 180, size: 10 });
 
     const out  = await pdf.save();
     const link = document.createElement("a");
