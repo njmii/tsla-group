@@ -288,8 +288,8 @@ async function generateGE() {
 
     // Certificate number boxes
     drawChars(p1, noPolisi, [
-      [95,765],[110,765],[122,765],[139,765],[153,765],
-      [169,765],[181,765],[199,765],[210,765],[225,765]
+      [93,765],[108,765],[120,765],[137,765],[151,765],
+      [167,765],[179,765],[197,765],[208,765],[223,765]
     ]);
 
     // IC number boxes (strip dashes)
@@ -334,7 +334,7 @@ async function generateGE() {
     // Name, NRIC, Tel
     p3.drawText(c.name  || "", { x: 70, y: 342, size: 9 });
     p3.drawText(c.ic    || "", { x: 70, y: 312, size: 9 });
-    p3.drawText(c.phone || "", { x: 70, y: 340, size: 9 });
+    p3.drawText(c.phone || "", { x: 290, y: 340, size: 9 });
 
     const out  = await pdf.save();
     const link = document.createElement("a");
