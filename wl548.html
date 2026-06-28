@@ -250,16 +250,18 @@ async function generateWL548() {
     p1.drawText(c.name    || "", { x: 170, y: 550, size: 10 });
     p1.drawText(c.ic      || "", { x: 170, y: 530, size: 10 });
     p1.drawText(c.phone   || "", { x: 450, y: 500, size: 10 });
-    const addrW = (c.address || "").split(" ");
-    const addrLines = [];
-    let addrCur = "";
-    for (const w of addrW) {
-      const t = addrCur ? addrCur + " " + w : w;
-      if (t.length > 35) { if (addrCur) addrLines.push(addrCur); addrCur = w; }
-      else addrCur = t;
+    const _addrWords = (c.address || "").split(" ");
+    const _addrLines = [];
+    let _addrCur = "", _addrLimit = 55;
+    for (const w of _addrWords) {
+      const t = _addrCur ? _addrCur + " " + w : w;
+      if (t.length > _addrLimit) { if (_addrCur) _addrLines.push(_addrCur); _addrCur = w; _addrLimit = 70; }
+      else _addrCur = t;
     }
-    if (addrCur) addrLines.push(addrCur);
-    addrLines.slice(0, 3).forEach((line, i) => p1.drawText(line, { x: 170, y: 470 - i * 12, size: 10 }));
+    if (_addrCur) _addrLines.push(_addrCur);
+    if (_addrLines[0]) p1.drawText(_addrLines[0], { x: 170, y: 470, size: 10 });
+    if (_addrLines[1]) p1.drawText(_addrLines[1], { x:  50, y: 450, size: 10 });
+    if (_addrLines[2]) p1.drawText(_addrLines[2], { x:  50, y: 438, size: 10 });
     p1.drawText(c.email   || "", { x: 165, y: 415, size: 10 });
 
     // ── Section D — Sebab & Bank ───────────────────────────────────────────
