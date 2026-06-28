@@ -188,7 +188,7 @@ async function makeTransparent(data) {
   return cv.toDataURL("image/png");
 }
 
-async function drawSig(page, pdf, data, x, y, maxW, maxH) {
+async async function drawSig(page, pdf, data, x, y, maxW, maxH) {
   if (!data) return;
   try {
     data = await makeTransparent(data);
@@ -219,6 +219,13 @@ function wrapText(text, maxChars) {
   return lines.slice(0, 2);
 }
 
+function drawChars(page, text, coords, size = 9) {
+  const chars = String(text).replace(/-/g, "").split("");
+  coords.forEach(([x, y], i) => {
+    if (chars[i]) page.drawText(chars[i], { x, y, size });
+  });
+}
+
 async function generateWL548() {
   const { PDFDocument } = PDFLib;
   const btn = document.getElementById("generateBtn");
@@ -236,7 +243,31 @@ async function generateWL548() {
     const isMedical = document.getElementById("planType").selectedIndex === 1;
     const isDiff    = document.getElementById("mode").selectedIndex === 1;
 
-    // ── TODO: add coordinate fills for sections B, D, E, F after PDF probe ──
+    const p1 = pdf.getPages()[0];
+    const p2 = pdf.getPages()[1];
+
+    // ── Section B — Personal Info ──────────────────────────────────────────
+    p1.drawText(c.name    || "", { x: 170, y: 550, size: 10 });
+    p1.drawText(c.ic      || "", { x: 170, y: 530, size: 10 });
+    p1.drawText(c.phone   || "", { x: 450, y: 500, size: 10 });
+    p1.drawText(c.address || "", { x: 170, y: 470, size: 10 });
+    p1.drawText(c.email   || "", { x: 165, y: 415, size: 10 });
+
+    // ── Section D — Sebab & Bank ───────────────────────────────────────────
+    p1.drawText("Masaalah Kewangan",      { x:  50, y: 280, size: 10 });
+    p1.drawText("X",                       { x: 165, y: 209, size: 10 });
+    p1.drawText(c.holder || c.name || "", { x: 180, y: 150, size: 10 });
+    p1.drawText(c.bank   || "",           { x: 180, y: 130, size: 10 });
+    drawChars(p1, c.account || "", [
+      [182,112],[197,112],[210,112],[226,112],[237,112],
+      [252,112],[265,112],[279,112],[293,112],[306,112],
+      [320,112],[333,112],[349,112],[362,112],[375,112],
+      [391,112],[403,112]
+    ]);
+
+    // ── Signature + Date (page 2) ──────────────────────────────────────────
+    if (c.signature) await drawSig(p2, pdf, c.signature, 200, 700, 100, 20);
+    if (date) p2.drawText(date, { x: 420, y: 710, size: 10 });
 
     const out  = await pdf.save();
     const link = document.createElement("a");
