@@ -348,21 +348,21 @@ function sendBlast(){
 }
 </script>
 
-<div id='blastSheet' class='modal'><div class='sheet'>
- <div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:14px'>
+<div id='blastSheet' class='modal'><div class='sheet' style='max-height:90vh;overflow-y:auto'>
+ <div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px'>
   <h2>📢 WhatsApp Blast</h2>
   <button onclick='closeBlastSheet()' style='background:#eee;border:none;border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer'>✕</button>
+ </div>
+ <div class='actions' style='margin-bottom:12px'>
+  <button class='cancel' onclick='closeBlastSheet()'>Cancel</button>
+  <button class='save' onclick='sendBlast()'>📲 Send</button>
  </div>
  <div id='blastCount' style='color:#666;font-size:13px;margin-bottom:10px'></div>
  <div style='display:flex;gap:8px;margin-bottom:12px'>
   <button onclick='selectAll()' style='background:#f0f0f0;border:none;border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:13px'>Select All</button>
   <button onclick='clearSel()' style='background:#f0f0f0;border:none;border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:13px'>Clear</button>
  </div>
- <textarea id='blastMsg' placeholder='Type your message...' style='width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;min-height:100px;resize:vertical;font-family:inherit;font-size:14px;margin-bottom:12px'></textarea>
- <div class='actions'>
-  <button class='cancel' onclick='closeBlastSheet()'>Cancel</button>
-  <button class='save' onclick='sendBlast()'>📲 Send</button>
- </div>
+ <textarea id='blastMsg' placeholder='Type your message...' style='width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;min-height:100px;resize:vertical;font-family:inherit;font-size:14px'></textarea>
 </div></div>
 
 </body></html>
