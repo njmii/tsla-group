@@ -188,7 +188,7 @@ async function makeTransparent(data) {
   return cv.toDataURL("image/png");
 }
 
-async async function drawSig(page, pdf, data, x, y, maxW, maxH) {
+async function drawSig(page, pdf, data, x, y, maxW, maxH) {
   if (!data) return;
   try {
     data = await makeTransparent(data);
