@@ -17,7 +17,7 @@ input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:1
 .save{background:#ff7a00;color:#fff}.cancel{background:#eee}.small{color:#666;font-size:13px}.ok{color:#0a9b43}.pending{color:#c77700}
 </style></head><body>
 <div class='header'><a href='index.html'>← Back</a><input id='q' class='search' placeholder='🔍 Search' oninput='render()'></div>
-<div id='last'></div><div class='card'><div id='list'></div></div>
+<div id='followups'></div><div id='last'></div><div class='card'><div id='list'></div></div>
 <button class='fab' onclick='showAdd()'>+</button>
 
 <div class='card' style='margin-top:10px'>
@@ -78,7 +78,20 @@ input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:1
 <script>
 let clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
 function sig(c){return c.signature?"<span class='ok'>🟢 Signature Saved</span>":"<span class='pending'>⚪ No Signature</span>";}
-function biro(c){return c.biro?"<span class='ok'>✅ Biro</span>":"<span style='color:#e53935;font-weight:700'>⚠️ Manual</span>";}
+function tags(c){
+ const t=[];
+ if(c.biro)t.push("<span class='ok'>✅ Biro</span>");
+ if(c.servicingPend)t.push("<span style='color:#c77700;font-weight:700'>🔄 Servicing Pending</span>");
+ if(c.servicingSettle)t.push("<span style='color:#0a9b43;font-weight:700'>✔ Servicing Settle</span>");
+ return t.join(' &nbsp;');
+}
+function followUpBadge(c){
+ if(!c.followUpDate)return '';
+ const today=new Date().toISOString().split('T')[0];
+ const late=c.followUpDate<today;
+ const [y,m,d]=c.followUpDate.split('-');
+ return `<span style="color:${late?'#e53935':'#888'};font-weight:700">📅 ${d}/${m}/${y}${late?' ⚠️':''}</span>`;
+}
 function currentObj(){
  const id=localStorage.getItem('tslaCurrentClientId');
  return clients.find(x=>String(x.id)===String(id));
@@ -86,11 +99,14 @@ function currentObj(){
 function render(){
  clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
  const term=document.getElementById('q').value.toLowerCase();
+ const today=new Date().toISOString().split('T')[0];
  const lastClient=currentObj();
  document.getElementById('last').innerHTML=lastClient?`<div class='card'><b>⭐ Last Opened</b><div style='margin-top:8px'><b>${lastClient.name||''}</b><div class='small'>${lastClient.phone||''}</div><div>${sig(lastClient)}</div><button class='btn' onclick="openClient('${lastClient.id}')">Open</button></div></div>`:'';
+ const due=clients.filter(c=>c.followUpDate&&c.followUpDate<=today);
+ document.getElementById('followups').innerHTML=due.length?`<div class='card' style='border-left:4px solid #e53935'><b>⏰ Follow-ups Due (${due.length})</b>${due.map(c=>`<div class='row'><div><b>${c.name||''}</b><div class='small'>${followUpBadge(c)}</div></div><button class='btn' onclick="openClient('${c.id}')">Open</button></div>`).join('')}</div>`:'';
  let h='';
  clients.filter(c=>!term||[c.name,c.ic,c.phone,c.certificate].join(' ').toLowerCase().includes(term)).forEach(c=>{
- h+=`<div class='row'><div><b>${c.name||''}</b><div class='small'>${c.phone||''}</div><div class='small'>${sig(c)} &nbsp;${biro(c)}</div></div><button class='btn' onclick="openClient('${c.id}')">Open</button></div>`;
+ h+=`<div class='row'><div><b>${c.name||''}</b><div class='small'>${c.phone||''}</div><div class='small'>${sig(c)} &nbsp;${tags(c)}</div><div class='small'>${followUpBadge(c)}</div></div><button class='btn' onclick="openClient('${c.id}')">Open</button></div>`;
  });
  document.getElementById('list').innerHTML=h||"<div class='small'>👥 No clients yet</div>";
 }

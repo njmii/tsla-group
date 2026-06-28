@@ -28,6 +28,7 @@ h3{margin:10px 0;color:#777;font-size:14px}
 <div class="label">Address</div><div id="addressv" class="value">-</div>
 <h3>POLICY</h3>
 <div class="label">Certificate</div><div id="certificatev" class="value">-</div>
+<div class="label">Follow-up Date</div><div id="followUpDatev" class="value">-</div>
 <h3>BANK</h3>
 <div class="label">Bank</div><div id="bankv" class="value">-</div>
 <div class="label">Account</div><div id="accountv" class="value">-</div>
@@ -47,6 +48,14 @@ h3{margin:10px 0;color:#777;font-size:14px}
     <div id="biroStatus" style="font-weight:700;font-size:1rem"></div>
   </div>
   <button id="biroBtn" onclick="toggleBiro()" style="padding:10px 18px;border-radius:14px;border:none;font-weight:700;font-size:.9rem;cursor:pointer"></button>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid #eee">
+  <div><div class="label">Servicing</div><div id="servicingPendStatus" style="font-weight:700"></div></div>
+  <button id="servicingPendBtn" onclick="toggleTag('servicingPend','servicingPendStatus','servicingPendBtn','🔄 Servicing Pending')" style="padding:8px 14px;border-radius:12px;border:none;font-weight:700;font-size:.85rem;cursor:pointer"></button>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid #eee">
+  <div><div class="label">&nbsp;</div><div id="servicingSettleStatus" style="font-weight:700"></div></div>
+  <button id="servicingSettleBtn" onclick="toggleTag('servicingSettle','servicingSettleStatus','servicingSettleBtn','✔ Servicing Settle')" style="padding:8px 14px;border-radius:12px;border:none;font-weight:700;font-size:.85rem;cursor:pointer"></button>
 </div>
 <div class="grid" style="margin-top:14px">
 <button class="o" onclick="location.href='client-signature.html'">✍️ Signature</button>
@@ -77,6 +86,7 @@ h3{margin:10px 0;color:#777;font-size:14px}
 <label>Bank</label><input id="bank">
 <label>Account</label><input id="account">
 <label>Holder</label><input id="holder">
+<label>Follow-up Date</label><input type="date" id="followUpDate">
 <button class="o" onclick="saveClient()">💾 Save</button>
 <button class="g" onclick="toggleEdit()">Cancel</button>
 </div>
@@ -102,6 +112,20 @@ function load(){
    const inp=document.getElementById(k); if(inp) inp.value=c[k]||"";
  });
  renderBiro(c);
+ renderTag('servicingPend','servicingPendStatus','servicingPendBtn','🔄 Servicing Pending');
+ renderTag('servicingSettle','servicingSettleStatus','servicingSettleBtn','✔ Servicing Settle');
+ const fuEl=document.getElementById("followUpDatev");
+ if(fuEl){
+  if(c.followUpDate){
+   const [y,m,d]=c.followUpDate.split('-');
+   const today=new Date().toISOString().split('T')[0];
+   const late=c.followUpDate<today;
+   fuEl.textContent=`${d}/${m}/${y}${late?' ⚠️ Overdue':''}`;
+   fuEl.style.color=late?'#e53935':'#111';
+  } else { fuEl.textContent='-'; fuEl.style.color='#111'; }
+ }
+ const fuInp=document.getElementById("followUpDate");
+ if(fuInp) fuInp.value=c.followUpDate||"";
  renderDocs();
 }
 function renderBiro(c){
@@ -122,6 +146,28 @@ function toggleBiro(){
  arr[idx].biro=!arr[idx].biro;
  localStorage.setItem("tslaClients",JSON.stringify(arr));
  renderBiro(arr[idx]);
+}
+function renderTag(field,statusId,btnId,label){
+ const arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+ const id=String(localStorage.getItem("tslaCurrentClientId")||"");
+ const c=arr.find(x=>String(x.id)===id)||{};
+ const on=!!c[field];
+ document.getElementById(statusId).innerHTML=on
+  ?`<span style="color:#0a9b43">${label}</span>`
+  :`<span style="color:#888">—</span>`;
+ const btn=document.getElementById(btnId);
+ btn.textContent=on?"Remove":"Mark";
+ btn.style.background=on?"#eee":"#ff7a00";
+ btn.style.color=on?"#333":"white";
+}
+function toggleTag(field,statusId,btnId,label){
+ const arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+ const id=String(localStorage.getItem("tslaCurrentClientId")||"");
+ const idx=arr.findIndex(x=>String(x.id)===id);
+ if(idx<0)return;
+ arr[idx][field]=!arr[idx][field];
+ localStorage.setItem("tslaClients",JSON.stringify(arr));
+ renderTag(field,statusId,btnId,label);
 }
 function docPreview(d){
  if(d.type&&d.type.startsWith('image/')){
@@ -205,7 +251,8 @@ function saveClient(){
    certificate:document.getElementById("certificate").value,
    bank:document.getElementById("bank").value,
    account:document.getElementById("account").value,
-   holder:document.getElementById("holder").value
+   holder:document.getElementById("holder").value,
+   followUpDate:document.getElementById("followUpDate").value||undefined
  };
  localStorage.setItem("tslaClients",JSON.stringify(arr));
  load();
