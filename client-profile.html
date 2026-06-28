@@ -51,7 +51,7 @@ h3{margin:10px 0;color:#777;font-size:14px}
 <div id="docList" style="margin-bottom:10px"></div>
 <label class="o" style="display:block;padding:13px;border-radius:12px;text-align:center;font-weight:700;cursor:pointer">
   + Upload Document
-  <input type="file" id="docFile" style="display:none" onchange="uploadDoc(this)">
+  <input type="file" id="docFile" multiple style="display:none" onchange="uploadDoc(this)">
 </label>
 </div>
 <div class="card">
@@ -122,21 +122,25 @@ function renderDocs(){
  </div>`).join('');
 }
 function uploadDoc(input){
- if(!input.files[0])return;
- const file=input.files[0];
- const reader=new FileReader();
- reader.onload=e=>{
-  const arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
-  const id=String(localStorage.getItem("tslaCurrentClientId")||"");
-  const idx=arr.findIndex(x=>String(x.id)===id);
-  if(idx<0)return;
-  if(!arr[idx].documents)arr[idx].documents=[];
-  arr[idx].documents.push({id:Date.now().toString(),name:file.name,type:file.type,data:e.target.result,uploadedAt:new Date().toLocaleDateString()});
-  localStorage.setItem("tslaClients",JSON.stringify(arr));
-  input.value="";
-  renderDocs();
- };
- reader.readAsDataURL(file);
+ if(!input.files.length)return;
+ const files=Array.from(input.files);
+ let loaded=0;
+ files.forEach(file=>{
+  const reader=new FileReader();
+  reader.onload=e=>{
+   const arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+   const id=String(localStorage.getItem("tslaCurrentClientId")||"");
+   const idx=arr.findIndex(x=>String(x.id)===id);
+   if(idx>=0){
+    if(!arr[idx].documents)arr[idx].documents=[];
+    arr[idx].documents.push({id:Date.now().toString()+"_"+loaded,name:file.name,type:file.type,data:e.target.result,uploadedAt:new Date().toLocaleDateString()});
+    localStorage.setItem("tslaClients",JSON.stringify(arr));
+   }
+   loaded++;
+   if(loaded===files.length){input.value="";renderDocs();}
+  };
+  reader.readAsDataURL(file);
+ });
 }
 function downloadDoc(docId){
  const c=current();
