@@ -296,21 +296,11 @@ async function generateWL548() {
   }
 }
 async function sendToWA() {
-  if (!window._lastPdfBlob) { alert("Generate PDF dahulu."); return; }
+  await generateWL548();
+  if (!window._lastPdfBlob) return;
   const phone = (c.phone || "").replace(/[^0-9]/g, "");
   const wa = phone.startsWith("60") ? phone : phone.startsWith("0") ? "6" + phone : "60" + phone;
-  if (navigator.share && navigator.canShare) {
-    const file = new File([window._lastPdfBlob], window._lastPdfName, { type: "application/pdf" });
-    if (navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: window._lastPdfName, text: `Dokumen untuk ${c.name || ""}` }); return; }
-      catch(e) { if (e.name !== "AbortError") console.warn(e); }
-    }
-  }
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(window._lastPdfBlob);
-  link.download = window._lastPdfName;
-  link.click();
-  if (wa) setTimeout(() => window.open(`https://wa.me/${wa}`, "_blank"), 1000);
+  if (wa) window.open(`https://wa.me/${wa}`, "_blank");
 }
 </script>
 </body>
