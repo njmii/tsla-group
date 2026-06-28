@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
 <title>TSLA Clients</title>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@5.0.3/dist/signature_pad.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;font-family:-apple-system,Segoe UI,sans-serif}
 body{margin:0;background:#f5f5f7}.header{position:sticky;top:0;background:#f5f5f7;padding:14px 16px}
@@ -20,18 +21,45 @@ input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:1
 <button class='fab' onclick='showAdd()'>+</button>
 
 <div class='card' style='margin-top:10px'>
-<h3 style='font-size:1rem;font-weight:800;margin-bottom:12px'>⚙️ Settings</h3>
-<p style='font-size:12px;color:#888;margin-bottom:10px'>Witness Details</p>
-<input id='setWitnessName' placeholder='Witness Name'>
-<input id='setWitnessIc' placeholder='Witness IC'>
-<input id='setWitnessPhone' placeholder='Witness Phone'>
-<input id='setWitnessAddress' placeholder='Witness Address'>
-<p style='font-size:12px;color:#888;margin:10px 0'>Agent Details</p>
-<input id='setAgentName' placeholder='Agent Name'>
-<input id='setAgentIc' placeholder='Agent IC'>
-<input id='setAgentCode' placeholder='Agent Code'>
-<button class='save' style='width:100%;padding:13px;border:none;border-radius:12px;font-weight:700;margin-top:8px;cursor:pointer' onclick='saveSettings()'>💾 Save Settings</button>
-<div id='settingsSaved' style='color:#0a9b43;font-size:13px;text-align:center;margin-top:6px;display:none'>✅ Saved!</div>
+<div style='display:flex;justify-content:space-between;align-items:center;cursor:pointer' onclick='toggleSettings()'>
+  <h3 style='font-size:1rem;font-weight:800;margin:0'>⚙️ Settings</h3>
+  <span id='settingsArrow' style='font-size:1.1rem;color:#888'>▼</span>
+</div>
+<div id='settingsBody' style='display:none;margin-top:14px'>
+  <p style='font-size:12px;color:#888;margin-bottom:8px;font-weight:700'>WITNESS</p>
+  <input id='setWitnessName' placeholder='Witness Name'>
+  <input id='setWitnessIc' placeholder='Witness IC'>
+  <input id='setWitnessPhone' placeholder='Witness Phone'>
+  <input id='setWitnessAddress' placeholder='Witness Address'>
+  <p style='font-size:12px;color:#888;margin:10px 0 6px;font-weight:700'>Witness Signature</p>
+  <div style='border:2px solid #eee;border-radius:14px;overflow:hidden;cursor:crosshair;background:#fff'>
+    <canvas id='setWitnessSig' style='width:100%;height:120px;display:block'></canvas>
+  </div>
+  <div style='display:flex;gap:8px;margin-top:8px'>
+    <button class='cancel' style='flex:1;padding:10px;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:13px' onclick='clearSettingsSig("witness")'>Clear</button>
+    <label class='save' style='flex:2;padding:10px;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>
+      Upload Signature
+      <input type='file' accept='image/*' style='display:none' onchange='uploadSettingsSig(this,"witness")'>
+    </label>
+  </div>
+  <p style='font-size:12px;color:#888;margin:14px 0 8px;font-weight:700'>AGENT</p>
+  <input id='setAgentName' placeholder='Agent Name'>
+  <input id='setAgentIc' placeholder='Agent IC'>
+  <input id='setAgentCode' placeholder='Agent Code'>
+  <p style='font-size:12px;color:#888;margin:10px 0 6px;font-weight:700'>Agent Signature</p>
+  <div style='border:2px solid #eee;border-radius:14px;overflow:hidden;cursor:crosshair;background:#fff'>
+    <canvas id='setAgentSig' style='width:100%;height:120px;display:block'></canvas>
+  </div>
+  <div style='display:flex;gap:8px;margin-top:8px'>
+    <button class='cancel' style='flex:1;padding:10px;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:13px' onclick='clearSettingsSig("agent")'>Clear</button>
+    <label class='save' style='flex:2;padding:10px;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>
+      Upload Signature
+      <input type='file' accept='image/*' style='display:none' onchange='uploadSettingsSig(this,"agent")'>
+    </label>
+  </div>
+  <button class='save' style='width:100%;padding:13px;border:none;border-radius:12px;font-weight:700;margin-top:14px;cursor:pointer' onclick='saveSettings()'>💾 Save Settings</button>
+  <div id='settingsSaved' style='color:#0a9b43;font-size:13px;text-align:center;margin-top:6px;display:none'>✅ Saved!</div>
+</div>
 </div>
 
 <div id='m' class='modal'><div class='sheet'>
@@ -78,29 +106,103 @@ function save(){
 }
 render();
 
+let setWitnessPad, setAgentPad, _settingsPadsInit = false;
+
+function toggleSettings(){
+  const body=document.getElementById('settingsBody');
+  const arrow=document.getElementById('settingsArrow');
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  arrow.textContent=open?'▼':'▲';
+  if(!open&&!_settingsPadsInit) initSettingsPads();
+}
+
+function initSettingsPads(){
+  _settingsPadsInit=true;
+  const wc=document.getElementById('setWitnessSig');
+  wc.width=wc.offsetWidth||400; wc.height=120;
+  setWitnessPad=new SignaturePad(wc,{penColor:'#111'});
+  const ac=document.getElementById('setAgentSig');
+  ac.width=ac.offsetWidth||400; ac.height=120;
+  setAgentPad=new SignaturePad(ac,{penColor:'#111'});
+  const w=JSON.parse(localStorage.getItem('tslaWitness')||'{}');
+  const a=JSON.parse(localStorage.getItem('tslaAgentProfile')||'{}');
+  if(w.signature) _drawToCanvas(wc,w.signature);
+  if(a.agentSignature) _drawToCanvas(ac,a.agentSignature);
+}
+
+function _drawToCanvas(canvas,dataUrl){
+  const img=new Image();
+  img.onload=()=>canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+  img.src=dataUrl;
+}
+
+function clearSettingsSig(type){
+  if(type==='witness'&&setWitnessPad) setWitnessPad.clear();
+  if(type==='agent'&&setAgentPad) setAgentPad.clear();
+}
+
+async function _makeTransparent(data){
+  const img=new Image();
+  await new Promise(r=>{img.onload=r;img.src=data;});
+  const cv=document.createElement('canvas');
+  cv.width=img.width;cv.height=img.height;
+  const ctx=cv.getContext('2d');
+  ctx.drawImage(img,0,0);
+  const d=ctx.getImageData(0,0,cv.width,cv.height);
+  for(let i=0;i<d.data.length;i+=4){
+    if(d.data[i]>235&&d.data[i+1]>235&&d.data[i+2]>235)d.data[i+3]=0;
+  }
+  ctx.putImageData(d,0,0);
+  return cv.toDataURL('image/png');
+}
+
+function uploadSettingsSig(input,type){
+  if(!input.files[0])return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    const transparent=await _makeTransparent(e.target.result);
+    const pad=type==='witness'?setWitnessPad:setAgentPad;
+    const canvas=document.getElementById(type==='witness'?'setWitnessSig':'setAgentSig');
+    const img=new Image();
+    img.onload=()=>{
+      pad.clear();
+      const scale=Math.min(canvas.width/img.width,canvas.height/img.height);
+      const w=img.width*scale,h=img.height*scale;
+      canvas.getContext('2d').drawImage(img,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
+    };
+    img.src=transparent;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
 function saveSettings(){
- const wn=document.getElementById('setWitnessName').value;
- const wi=document.getElementById('setWitnessIc').value;
- const wp=document.getElementById('setWitnessPhone').value;
- const wa=document.getElementById('setWitnessAddress').value;
- const an=document.getElementById('setAgentName').value;
- const ai=document.getElementById('setAgentIc').value;
- const ac=document.getElementById('setAgentCode').value;
- localStorage.setItem('tslaWitness',JSON.stringify({name:wn,ic:wi,phone:wp,address:wa}));
- localStorage.setItem('tslaAgentProfile',JSON.stringify({witnessName:wn,witnessIc:wi,agentName:an,agentIc:ai,agentCode:ac}));
- const el=document.getElementById('settingsSaved');
- el.style.display='block';setTimeout(()=>el.style.display='none',2000);
+  const wn=document.getElementById('setWitnessName').value;
+  const wi=document.getElementById('setWitnessIc').value;
+  const wp=document.getElementById('setWitnessPhone').value;
+  const wa=document.getElementById('setWitnessAddress').value;
+  const an=document.getElementById('setAgentName').value;
+  const ai=document.getElementById('setAgentIc').value;
+  const ac=document.getElementById('setAgentCode').value;
+  const existW=JSON.parse(localStorage.getItem('tslaWitness')||'{}');
+  const existA=JSON.parse(localStorage.getItem('tslaAgentProfile')||'{}');
+  const wSig=(setWitnessPad&&!setWitnessPad.isEmpty())?setWitnessPad.toDataURL():(existW.signature||null);
+  const aSig=(setAgentPad&&!setAgentPad.isEmpty())?setAgentPad.toDataURL():(existA.agentSignature||null);
+  localStorage.setItem('tslaWitness',JSON.stringify({name:wn,ic:wi,phone:wp,address:wa,signature:wSig}));
+  localStorage.setItem('tslaAgentProfile',JSON.stringify({witnessName:wn,witnessIc:wi,agentName:an,agentIc:ai,agentCode:ac,agentSignature:aSig}));
+  const el=document.getElementById('settingsSaved');
+  el.style.display='block';setTimeout(()=>el.style.display='none',2000);
 }
 
 (function loadSettings(){
- const w=JSON.parse(localStorage.getItem('tslaWitness')||'{}');
- const a=JSON.parse(localStorage.getItem('tslaAgentProfile')||'{}');
- document.getElementById('setWitnessName').value=w.name||'';
- document.getElementById('setWitnessIc').value=w.ic||'';
- document.getElementById('setWitnessPhone').value=w.phone||'';
- document.getElementById('setWitnessAddress').value=w.address||'';
- document.getElementById('setAgentName').value=a.agentName||'';
- document.getElementById('setAgentIc').value=a.agentIc||'';
- document.getElementById('setAgentCode').value=a.agentCode||'';
+  const w=JSON.parse(localStorage.getItem('tslaWitness')||'{}');
+  const a=JSON.parse(localStorage.getItem('tslaAgentProfile')||'{}');
+  document.getElementById('setWitnessName').value=w.name||'';
+  document.getElementById('setWitnessIc').value=w.ic||'';
+  document.getElementById('setWitnessPhone').value=w.phone||'';
+  document.getElementById('setWitnessAddress').value=w.address||'';
+  document.getElementById('setAgentName').value=a.agentName||'';
+  document.getElementById('setAgentIc').value=a.agentIc||'';
+  document.getElementById('setAgentCode').value=a.agentCode||'';
 })();
 </script></body></html>

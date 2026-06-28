@@ -112,32 +112,9 @@ canvas{width:100%;height:160px;display:block;}
     </div>
   </div>
 
-  <div class="card">
-    <h3>Witness</h3>
-    <button class="btn-sm" style="margin-bottom:14px" onclick="loadSavedWitness()">Load Saved Witness</button>
-    <div class="row">
-      <label class="label">Witness Name</label>
-      <input id="witnessName" placeholder="Full name" oninput="saveWitness()">
-    </div>
-    <div class="row">
-      <label class="label">Witness IC</label>
-      <input id="witnessIc" placeholder="IC number" oninput="saveWitness()">
-    </div>
-    <div class="row">
-      <label class="label">Witness Phone</label>
-      <input id="witnessPhone" placeholder="Phone number" oninput="saveWitness()">
-    </div>
-    <div class="row">
-      <label class="label">Witness Address</label>
-      <input id="witnessAddress" placeholder="Current address" oninput="saveWitness()">
-    </div>
-    <div class="row">
-      <label class="label">Witness Signature</label>
-      <div class="sig-wrap">
-        <canvas id="sig"></canvas>
-      </div>
-      <button class="btn-sm" onclick="pad.clear()">Clear Signature</button>
-    </div>
+  <div class="card" id="staffCard">
+    <div id="witnessStatus" style="font-size:.95rem;margin-bottom:6px">⚪ No witness saved</div>
+    <a href="clients.html" style="font-size:.8rem;color:#ff7a00;text-decoration:none">⚙️ Set up in Settings →</a>
   </div>
 
   <div class="card">
@@ -163,32 +140,10 @@ document.getElementById("mode").onchange = function() {
   document.getElementById("pc").style.display = this.selectedIndex ? "block" : "none";
 };
 
-function saveWitness() {
-  localStorage.setItem("tslaWitness", JSON.stringify({
-    name:    document.getElementById("witnessName").value,
-    ic:      document.getElementById("witnessIc").value,
-    phone:   document.getElementById("witnessPhone").value,
-    address: document.getElementById("witnessAddress").value
-  }));
-}
-function loadSavedWitness() {
-  const w = JSON.parse(localStorage.getItem("tslaWitness") || "{}");
-  document.getElementById("witnessName").value    = w.name    || "";
-  document.getElementById("witnessIc").value      = w.ic      || "";
-  document.getElementById("witnessPhone").value   = w.phone   || "";
-  document.getElementById("witnessAddress").value = w.address || "";
-  saveWitness();
-}
 const _w = JSON.parse(localStorage.getItem("tslaWitness") || "{}");
-document.getElementById("witnessName").value    = _w.name    || "";
-document.getElementById("witnessIc").value      = _w.ic      || "";
-document.getElementById("witnessPhone").value   = _w.phone   || "";
-document.getElementById("witnessAddress").value = _w.address || "";
-
-const sigCanvas = document.getElementById("sig");
-sigCanvas.width  = sigCanvas.offsetWidth  || 600;
-sigCanvas.height = 160;
-const pad = new SignaturePad(sigCanvas, { penColor: "#111" });
+document.getElementById("witnessStatus").innerHTML = _w.name
+  ? `<span style="color:#0a9b43">✅ Witness: <b>${_w.name}</b></span>`
+  : `<span style="color:#c77700">⚪ No witness saved</span>`;
 
 const pcSigCanvas = document.getElementById("pcSig");
 pcSigCanvas.width  = pcSigCanvas.offsetWidth || 600;
@@ -323,18 +278,12 @@ async function generateBL714() {
     }
 
     // ── Saksi (Witness) ────────────────────────────────────────────────────
-    const wName    = document.getElementById("witnessName").value;
-    const wIc      = document.getElementById("witnessIc").value;
-    const wPhone   = document.getElementById("witnessPhone").value;
-    const wAddress = document.getElementById("witnessAddress").value;
-
-    if (!pad.isEmpty()) {
-      await drawSig(page, pdf, pad.toDataURL(), 490, 477, 60, 20);
-    }
-    if (wName)    page.drawText(wName,    { x: 490, y: 452, size: 9 });
-    if (wIc)      page.drawText(wIc,      { x: 490, y: 432, size: 9 });
-    if (wPhone)   page.drawText(wPhone,   { x: 490, y: 417, size: 9 });
-    const addrLines3 = wrapText(wAddress || "", 18);
+    const w = JSON.parse(localStorage.getItem("tslaWitness") || "{}");
+    if (w.signature) await drawSig(page, pdf, w.signature, 490, 477, 60, 20);
+    if (w.name)    page.drawText(w.name,    { x: 490, y: 452, size: 9 });
+    if (w.ic)      page.drawText(w.ic,      { x: 490, y: 432, size: 9 });
+    if (w.phone)   page.drawText(w.phone,   { x: 490, y: 417, size: 9 });
+    const addrLines3 = wrapText(w.address || "", 18);
     if (addrLines3[0]) page.drawText(addrLines3[0], { x: 490, y: 402, size: 9 });
     if (addrLines3[1]) page.drawText(addrLines3[1], { x: 490, y: 392, size: 9 });
 

@@ -316,57 +316,10 @@ onclick="setToday()">
 
 </div>
 
-<button class="btn secondary" type="button" onclick="loadSavedWitness()" style="margin-bottom:8px">Load Saved Witness</button>
-
-<input
-class="input"
-id="witnessName"
-placeholder="Witness Name">
-
-<input
-class="input"
-id="witnessIc"
-placeholder="Witness IC">
-
-<button class="btn secondary" type="button" onclick="loadSavedAgent()" style="margin:8px 0">Load Saved Agent</button>
-
-<input
-class="input"
-id="agentName"
-placeholder="Agent Name">
-
-<input
-class="input"
-id="agentIc"
-placeholder="Agent IC">
-
-<input
-class="input"
-id="agentCode"
-placeholder="Agent Code">
-
-<button
-class="btn secondary"
-type="button"
-onclick="saveAgentProfile()">
-
-💾 Save Agent Profile
-
-</button>
-
-
-
-
-<div class="card">
-<div class="title">✍️ Digital Signatures</div>
-<div class="label">Certificate Owner</div>
-<img id="clientSigPreview" style="max-width:100%;max-height:70px;border:1px solid #ddd;padding:6px;border-radius:8px">
-<div class="label">Witness Signature</div>
-<canvas id="witnessPad" style="width:100%;height:160px;border:2px dashed #bbb;touch-action:none"></canvas>
-<button class="btn secondary" type="button" onclick="wpad&&wpad.clear()">Clear Witness</button>
-<div class="label">Agent Signature</div>
-<canvas id="agentPad" style="width:100%;height:160px;border:2px dashed #bbb;touch-action:none"></canvas>
-<button class="btn secondary" type="button" onclick="apad&&apad.clear()">Clear Agent</button>
+<div style="padding:14px;background:#f7f8fa;border-radius:14px;margin-bottom:12px">
+  <div id="witnessStatus" style="font-size:.95rem;margin-bottom:6px">⚪ No witness saved</div>
+  <div id="agentStatus" style="font-size:.95rem;margin-bottom:8px">⚪ No agent saved</div>
+  <a href="clients.html" style="font-size:.8rem;color:#25D366;text-decoration:none;font-weight:700">⚙️ Set up in Settings →</a>
 </div>
 <button
 class="btn primary"
@@ -430,27 +383,13 @@ localStorage.getItem(
 );
 
 const _savedWitness=JSON.parse(localStorage.getItem("tslaWitness")||"{}");
-document.getElementById("witnessName").value=_savedWitness.name||"";
-document.getElementById("witnessIc").value=_savedWitness.ic||"";
-
-if(savedProfile){
-
-document.getElementById("witnessName").value =
-savedProfile.witnessName || document.getElementById("witnessName").value;
-
-document.getElementById("witnessIc").value =
-savedProfile.witnessIc || document.getElementById("witnessIc").value;
-
-document.getElementById("agentName").value =
-savedProfile.agentName || "";
-
-document.getElementById("agentIc").value =
-savedProfile.agentIc || "";
-
-document.getElementById("agentCode").value =
-savedProfile.agentCode || "";
-
-}
+const _savedAgent=JSON.parse(localStorage.getItem("tslaAgentProfile")||"{}");
+document.getElementById("witnessStatus").innerHTML=_savedWitness.name
+  ?`<span style="color:#0a9b43">✅ Witness: <b>${_savedWitness.name}</b></span>`
+  :`<span style="color:#c77700">⚪ No witness saved</span>`;
+document.getElementById("agentStatus").innerHTML=(_savedAgent.agentName||savedProfile?.agentName)
+  ?`<span style="color:#0a9b43">✅ Agent: <b>${_savedAgent.agentName||savedProfile.agentName}</b></span>`
+  :`<span style="color:#c77700">⚪ No agent saved</span>`;
 
 
 function shareWhatsApp(){
@@ -506,53 +445,7 @@ document.getElementById("date").value =
 
 }
 
-function saveAgentProfile(){
 
-const profile={
-
-witnessName:
-document.getElementById("witnessName").value,
-
-witnessIc:
-document.getElementById("witnessIc").value,
-
-agentName:
-document.getElementById("agentName").value,
-
-agentIc:
-document.getElementById("agentIc").value,
-
-agentCode:
-document.getElementById("agentCode").value
-
-};
-
-localStorage.setItem(
-"tslaAgentProfile",
-JSON.stringify(profile)
-);
-localStorage.setItem("tslaWitness",JSON.stringify({
-name:document.getElementById("witnessName").value,
-ic:document.getElementById("witnessIc").value
-}));
-
-document.getElementById("output").innerHTML=
-"💾 Agent Profile Saved";
-
-}
-
-function loadSavedWitness(){
- const w=JSON.parse(localStorage.getItem('tslaWitness')||'{}');
- document.getElementById('witnessName').value=w.name||'';
- document.getElementById('witnessIc').value=w.ic||'';
-}
-
-function loadSavedAgent(){
- const a=JSON.parse(localStorage.getItem('tslaAgentProfile')||'{}');
- document.getElementById('agentName').value=a.agentName||'';
- document.getElementById('agentIc').value=a.agentIc||'';
- document.getElementById('agentCode').value=a.agentCode||'';
-}
 
 async function testFwdPdf(){
 
@@ -631,20 +524,13 @@ document.getElementById("output").innerHTML =
 const date =
 document.getElementById("date").value;
 
-const witnessName =
-document.getElementById("witnessName").value;
-
-const witnessIc =
-document.getElementById("witnessIc").value;
-
-const agentName =
-document.getElementById("agentName").value;
-
-const agentIc =
-document.getElementById("agentIc").value;
-
-const agentCode =
-document.getElementById("agentCode").value;
+const _w=JSON.parse(localStorage.getItem("tslaWitness")||"{}");
+const _a=JSON.parse(localStorage.getItem("tslaAgentProfile")||"{}");
+const witnessName=_w.name||"";
+const witnessIc=_w.ic||"";
+const agentName=_a.agentName||"";
+const agentIc=_a.agentIc||"";
+const agentCode=_a.agentCode||"";
 
 function tickBox(target,x,y){
 
@@ -841,12 +727,8 @@ size:11
 );
 
 await drawSig(page6,pdfDoc,client&&client.signature,110,340,120,40);
-if(typeof wpad!=='undefined' && wpad && !wpad.isEmpty()){
- await drawSig(page6,pdfDoc,wpad.toDataURL(),410,340,120,40);
-}
-if(typeof apad!=='undefined' && apad && !apad.isEmpty()){
- await drawSig(page6,pdfDoc,apad.toDataURL(),110,177,120,40);
-}
+if(_w.signature) await drawSig(page6,pdfDoc,_w.signature,410,340,120,40);
+if(_a.agentSignature) await drawSig(page6,pdfDoc,_a.agentSignature,110,177,120,40);
 
 const pdfBytes =
 await pdfDoc.save();
@@ -907,24 +789,6 @@ String(err)
 </script>
 
 
-<script>
-let wpad,apad;
-window.addEventListener('load',()=>{
- const fit=c=>{const r=c.getBoundingClientRect();c.width=r.width;c.height=160;};
- const wc=document.getElementById('witnessPad');
- const ac=document.getElementById('agentPad');
- if(wc&&ac&&window.SignaturePad){
-   fit(wc);fit(ac);
-   wpad=new SignaturePad(wc);
-   apad=new SignaturePad(ac);
- }
- const cl=getCurrentClient();
- if(cl&&cl.signature){
-   const img=document.getElementById('clientSigPreview');
-   if(img)img.src=cl.signature;
- }
-});
-</script>
 </body>
 
 </html>
