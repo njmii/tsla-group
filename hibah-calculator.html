@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hibah Calculator — TSLA Digital Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+body{background:#f7f8fa;color:#111;}
+.header{position:sticky;top:0;background:white;border-bottom:1px solid #eee;padding:4px 12px;z-index:100;min-height:55px;display:flex;align-items:center;justify-content:center;}
+.logo{width:50px;height:auto;}
+.container{max-width:600px;margin:auto;padding:20px;}
+.back{display:inline-block;margin-bottom:15px;text-decoration:none;color:#ff7a00;font-weight:700;}
+.title{font-size:1.8rem;font-weight:900;margin-bottom:4px;}
+.subtitle{color:#888;font-size:.9rem;margin-bottom:24px;}
+.card{background:white;padding:24px;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:16px;}
+.card h3{font-size:1rem;font-weight:800;margin-bottom:16px;color:#333;}
+.row{margin-bottom:14px;}
+.label{font-weight:700;color:#666;margin-bottom:6px;display:block;font-size:.85rem;}
+input,select{width:100%;padding:14px 16px;border-radius:16px;border:2px solid #eee;font-size:1rem;color:#111;background:white;appearance:none;}
+input:focus,select:focus{outline:none;border-color:#ff7a00;}
+.btn{background:#ff7a00;color:white;padding:16px;border-radius:16px;border:0;width:100%;font-size:1rem;font-weight:700;cursor:pointer;}
+.btn:hover{background:#e56d00;}
+.result-amount{font-size:2.6rem;font-weight:900;color:#ff7a00;text-align:center;margin:12px 0 4px;}
+.result-label{text-align:center;color:#888;font-size:.85rem;margin-bottom:20px;}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f2f2f2;font-size:.92rem;}
+.breakdown-row:last-child{border:none;font-weight:800;font-size:1rem;padding-top:14px;}
+.breakdown-row span:first-child{color:#555;}
+.add{color:#111;}
+.sub{color:#0a9b43;}
+.total{color:#ff7a00;}
+.tag{display:inline-block;background:#fff4e6;color:#ff7a00;border-radius:8px;font-size:.72rem;font-weight:700;padding:2px 7px;margin-left:6px;vertical-align:middle;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="assets/tslalogo.png" class="logo" alt="TSLA">
+</div>
+
+<div class="container">
+  <a href="javascript:history.back()" class="back">← Back</a>
+  <div class="title">Hibah Calculator</div>
+  <div class="subtitle">Estimate the takaful coverage your client needs</div>
+
+  <div class="card">
+    <h3>Personal</h3>
+    <div class="row">
+      <label class="label">Age</label>
+      <input type="number" id="age" placeholder="e.g. 30" min="18" max="59">
+    </div>
+    <div class="row">
+      <label class="label">Marital Status</label>
+      <select id="status">
+        <option value="single">Single — 3 years income replacement</option>
+        <option value="married">Married — 10 years income replacement</option>
+      </select>
+    </div>
+    <div class="row">
+      <label class="label">Monthly Income (RM)</label>
+      <input type="number" id="income" placeholder="e.g. 5000" min="0">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Outstanding Debts</h3>
+    <div class="row">
+      <label class="label">Home Loan (RM)</label>
+      <input type="number" id="home" placeholder="0" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Car Loan (RM)</label>
+      <input type="number" id="car" placeholder="0" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Other Debts (RM)</label>
+      <input type="number" id="otherdebts" placeholder="0" min="0">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Assets & Existing Coverage</h3>
+    <div class="row">
+      <label class="label">Savings & EPF (RM)</label>
+      <input type="number" id="savings" placeholder="0" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Existing Takaful / Insurance (RM)</label>
+      <input type="number" id="coverage" placeholder="0" min="0">
+    </div>
+  </div>
+
+  <div class="card">
+    <button class="btn" onclick="calculate()">Calculate</button>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <div class="result-label">Estimated Hibah Needed</div>
+    <div class="result-amount" id="resultAmt">RM 0</div>
+    <div class="result-label" id="resultNote"></div>
+    <div id="breakdown"></div>
+  </div>
+</div>
+
+<script>
+function fmt(n){
+  return 'RM ' + Math.round(Math.abs(n)).toLocaleString('en-MY');
+}
+
+function calculate(){
+  const age      = parseInt(document.getElementById('age').value) || 0;
+  const status   = document.getElementById('status').value;
+  const income   = parseFloat(document.getElementById('income').value) || 0;
+  const home     = parseFloat(document.getElementById('home').value) || 0;
+  const car      = parseFloat(document.getElementById('car').value) || 0;
+  const other    = parseFloat(document.getElementById('otherdebts').value) || 0;
+  const savings  = parseFloat(document.getElementById('savings').value) || 0;
+  const coverage = parseFloat(document.getElementById('coverage').value) || 0;
+
+  if (!age || !income) { alert('Please enter age and monthly income.'); return; }
+  if (age >= 60) { alert('Retirement age is 60. Please enter an age below 60.'); return; }
+
+  const baseYears      = status === 'married' ? 10 : 3;
+  const yearsToRetire  = 60 - age;
+  const years          = Math.min(baseYears, yearsToRetire);
+  const capped         = years < baseYears;
+
+  const incomeBlock  = income * 12 * years;
+  const totalDebts   = home + car + other;
+  const totalAssets  = savings + coverage;
+  const hibah        = Math.max(0, incomeBlock + totalDebts - totalAssets);
+
+  document.getElementById('resultAmt').textContent = fmt(hibah);
+  document.getElementById('resultNote').textContent =
+    capped ? `Years capped at ${years} (retirement at 60)` : `Based on ${years}-year income replacement`;
+
+  const rows = [
+    { label: `Income replacement`, note: `RM ${income.toLocaleString()} × 12 × ${years} yrs`, val: incomeBlock, cls: 'add' },
+    home     ? { label: 'Home loan',       val: home,      cls: 'add' } : null,
+    car      ? { label: 'Car loan',        val: car,       cls: 'add' } : null,
+    other    ? { label: 'Other debts',     val: other,     cls: 'add' } : null,
+    savings  ? { label: 'Savings & EPF',   val: -savings,  cls: 'sub' } : null,
+    coverage ? { label: 'Existing coverage', val: -coverage, cls: 'sub' } : null,
+    { label: 'Hibah Needed', val: hibah, cls: 'total', bold: true },
+  ].filter(Boolean);
+
+  document.getElementById('breakdown').innerHTML = rows.map(r => `
+    <div class="breakdown-row" ${r.bold ? 'style="margin-top:4px"' : ''}>
+      <span>${r.label}${r.note ? `<span class="tag">${r.note}</span>` : ''}</span>
+      <span class="${r.cls}" style="${r.bold?'font-weight:900':''}">${r.val < 0 ? '− ' + fmt(r.val) : fmt(r.val)}</span>
+    </div>`).join('');
+
+  const card = document.getElementById('resultCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
