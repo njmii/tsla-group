@@ -78,6 +78,9 @@ input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:1
 </div></div>
 <script>
 let clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+let activeFilter=null;
+function setFilter(f){activeFilter=activeFilter===f?null:f;render();}
+function chipStyle(f,bg,color){const on=activeFilter===f;return `background:${on?'#222':bg};border-radius:10px;padding:6px 12px;font-size:.85rem;font-weight:700;color:${on?'#fff':(color||'#111')};cursor:pointer;transition:background .15s`;}
 function sig(c){return c.signature?"<span class='ok'>🟢 Signature Saved</span>":"<span class='pending'>⚪ No Signature</span>";}
 function tags(c){
  const t=[];
@@ -102,13 +105,20 @@ function render(){
  const term=document.getElementById('q').value.toLowerCase();
  const today=new Date().toISOString().split('T')[0];
  const overdue=clients.filter(c=>c.followUpDate&&c.followUpDate<=today).length;
- document.getElementById('stats').innerHTML=`<div style='display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 4px'><span style='background:#f0f0f0;border-radius:10px;padding:6px 12px;font-size:.85rem;font-weight:700'>👥 ${clients.length} Clients</span><span style='background:#e8f5e9;border-radius:10px;padding:6px 12px;font-size:.85rem;font-weight:700;color:#0a9b43'>✅ ${clients.filter(c=>c.biro).length} Biro</span><span style='background:#fff8e1;border-radius:10px;padding:6px 12px;font-size:.85rem;font-weight:700;color:#c77700'>🔄 ${clients.filter(c=>c.servicingPend).length} Pending</span>${overdue?`<span style='background:#ffebee;border-radius:10px;padding:6px 12px;font-size:.85rem;font-weight:700;color:#e53935'>⏰ ${overdue} Overdue</span>`:''}</div>`;
+ const nonBiro=clients.filter(c=>!c.biro).length;
+ const unmarked=clients.filter(c=>!c.biro&&!c.servicingPend&&!c.servicingSettle).length;
+ document.getElementById('stats').innerHTML=`<div style='display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 4px'><span onclick="setFilter(null)" style="${chipStyle(null,'#f0f0f0','#111')}">👥 ${clients.length} All</span><span onclick="setFilter('biro')" style="${chipStyle('biro','#e8f5e9','#0a9b43')}">✅ ${clients.filter(c=>c.biro).length} Biro</span><span onclick="setFilter('nonBiro')" style="${chipStyle('nonBiro','#fce4ec','#c62828')}">⚠️ ${nonBiro} Non Biro</span><span onclick="setFilter('pending')" style="${chipStyle('pending','#fff8e1','#c77700')}">🔄 ${clients.filter(c=>c.servicingPend).length} Pending</span><span onclick="setFilter('unmarked')" style="${chipStyle('unmarked','#eeeeee','#555')}">⬜ ${unmarked} Unmarked</span>${overdue?`<span onclick="setFilter('overdue')" style="${chipStyle('overdue','#ffebee','#e53935')}">⏰ ${overdue} Overdue</span>`:''}</div>`;
  const lastClient=currentObj();
  document.getElementById('last').innerHTML=lastClient?`<div class='card'><b>⭐ Last Opened</b><div style='margin-top:8px'><b>${lastClient.name||''}</b><div class='small'>${lastClient.phone||''}</div><div>${sig(lastClient)}</div><button class='btn' onclick="openClient('${lastClient.id}')">Open</button></div></div>`:'';
  const due=clients.filter(c=>c.followUpDate&&c.followUpDate<=today);
  document.getElementById('followups').innerHTML=due.length?`<div class='card' style='border-left:4px solid #e53935'><b>⏰ Follow-ups Due (${due.length})</b>${due.map(c=>`<div class='row'><div><b>${c.name||''}</b><div class='small'>${followUpBadge(c)}</div></div><button class='btn' onclick="openClient('${c.id}')">Open</button></div>`).join('')}</div>`:'';
  const sort=document.getElementById('sortBy').value;
  let filtered=clients.filter(c=>!term||[c.name,c.ic,c.phone,c.certificate].join(' ').toLowerCase().includes(term));
+ if(activeFilter==='biro') filtered=filtered.filter(c=>c.biro);
+ else if(activeFilter==='nonBiro') filtered=filtered.filter(c=>!c.biro);
+ else if(activeFilter==='pending') filtered=filtered.filter(c=>c.servicingPend);
+ else if(activeFilter==='overdue') filtered=filtered.filter(c=>c.followUpDate&&c.followUpDate<=today);
+ else if(activeFilter==='unmarked') filtered=filtered.filter(c=>!c.biro&&!c.servicingPend&&!c.servicingSettle);
  if(sort==='name') filtered.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
  else if(sort==='followup') filtered.sort((a,b)=>{if(!a.followUpDate&&!b.followUpDate)return 0;if(!a.followUpDate)return 1;if(!b.followUpDate)return -1;return a.followUpDate.localeCompare(b.followUpDate);});
  else if(sort==='recent') filtered.sort((a,b)=>(b.lastOpened||0)-(a.lastOpened||0));
