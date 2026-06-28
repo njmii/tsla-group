@@ -10,6 +10,8 @@ body{background:#f7f8fa}.header{background:#fff;padding:14px;text-align:center;b
 .label{font-size:12px;color:#777;font-weight:700}.value{font-weight:700;margin:4px 0 10px}
 button{width:100%;padding:14px;border:none;border-radius:14px;margin-top:10px;font-weight:700}
 .o{background:#ff7a00;color:#fff}.g{background:#25D366;color:#fff}.r{background:#e53935;color:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.grid button{width:auto;margin-top:0;padding:11px 8px;font-size:13px}
 #edit{display:none}input,textarea{width:100%;padding:13px;border:2px solid #eee;border-radius:12px;margin:6px 0 12px}
 h3{margin:10px 0;color:#777;font-size:14px}
 </style></head><body>
@@ -32,16 +34,22 @@ h3{margin:10px 0;color:#777;font-size:14px}
 <div class="label">Holder</div><div id="holderv" class="value">-</div>
 </div>
 <div class="card">
-<button class="o" onclick="location.href='client-signature.html'">✍️ Manage Signature</button>
-<button class="o" onclick="location.href='cancellation-form.html'">📄 FWD Cancellation</button>
-<button class="g" onclick="location.href='bl714.html'">📄 BL714</button>
-<button class="g" onclick="location.href='ge.html'">📄 GE</button>
-<button class="g" onclick="location.href='wl548.html'">📄 WL548</button>
-<button class="g" onclick="location.href='b0270.html'">📄 B0270</button>
+<div class="grid">
+<button class="o" onclick="location.href='client-signature.html'">✍️ Signature</button>
+<button class="o" onclick="location.href='cancellation-form.html'">📄 FWD Cancel</button>
+</div>
+<div class="grid" style="margin-top:8px">
+<button class="g" onclick="location.href='bl714.html'">BL714</button>
+<button class="g" onclick="location.href='ge.html'">GE</button>
+<button class="g" onclick="location.href='wl548.html'">WL548</button>
+<button class="g" onclick="location.href='b0270.html'">B0270</button>
+</div>
 </div>
 <div class="card">
-<button class="o" onclick="toggleEdit()">✏️ Edit Client</button>
-<button class="r" onclick="removeClient()">🗑 Delete Client</button>
+<div class="grid">
+<button class="o" onclick="toggleEdit()">✏️ Edit</button>
+<button class="r" onclick="removeClient()">🗑 Delete</button>
+</div>
 </div>
 <div class="card" id="edit">
 <label>Name</label><input id="name">
