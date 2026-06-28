@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cash Value Calculator — TSLA Digital Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+body{background:#f7f8fa;color:#111;}
+.header{position:sticky;top:0;background:white;border-bottom:1px solid #eee;padding:4px 12px;z-index:100;min-height:55px;display:flex;align-items:center;justify-content:center;}
+.logo{width:50px;height:auto;}
+.container{max-width:600px;margin:auto;padding:20px;}
+.back{display:inline-block;margin-bottom:15px;text-decoration:none;color:#ff7a00;font-weight:700;}
+.title{font-size:1.8rem;font-weight:900;margin-bottom:4px;}
+.subtitle{color:#888;font-size:.9rem;margin-bottom:24px;}
+.card{background:white;padding:24px;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:16px;}
+.card h3{font-size:1rem;font-weight:800;margin-bottom:16px;color:#333;}
+.row{margin-bottom:14px;}
+.label{font-weight:700;color:#666;margin-bottom:6px;display:block;font-size:.85rem;}
+input{width:100%;padding:14px 16px;border-radius:16px;border:2px solid #eee;font-size:1rem;color:#111;background:white;}
+input:focus{outline:none;border-color:#ff7a00;}
+.btn{background:#ff7a00;color:white;padding:16px;border-radius:16px;border:0;width:100%;font-size:1rem;font-weight:700;cursor:pointer;}
+.btn:hover{background:#e56d00;}
+.result-label{text-align:center;color:#888;font-size:.85rem;margin-bottom:6px;}
+.result-amount{font-size:2.6rem;font-weight:900;color:#ff7a00;text-align:center;margin-bottom:4px;}
+.result-note{text-align:center;color:#aaa;font-size:.78rem;margin-bottom:20px;}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f2f2f2;font-size:.92rem;}
+.breakdown-row:last-child{border:none;font-weight:800;font-size:1rem;}
+.breakdown-row span:first-child{color:#555;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="assets/tslalogo.png" class="logo" alt="TSLA">
+</div>
+
+<div class="container">
+  <a href="javascript:history.back()" class="back">← Back</a>
+  <div class="title">Cash Value Calculator</div>
+  <div class="subtitle">Estimate policy cash value based on BNM 40% regulation</div>
+
+  <div class="card">
+    <h3>Policy Details</h3>
+    <div class="row">
+      <label class="label">Monthly Contribution (RM)</label>
+      <input type="number" id="monthly" placeholder="e.g. 150" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Policy Start Year</label>
+      <input type="number" id="startYear" placeholder="e.g. 2018" min="1990" max="2100">
+    </div>
+    <div class="row">
+      <label class="label">Current Year</label>
+      <input type="number" id="endYear" min="1990" max="2100">
+    </div>
+  </div>
+
+  <div class="card">
+    <button class="btn" onclick="calculate()">Calculate Cash Value</button>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <div class="result-label">Estimated Cash Value</div>
+    <div class="result-amount" id="resultAmt">RM 0</div>
+    <div class="result-note">BNM regulation — 40% of total contributions</div>
+    <div id="breakdown"></div>
+  </div>
+</div>
+
+<script>
+document.getElementById('endYear').value = new Date().getFullYear();
+
+function fmt(n) {
+  return 'RM ' + Math.round(n).toLocaleString('en-MY');
+}
+
+function calculate() {
+  const monthly   = parseFloat(document.getElementById('monthly').value) || 0;
+  const startYear = parseInt(document.getElementById('startYear').value) || 0;
+  const endYear   = parseInt(document.getElementById('endYear').value) || 0;
+
+  if (!monthly || !startYear || !endYear) { alert('Please fill in all fields.'); return; }
+  if (startYear > endYear) { alert('Start year cannot be after current year.'); return; }
+
+  const years        = endYear - startYear + 1;
+  const totalPaid    = monthly * 12 * years;
+  const cashValue    = totalPaid * 0.40;
+
+  document.getElementById('resultAmt').textContent = fmt(cashValue);
+
+  document.getElementById('breakdown').innerHTML = [
+    { label: 'Monthly contribution',  val: fmt(monthly) },
+    { label: 'Years of payment',      val: `${years} yrs (${startYear} – ${endYear})` },
+    { label: 'Annual contribution',   val: fmt(monthly * 12) },
+    { label: 'Total contributions',   val: fmt(totalPaid) },
+    { label: 'Cash value (× 40%)',    val: fmt(cashValue), bold: true },
+  ].map(r => `
+    <div class="breakdown-row" ${r.bold ? '' : ''}>
+      <span>${r.label}</span>
+      <span style="${r.bold ? 'color:#ff7a00;font-weight:900' : ''}">${r.val}</span>
+    </div>`).join('');
+
+  const card = document.getElementById('resultCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
