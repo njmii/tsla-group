@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tempoh Survival Keluarga — TSLA Digital Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+body{background:#f7f8fa;color:#111;}
+.header{position:sticky;top:0;background:white;border-bottom:1px solid #eee;padding:4px 12px;z-index:100;min-height:55px;display:flex;align-items:center;justify-content:center;}
+.logo{width:50px;height:auto;}
+.container{max-width:600px;margin:auto;padding:20px;}
+.back{display:inline-block;margin-bottom:15px;text-decoration:none;color:#ff7a00;font-weight:700;}
+.title{font-size:1.8rem;font-weight:900;margin-bottom:4px;}
+.subtitle{color:#888;font-size:.9rem;margin-bottom:24px;}
+.card{background:white;padding:24px;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:16px;}
+.card h3{font-size:1rem;font-weight:800;margin-bottom:16px;color:#333;}
+.row{margin-bottom:14px;}
+.label{font-weight:700;color:#666;margin-bottom:6px;display:block;font-size:.85rem;}
+input{width:100%;padding:14px 16px;border-radius:16px;border:2px solid #eee;font-size:1rem;color:#111;background:white;}
+input:focus{outline:none;border-color:#ff7a00;}
+.btn{background:#ff7a00;color:white;padding:16px;border-radius:16px;border:0;width:100%;font-size:1rem;font-weight:700;cursor:pointer;}
+.btn:hover{background:#e56d00;}
+.result-label{text-align:center;color:#888;font-size:.85rem;margin-bottom:6px;}
+.result-big{font-size:2.8rem;font-weight:900;text-align:center;margin-bottom:4px;}
+.result-sub{text-align:center;font-size:.9rem;color:#666;margin-bottom:20px;}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f2f2f2;font-size:.92rem;}
+.breakdown-row:last-child{border:none;}
+.breakdown-row span:first-child{color:#555;}
+.bold{font-weight:800;font-size:1rem;}
+.alert-box{border-radius:16px;padding:14px 18px;margin-bottom:12px;font-size:.9rem;font-weight:700;}
+.alert-red{background:#fff0f0;color:#c0392b;}
+.alert-orange{background:#fff4e6;color:#d35400;}
+.alert-green{background:#f0fff4;color:#0a9b43;}
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f2f2f2;font-size:.88rem;color:#888;}
+.info-row:last-child{border:none;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="assets/tslalogo.png" class="logo" alt="TSLA">
+</div>
+
+<div class="container">
+  <a href="javascript:history.back()" class="back">← Kembali</a>
+  <div class="title">Tempoh Survival Keluarga</div>
+  <div class="subtitle">Berapa lama keluarga boleh bertahan jika ketua keluarga tiada?</div>
+
+  <div class="card">
+    <h3>Pendapatan</h3>
+    <div class="row">
+      <label class="label">Pendapatan Bulanan Anda (RM)</label>
+      <input type="number" id="income" placeholder="cth. 5000" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Pendapatan Bulanan Pasangan (RM)</label>
+      <input type="number" id="spouseIncome" placeholder="0 jika tiada" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Pencen Waris (RM) <span style="font-size:.75rem;color:#aaa;font-weight:400">— maklumat sahaja</span></label>
+      <input type="number" id="pension" placeholder="0 jika tiada" min="0">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Perbelanjaan Bulanan</h3>
+    <div class="row">
+      <label class="label">Perbelanjaan Hidup (RM)</label>
+      <input type="number" id="living" placeholder="cth. 2000" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Yuran Sekolah / Pendidikan (RM)</label>
+      <input type="number" id="school" placeholder="0" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Lain-lain Perbelanjaan (RM)</label>
+      <input type="number" id="otherExp" placeholder="0" min="0">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Komitmen Bulanan</h3>
+    <div class="row">
+      <label class="label">Pinjaman Rumah (RM)</label>
+      <input type="number" id="homeLoan" placeholder="0" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Pinjaman Kereta (RM)</label>
+      <input type="number" id="carLoan" placeholder="0" min="0">
+    </div>
+    <div class="row">
+      <label class="label">PTPTN (RM)</label>
+      <input type="number" id="ptptn" placeholder="0" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Kad Kredit (RM)</label>
+      <input type="number" id="creditCard" placeholder="0" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Pinjaman Peribadi (RM)</label>
+      <input type="number" id="personalLoan" placeholder="0" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Lain-lain Komitmen (RM)</label>
+      <input type="number" id="otherDebt" placeholder="0" min="0">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Simpanan & Aset</h3>
+    <div class="row">
+      <label class="label">Simpanan Tunai / Tabung Kecemasan (RM)</label>
+      <input type="number" id="savings" placeholder="0" min="0">
+    </div>
+    <div class="row">
+      <label class="label">KWSP / EPF (RM)</label>
+      <input type="number" id="epf" placeholder="0" min="0">
+    </div>
+  </div>
+
+  <div class="card">
+    <button class="btn" onclick="calculate()">Kira Tempoh Survival</button>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <div class="result-label">Tempoh Keluarga Boleh Bertahan</div>
+    <div class="result-big" id="resultMonths">0 bulan</div>
+    <div class="result-sub" id="resultYears"></div>
+
+    <div id="alertBox" class="alert-box" style="margin-top:4px"></div>
+
+    <div id="breakdown" style="margin-top:8px"></div>
+
+    <div id="pensionNote" style="margin-top:16px;padding-top:16px;border-top:1px solid #f2f2f2;display:none">
+      <div style="font-size:.8rem;font-weight:700;color:#aaa;margin-bottom:8px">PENCEN WARIS (MAKLUMAT SAHAJA — TIDAK DIKIRA DALAM SHORTFALL)</div>
+      <div id="pensionRows"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function fmt(n) {
+  return 'RM ' + Math.round(Math.abs(n)).toLocaleString('en-MY');
+}
+function val(id) {
+  return parseFloat(document.getElementById(id).value) || 0;
+}
+
+function calculate() {
+  const income      = val('income');
+  const spouse      = val('spouseIncome');
+  const pension     = val('pension');
+  const living      = val('living');
+  const school      = val('school');
+  const otherExp    = val('otherExp');
+  const homeLoan    = val('homeLoan');
+  const carLoan     = val('carLoan');
+  const ptptn       = val('ptptn');
+  const creditCard  = val('creditCard');
+  const personalLoan= val('personalLoan');
+  const otherDebt   = val('otherDebt');
+  const savings     = val('savings');
+  const epf         = val('epf');
+
+  if (!income && !living) { alert('Sila isi sekurang-kurangnya pendapatan dan perbelanjaan hidup.'); return; }
+
+  const totalExp        = living + school + otherExp;
+  const totalCommitment = homeLoan + carLoan + ptptn + creditCard + personalLoan + otherDebt;
+  const totalMonthly    = totalExp + totalCommitment;
+  const shortfall       = Math.max(0, totalMonthly - spouse);
+  const totalSavings    = savings + epf;
+  const months          = shortfall > 0 ? Math.floor(totalSavings / shortfall) : 9999;
+  const years           = Math.floor(months / 12);
+  const remMonths       = months % 12;
+
+  // Result display
+  const resultEl = document.getElementById('resultMonths');
+  if (months >= 9999) {
+    resultEl.textContent = '∞';
+    resultEl.style.color = '#0a9b43';
+    document.getElementById('resultYears').textContent = 'Pendapatan pasangan mencukupi — tiada shortfall';
+  } else {
+    resultEl.textContent = months + ' bulan';
+    resultEl.style.color = months < 6 ? '#c0392b' : months < 24 ? '#e67e22' : '#ff7a00';
+    document.getElementById('resultYears').textContent =
+      years > 0 ? `${years} tahun ${remMonths > 0 ? remMonths + ' bulan' : ''}` : 'Kurang dari setahun';
+  }
+
+  // Alert
+  const alertEl = document.getElementById('alertBox');
+  if (months >= 9999) {
+    alertEl.className = 'alert-box alert-green';
+    alertEl.textContent = '✅ Pasangan anda mampu menanggung keluarga tanpa simpanan.';
+  } else if (months < 6) {
+    alertEl.className = 'alert-box alert-red';
+    alertEl.textContent = '🚨 Kritikal — keluarga hanya mampu bertahan kurang dari 6 bulan!';
+  } else if (months < 24) {
+    alertEl.className = 'alert-box alert-orange';
+    alertEl.textContent = '⚠️ Berisiko — keluarga bertahan kurang dari 2 tahun.';
+  } else {
+    alertEl.className = 'alert-box alert-orange';
+    alertEl.textContent = '📋 Simpanan ada, tapi berapa lama cukup?';
+  }
+
+  // Breakdown
+  const rows = [
+    { label: 'Jumlah perbelanjaan hidup', val: fmt(totalExp) },
+    { label: 'Jumlah komitmen bulanan', val: fmt(totalCommitment), sub: true },
+    { label: 'Jumlah perlu sebulan', val: fmt(totalMonthly), bold: true },
+    { label: 'Tolak pendapatan pasangan', val: '− ' + fmt(spouse) },
+    { label: 'Kekurangan (shortfall) sebulan', val: fmt(shortfall), bold: true, orange: true },
+    { label: 'Jumlah simpanan + KWSP', val: fmt(totalSavings) },
+    { label: 'Tempoh bertahan', val: months >= 9999 ? '∞' : months + ' bulan', bold: true, orange: true },
+  ];
+
+  document.getElementById('breakdown').innerHTML = rows.map(r => `
+    <div class="breakdown-row ${r.bold ? 'bold' : ''}">
+      <span style="${r.sub ? 'padding-left:12px' : ''}">${r.label}</span>
+      <span style="${r.orange ? 'color:#ff7a00' : ''}">${r.val}</span>
+    </div>`).join('');
+
+  // Commitment sub-breakdown
+  const commitRows = [
+    ['Pinjaman Rumah', homeLoan], ['Pinjaman Kereta', carLoan], ['PTPTN', ptptn],
+    ['Kad Kredit', creditCard], ['Pinjaman Peribadi', personalLoan], ['Lain-lain', otherDebt]
+  ].filter(r => r[1] > 0);
+
+  if (commitRows.length) {
+    document.getElementById('breakdown').innerHTML +=
+      '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #f2f2f2"><div style="font-size:.78rem;font-weight:700;color:#aaa;margin-bottom:6px">PECAHAN KOMITMEN</div>' +
+      commitRows.map(([l, v]) => `<div class="info-row"><span>${l}</span><span>${fmt(v)}</span></div>`).join('') +
+      '</div>';
+  }
+
+  // Pension info section
+  if (pension > 0) {
+    document.getElementById('pensionNote').style.display = 'block';
+    const withPension = Math.max(0, totalMonthly - spouse - pension);
+    const pensionMonths = withPension > 0 ? Math.floor(totalSavings / withPension) : 9999;
+    document.getElementById('pensionRows').innerHTML = `
+      <div class="info-row"><span>Pencen waris sebulan</span><span>${fmt(pension)}</span></div>
+      <div class="info-row"><span>Shortfall selepas pencen</span><span>${fmt(withPension)}</span></div>
+      <div class="info-row"><span>Tempoh kalau pencen dikira</span><span>${pensionMonths >= 9999 ? '∞' : pensionMonths + ' bulan'}</span></div>
+      <div style="font-size:.8rem;color:#aaa;margin-top:8px">Walaupun ada pencen, keluarga masih perlu perlindungan tambahan.</div>`;
+  } else {
+    document.getElementById('pensionNote').style.display = 'none';
+  }
+
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
