@@ -57,10 +57,6 @@ input:focus{outline:none;border-color:#ff7a00;}
       <label class="label">Pendapatan Bulanan Pasangan (RM)</label>
       <input type="number" id="spouseIncome" placeholder="0 jika tiada" min="0">
     </div>
-    <div class="row">
-      <label class="label">Pencen Waris (RM) <span style="font-size:.75rem;color:#aaa;font-weight:400">— maklumat sahaja</span></label>
-      <input type="number" id="pension" placeholder="0 jika tiada" min="0">
-    </div>
   </div>
 
   <div class="card">
@@ -132,10 +128,6 @@ input:focus{outline:none;border-color:#ff7a00;}
 
     <div id="breakdown" style="margin-top:8px"></div>
 
-    <div id="pensionNote" style="margin-top:16px;padding-top:16px;border-top:1px solid #f2f2f2;display:none">
-      <div style="font-size:.8rem;font-weight:700;color:#aaa;margin-bottom:8px">PENCEN WARIS (MAKLUMAT SAHAJA — TIDAK DIKIRA DALAM SHORTFALL)</div>
-      <div id="pensionRows"></div>
-    </div>
   </div>
 </div>
 
@@ -150,7 +142,6 @@ function val(id) {
 function calculate() {
   const income      = val('income');
   const spouse      = val('spouseIncome');
-  const pension     = val('pension');
   const living      = val('living');
   const school      = val('school');
   const otherExp    = val('otherExp');
@@ -233,22 +224,14 @@ function calculate() {
       '</div>';
   }
 
-  // Pension info section
-  if (pension > 0) {
-    document.getElementById('pensionNote').style.display = 'block';
-    const withPension = Math.max(0, totalMonthly - spouse - pension);
-    const pensionMonths = withPension > 0 ? Math.floor(totalSavings / withPension) : 9999;
-    document.getElementById('pensionRows').innerHTML = `
-      <div class="info-row"><span>Pencen waris sebulan</span><span>${fmt(pension)}</span></div>
-      <div class="info-row"><span>Shortfall selepas pencen</span><span>${fmt(withPension)}</span></div>
-      <div class="info-row"><span>Tempoh kalau pencen dikira</span><span>${pensionMonths >= 9999 ? '∞' : pensionMonths + ' bulan'}</span></div>
-      <div style="font-size:.8rem;color:#aaa;margin-top:8px">Walaupun ada pencen, keluarga masih perlu perlindungan tambahan.</div>`;
-  } else {
-    document.getElementById('pensionNote').style.display = 'none';
-  }
-
-  document.getElementById('resultCard').style.display = 'block';
-  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+  const card = document.getElementById('resultCard');
+  card.style.display = 'block';
+  card.style.background = '#c0392b';
+  card.style.color = 'white';
+  // Make sub-text readable on red
+  card.querySelectorAll('.result-label,.result-sub,.breakdown-row span:first-child,.info-row span').forEach(el => el.style.color = 'rgba(255,255,255,.75)');
+  card.querySelectorAll('.breakdown-row span:last-child,.info-row span:last-child').forEach(el => { if(!el.style.color || el.style.color==='') el.style.color='white'; });
+  card.scrollIntoView({ behavior: 'smooth' });
 }
 </script>
 </body>
