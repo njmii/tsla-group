@@ -301,6 +301,13 @@ async function sendToWA() {
   if (!window._lastPdfBlob) return;
   const phone = (c.phone || "").replace(/[^0-9]/g, "");
   const wa = phone.startsWith("60") ? phone : phone.startsWith("0") ? "6" + phone : "60" + phone;
+  if (navigator.share && navigator.canShare) {
+    const file = new File([window._lastPdfBlob], window._lastPdfName, { type: "application/pdf" });
+    if (navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: window._lastPdfName, text: `Dokumen untuk ${c.name || ""}` }); return; }
+      catch(e) { if (e.name !== "AbortError") console.warn(e); }
+    }
+  }
   if (wa) window.open(`https://wa.me/${wa}`, "_blank");
 }
 </script>
