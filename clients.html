@@ -78,6 +78,7 @@ input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:1
 <script>
 let clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
 function sig(c){return c.signature?"<span class='ok'>🟢 Signature Saved</span>":"<span class='pending'>⚪ No Signature</span>";}
+function biro(c){return c.biro?"<span class='ok'>✅ Biro</span>":"<span style='color:#e53935;font-weight:700'>⚠️ Manual</span>";}
 function currentObj(){
  const id=localStorage.getItem('tslaCurrentClientId');
  return clients.find(x=>String(x.id)===String(id));
@@ -89,7 +90,7 @@ function render(){
  document.getElementById('last').innerHTML=lastClient?`<div class='card'><b>⭐ Last Opened</b><div style='margin-top:8px'><b>${lastClient.name||''}</b><div class='small'>${lastClient.phone||''}</div><div>${sig(lastClient)}</div><button class='btn' onclick="openClient('${lastClient.id}')">Open</button></div></div>`:'';
  let h='';
  clients.filter(c=>!term||[c.name,c.ic,c.phone,c.certificate].join(' ').toLowerCase().includes(term)).forEach(c=>{
- h+=`<div class='row'><div><b>${c.name||''}</b><div class='small'>${c.phone||''}</div><div class='small'>${sig(c)}</div></div><button class='btn' onclick="openClient('${c.id}')">Open</button></div>`;
+ h+=`<div class='row'><div><b>${c.name||''}</b><div class='small'>${c.phone||''}</div><div class='small'>${sig(c)} &nbsp;${biro(c)}</div></div><button class='btn' onclick="openClient('${c.id}')">Open</button></div>`;
  });
  document.getElementById('list').innerHTML=h||"<div class='small'>👥 No clients yet</div>";
 }
