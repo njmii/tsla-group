@@ -261,6 +261,13 @@ function wrapText(text, maxChars) {
   return lines.slice(0, 2);
 }
 
+function drawChars(page, text, coords, size = 9) {
+  const chars = String(text).replace(/-/g, "").split("");
+  coords.forEach(([x, y], i) => {
+    if (chars[i]) page.drawText(chars[i], { x, y, size });
+  });
+}
+
 async function generateGE() {
   const { PDFDocument } = PDFLib;
   const btn = document.getElementById("generateBtn");
@@ -270,6 +277,64 @@ async function generateGE() {
   try {
     const bytes = await fetch("./assets/Geform.pdf").then(r => r.arrayBuffer());
     const pdf   = await PDFDocument.load(bytes, { ignoreEncryption: true });
+    const p1    = pdf.getPages()[0];
+    const p3    = pdf.getPages()[2];
+
+    const noPolisi = document.getElementById("noPolisi").value;
+    const raw = document.getElementById("sigDate").value;
+    const [yr, mo, dy] = raw ? raw.split("-") : ["","",""];
+
+    // ── Page 1 ─────────────────────────────────────────────────────────────
+
+    // Certificate number boxes
+    drawChars(p1, noPolisi, [
+      [95,765],[110,765],[122,765],[139,765],[153,765],
+      [169,765],[181,765],[199,765],[210,765],[225,765]
+    ]);
+
+    // IC number boxes (strip dashes)
+    drawChars(p1, c.ic || "", [
+      [365,765],[370,765],[392,765],[409,765],[421,765],[438,765],
+      [465,765],[480,765],[509,765],[522,765],[539,765],[611,765]
+    ]);
+
+    // Name of person covered
+    p1.drawText(c.name || "", { x: 150, y: 728, size: 10 });
+
+    // Financial difficulty X
+    p1.drawText("X", { x: 38, y: 570, size: 10 });
+
+    // Bank name
+    p1.drawText(c.bank || "", { x: 160, y: 145, size: 9 });
+
+    // Bank account holder name
+    p1.drawText(c.holder || c.name || "", { x: 160, y: 120, size: 9 });
+
+    // Bank account number boxes
+    drawChars(p1, c.account || "", [
+      [150,79],[175,79],[179,79],[213,79],[219,79],[232,79],[245,79],[261,79],
+      [275,78],[290,79],[290,78],[302,79],[318,79],[332,79],[347,79],[362,79],
+      [375,79],[390,79],[404,79],[419,79],[432,79],[445,79],[461,79]
+    ]);
+
+    // ── Page 3 ─────────────────────────────────────────────────────────────
+
+    // Date text
+    if (raw) p3.drawText(`${dy}/${mo}/${yr}`, { x: 180, y: 471, size: 9 });
+
+    // Date boxes (DDMMYYYY)
+    drawChars(p3, raw ? `${dy}${mo}${yr}` : "", [
+      [295,472],[305,472],[348,472],[360,472],
+      [381,472],[395,472],[419,472],[422,472]
+    ]);
+
+    // Signature
+    if (c.signature) await drawSig(p3, pdf, c.signature, 100, 380, 100, 20);
+
+    // Name, NRIC, Tel
+    p3.drawText(c.name  || "", { x: 70, y: 342, size: 9 });
+    p3.drawText(c.ic    || "", { x: 70, y: 312, size: 9 });
+    p3.drawText(c.phone || "", { x: 70, y: 340, size: 9 });
 
     const out  = await pdf.save();
     const link = document.createElement("a");
