@@ -59,6 +59,14 @@ input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:1
   </div>
   <button class='save' style='width:100%;padding:13px;border:none;border-radius:12px;font-weight:700;margin-top:14px;cursor:pointer' onclick='saveSettings()'>💾 Save Settings</button>
   <div id='settingsSaved' style='color:#0a9b43;font-size:13px;text-align:center;margin-top:6px;display:none'>✅ Saved!</div>
+  <p style='font-size:12px;color:#888;margin:18px 0 8px;font-weight:700'>BACKUP</p>
+  <div style='display:flex;gap:8px'>
+    <button class='save' style='flex:1;padding:13px;border:none;border-radius:12px;font-weight:700;cursor:pointer' onclick='downloadBackup()'>📥 Download</button>
+    <label class='cancel' style='flex:1;padding:13px;border-radius:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center'>
+      📤 Restore
+      <input type='file' accept='.json' style='display:none' onchange='restoreBackup(this)'>
+    </label>
+  </div>
 </div>
 </div>
 
@@ -194,6 +202,32 @@ function saveSettings(){
   el.style.display='block';setTimeout(()=>el.style.display='none',2000);
 }
 
+function downloadBackup(){
+  const data={version:1,exportedAt:new Date().toISOString(),clients:JSON.parse(localStorage.getItem('tslaClients')||'[]'),witness:JSON.parse(localStorage.getItem('tslaWitness')||'{}'),agentProfile:JSON.parse(localStorage.getItem('tslaAgentProfile')||'{}')};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download=`tsla-backup-${new Date().toISOString().split('T')[0]}.json`;
+  link.click();
+}
+function restoreBackup(input){
+  if(!input.files[0])return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.clients||!Array.isArray(data.clients)){alert('Invalid backup file');return;}
+      if(!confirm(`Restore ${data.clients.length} client(s) from backup?\nThis will replace all current data.`))return;
+      localStorage.setItem('tslaClients',JSON.stringify(data.clients));
+      if(data.witness)localStorage.setItem('tslaWitness',JSON.stringify(data.witness));
+      if(data.agentProfile)localStorage.setItem('tslaAgentProfile',JSON.stringify(data.agentProfile));
+      alert('Backup restored!');
+      render();
+    }catch(err){alert('Failed to restore: '+err.message);}
+    input.value='';
+  };
+  reader.readAsText(input.files[0]);
+}
 (function loadSettings(){
   const w=JSON.parse(localStorage.getItem('tslaWitness')||'{}');
   const a=JSON.parse(localStorage.getItem('tslaAgentProfile')||'{}');

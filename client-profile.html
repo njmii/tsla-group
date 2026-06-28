@@ -47,6 +47,14 @@ h3{margin:10px 0;color:#777;font-size:14px}
 </div>
 </div>
 <div class="card">
+<h3 style="margin-bottom:10px">Documents</h3>
+<div id="docList" style="margin-bottom:10px"></div>
+<label class="o" style="display:block;padding:13px;border-radius:12px;text-align:center;font-weight:700;cursor:pointer">
+  + Upload Document
+  <input type="file" id="docFile" style="display:none" onchange="uploadDoc(this)">
+</label>
+</div>
+<div class="card">
 <div class="grid">
 <button class="o" onclick="toggleEdit()">✏️ Edit</button>
 <button class="r" onclick="removeClient()">🗑 Delete</button>
@@ -86,6 +94,53 @@ function load(){
    const v=document.getElementById(k+"v"); if(v) v.textContent=c[k]||"-";
    const inp=document.getElementById(k); if(inp) inp.value=c[k]||"";
  });
+ renderDocs();
+}
+function renderDocs(){
+ const c=current();
+ const docs=c.documents||[];
+ const el=document.getElementById("docList");
+ if(!docs.length){el.innerHTML='<div style="color:#888;font-size:13px">No documents yet</div>';return;}
+ el.innerHTML=docs.map(d=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee">
+  <div style="font-size:13px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.name}<div style="color:#888;font-size:11px">${d.uploadedAt}</div></div>
+  <div style="display:flex;gap:6px;margin-left:8px">
+   <button onclick="downloadDoc('${d.id}')" style="padding:6px 10px;border:none;border-radius:8px;background:#25D366;color:#fff;font-weight:700;cursor:pointer">↓</button>
+   <button onclick="deleteDoc('${d.id}')" style="padding:6px 10px;border:none;border-radius:8px;background:#e53935;color:#fff;font-weight:700;cursor:pointer">×</button>
+  </div></div>`).join('');
+}
+function uploadDoc(input){
+ if(!input.files[0])return;
+ const file=input.files[0];
+ const reader=new FileReader();
+ reader.onload=e=>{
+  const arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+  const id=String(localStorage.getItem("tslaCurrentClientId")||"");
+  const idx=arr.findIndex(x=>String(x.id)===id);
+  if(idx<0)return;
+  if(!arr[idx].documents)arr[idx].documents=[];
+  arr[idx].documents.push({id:Date.now().toString(),name:file.name,type:file.type,data:e.target.result,uploadedAt:new Date().toLocaleDateString()});
+  localStorage.setItem("tslaClients",JSON.stringify(arr));
+  input.value="";
+  renderDocs();
+ };
+ reader.readAsDataURL(file);
+}
+function downloadDoc(docId){
+ const c=current();
+ const doc=(c.documents||[]).find(d=>d.id===docId);
+ if(!doc)return;
+ const link=document.createElement("a");
+ link.href=doc.data;link.download=doc.name;link.click();
+}
+function deleteDoc(docId){
+ if(!confirm("Delete document?"))return;
+ const arr=JSON.parse(localStorage.getItem("tslaClients")||"[]");
+ const id=String(localStorage.getItem("tslaCurrentClientId")||"");
+ const idx=arr.findIndex(x=>String(x.id)===id);
+ if(idx<0)return;
+ arr[idx].documents=(arr[idx].documents||[]).filter(d=>d.id!==docId);
+ localStorage.setItem("tslaClients",JSON.stringify(arr));
+ renderDocs();
 }
 function toggleEdit(){
  const e=document.getElementById("edit");
