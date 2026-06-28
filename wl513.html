@@ -52,6 +52,10 @@ canvas{width:100%;height:160px;display:block;}
       <input id="ownerIc" readonly placeholder="IC number">
     </div>
     <div class="row">
+      <label class="label">TIN Number</label>
+      <input id="tin" placeholder="Tax identification number">
+    </div>
+    <div class="row">
       <label class="label">Certificate Number</label>
       <input id="certNo" readonly placeholder="Certificate number">
     </div>
@@ -250,6 +254,7 @@ async function generateWL513() {
     setField("Takaful Certificate No  No Sijil Takaful", c.certificate);
     setField("Name of Takaful Participant  Assignee Nama Peserta Takaful  Pemegang Serah Hak", c.name);
     setField("NRIC  Passport No  No KP Baru  No Pasport", c.ic);
+    setField("Tax Identification Numbers TIN  Nombor Pengenalan Cukai", document.getElementById("tin").value);
     setField("Correspondence Address  Alamat Surat Menyurat", c.address);
     setField("Permanent Address  Alamat tetap", c.address);
     setField("Mobile Telephone Number  Nombor Telefon Bimbit", c.phone);
@@ -273,8 +278,8 @@ async function generateWL513() {
 
     // ── Signature images (coordinate-based, drawn after flatten) ──────────
     const p2 = pdf.getPages()[1];
-    if (c.signature) await drawSig(p2, pdf, c.signature, 250, 250, 100, 30);
-    if (w.signature) await drawSig(p2, pdf, w.signature, 450, 250, 100, 30);
+    if (c.signature) await drawSig(p2, pdf, c.signature, 240, 240, 100, 30);
+    if (w.signature) await drawSig(p2, pdf, w.signature, 440, 240, 100, 30);
 
     const out  = await pdf.save();
     const link = document.createElement("a");
