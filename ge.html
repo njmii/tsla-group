@@ -119,6 +119,7 @@ canvas{width:100%;height:160px;display:block;}
 
   <div class="card">
     <button id="generateBtn" class="btn" onclick="generateGE()">Generate Official PDF</button>
+    <button class="btn" style="background:#25D366;margin-top:10px" onclick="sendToWA()">📲 WhatsApp to Client</button>
   </div>
 </div>
 
@@ -292,9 +293,11 @@ async function generateGE() {
     p3.drawText(c.phone || "", { x: 70, y: 290, size: 9 });
 
     const out  = await pdf.save();
+    window._lastPdfName = `GE-${c.name || "form"}.pdf`;
+    window._lastPdfBlob = new Blob([out], { type: "application/pdf" });
     const link = document.createElement("a");
-    link.href     = URL.createObjectURL(new Blob([out], { type: "application/pdf" }));
-    link.download = `GE-${c.name || "form"}.pdf`;
+    link.href     = URL.createObjectURL(window._lastPdfBlob);
+    link.download = window._lastPdfName;
     link.click();
   } catch(e) {
     alert("PDF generation failed: " + e.message);
@@ -302,6 +305,23 @@ async function generateGE() {
     btn.disabled = false;
     btn.innerText = "Generate Official PDF";
   }
+}
+async function sendToWA() {
+  if (!window._lastPdfBlob) { alert("Generate PDF dahulu."); return; }
+  const phone = (c.phone || "").replace(/[^0-9]/g, "");
+  const wa = phone.startsWith("60") ? phone : phone.startsWith("0") ? "6" + phone : "60" + phone;
+  if (navigator.share && navigator.canShare) {
+    const file = new File([window._lastPdfBlob], window._lastPdfName, { type: "application/pdf" });
+    if (navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: window._lastPdfName, text: `Dokumen untuk ${c.name || ""}` }); return; }
+      catch(e) { if (e.name !== "AbortError") console.warn(e); }
+    }
+  }
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(window._lastPdfBlob);
+  link.download = window._lastPdfName;
+  link.click();
+  if (wa) setTimeout(() => window.open(`https://wa.me/${wa}`, "_blank"), 1000);
 }
 </script>
 </body>
