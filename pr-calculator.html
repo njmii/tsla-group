@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PR Calculator — TSLA Digital Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+body{background:#f7f8fa;color:#111;}
+.header{position:sticky;top:0;background:white;border-bottom:1px solid #eee;padding:4px 12px;z-index:100;min-height:55px;display:flex;align-items:center;justify-content:center;}
+.logo{width:50px;height:auto;}
+.container{max-width:600px;margin:auto;padding:20px;}
+.back{display:inline-block;margin-bottom:15px;text-decoration:none;color:#ff7a00;font-weight:700;}
+.title{font-size:1.8rem;font-weight:900;margin-bottom:4px;}
+.subtitle{color:#888;font-size:.9rem;margin-bottom:24px;}
+.card{background:white;padding:24px;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:16px;}
+.card h3{font-size:1rem;font-weight:800;margin-bottom:16px;color:#333;}
+.row{margin-bottom:14px;}
+.label{font-weight:700;color:#666;margin-bottom:6px;display:block;font-size:.85rem;}
+input,select{width:100%;padding:14px 16px;border-radius:16px;border:2px solid #eee;font-size:1rem;color:#111;background:white;appearance:none;}
+input:focus,select:focus{outline:none;border-color:#ff7a00;}
+.btn{background:#ff7a00;color:white;padding:16px;border-radius:16px;border:0;width:100%;font-size:1rem;font-weight:700;cursor:pointer;}
+.btn:hover{background:#e56d00;}
+.result-amount{font-size:2.8rem;font-weight:900;text-align:center;margin:8px 0 4px;}
+.result-label{text-align:center;color:#888;font-size:.85rem;margin-bottom:16px;}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f2f2f2;font-size:.92rem;}
+.breakdown-row:last-child{border:none;font-weight:800;font-size:1rem;padding-top:14px;}
+.breakdown-row span:first-child{color:#555;}
+.add{color:#111;}
+.sub{color:#0a9b43;}
+.total{color:#ff7a00;}
+.tag{display:inline-block;background:#fff4e6;color:#ff7a00;border-radius:8px;font-size:.72rem;font-weight:700;padding:2px 7px;margin-left:6px;vertical-align:middle;}
+.status-chip{display:inline-block;border-radius:10px;padding:6px 14px;font-weight:700;font-size:.9rem;margin:8px 0 12px;}
+.gap-line{color:#555;font-size:.9rem;margin-bottom:4px;}
+.client-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f2f2f2;}
+.client-row:last-child{border:none;}
+.open-btn{background:#22c55e;color:white;border:none;border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:.85rem;white-space:nowrap;}
+.target-row{display:flex;gap:10px;align-items:center;margin-top:12px;}
+.target-row input{flex:1;padding:10px 14px;font-size:.95rem;}
+.target-row button{padding:10px 18px;border:none;border-radius:12px;background:#ff7a00;color:white;font-weight:700;cursor:pointer;white-space:nowrap;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="assets/tslalogo.png" class="logo" alt="TSLA">
+</div>
+
+<div class="container">
+  <a href="javascript:history.back()" class="back">← Back</a>
+  <div class="title">PR Calculator</div>
+  <div class="subtitle">Track your Persistency Rate and identify clients to follow up</div>
+
+  <!-- Auto section from client data -->
+  <div class="card">
+    <h3>📊 From Your Client Data</h3>
+    <div id="autoContent"></div>
+    <div class="target-row">
+      <input type="number" id="targetInput" min="1" max="100" placeholder="Target PR %">
+      <button onclick="updateTarget()">Update Target</button>
+    </div>
+  </div>
+
+  <!-- Manual calculator -->
+  <div class="card">
+    <h3>🧮 Manual Calculator</h3>
+    <div class="row">
+      <label class="label">Total Policies Issued (in period)</label>
+      <input type="number" id="mTotal" placeholder="e.g. 50" min="1">
+    </div>
+    <div class="row">
+      <label class="label">Policies Lapsed / Cancelled</label>
+      <input type="number" id="mLapsed" placeholder="e.g. 8" min="0">
+    </div>
+    <div class="row">
+      <label class="label">Target PR %</label>
+      <input type="number" id="mTarget" placeholder="e.g. 85" min="1" max="100">
+    </div>
+    <button class="btn" onclick="calcManual()">Calculate</button>
+  </div>
+
+  <div class="card" id="manualResult" style="display:none">
+    <div class="result-label">Persistency Rate</div>
+    <div class="result-amount" id="manualPct">—</div>
+    <div class="result-label" id="manualSub"></div>
+    <div id="manualBreakdown"></div>
+  </div>
+
+  <!-- At-risk clients -->
+  <div class="card" id="atRiskCard" style="display:none">
+    <h3 id="atRiskTitle">🔴 Non-Biro Clients to Follow Up</h3>
+    <div id="atRiskList"></div>
+  </div>
+
+</div>
+
+<script>
+function ageFromIc(ic){
+  if(!ic)return null;
+  const d=ic.replace(/\D/g,'');
+  if(d.length<6)return null;
+  const yy=parseInt(d.slice(0,2)),mm=parseInt(d.slice(2,4)),dd=parseInt(d.slice(4,6));
+  if(mm<1||mm>12||dd<1||dd>31)return null;
+  const yr=yy<=26?2000+yy:1900+yy;
+  const t=new Date();
+  let age=t.getFullYear()-yr;
+  if(t.getMonth()+1<mm||(t.getMonth()+1===mm&&t.getDate()<dd))age--;
+  return age<0||age>120?null:age;
+}
+
+function followUpBadge(c){
+  if(!c.followUpDate)return '';
+  const today=new Date().toISOString().split('T')[0];
+  const late=c.followUpDate<today;
+  const [y,m,d]=c.followUpDate.split('-');
+  return `<span style="color:${late?'#e53935':'#888'};font-weight:700;font-size:.8rem">📅 ${d}/${m}/${y}${late?' ⚠️':''}</span>`;
+}
+
+function openClient(id){
+  localStorage.setItem('tslaCurrentClientId',String(id));
+  location.href='client-profile.html';
+}
+
+function prColor(pr, target){
+  if(pr>=target) return '#0a9b43';
+  if(pr>=target-5) return '#ff7a00';
+  return '#e53935';
+}
+
+function statusChip(pr, target){
+  if(pr>=target) return {label:'✅ Above Target', bg:'#e8f5e9', color:'#0a9b43'};
+  if(pr>=target-5) return {label:'⚠️ At Risk', bg:'#fff8e1', color:'#c77700'};
+  return {label:'🔴 Below Target', bg:'#ffebee', color:'#e53935'};
+}
+
+function renderAuto(){
+  const clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+  const target=parseFloat(localStorage.getItem('tslaPRTarget')||'85');
+  document.getElementById('targetInput').value=target;
+
+  const el=document.getElementById('autoContent');
+  if(!clients.length){
+    el.innerHTML='<div style="color:#888;font-size:.9rem">No client data found. Add clients in the Client Manager first.</div>';
+    return;
+  }
+
+  const total=clients.length;
+  const biro=clients.filter(c=>c.biro).length;
+  const nonBiro=total-biro;
+  const pr=total>0?Math.round((biro/total)*1000)/10:0;
+  const chip=statusChip(pr,target);
+  const color=prColor(pr,target);
+
+  const needed=Math.ceil(target/100*total)-biro;
+  const gapText=needed>0
+    ?`Need <b>${needed}</b> more Biro client${needed!==1?'s':''} to reach ${target}%`
+    :`<b>${Math.abs(needed)}</b> above target — keep it up! 🎉`;
+
+  el.innerHTML=`
+    <div class="result-amount" style="color:${color}">${pr}%</div>
+    <div class="result-label">Persistency Rate (Biro / Total)</div>
+    <span class="status-chip" style="background:${chip.bg};color:${chip.color}">${chip.label}</span>
+    <div class="gap-line">${gapText}</div>
+    <div style="margin-top:14px">
+      <div class="breakdown-row"><span>Total clients</span><span class="add">${total}</span></div>
+      <div class="breakdown-row"><span>Biro (active)</span><span class="sub">${biro}</span></div>
+      <div class="breakdown-row"><span>Non-Biro</span><span style="color:${nonBiro?'#e53935':'#0a9b43'};font-weight:700">${nonBiro}</span></div>
+    </div>`;
+
+  renderAtRisk(clients);
+}
+
+function renderAtRisk(clients){
+  const today=new Date().toISOString().split('T')[0];
+  let nonBiro=clients.filter(c=>!c.biro);
+  nonBiro.sort((a,b)=>{
+    const aOver=a.followUpDate&&a.followUpDate<=today?0:1;
+    const bOver=b.followUpDate&&b.followUpDate<=today?0:1;
+    if(aOver!==bOver)return aOver-bOver;
+    if(a.followUpDate&&b.followUpDate)return a.followUpDate.localeCompare(b.followUpDate);
+    if(a.followUpDate)return -1;
+    if(b.followUpDate)return 1;
+    return (a.name||'').localeCompare(b.name||'');
+  });
+
+  const card=document.getElementById('atRiskCard');
+  if(!nonBiro.length){card.style.display='none';return;}
+  document.getElementById('atRiskTitle').textContent=`🔴 Non-Biro Clients to Follow Up (${nonBiro.length})`;
+  document.getElementById('atRiskList').innerHTML=nonBiro.map(c=>{
+    const age=ageFromIc(c.ic);
+    return `<div class="client-row">
+      <div>
+        <div style="font-weight:700">${c.name||'—'}</div>
+        <div style="color:#888;font-size:.85rem">${c.phone||''}${age!==null?' · '+age+' yrs':''}</div>
+        <div>${followUpBadge(c)}</div>
+      </div>
+      <button class="open-btn" onclick="openClient('${c.id}')">Open</button>
+    </div>`;
+  }).join('');
+  card.style.display='block';
+}
+
+function updateTarget(){
+  const v=parseFloat(document.getElementById('targetInput').value);
+  if(!v||v<1||v>100)return alert('Enter a valid target between 1 and 100');
+  localStorage.setItem('tslaPRTarget',String(v));
+  document.getElementById('mTarget').value=v;
+  renderAuto();
+}
+
+function calcManual(){
+  const total=parseInt(document.getElementById('mTotal').value)||0;
+  const lapsed=parseInt(document.getElementById('mLapsed').value)||0;
+  const target=parseFloat(document.getElementById('mTarget').value)||parseFloat(localStorage.getItem('tslaPRTarget')||'85');
+
+  if(!total){alert('Enter total policies issued');return;}
+  if(lapsed>total){alert('Lapsed cannot exceed total');return;}
+
+  const active=total-lapsed;
+  const pr=Math.round((active/total)*1000)/10;
+  const chip=statusChip(pr,target);
+  const color=prColor(pr,target);
+
+  const needed=Math.ceil(target/100*total)-active;
+  const gapText=needed>0
+    ?`Need ${needed} more active polic${needed!==1?'ies':'y'} to reach ${target}%`
+    :`${Math.abs(needed)} polic${Math.abs(needed)!==1?'ies':'y'} above target`;
+
+  document.getElementById('manualPct').textContent=pr+'%';
+  document.getElementById('manualPct').style.color=color;
+  document.getElementById('manualSub').innerHTML=`<span class="status-chip" style="background:${chip.bg};color:${chip.color};display:inline-block;border-radius:10px;padding:4px 12px;font-weight:700">${chip.label}</span>`;
+  document.getElementById('manualBreakdown').innerHTML=`
+    <div class="breakdown-row"><span>Total issued</span><span class="add">${total}</span></div>
+    <div class="breakdown-row"><span>Lapsed / cancelled</span><span style="color:#e53935;font-weight:700">${lapsed}</span></div>
+    <div class="breakdown-row"><span>Active policies</span><span class="sub">${active}</span></div>
+    <div class="breakdown-row"><span>Target PR</span><span class="add">${target}%</span></div>
+    <div class="breakdown-row"><span>${needed>0?'Gap to target':'Buffer above target'}</span><span class="total">${Math.abs(needed)} polic${Math.abs(needed)!==1?'ies':'y'}</span></div>
+    <div class="breakdown-row" style="margin-top:4px"><span style="color:#888;font-size:.85rem">${gapText}</span></div>`;
+
+  const card=document.getElementById('manualResult');
+  card.style.display='block';
+  card.scrollIntoView({behavior:'smooth'});
+}
+
+// pre-fill manual target from stored value
+(function init(){
+  const stored=localStorage.getItem('tslaPRTarget')||'85';
+  document.getElementById('mTarget').value=stored;
+  renderAuto();
+})();
+</script>
+</body>
+</html>
