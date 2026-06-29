@@ -317,7 +317,7 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
  h+=`<a href="clients.html" style="background:#f0f0f0;border-radius:12px;padding:10px 16px;font-weight:700;text-decoration:none;color:#111">👥 ${clients.length} Clients</a>`;
  if(overdue)h+=`<a href="clients.html" style="background:#ffebee;border-radius:12px;padding:10px 16px;font-weight:700;text-decoration:none;color:#e53935">⏰ ${overdue} Overdue</a>`;
  if(pending)h+=`<a href="clients.html" style="background:#fff8e1;border-radius:12px;padding:10px 16px;font-weight:700;text-decoration:none;color:#c77700">🔄 ${pending} Pending</a>`;
- if(bdays.length)h+=`<a href="clients.html" style="background:#fce4ec;border-radius:12px;padding:10px 16px;font-weight:700;text-decoration:none;color:#c62828">🎂 ${bdays.length} Birthday${bdays.length>1?'s':''} This Week</a>`;
+ if(bdays.length)h+=`<a href="clients.html#birthday" style="background:#fce4ec;border-radius:12px;padding:10px 16px;font-weight:700;text-decoration:none;color:#c62828">🎂 ${bdays.length} Birthday${bdays.length>1?'s':''} This Week</a>`;
  h+=`</div>`;
  el.innerHTML=h;
  el.style.display='block';

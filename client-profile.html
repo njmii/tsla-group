@@ -104,6 +104,7 @@ function migrate(){
    localStorage.setItem("tslaCurrentClientId",String(legacy.id));
  }
 }
+function ageFromIc(ic){if(!ic)return null;const d=ic.replace(/\D/g,'');if(d.length<6)return null;const yy=parseInt(d.slice(0,2)),mm=parseInt(d.slice(2,4)),dd=parseInt(d.slice(4,6));if(mm<1||mm>12||dd<1||dd>31)return null;const yr=yy<=26?2000+yy:1900+yy;const t=new Date();let age=t.getFullYear()-yr;if(t.getMonth()+1<mm||(t.getMonth()+1===mm&&t.getDate()<dd))age--;return age<0||age>120?null:age;}
 function current(){
  migrate();
  const id=String(localStorage.getItem("tslaCurrentClientId")||"");
@@ -117,6 +118,8 @@ function load(){
    const v=document.getElementById(k+"v"); if(v) v.textContent=c[k]||"-";
    const inp=document.getElementById(k); if(inp) inp.value=c[k]||"";
  });
+ const icv=document.getElementById("icv");
+ if(icv&&c.ic){const age=ageFromIc(c.ic);if(age!==null)icv.textContent=c.ic+' ('+age+' yrs)';}
  renderBiro(c);
  renderTag('servicingPend','servicingPendStatus','servicingPendBtn','🔄 Servicing Pending');
  renderTag('servicingSettle','servicingSettleStatus','servicingSettleBtn','✔ Servicing Settle');
