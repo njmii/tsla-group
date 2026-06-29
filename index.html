@@ -284,6 +284,16 @@ Generate cancellation requests using saved client data.
 © 2026 TSLA Group
 </div>
 <script>
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+(function checkAndNotify(){
+ if(Notification.permission!=='granted')return;
+ const cls=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+ const today=new Date().toISOString().split('T')[0];
+ const overdue=cls.filter(c=>c.followUpDate&&c.followUpDate<=today);
+ if(!overdue.length)return;
+ const body=overdue.length===1?`Follow up with ${overdue[0].name||'a client'} today`:`${overdue.length} clients need follow-up today`;
+ new Notification('TSLA – Follow-up Reminder',{body,icon:'assets/tslalogo.png'});
+})();
 (function(){
  const clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
  const el=document.getElementById('dashStats');
