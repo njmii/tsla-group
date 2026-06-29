@@ -281,6 +281,8 @@ function saveClient(){
  const id=String(localStorage.getItem("tslaCurrentClientId")||"");
  const idx=arr.findIndex(x=>String(x.id)===id);
  if(idx<0){alert("Client not found");return;}
+ const newIc=document.getElementById("ic").value.trim();
+ if(newIc){const dup=arr.find(c=>String(c.id)!==id&&c.ic&&c.ic.replace(/\D/g,'')===newIc.replace(/\D/g,''));if(dup&&!confirm(`⚠️ Another client has this IC:\n"${dup.name||'Unknown'}"\n\nSave anyway?`))return;}
  arr[idx]={
    ...arr[idx],
    name:document.getElementById("name").value,

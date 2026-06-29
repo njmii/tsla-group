@@ -69,6 +69,9 @@ input{width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:1
       <input type='file' accept='.json' style='display:none' onchange='restoreBackup(this)'>
     </label>
   </div>
+  <p style='font-size:12px;color:#888;margin:18px 0 8px;font-weight:700'>REMINDERS</p>
+  <button id='notifBtn' onclick='requestNotifPermission()' style='width:100%;padding:13px;border:none;border-radius:12px;font-weight:700;cursor:pointer;background:#ff7a00;color:white'>🔔 Enable Follow-up Reminders</button>
+  <div id='notifStatus' style='font-size:12px;color:#888;margin-top:6px;text-align:center'></div>
 </div>
 </div>
 
@@ -160,6 +163,8 @@ function save(){
  const nm=document.getElementById('name').value;
  const ph=document.getElementById('phone').value;
  if(!nm.trim()||!ph.trim())return alert('Name and Phone required');
+ const icVal=document.getElementById('ic').value.trim();
+ if(icVal){const dup=clients.find(x=>x.ic&&x.ic.replace(/\D/g,'')===icVal.replace(/\D/g,''));if(dup&&!confirm(`⚠️ A client with this IC already exists:\n"${dup.name||'Unknown'}"\n\nSave anyway?`))return;}
  const c={id:Date.now().toString(),name:nm,ic:document.getElementById('ic').value,phone:ph,certificate:document.getElementById('certificate').value,bank:document.getElementById('bank').value,account:document.getElementById('account').value,holder:document.getElementById('holder').value};
  clients.unshift(c);
  localStorage.setItem('tslaClients',JSON.stringify(clients));
@@ -292,6 +297,7 @@ function restoreBackup(input){
   document.getElementById('setAgentName').value=a.agentName||'';
   document.getElementById('setAgentIc').value=a.agentIc||'';
   document.getElementById('setAgentCode').value=a.agentCode||'';
+  updateNotifBtn();
 })();
 function toggleBlast(){
  blastMode=!blastMode;
@@ -346,6 +352,34 @@ function sendBlast(){
  });
  toggleBlast();
 }
+function checkAndNotify(){
+ if(Notification.permission!=='granted')return;
+ const cls=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+ const today=new Date().toISOString().split('T')[0];
+ const overdue=cls.filter(c=>c.followUpDate&&c.followUpDate<=today);
+ if(!overdue.length)return;
+ const body=overdue.length===1?`Follow up with ${overdue[0].name||'a client'} today`:`${overdue.length} clients need follow-up today`;
+ new Notification('TSLA – Follow-up Reminder',{body,icon:'assets/tslalogo.png'});
+}
+function requestNotifPermission(){
+ if(!('Notification' in window)){document.getElementById('notifStatus').textContent='Notifications not supported.';return;}
+ Notification.requestPermission().then(p=>{
+  const el=document.getElementById('notifStatus');
+  const btn=document.getElementById('notifBtn');
+  if(p==='granted'){el.textContent='✅ Reminders enabled';btn.style.background='#eee';btn.style.color='#333';checkAndNotify();}
+  else{el.textContent='⚠️ Permission denied — enable in browser settings';}
+ });
+}
+function updateNotifBtn(){
+ const btn=document.getElementById('notifBtn');
+ const el=document.getElementById('notifStatus');
+ if(!btn)return;
+ const p=Notification.permission;
+ if(p==='granted'){btn.style.background='#eee';btn.style.color='#333';el.textContent='✅ Reminders enabled';}
+ else if(p==='denied'){el.textContent='⚠️ Blocked — enable in browser settings';}
+}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+checkAndNotify();
 </script>
 
 <div id='blastSheet' class='modal'><div class='sheet' style='max-height:90vh;overflow-y:auto'>
