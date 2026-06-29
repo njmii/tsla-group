@@ -219,6 +219,9 @@ Kalkulator Peratus Gaji
 <a class="btn btn-secondary" href="cancellation-form.html">FWD Cancellation</a>
 </div>
 </section>
+<div class="container" style="padding-bottom:0">
+<div id="dashStats" style="background:white;border-radius:24px;padding:20px 24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:20px;display:none"></div>
+</div>
 <div class="container">
 <h2 class="section-title">
 TSLA Tools
@@ -280,5 +283,35 @@ Generate cancellation requests using saved client data.
 <div class="footer">
 © 2026 TSLA Group
 </div>
+<script>
+(function(){
+ const clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+ const el=document.getElementById('dashStats');
+ if(!clients.length||!el)return;
+ const today=new Date();
+ const todayStr=today.toISOString().split('T')[0];
+ const overdue=clients.filter(c=>c.followUpDate&&c.followUpDate<=todayStr).length;
+ const pending=clients.filter(c=>c.servicingPend).length;
+ function bdayThisWeek(ic){
+  if(!ic)return false;
+  const d=ic.replace(/\D/g,'');
+  if(d.length<6)return false;
+  const yy=parseInt(d.slice(0,2)),mm=parseInt(d.slice(2,4)),dd=parseInt(d.slice(4,6));
+  if(mm<1||mm>12||dd<1||dd>31)return false;
+  const bday=new Date(today.getFullYear(),mm-1,dd);
+  const diff=(bday-today)/(86400000);
+  return diff>=-0.5&&diff<7;
+ }
+ const bdays=clients.filter(c=>bdayThisWeek(c.ic));
+ let h=`<div style="font-weight:800;font-size:1rem;margin-bottom:12px">📊 Today's Snapshot</div><div style="display:flex;gap:10px;flex-wrap:wrap">`;
+ h+=`<a href="clients.html" style="background:#f0f0f0;border-radius:12px;padding:10px 16px;font-weight:700;text-decoration:none;color:#111">👥 ${clients.length} Clients</a>`;
+ if(overdue)h+=`<a href="clients.html" style="background:#ffebee;border-radius:12px;padding:10px 16px;font-weight:700;text-decoration:none;color:#e53935">⏰ ${overdue} Overdue</a>`;
+ if(pending)h+=`<a href="clients.html" style="background:#fff8e1;border-radius:12px;padding:10px 16px;font-weight:700;text-decoration:none;color:#c77700">🔄 ${pending} Pending</a>`;
+ if(bdays.length)h+=`<a href="clients.html" style="background:#fce4ec;border-radius:12px;padding:10px 16px;font-weight:700;text-decoration:none;color:#c62828">🎂 ${bdays.length} Birthday${bdays.length>1?'s':''} This Week</a>`;
+ h+=`</div>`;
+ el.innerHTML=h;
+ el.style.display='block';
+})();
+</script>
 </body>
 </html>
