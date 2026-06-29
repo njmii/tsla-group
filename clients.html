@@ -85,6 +85,8 @@ let clients=JSON.parse(localStorage.getItem('tslaClients')||'[]');
 let activeFilter=null;
 let blastMode=false;
 let blastSelected=new Set();
+function ageFromIc(ic){if(!ic)return null;const d=ic.replace(/\D/g,'');if(d.length<6)return null;const yy=parseInt(d.slice(0,2)),mm=parseInt(d.slice(2,4)),dd=parseInt(d.slice(4,6));if(mm<1||mm>12||dd<1||dd>31)return null;const yr=yy<=26?2000+yy:1900+yy;const t=new Date();let age=t.getFullYear()-yr;if(t.getMonth()+1<mm||(t.getMonth()+1===mm&&t.getDate()<dd))age--;return age<0||age>120?null:age;}
+function bdayThisWeek(ic){if(!ic)return false;const d=ic.replace(/\D/g,'');if(d.length<6)return false;const mm=parseInt(d.slice(2,4)),dd2=parseInt(d.slice(4,6));if(mm<1||mm>12||dd2<1||dd2>31)return false;const t=new Date();const bday=new Date(t.getFullYear(),mm-1,dd2);const diff=(bday-t)/86400000;return diff>=-0.5&&diff<7;}
 function setFilter(f){activeFilter=activeFilter===f?null:f;render();}
 function chipStyle(f,bg,color){const on=activeFilter===f;return `background:${on?'#222':bg};border-radius:10px;padding:6px 12px;font-size:.85rem;font-weight:700;color:${on?'#fff':(color||'#111')};cursor:pointer;transition:background .15s`;}
 function sig(c){return c.signature?"<span class='ok'>🟢 Signature Saved</span>":"<span class='pending'>⚪ No Signature</span>";}
@@ -113,7 +115,8 @@ function render(){
  const overdue=clients.filter(c=>c.followUpDate&&c.followUpDate<=today).length;
  const nonBiro=clients.filter(c=>!c.biro).length;
  const unmarked=clients.filter(c=>!c.biro&&!c.servicingPend&&!c.servicingSettle).length;
- document.getElementById('stats').innerHTML=`<div style='display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 4px'><span onclick="setFilter(null)" style="${chipStyle(null,'#f0f0f0','#111')}">👥 ${clients.length} All</span><span onclick="setFilter('biro')" style="${chipStyle('biro','#e8f5e9','#0a9b43')}">✅ ${clients.filter(c=>c.biro).length} Biro</span><span onclick="setFilter('nonBiro')" style="${chipStyle('nonBiro','#fce4ec','#c62828')}">⚠️ ${nonBiro} Non Biro</span><span onclick="setFilter('pending')" style="${chipStyle('pending','#fff8e1','#c77700')}">🔄 ${clients.filter(c=>c.servicingPend).length} Pending</span><span onclick="setFilter('unmarked')" style="${chipStyle('unmarked','#eeeeee','#555')}">⬜ ${unmarked} Unmarked</span>${overdue?`<span onclick="setFilter('overdue')" style="${chipStyle('overdue','#ffebee','#e53935')}">⏰ ${overdue} Overdue</span>`:''}</div>`;
+ const bdayCount=clients.filter(c=>bdayThisWeek(c.ic)).length;
+ document.getElementById('stats').innerHTML=`<div style='display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 4px'><span onclick="setFilter(null)" style="${chipStyle(null,'#f0f0f0','#111')}">👥 ${clients.length} All</span><span onclick="setFilter('biro')" style="${chipStyle('biro','#e8f5e9','#0a9b43')}">✅ ${clients.filter(c=>c.biro).length} Biro</span><span onclick="setFilter('nonBiro')" style="${chipStyle('nonBiro','#fce4ec','#c62828')}">⚠️ ${nonBiro} Non Biro</span><span onclick="setFilter('pending')" style="${chipStyle('pending','#fff8e1','#c77700')}">🔄 ${clients.filter(c=>c.servicingPend).length} Pending</span><span onclick="setFilter('unmarked')" style="${chipStyle('unmarked','#eeeeee','#555')}">⬜ ${unmarked} Unmarked</span>${overdue?`<span onclick="setFilter('overdue')" style="${chipStyle('overdue','#ffebee','#e53935')}">⏰ ${overdue} Overdue</span>`:''}${bdayCount?`<span onclick="setFilter('birthday')" style="${chipStyle('birthday','#fce4ec','#c62828')}">🎂 ${bdayCount} Birthday${bdayCount!==1?'s':''} This Week</span>`:''}</div>`;
  const lastClient=currentObj();
  document.getElementById('last').innerHTML=lastClient?`<div class='card'><b>⭐ Last Opened</b><div style='margin-top:8px'><b>${lastClient.name||''}</b><div class='small'>${lastClient.phone||''}</div><div>${sig(lastClient)}</div><button class='btn' onclick="openClient('${lastClient.id}')">Open</button></div></div>`:'';
  const due=clients.filter(c=>c.followUpDate&&c.followUpDate<=today);
@@ -125,9 +128,11 @@ function render(){
  else if(activeFilter==='pending') filtered=filtered.filter(c=>c.servicingPend);
  else if(activeFilter==='overdue') filtered=filtered.filter(c=>c.followUpDate&&c.followUpDate<=today);
  else if(activeFilter==='unmarked') filtered=filtered.filter(c=>!c.biro&&!c.servicingPend&&!c.servicingSettle);
+ else if(activeFilter==='birthday') filtered=filtered.filter(c=>bdayThisWeek(c.ic));
  if(sort==='name') filtered.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
  else if(sort==='followup') filtered.sort((a,b)=>{if(!a.followUpDate&&!b.followUpDate)return 0;if(!a.followUpDate)return 1;if(!b.followUpDate)return -1;return a.followUpDate.localeCompare(b.followUpDate);});
  else if(sort==='recent') filtered.sort((a,b)=>(b.lastOpened||0)-(a.lastOpened||0));
+ const pinned=filtered.filter(c=>c.pinned);const rest=filtered.filter(c=>!c.pinned);filtered=[...pinned,...rest];
  let h='';
  filtered.forEach(c=>{
   if(blastMode){
@@ -139,7 +144,8 @@ function render(){
     </div>
    </div>`;
   } else {
-   h+=`<div class='row'><div><b>${c.name||''}</b><div class='small'>${c.phone||''}</div><div class='small'>${sig(c)} &nbsp;${tags(c)}</div><div class='small'>${followUpBadge(c)}</div></div><button class='btn' onclick="openClient('${c.id}')">Open</button></div>`;
+   const age=ageFromIc(c.ic);
+   h+=`<div class='row'><div><b>${c.name||''}</b><div class='small'>${c.phone||''}${age!==null?' · '+age+' yrs':''}</div><div class='small'>${sig(c)} &nbsp;${tags(c)}</div><div class='small'>${followUpBadge(c)}</div></div><div style='display:flex;gap:6px;align-items:center'><button onclick="togglePin('${c.id}')" style='background:${c.pinned?"#ffd700":"#eee"};border:none;border-radius:10px;padding:9px 10px;cursor:pointer;font-size:16px'>⭐</button><button class='btn' onclick="openClient('${c.id}')">Open</button></div></div>`;
   }
  });
  document.getElementById('list').innerHTML=h||"<div class='small'>👥 No clients yet</div>";
@@ -171,6 +177,7 @@ function save(){
  localStorage.setItem('tslaCurrentClientId',String(c.id));
  hide();render();
 }
+if(location.hash==='#birthday'){activeFilter='birthday';}
 render();
 
 let setWitnessPad, setAgentPad, _settingsPadsInit = false;
@@ -352,6 +359,19 @@ function sendBlast(){
  });
  toggleBlast();
 }
+function togglePin(id){
+ const arr=JSON.parse(localStorage.getItem('tslaClients')||'[]');
+ const idx=arr.findIndex(x=>String(x.id)===String(id));
+ if(idx>=0){arr[idx].pinned=!arr[idx].pinned;localStorage.setItem('tslaClients',JSON.stringify(arr));clients=arr;}
+ render();
+}
+const blastTemplates=[
+ 'Selamat Hari Jadi! 🎂 Semoga panjang umur, murah rezeki dan sentiasa sihat. Jaga diri ye!',
+ 'Hi, just a friendly follow-up! Ada soalan tentang polisi anda? Jangan segan untuk hubungi saya 😊',
+ 'Peringatan mesra: Tempoh polisi anda bakal tamat tidak lama lagi. Jom kita semak bersama!',
+ 'Terima kasih kerana mempercayai saya sebagai ejen anda. Saya sentiasa di sini untuk membantu! 🙏'
+];
+function useTemplate(i){document.getElementById('blastMsg').value=blastTemplates[i];}
 function checkAndNotify(){
  if(Notification.permission!=='granted')return;
  const cls=JSON.parse(localStorage.getItem('tslaClients')||'[]');
@@ -397,6 +417,13 @@ checkAndNotify();
   <button onclick='clearSel()' style='background:#f0f0f0;border:none;border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:13px'>Clear</button>
  </div>
  <textarea id='blastMsg' placeholder='Type your message...' style='width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;min-height:100px;resize:vertical;font-family:inherit;font-size:14px'></textarea>
+ <p style='font-size:12px;color:#888;margin:12px 0 6px;font-weight:700'>TEMPLATES</p>
+ <div style='display:flex;flex-direction:column;gap:6px'>
+  <button onclick='useTemplate(0)' style='text-align:left;padding:10px 14px;border:1px solid #eee;border-radius:10px;font-size:13px;background:white;cursor:pointer'>🎂 Birthday greeting</button>
+  <button onclick='useTemplate(1)' style='text-align:left;padding:10px 14px;border:1px solid #eee;border-radius:10px;font-size:13px;background:white;cursor:pointer'>🔄 Follow-up reminder</button>
+  <button onclick='useTemplate(2)' style='text-align:left;padding:10px 14px;border:1px solid #eee;border-radius:10px;font-size:13px;background:white;cursor:pointer'>📋 Policy renewal</button>
+  <button onclick='useTemplate(3)' style='text-align:left;padding:10px 14px;border:1px solid #eee;border-radius:10px;font-size:13px;background:white;cursor:pointer'>✅ Thank you</button>
+ </div>
 </div></div>
 
 </body></html>
