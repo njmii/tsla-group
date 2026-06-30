@@ -62,7 +62,7 @@ font-weight:700;
 color:#333;
 }
 .hero{
-min-height:75vh;
+min-height:45vh;
 display:flex;
 flex-direction:column;
 justify-content:center;
@@ -195,7 +195,9 @@ font-size:1rem;
 .acc-header{display:flex;align-items:center;padding:20px 24px;cursor:pointer;gap:14px;user-select:none;}
 .acc-hicon{font-size:1.6rem;}
 .acc-htitle{flex:1;font-size:1.2rem;font-weight:800;}
-.acc-arrow{color:#aaa;font-size:1rem;transition:transform .25s;}
+.acc-arrow{color:rgba(255,255,255,.7);font-size:1rem;transition:transform .25s;}
+#acc-client .acc-header{background:#ff7a00;color:white;}
+#acc-servicing .acc-header{background:#e53935;color:white;}
 .acc-arrow.open{transform:rotate(180deg);}
 .acc-body{display:none;}
 .acc-item{display:flex;align-items:center;padding:14px 24px;gap:14px;text-decoration:none;color:#111;border-top:1px solid #f2f2f2;}
@@ -214,7 +216,7 @@ font-size:1rem;
 <button class="menu-btn" id="menuBtn" onclick="toggleMenu()">☰</button>
 <div class="nav-links" id="navLinks">
 <a href="price-checker.html">
-life First
+Life First
 </a>
 <a href="gaji-calculator.html">
 Gaji Calculator
@@ -231,14 +233,14 @@ Gaji Calculator
 TSLA Digital Hub
 </h1>
 <p>
-Quotation, Income &amp; Sales Tools For Insurance Agents
+Rezeki Tuhan Dah Atur, Aku Usaha Aku Kerja Lagi - Azlan
 </p>
 </section>
 <div class="container" style="padding-bottom:0">
 <div id="dashStats" style="background:white;border-radius:24px;padding:20px 24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:20px;display:none"></div>
 </div>
 <div class="container" style="padding-top:0">
-<div class="acc-card">
+<div class="acc-card" id="acc-client">
 <div class="acc-header" onclick="toggleAcc('client')">
 <span class="acc-hicon">👥</span>
 <span class="acc-htitle">Client</span>
@@ -262,7 +264,7 @@ Quotation, Income &amp; Sales Tools For Insurance Agents
 </a>
 </div>
 </div>
-<div class="acc-card">
+<div class="acc-card" id="acc-servicing">
 <div class="acc-header" onclick="toggleAcc('servicing')">
 <span class="acc-hicon">🛠️</span>
 <span class="acc-htitle">Servicing</span>
@@ -271,7 +273,7 @@ Quotation, Income &amp; Sales Tools For Insurance Agents
 <div class="acc-body" id="body-servicing">
 <a class="acc-item" href="price-checker.html">
 <span class="acc-iicon">💰</span>
-<div><div class="acc-ititle">life First</div><div class="acc-idesc">Find quotation rates instantly by year of birth.</div></div>
+<div><div class="acc-ititle">Life First</div><div class="acc-idesc">Find quotation rates instantly by year of birth.</div></div>
 <span class="acc-chevron">›</span>
 </a>
 <a class="acc-item" href="gaji-calculator.html">
