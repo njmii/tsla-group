@@ -37,6 +37,7 @@ background:rgba(255,255,255,.9);
 backdrop-filter:blur(15px);
 border-bottom:1px solid #eee;
 z-index:999;
+position:relative;
 }
 .nav-content{
 max-width:1200px;
@@ -157,10 +158,38 @@ padding:40px 20px;
 text-align:center;
 color:#888;
 }
+.menu-btn{
+display:none;
+background:none;
+border:none;
+font-size:1.6rem;
+cursor:pointer;
+padding:6px;
+color:#333;
+}
 @media(max-width:600px){
+.menu-btn{display:block;}
 .nav-links{
 display:none;
+position:absolute;
+top:55px;
+left:0;
+right:0;
+background:rgba(255,255,255,.97);
+backdrop-filter:blur(15px);
+border-bottom:1px solid #eee;
+flex-direction:column;
+padding:12px 20px 16px;
+gap:0;
+z-index:998;
 }
+.nav-links.open{display:flex;}
+.nav-links a{
+padding:12px 0;
+border-bottom:1px solid #f0f0f0;
+font-size:1rem;
+}
+.nav-links a:last-child{border:none;}
 }
 </style>
 </head>
@@ -169,7 +198,8 @@ display:none;
 <div class="navbar">
 <div class="nav-content">
 <img class="nav-logo" src="https://njmii.github.io/tsla-group/assets/tslalogo.png"/>
-<div class="nav-links">
+<button class="menu-btn" id="menuBtn" onclick="toggleMenu()">☰</button>
+<div class="nav-links" id="navLinks">
 <a href="price-checker.html">
 life First
 </a>
@@ -252,6 +282,16 @@ Quotation, Income &amp; Sales Tools For Insurance Agents
 © 2026 TSLA Group
 </div>
 <script>
+function toggleMenu(){
+ const links=document.getElementById('navLinks');
+ const btn=document.getElementById('menuBtn');
+ const open=links.classList.toggle('open');
+ btn.textContent=open?'✕':'☰';
+}
+document.querySelectorAll('#navLinks a').forEach(a=>a.addEventListener('click',()=>{
+ document.getElementById('navLinks').classList.remove('open');
+ document.getElementById('menuBtn').textContent='☰';
+}));
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 (function checkAndNotify(){
  if(Notification.permission!=='granted')return;
