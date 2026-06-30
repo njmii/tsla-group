@@ -191,6 +191,19 @@ font-size:1rem;
 }
 .nav-links a:last-child{border:none;}
 }
+.acc-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:16px;overflow:hidden;}
+.acc-header{display:flex;align-items:center;padding:20px 24px;cursor:pointer;gap:14px;user-select:none;}
+.acc-hicon{font-size:1.6rem;}
+.acc-htitle{flex:1;font-size:1.2rem;font-weight:800;}
+.acc-arrow{color:#aaa;font-size:1rem;transition:transform .25s;}
+.acc-arrow.open{transform:rotate(180deg);}
+.acc-body{display:none;}
+.acc-item{display:flex;align-items:center;padding:14px 24px;gap:14px;text-decoration:none;color:#111;border-top:1px solid #f2f2f2;}
+.acc-item:active{background:#fafafa;}
+.acc-iicon{font-size:1.3rem;width:32px;text-align:center;flex-shrink:0;}
+.acc-ititle{font-weight:700;font-size:.95rem;}
+.acc-idesc{color:#888;font-size:.8rem;margin-top:2px;}
+.acc-chevron{color:#ccc;margin-left:auto;font-size:1.1rem;}
 </style>
 </head>
 <body>
@@ -220,68 +233,81 @@ TSLA Digital Hub
 <p>
 Quotation, Income &amp; Sales Tools For Insurance Agents
 </p>
-<div class="hero-buttons">
-<a class="btn btn-primary" href="clients.html">Client Manager</a>
-<a class="btn btn-secondary" href="price-checker.html">life First</a>
-</div>
 </section>
 <div class="container" style="padding-bottom:0">
 <div id="dashStats" style="background:white;border-radius:24px;padding:20px 24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:20px;display:none"></div>
 </div>
-<div class="container">
-<h2 class="section-title">Client Tools</h2>
-<div class="cards">
-<a class="tool-card" href="clients.html">
-<div class="tool-icon">👥</div>
-<div class="tool-title">Client Manager</div>
-<div class="tool-desc">Manage and select clients for all TSLA forms.</div>
-</a>
-<a class="tool-card" href="pr-calculator.html">
-<div class="tool-icon">📈</div>
-<div class="tool-title">PR Calculator</div>
-<div class="tool-desc">Track your Persistency Rate from client data and calculate PR for any reporting period.</div>
-</a>
-<a class="tool-card" href="cancellation-form.html">
-<div class="tool-icon">📄</div>
-<div class="tool-title">FWD Cancellation</div>
-<div class="tool-desc">Generate cancellation requests using saved client data.</div>
-</a>
-</div>
-</div>
 <div class="container" style="padding-top:0">
-<h2 class="section-title">Calculators</h2>
-<div class="cards">
-<a class="tool-card" href="price-checker.html">
-<div class="tool-icon">💰</div>
-<div class="tool-title">life First</div>
-<div class="tool-desc">Find quotation rates instantly by year of birth.</div>
+<div class="acc-card">
+<div class="acc-header" onclick="toggleAcc('client')">
+<span class="acc-hicon">👥</span>
+<span class="acc-htitle">Client</span>
+<span class="acc-arrow" id="arr-client">▼</span>
+</div>
+<div class="acc-body" id="body-client">
+<a class="acc-item" href="clients.html">
+<span class="acc-iicon">👥</span>
+<div><div class="acc-ititle">Client Manager</div><div class="acc-idesc">Manage and select clients for all TSLA forms.</div></div>
+<span class="acc-chevron">›</span>
 </a>
-<a class="tool-card" href="gaji-calculator.html">
-<div class="tool-icon">📊</div>
-<div class="tool-title">Kalkulator Peratus Gaji</div>
-<div class="tool-desc">Calculate net salary percentage instantly.</div>
+<a class="acc-item" href="pr-calculator.html">
+<span class="acc-iicon">📈</span>
+<div><div class="acc-ititle">PR Calculator</div><div class="acc-idesc">Track your Persistency Rate and reporting period.</div></div>
+<span class="acc-chevron">›</span>
 </a>
-<a class="tool-card" href="hibah-calculator.html">
-<div class="tool-icon">🛡️</div>
-<div class="tool-title">Hibah Calculator</div>
-<div class="tool-desc">Estimate how much takaful coverage your client needs based on income, debts, and assets.</div>
+<a class="acc-item" href="cancellation-form.html">
+<span class="acc-iicon">📄</span>
+<div><div class="acc-ititle">FWD Cancellation</div><div class="acc-idesc">Generate cancellation requests from client data.</div></div>
+<span class="acc-chevron">›</span>
 </a>
-<a class="tool-card" href="cash-value-calculator.html">
-<div class="tool-icon">🏦</div>
-<div class="tool-title">Cash Value Calculator</div>
-<div class="tool-desc">Estimate policy cash value based on BNM 40% regulation — enter start year to current year.</div>
+</div>
+</div>
+<div class="acc-card">
+<div class="acc-header" onclick="toggleAcc('servicing')">
+<span class="acc-hicon">🛠️</span>
+<span class="acc-htitle">Servicing</span>
+<span class="acc-arrow" id="arr-servicing">▼</span>
+</div>
+<div class="acc-body" id="body-servicing">
+<a class="acc-item" href="price-checker.html">
+<span class="acc-iicon">💰</span>
+<div><div class="acc-ititle">life First</div><div class="acc-idesc">Find quotation rates instantly by year of birth.</div></div>
+<span class="acc-chevron">›</span>
 </a>
-<a class="tool-card" href="family-survival-calculator.html">
-<div class="tool-icon">👨‍👩‍👧</div>
-<div class="tool-title">Tempoh Survival Keluarga</div>
-<div class="tool-desc">Berapa lama keluarga boleh bertahan jika ketua keluarga tiada? Kira shortfall & tempoh survival.</div>
+<a class="acc-item" href="gaji-calculator.html">
+<span class="acc-iicon">📊</span>
+<div><div class="acc-ititle">Kalkulator Peratus Gaji</div><div class="acc-idesc">Calculate net salary percentage instantly.</div></div>
+<span class="acc-chevron">›</span>
 </a>
+<a class="acc-item" href="hibah-calculator.html">
+<span class="acc-iicon">🛡️</span>
+<div><div class="acc-ititle">Hibah Calculator</div><div class="acc-idesc">Estimate takaful coverage based on income and debts.</div></div>
+<span class="acc-chevron">›</span>
+</a>
+<a class="acc-item" href="cash-value-calculator.html">
+<span class="acc-iicon">🏦</span>
+<div><div class="acc-ititle">Cash Value Calculator</div><div class="acc-idesc">Estimate policy cash value based on BNM 40% regulation.</div></div>
+<span class="acc-chevron">›</span>
+</a>
+<a class="acc-item" href="family-survival-calculator.html">
+<span class="acc-iicon">👨‍👩‍👧</span>
+<div><div class="acc-ititle">Tempoh Survival Keluarga</div><div class="acc-idesc">Kira berapa lama keluarga boleh bertahan.</div></div>
+<span class="acc-chevron">›</span>
+</a>
+</div>
 </div>
 </div>
 <div class="footer">
 © 2026 TSLA Group
 </div>
 <script>
+function toggleAcc(id){
+ const body=document.getElementById('body-'+id);
+ const arr=document.getElementById('arr-'+id);
+ const open=body.style.display==='block';
+ body.style.display=open?'none':'block';
+ arr.classList.toggle('open',!open);
+}
 function toggleMenu(){
  const links=document.getElementById('navLinks');
  const btn=document.getElementById('menuBtn');
