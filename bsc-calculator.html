@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSC Calculator — TSLA Digital Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+body{background:#f7f8fa;color:#111;}
+.header{position:sticky;top:0;background:white;border-bottom:1px solid #eee;padding:4px 12px;z-index:100;min-height:55px;display:flex;align-items:center;justify-content:center;}
+.logo{width:50px;height:auto;}
+.container{max-width:600px;margin:auto;padding:20px;}
+.back{display:inline-block;margin-bottom:15px;text-decoration:none;color:#ff7a00;font-weight:700;}
+.title{font-size:1.8rem;font-weight:900;margin-bottom:4px;}
+.subtitle{color:#888;font-size:.9rem;margin-bottom:24px;}
+.card{background:white;padding:24px;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:16px;}
+.card h3{font-size:1rem;font-weight:800;margin-bottom:16px;color:#333;}
+.row{margin-bottom:14px;}
+.label{font-weight:700;color:#666;margin-bottom:6px;display:block;font-size:.85rem;}
+.input-wrap{position:relative;display:flex;align-items:center;}
+.input-wrap input{width:100%;padding:14px 16px;border-radius:16px;border:2px solid #eee;font-size:1rem;color:#111;background:white;appearance:none;-webkit-appearance:none;}
+.input-wrap input:focus{outline:none;border-color:#ff7a00;}
+.has-prefix input{padding-left:44px;}
+.has-suffix input{padding-right:40px;}
+.prefix{position:absolute;left:15px;color:#888;font-weight:700;pointer-events:none;}
+.suffix{position:absolute;right:15px;color:#888;font-weight:700;pointer-events:none;}
+.hint{font-size:.78rem;color:#aaa;margin-top:5px;}
+.hint-good{font-size:.78rem;color:#0a9b43;font-weight:700;margin-top:5px;}
+.info-banner{background:#f0f4ff;border-left:4px solid #4f7ae8;border-radius:16px;padding:14px 16px;margin-bottom:14px;}
+.info-banner p{font-size:.85rem;color:#2d4db5;line-height:1.5;}
+.info-banner strong{font-weight:800;}
+.seg{display:flex;gap:8px;flex-wrap:wrap;}
+.seg button{padding:10px 18px;border-radius:12px;border:2px solid #eee;background:white;font-weight:700;font-size:.9rem;cursor:pointer;color:#555;transition:.15s;}
+.seg button.active{background:#ff7a00;color:white;border-color:#ff7a00;}
+.toggle-row{display:flex;gap:10px;}
+.toggle-row button{flex:1;padding:12px;border-radius:14px;border:2px solid #eee;background:white;font-weight:700;font-size:.9rem;cursor:pointer;color:#555;transition:.15s;}
+.toggle-row button.active-good{background:#e8f5e9;color:#0a9b43;border-color:#0a9b43;}
+.toggle-row button.active-bad{background:#ffebee;color:#e53935;border-color:#e53935;}
+.result-score{font-size:3.2rem;font-weight:900;text-align:center;margin:8px 0 4px;}
+.result-payout{font-size:1.8rem;font-weight:900;text-align:center;margin-bottom:4px;}
+.result-label{text-align:center;color:#888;font-size:.82rem;margin-bottom:16px;}
+.breakdown-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f2f2f2;font-size:.88rem;gap:8px;}
+.breakdown-row:last-child{border:none;font-weight:800;font-size:.95rem;padding-top:14px;}
+.bd-name{flex:1;color:#555;}
+.bd-weight{width:38px;text-align:right;color:#aaa;font-size:.78rem;}
+.bd-score{width:52px;text-align:right;font-weight:700;}
+.bd-contrib{width:52px;text-align:right;font-weight:700;}
+.breakdown-head{display:flex;align-items:center;padding:0 0 8px;gap:8px;font-size:.72rem;font-weight:800;color:#bbb;border-bottom:2px solid #f0f0f0;margin-bottom:4px;}
+.tag{display:inline-block;background:#f0f0f0;color:#555;border-radius:8px;font-size:.7rem;font-weight:700;padding:2px 7px;margin-left:6px;vertical-align:middle;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="assets/tslalogo.png" class="logo" alt="TSLA">
+</div>
+
+<div class="container">
+  <a href="javascript:history.back()" class="back">← Back</a>
+  <div class="title">BSC Calculator</div>
+  <div class="subtitle">FWD Balanced Scorecard Quarterly Payout Estimator</div>
+
+  <!-- Card 1: Quarter & Target -->
+  <div class="card">
+    <h3>📅 Quarter & Target</h3>
+    <div class="row">
+      <span class="label">Quarter</span>
+      <div class="seg" id="qSeg">
+        <button onclick="setQ(1)" id="q1" class="active">Q1</button>
+        <button onclick="setQ(2)" id="q2">Q2</button>
+        <button onclick="setQ(3)" id="q3">Q3</button>
+        <button onclick="setQ(4)" id="q4">Q4</button>
+      </div>
+    </div>
+    <div class="row">
+      <label class="label" for="target">BSC Target Amount</label>
+      <div class="input-wrap has-prefix">
+        <span class="prefix">RM</span>
+        <input type="number" id="target" placeholder="e.g. 5000" min="0" oninput="calc()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: CFF Production -->
+  <div class="card">
+    <h3>📋 Production (CFF)</h3>
+    <div class="row">
+      <label class="label" for="cases">Cases Issued This Quarter</label>
+      <div class="input-wrap">
+        <input type="number" id="cases" placeholder="0" min="0" step="1" oninput="calc()">
+      </div>
+      <div id="cffHint" class="hint"></div>
+    </div>
+  </div>
+
+  <!-- Card 3: PR Snapshot -->
+  <div class="card">
+    <h3>📊 Persistency Rate (PR)</h3>
+    <div id="prBanner" class="info-banner">
+      <p>These values are your PR as of <strong id="prSnapDate">31 December</strong> — improvements after that date affect <strong id="prNextQ">Q2</strong> only.</p>
+    </div>
+    <div class="row">
+      <label class="label" for="pr1">KPI 2A — 1st Year PR</label>
+      <div class="input-wrap has-suffix">
+        <input type="number" id="pr1" placeholder="e.g. 91" min="0" max="100" step="0.1" oninput="calc()">
+        <span class="suffix">%</span>
+      </div>
+      <div id="pr1Hint" class="hint"></div>
+    </div>
+    <div class="row">
+      <label class="label" for="pr2">KPI 2B — 2nd Year PR</label>
+      <div class="input-wrap has-suffix">
+        <input type="number" id="pr2" placeholder="e.g. 82" min="0" max="100" step="0.1" oninput="calc()">
+        <span class="suffix">%</span>
+      </div>
+      <div id="pr2Hint" class="hint"></div>
+    </div>
+  </div>
+
+  <!-- Card 4: Other KPIs -->
+  <div class="card">
+    <h3>✅ Other KPIs</h3>
+    <div class="row">
+      <span class="label">Complaints</span>
+      <div class="toggle-row">
+        <button id="btnNoComp" class="active-good" onclick="setComp(false)">✅ No Complaints</button>
+        <button id="btnComp" onclick="setComp(true)">❌ Has Complaints</button>
+      </div>
+    </div>
+    <div class="row" style="margin-bottom:0">
+      <span class="label">CPD — 30h (incl. 5 BSC CPD)</span>
+      <div class="toggle-row">
+        <button id="btnCpdDone" onclick="setCpd(true)">✅ Completed</button>
+        <button id="btnCpdNot" class="active-bad" onclick="setCpd(false)">❌ Not Completed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result card -->
+  <div class="card" id="resultCard" style="display:none">
+    <div class="result-label">BSC Score</div>
+    <div class="result-score" id="scoreAmt">0%</div>
+    <div class="result-label" style="margin-top:4px">Estimated Payout</div>
+    <div class="result-payout" id="payoutAmt">RM 0</div>
+    <div class="result-label" id="payoutNote"></div>
+
+    <div id="breakdown"></div>
+    <div id="prNote" style="margin-top:14px;font-size:.78rem;color:#aaa;text-align:center;line-height:1.6"></div>
+  </div>
+</div>
+
+<script>
+let selQ=1;
+let hasComp=false;
+let cpdDone=false;
+
+const prSnapshots={
+  1:{date:'31 December',prev:'Q4',next:'Q2'},
+  2:{date:'31 March',prev:'Q1',next:'Q3'},
+  3:{date:'30 June',prev:'Q2',next:'Q4'},
+  4:{date:'30 September',prev:'Q3',next:'Q1 (next year)'}
+};
+
+function setQ(q){
+  selQ=q;
+  [1,2,3,4].forEach(i=>document.getElementById('q'+i).classList.toggle('active',i===q));
+  updatePrBanner();
+  calc();
+}
+
+function updatePrBanner(){
+  const s=prSnapshots[selQ];
+  document.getElementById('prSnapDate').textContent=s.date;
+  document.getElementById('prNextQ').textContent=s.next;
+}
+
+function setComp(v){
+  hasComp=v;
+  document.getElementById('btnNoComp').className=v?'':'active-good';
+  document.getElementById('btnComp').className=v?'active-bad':'';
+  calc();
+}
+
+function setCpd(v){
+  cpdDone=v;
+  document.getElementById('btnCpdDone').className=v?'active-good':'';
+  document.getElementById('btnCpdNot').className=v?'':'active-bad';
+  calc();
+}
+
+function fmt(n){return 'RM '+(Math.round(n)).toLocaleString('en-MY');}
+function pct(v){return (v*100).toFixed(0)+'%';}
+
+function scoreCFF(cases){
+  if(cases<=0)return{score:0,label:'0%',color:'#e53935'};
+  if(cases<=2)return{score:1,label:'100%',color:'#0a9b43'};
+  if(cases===3)return{score:1.25,label:'125%',color:'#0a9b43'};
+  return{score:1.5,label:'150%',color:'#0a9b43'};
+}
+
+function scorePR1(pr){
+  if(pr>=95)return{score:1.5,label:'150%',color:'#0a9b43'};
+  if(pr>=92.5)return{score:1.25,label:'125%',color:'#0a9b43'};
+  if(pr>=90)return{score:1,label:'100%',color:'#0a9b43'};
+  if(pr>=85)return{score:0.75,label:'75%',color:'#c77700'};
+  return{score:0,label:'0%',color:'#e53935'};
+}
+
+function scorePR2(pr){
+  if(pr>=90)return{score:1.5,label:'150%',color:'#0a9b43'};
+  if(pr>=85)return{score:1.25,label:'125%',color:'#0a9b43'};
+  if(pr>=80)return{score:1,label:'100%',color:'#0a9b43'};
+  if(pr>=75)return{score:0.75,label:'75%',color:'#c77700'};
+  return{score:0,label:'0%',color:'#e53935'};
+}
+
+function calc(){
+  const targetRaw=document.getElementById('target').value;
+  const casesRaw=document.getElementById('cases').value;
+  const pr1Raw=document.getElementById('pr1').value;
+  const pr2Raw=document.getElementById('pr2').value;
+
+  // CFF hint
+  if(casesRaw!==''){
+    const c=Math.max(0,Math.floor(parseFloat(casesRaw)||0));
+    const r=scoreCFF(c);
+    const hintEl=document.getElementById('cffHint');
+    const msgs=['0 cases → 0% score','1–2 cases → 100% score','3 cases → 125% score','≥4 cases → 150% score'];
+    const msg=c===0?msgs[0]:c<=2?msgs[1]:c===3?msgs[2]:msgs[3];
+    hintEl.textContent=msg;
+    hintEl.className=r.score>0?'hint-good':'hint';
+    hintEl.style.color=r.color;
+  } else {
+    document.getElementById('cffHint').textContent='';
+  }
+
+  // PR1 hint
+  if(pr1Raw!==''){
+    const v=parseFloat(pr1Raw);
+    const r=scorePR1(v);
+    const el=document.getElementById('pr1Hint');
+    el.textContent=`Score: ${r.label}`;
+    el.className=r.score>0?'hint-good':'hint';
+    el.style.color=r.color;
+  } else {
+    document.getElementById('pr1Hint').textContent='';
+  }
+
+  // PR2 hint
+  if(pr2Raw!==''){
+    const v=parseFloat(pr2Raw);
+    const r=scorePR2(v);
+    const el=document.getElementById('pr2Hint');
+    el.textContent=`Score: ${r.label}`;
+    el.className=r.score>0?'hint-good':'hint';
+    el.style.color=r.color;
+  } else {
+    document.getElementById('pr2Hint').textContent='';
+  }
+
+  const card=document.getElementById('resultCard');
+  if(!targetRaw||(pr1Raw===''&&pr2Raw==='')){card.style.display='none';return;}
+
+  const target=parseFloat(targetRaw);
+  if(isNaN(target)||target<=0){card.style.display='none';return;}
+
+  const cases=casesRaw===''?0:Math.max(0,Math.floor(parseFloat(casesRaw)||0));
+  const pr1=pr1Raw===''?0:parseFloat(pr1Raw)||0;
+  const pr2=pr2Raw===''?0:parseFloat(pr2Raw)||0;
+
+  const cff=scoreCFF(cases);
+  const kpi2a=scorePR1(pr1);
+  const kpi2b=scorePR2(pr2);
+  const comp={score:hasComp?0:1,label:hasComp?'0%':'100%',color:hasComp?'#e53935':'#0a9b43'};
+  const cpd={score:cpdDone?1:0,label:cpdDone?'100%':'0%',color:cpdDone?'#0a9b43':'#e53935'};
+
+  const bscScore=cff.score*0.20 + kpi2a.score*0.25 + kpi2b.score*0.30 + comp.score*0.10 + cpd.score*0.15;
+  const payout=target*bscScore;
+  const scoreColor=bscScore>=1?'#0a9b43':bscScore>=0.75?'#c77700':'#e53935';
+
+  document.getElementById('scoreAmt').textContent=(bscScore*100).toFixed(1)+'%';
+  document.getElementById('scoreAmt').style.color=scoreColor;
+  document.getElementById('payoutAmt').textContent=fmt(payout);
+  document.getElementById('payoutAmt').style.color=payout>0?'#ff7a00':'#e53935';
+  document.getElementById('payoutNote').textContent=`= RM ${Math.round(target).toLocaleString('en-MY')} × ${(bscScore*100).toFixed(1)}%`;
+
+  const snap=prSnapshots[selQ];
+  document.getElementById('prNote').textContent=`PR values reflect your performance as of ${snap.date} (end of ${snap.prev}).`;
+
+  const rows=[
+    {name:'CFF (Cases)',weight:'20%',wt:0.20,...cff,casesVal:cases},
+    {name:'KPI 2A — 1st Yr PR',weight:'25%',wt:0.25,...kpi2a,prVal:pr1Raw===''?'—':pr1+'%'},
+    {name:'KPI 2B — 2nd Yr PR',weight:'30%',wt:0.30,...kpi2b,prVal:pr2Raw===''?'—':pr2+'%'},
+    {name:'Complaints',weight:'10%',wt:0.10,...comp},
+    {name:'CPD',weight:'15%',wt:0.15,...cpd},
+  ];
+
+  let h=`<div class="breakdown-head">
+    <span style="flex:1">KPI</span>
+    <span style="width:38px;text-align:right">Wt</span>
+    <span style="width:52px;text-align:right">Score</span>
+    <span style="width:52px;text-align:right">Contrib</span>
+  </div>`;
+
+  rows.forEach(r=>{
+    const contrib=(r.score*r.wt*100).toFixed(1)+'%';
+    let tagHtml='';
+    if(r.casesVal!==undefined)tagHtml=`<span class="tag">${r.casesVal} case${r.casesVal!==1?'s':''}</span>`;
+    else if(r.prVal!==undefined)tagHtml=`<span class="tag">${r.prVal}</span>`;
+    h+=`<div class="breakdown-row">
+      <span class="bd-name">${r.name}${tagHtml}</span>
+      <span class="bd-weight">${r.weight}</span>
+      <span class="bd-score" style="color:${r.color}">${r.label}</span>
+      <span class="bd-contrib" style="color:${r.color}">${contrib}</span>
+    </div>`;
+  });
+
+  h+=`<div class="breakdown-row">
+    <span class="bd-name" style="color:#111">BSC Score</span>
+    <span class="bd-weight"></span>
+    <span class="bd-score"></span>
+    <span class="bd-contrib" style="color:${scoreColor}">${(bscScore*100).toFixed(1)}%</span>
+  </div>`;
+
+  document.getElementById('breakdown').innerHTML=h;
+  card.style.display='block';
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+updatePrBanner();
+</script>
+</body>
+</html>
