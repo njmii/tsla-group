@@ -25,7 +25,7 @@ body{background:#f7f8fa;color:#111;}
 .prefix{position:absolute;left:15px;color:#888;font-weight:700;pointer-events:none;}
 .suffix{position:absolute;right:15px;color:#888;font-weight:700;pointer-events:none;}
 .hint{font-size:.78rem;color:#aaa;margin-top:5px;}
-.hint-good{font-size:.78rem;color:#0a9b43;font-weight:700;margin-top:5px;}
+.hint-good{font-size:.78rem;font-weight:700;margin-top:5px;}
 .info-banner{background:#f0f4ff;border-left:4px solid #4f7ae8;border-radius:16px;padding:14px 16px;margin-bottom:14px;}
 .info-banner p{font-size:.85rem;color:#2d4db5;line-height:1.5;}
 .info-banner strong{font-weight:800;}
@@ -37,8 +37,11 @@ body{background:#f7f8fa;color:#111;}
 .toggle-row button.active-good{background:#e8f5e9;color:#0a9b43;border-color:#0a9b43;}
 .toggle-row button.active-bad{background:#ffebee;color:#e53935;border-color:#e53935;}
 .result-score{font-size:3.2rem;font-weight:900;text-align:center;margin:8px 0 4px;}
-.result-payout{font-size:1.8rem;font-weight:900;text-align:center;margin-bottom:4px;}
-.result-label{text-align:center;color:#888;font-size:.82rem;margin-bottom:16px;}
+.result-label{text-align:center;color:#888;font-size:.82rem;margin-bottom:8px;}
+.summary-box{border-radius:18px;padding:16px 18px;margin:0 0 16px;}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:.92rem;}
+.summary-row+.summary-row{border-top:1px solid rgba(0,0,0,.06);}
+.summary-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0 4px;border-top:2px solid rgba(0,0,0,.1);margin-top:4px;}
 .breakdown-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f2f2f2;font-size:.88rem;gap:8px;}
 .breakdown-row:last-child{border:none;font-weight:800;font-size:.95rem;padding-top:14px;}
 .bd-name{flex:1;color:#555;}
@@ -68,9 +71,9 @@ body{background:#f7f8fa;color:#111;}
   <div class="title">BSC Calculator</div>
   <div class="subtitle">FWD Balanced Scorecard Quarterly Payout Estimator</div>
 
-  <!-- Card 1: Quarter & Target -->
+  <!-- Card 1: Quarter & ACE -->
   <div class="card">
-    <h3>📅 Quarter & Target</h3>
+    <h3>📅 Quarter & ACE</h3>
     <div class="row">
       <span class="label">Quarter</span>
       <div class="seg" id="qSeg">
@@ -80,27 +83,20 @@ body{background:#f7f8fa;color:#111;}
         <button onclick="setQ(4)" id="q4">Q4</button>
       </div>
     </div>
-    <div class="row">
-      <label class="label" for="target">BSC Target Amount</label>
-      <div class="input-wrap has-prefix">
-        <span class="prefix">RM</span>
-        <input type="number" id="target" placeholder="e.g. 5000" min="0" oninput="calc()">
-      </div>
-    </div>
     <div class="row" style="margin-bottom:0">
-      <label class="label" for="ace">Quarter ACE <span style="font-weight:400;color:#aaa">(optional)</span></label>
+      <label class="label" for="ace">Quarter ACE</label>
       <div class="input-wrap has-prefix">
         <span class="prefix">RM</span>
         <input type="number" id="ace" placeholder="e.g. 15000" min="0" oninput="calc()">
       </div>
-      <div class="hint">Total annual premium of cases this quarter · Commission = ACE × 32%</div>
+      <div class="hint">Total annual premium of all cases issued this quarter</div>
     </div>
   </div>
 
   <!-- Card 2: CFF Production -->
   <div class="card">
     <h3>📋 Production (CFF)</h3>
-    <div class="row">
+    <div class="row" style="margin-bottom:0">
       <label class="label" for="cases">Cases Issued This Quarter</label>
       <div class="input-wrap">
         <input type="number" id="cases" placeholder="0" min="0" step="1" oninput="calc()">
@@ -123,7 +119,7 @@ body{background:#f7f8fa;color:#111;}
       </div>
       <div id="pr1Hint" class="hint"></div>
     </div>
-    <div class="row">
+    <div class="row" style="margin-bottom:0">
       <label class="label" for="pr2">KPI 2B — 2nd Year PR</label>
       <div class="input-wrap has-suffix">
         <input type="number" id="pr2" placeholder="e.g. 82" min="0" max="100" step="0.1" oninput="calc()">
@@ -156,26 +152,9 @@ body{background:#f7f8fa;color:#111;}
   <div class="card" id="resultCard" style="display:none">
     <div class="result-label">BSC Score</div>
     <div class="result-score" id="scoreAmt">0%</div>
-    <div class="result-label" style="margin-top:4px">BSC Payout</div>
-    <div class="result-payout" id="payoutAmt">RM 0</div>
-    <div class="result-label" id="payoutNote"></div>
+    <div class="result-label" id="scoreNote" style="margin-bottom:16px"></div>
 
-    <!-- Surplus block (shown only when ACE entered) -->
-    <div id="surplusBlock" style="display:none;margin:4px 0 16px;background:#f7f8fa;border-radius:18px;padding:16px 18px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:.9rem;">
-        <span style="color:#555;font-weight:700">BSC Payout</span>
-        <span id="sbBsc" style="font-weight:700;color:#111"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:.9rem;border-top:1px solid #eee;">
-        <span style="color:#555;font-weight:700">Commission <span id="sbAceTag" style="font-size:.72rem;background:#f0f0f0;color:#666;border-radius:6px;padding:2px 6px;margin-left:4px;font-weight:700"></span></span>
-        <span id="sbComm" style="font-weight:700;color:#0a9b43"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;border-top:2px solid #eee;margin-top:4px;">
-        <span style="font-weight:900;font-size:1rem;color:#111">💰 Total Surplus</span>
-        <span id="sbTotal" style="font-weight:900;font-size:1.3rem;color:#ff7a00"></span>
-      </div>
-    </div>
-
+    <div id="summaryBox"></div>
     <div id="breakdown"></div>
     <div id="caseImpact"></div>
     <div id="prNote" style="margin-top:14px;font-size:.78rem;color:#aaa;text-align:center;line-height:1.6"></div>
@@ -221,8 +200,8 @@ function setCpd(v){
   calc();
 }
 
-function fmt(n){return 'RM '+(Math.round(n)).toLocaleString('en-MY');}
-function pct(v){return (v*100).toFixed(0)+'%';}
+function fmt(n){return 'RM '+(Math.round(Math.abs(n))).toLocaleString('en-MY');}
+function fmtSigned(n){return (n>=0?'+':'-')+' RM '+(Math.round(Math.abs(n))).toLocaleString('en-MY');}
 
 function scoreCFF(cases){
   if(cases<=0)return{score:0,label:'0%',color:'#e53935'};
@@ -248,55 +227,46 @@ function scorePR2(pr){
 }
 
 function calc(){
-  const targetRaw=document.getElementById('target').value;
+  const aceRaw=document.getElementById('ace').value;
   const casesRaw=document.getElementById('cases').value;
   const pr1Raw=document.getElementById('pr1').value;
   const pr2Raw=document.getElementById('pr2').value;
-  const aceRaw=document.getElementById('ace').value;
 
   // CFF hint
   if(casesRaw!==''){
     const c=Math.max(0,Math.floor(parseFloat(casesRaw)||0));
     const r=scoreCFF(c);
-    const hintEl=document.getElementById('cffHint');
-    const msgs=['0 cases → 0% score','1–2 cases → 100% score','3 cases → 125% score','≥4 cases → 150% score'];
-    const msg=c===0?msgs[0]:c<=2?msgs[1]:c===3?msgs[2]:msgs[3];
-    hintEl.textContent=msg;
-    hintEl.className=r.score>0?'hint-good':'hint';
-    hintEl.style.color=r.color;
+    const el=document.getElementById('cffHint');
+    const msgs=['0 cases → 0% score','1–2 cases → 100%','3 cases → 125%','≥4 cases → 150%'];
+    el.textContent=c===0?msgs[0]:c<=2?msgs[1]:c===3?msgs[2]:msgs[3];
+    el.className='hint-good';
+    el.style.color=r.color;
   } else {
     document.getElementById('cffHint').textContent='';
   }
 
-  // PR1 hint
+  // PR hints
   if(pr1Raw!==''){
-    const v=parseFloat(pr1Raw);
-    const r=scorePR1(v);
+    const r=scorePR1(parseFloat(pr1Raw));
     const el=document.getElementById('pr1Hint');
     el.textContent=`Score: ${r.label}`;
-    el.className=r.score>0?'hint-good':'hint';
+    el.className='hint-good';
     el.style.color=r.color;
-  } else {
-    document.getElementById('pr1Hint').textContent='';
-  }
+  } else { document.getElementById('pr1Hint').textContent=''; }
 
-  // PR2 hint
   if(pr2Raw!==''){
-    const v=parseFloat(pr2Raw);
-    const r=scorePR2(v);
+    const r=scorePR2(parseFloat(pr2Raw));
     const el=document.getElementById('pr2Hint');
     el.textContent=`Score: ${r.label}`;
-    el.className=r.score>0?'hint-good':'hint';
+    el.className='hint-good';
     el.style.color=r.color;
-  } else {
-    document.getElementById('pr2Hint').textContent='';
-  }
+  } else { document.getElementById('pr2Hint').textContent=''; }
 
   const card=document.getElementById('resultCard');
-  if(!targetRaw||(pr1Raw===''&&pr2Raw==='')){card.style.display='none';return;}
+  if(!aceRaw||(pr1Raw===''&&pr2Raw==='')){card.style.display='none';return;}
 
-  const target=parseFloat(targetRaw);
-  if(isNaN(target)||target<=0){card.style.display='none';return;}
+  const ace=parseFloat(aceRaw);
+  if(isNaN(ace)||ace<=0){card.style.display='none';return;}
 
   const cases=casesRaw===''?0:Math.max(0,Math.floor(parseFloat(casesRaw)||0));
   const pr1=pr1Raw===''?0:parseFloat(pr1Raw)||0;
@@ -308,34 +278,39 @@ function calc(){
   const comp={score:hasComp?0:1,label:hasComp?'0%':'100%',color:hasComp?'#e53935':'#0a9b43'};
   const cpd={score:cpdDone?1:0,label:cpdDone?'100%':'0%',color:cpdDone?'#0a9b43':'#e53935'};
 
-  const bscScore=cff.score*0.20 + kpi2a.score*0.25 + kpi2b.score*0.30 + comp.score*0.10 + cpd.score*0.15;
-  const payout=target*bscScore;
+  const bscScore=cff.score*0.20+kpi2a.score*0.25+kpi2b.score*0.30+comp.score*0.10+cpd.score*0.15;
+  const baseComm=ace*0.32;
+  const adjComm=baseComm*bscScore;
+  const diff=adjComm-baseComm;
+  const isSurplus=diff>=0;
   const scoreColor=bscScore>=1?'#0a9b43':bscScore>=0.75?'#c77700':'#e53935';
+  const diffColor=isSurplus?'#0a9b43':'#e53935';
+  const boxBg=isSurplus?'#f0faf4':'#fff5f5';
+  const boxBorder=isSurplus?'#0a9b43':'#e53935';
 
+  // Score
   document.getElementById('scoreAmt').textContent=(bscScore*100).toFixed(1)+'%';
   document.getElementById('scoreAmt').style.color=scoreColor;
-  document.getElementById('payoutAmt').textContent=fmt(payout);
-  document.getElementById('payoutAmt').style.color=payout>0?'#ff7a00':'#e53935';
-  document.getElementById('payoutNote').textContent=`= RM ${Math.round(target).toLocaleString('en-MY')} × ${(bscScore*100).toFixed(1)}%`;
+  document.getElementById('scoreNote').textContent=`Base Commission × ${(bscScore*100).toFixed(1)}%`;
 
-  // Surplus block
-  const ace=aceRaw===''?0:parseFloat(aceRaw)||0;
-  const surplusBlock=document.getElementById('surplusBlock');
-  if(ace>0){
-    const commission=ace*0.32;
-    const total=payout+commission;
-    document.getElementById('sbBsc').textContent=fmt(payout);
-    document.getElementById('sbAceTag').textContent=`ACE ${fmt(ace)} × 32%`;
-    document.getElementById('sbComm').textContent=fmt(commission);
-    document.getElementById('sbTotal').textContent=fmt(total);
-    surplusBlock.style.display='block';
-  } else {
-    surplusBlock.style.display='none';
-  }
+  // Summary box
+  document.getElementById('summaryBox').innerHTML=`
+    <div class="summary-box" style="background:${boxBg};border-left:4px solid ${boxBorder}">
+      <div class="summary-row">
+        <span style="color:#555;font-weight:700">Base Commission <span class="tag">ACE ${fmt(ace)} × 32%</span></span>
+        <span style="font-weight:700;color:#111">${fmt(baseComm)}</span>
+      </div>
+      <div class="summary-row">
+        <span style="color:#555;font-weight:700">BSC Adjusted <span class="tag">${(bscScore*100).toFixed(1)}%</span></span>
+        <span style="font-weight:700;color:#111">${fmt(adjComm)}</span>
+      </div>
+      <div class="summary-total">
+        <span style="font-weight:900;font-size:1rem">${isSurplus?'📈 Surplus':'📉 Shortfall'}</span>
+        <span style="font-weight:900;font-size:1.4rem;color:${diffColor}">${fmtSigned(diff)}</span>
+      </div>
+    </div>`;
 
-  const snap=prSnapshots[selQ];
-  document.getElementById('prNote').textContent=`PR values reflect your performance as of ${snap.date} (end of ${snap.prev}).`;
-
+  // KPI breakdown
   const rows=[
     {name:'CFF (Cases)',weight:'20%',wt:0.20,...cff,casesVal:cases},
     {name:'KPI 2A — 1st Yr PR',weight:'25%',wt:0.25,...kpi2a,prVal:pr1Raw===''?'—':pr1+'%'},
@@ -350,7 +325,6 @@ function calc(){
     <span style="width:52px;text-align:right">Score</span>
     <span style="width:52px;text-align:right">Contrib</span>
   </div>`;
-
   rows.forEach(r=>{
     const contrib=(r.score*r.wt*100).toFixed(1)+'%';
     let tagHtml='';
@@ -363,30 +337,28 @@ function calc(){
       <span class="bd-contrib" style="color:${r.color}">${contrib}</span>
     </div>`;
   });
-
   h+=`<div class="breakdown-row">
     <span class="bd-name" style="color:#111">BSC Score</span>
     <span class="bd-weight"></span>
     <span class="bd-score"></span>
     <span class="bd-contrib" style="color:${scoreColor}">${(bscScore*100).toFixed(1)}%</span>
   </div>`;
-
   document.getElementById('breakdown').innerHTML=h;
 
-  // Case Impact section
+  // Case Impact
   const otherScore=kpi2a.score*0.25+kpi2b.score*0.30+comp.score*0.10+cpd.score*0.15;
   const tiers=[
-    {label:'0 cases',cases:0,score:0},
-    {label:'1–2 cases',cases:1,score:1},
-    {label:'3 cases',cases:3,score:1.25},
-    {label:'4+ cases',cases:4,score:1.5},
+    {label:'0 cases',score:0},
+    {label:'1–2 cases',score:1},
+    {label:'3 cases',score:1.25},
+    {label:'4+ cases',score:1.5},
   ];
   const currentTierIdx=cases<=0?0:cases<=2?1:cases===3?2:3;
-
   let ih=`<div class="impact-title">📈 Case Impact</div>`;
   tiers.forEach((t,i)=>{
-    const tp=target*(t.score*0.20+otherScore);
-    const delta=tp-payout;
+    const ts=t.score*0.20+otherScore;
+    const tp=baseComm*ts;
+    const delta=tp-adjComm;
     const isCurrent=i===currentTierIdx;
     let deltaHtml='';
     if(isCurrent){
@@ -394,20 +366,21 @@ function calc(){
     } else if(delta>0){
       deltaHtml=`<span class="impact-delta" style="color:#0a9b43">+${fmt(delta)}</span>`;
     } else {
-      deltaHtml=`<span class="impact-delta" style="color:#e53935">${fmt(delta)}</span>`;
+      deltaHtml=`<span class="impact-delta" style="color:#e53935">-${fmt(Math.abs(delta))}</span>`;
     }
-    const badge=t.score===0
-      ?`<span class="impact-badge" style="background:#ffebee;color:#e53935">0%</span>`
-      :t.score===1?`<span class="impact-badge" style="background:#e8f5e9;color:#0a9b43">100%</span>`
-      :t.score===1.25?`<span class="impact-badge" style="background:#e8f5e9;color:#0a9b43">125%</span>`
-      :`<span class="impact-badge" style="background:#e8f5e9;color:#0a9b43">150%</span>`;
+    const badgeColor=t.score===0?'#ffebee':'#e8f5e9';
+    const badgeText=t.score===0?'#e53935':'#0a9b43';
+    const badgeLabel=t.score===0?'0%':t.score===1?'100%':t.score===1.25?'125%':'150%';
     ih+=`<div class="impact-row${isCurrent?' current':''}">
-      <span class="impact-cases">${t.label}${badge}</span>
+      <span class="impact-cases">${t.label}<span class="impact-badge" style="background:${badgeColor};color:${badgeText}">${badgeLabel}</span></span>
       <span class="impact-payout">${fmt(tp)}</span>
       ${deltaHtml}
     </div>`;
   });
   document.getElementById('caseImpact').innerHTML=ih;
+
+  const snap=prSnapshots[selQ];
+  document.getElementById('prNote').textContent=`PR values reflect your performance as of ${snap.date} (end of ${snap.prev}).`;
 
   card.style.display='block';
   card.scrollIntoView({behavior:'smooth',block:'nearest'});
