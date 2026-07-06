@@ -87,6 +87,14 @@ body{background:#f7f8fa;color:#111;}
         <input type="number" id="target" placeholder="e.g. 5000" min="0" oninput="calc()">
       </div>
     </div>
+    <div class="row" style="margin-bottom:0">
+      <label class="label" for="ace">Quarter ACE <span style="font-weight:400;color:#aaa">(optional)</span></label>
+      <div class="input-wrap has-prefix">
+        <span class="prefix">RM</span>
+        <input type="number" id="ace" placeholder="e.g. 15000" min="0" oninput="calc()">
+      </div>
+      <div class="hint">Total annual premium of cases this quarter · Commission = ACE × 32%</div>
+    </div>
   </div>
 
   <!-- Card 2: CFF Production -->
@@ -148,9 +156,25 @@ body{background:#f7f8fa;color:#111;}
   <div class="card" id="resultCard" style="display:none">
     <div class="result-label">BSC Score</div>
     <div class="result-score" id="scoreAmt">0%</div>
-    <div class="result-label" style="margin-top:4px">Estimated Payout</div>
+    <div class="result-label" style="margin-top:4px">BSC Payout</div>
     <div class="result-payout" id="payoutAmt">RM 0</div>
     <div class="result-label" id="payoutNote"></div>
+
+    <!-- Surplus block (shown only when ACE entered) -->
+    <div id="surplusBlock" style="display:none;margin:4px 0 16px;background:#f7f8fa;border-radius:18px;padding:16px 18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:.9rem;">
+        <span style="color:#555;font-weight:700">BSC Payout</span>
+        <span id="sbBsc" style="font-weight:700;color:#111"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:.9rem;border-top:1px solid #eee;">
+        <span style="color:#555;font-weight:700">Commission <span id="sbAceTag" style="font-size:.72rem;background:#f0f0f0;color:#666;border-radius:6px;padding:2px 6px;margin-left:4px;font-weight:700"></span></span>
+        <span id="sbComm" style="font-weight:700;color:#0a9b43"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;border-top:2px solid #eee;margin-top:4px;">
+        <span style="font-weight:900;font-size:1rem;color:#111">💰 Total Surplus</span>
+        <span id="sbTotal" style="font-weight:900;font-size:1.3rem;color:#ff7a00"></span>
+      </div>
+    </div>
 
     <div id="breakdown"></div>
     <div id="caseImpact"></div>
@@ -228,6 +252,7 @@ function calc(){
   const casesRaw=document.getElementById('cases').value;
   const pr1Raw=document.getElementById('pr1').value;
   const pr2Raw=document.getElementById('pr2').value;
+  const aceRaw=document.getElementById('ace').value;
 
   // CFF hint
   if(casesRaw!==''){
@@ -292,6 +317,21 @@ function calc(){
   document.getElementById('payoutAmt').textContent=fmt(payout);
   document.getElementById('payoutAmt').style.color=payout>0?'#ff7a00':'#e53935';
   document.getElementById('payoutNote').textContent=`= RM ${Math.round(target).toLocaleString('en-MY')} × ${(bscScore*100).toFixed(1)}%`;
+
+  // Surplus block
+  const ace=aceRaw===''?0:parseFloat(aceRaw)||0;
+  const surplusBlock=document.getElementById('surplusBlock');
+  if(ace>0){
+    const commission=ace*0.32;
+    const total=payout+commission;
+    document.getElementById('sbBsc').textContent=fmt(payout);
+    document.getElementById('sbAceTag').textContent=`ACE ${fmt(ace)} × 32%`;
+    document.getElementById('sbComm').textContent=fmt(commission);
+    document.getElementById('sbTotal').textContent=fmt(total);
+    surplusBlock.style.display='block';
+  } else {
+    surplusBlock.style.display='none';
+  }
 
   const snap=prSnapshots[selQ];
   document.getElementById('prNote').textContent=`PR values reflect your performance as of ${snap.date} (end of ${snap.prev}).`;
