@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#ff7a00">
+<title>DAME Strategy</title>
+<style>
+:root{
+  --bg:#f7f8fa;--card:#fff;--text:#111;--sub:#666;--border:#eee;
+  --orange:#ff7a00;--green:#0a9b43;--red:#e53935;--amber:#c77700;
+  --shadow:0 4px 24px rgba(0,0,0,.07);
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#0f0f0f;--card:#1c1c1e;--text:#f2f2f7;--sub:#8e8e93;--border:#2c2c2e;--shadow:0 4px 24px rgba(0,0,0,.35);}
+}
+[data-theme="dark"]{--bg:#0f0f0f;--card:#1c1c1e;--text:#f2f2f7;--sub:#8e8e93;--border:#2c2c2e;--shadow:0 4px 24px rgba(0,0,0,.35);}
+[data-theme="light"]{--bg:#f7f8fa;--card:#fff;--text:#111;--sub:#666;--border:#eee;--shadow:0 4px 24px rgba(0,0,0,.07);}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── Screens ── */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+
+/* ── App header ── */
+.app-header{position:sticky;top:0;z-index:100;background:var(--card);border-bottom:1px solid var(--border);}
+.header-row{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;min-height:52px;}
+.h-back{background:none;border:none;color:var(--orange);font-size:1rem;font-weight:700;cursor:pointer;padding:4px 8px;}
+.h-title{font-size:1rem;font-weight:800;}
+.h-action{background:none;border:none;color:var(--sub);font-size:1.1rem;cursor:pointer;padding:4px 8px;}
+
+/* ── Progress bar ── */
+.prog-bar{display:flex;align-items:center;padding:10px 18px;overflow-x:auto;gap:6px;scrollbar-width:none;}
+.prog-bar::-webkit-scrollbar{display:none;}
+.prog-item{display:flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;color:var(--sub);white-space:nowrap;flex-shrink:0;}
+.prog-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:.3s;}
+.prog-item.active{color:var(--orange);}
+.prog-item.active .prog-dot{background:var(--orange);transform:scale(1.3);}
+.prog-item.done{color:var(--green);}
+.prog-item.done .prog-dot{background:var(--green);}
+.prog-sep{color:var(--border);font-size:.7rem;flex-shrink:0;}
+
+/* ── Steps ── */
+.step{display:none;padding:20px 18px 40px;max-width:600px;margin:auto;}
+.step.active{display:block;animation:sIn .25s ease;}
+@keyframes sIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── Home ── */
+.home-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 24px;text-align:center;}
+.home-icon{width:88px;height:88px;border-radius:26px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:2.6rem;margin-bottom:28px;box-shadow:0 10px 36px rgba(255,122,0,.32);}
+.home-title{font-size:2.6rem;font-weight:900;letter-spacing:-.04em;margin-bottom:8px;}
+.home-sub{color:var(--sub);font-size:.95rem;letter-spacing:.08em;font-weight:600;text-transform:uppercase;margin-bottom:50px;}
+.home-version{font-size:.72rem;color:var(--sub);margin-top:20px;opacity:.6;}
+
+/* ── Cards ── */
+.card{background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:22px;margin-bottom:16px;}
+.card-title{font-size:1.1rem;font-weight:900;margin-bottom:4px;}
+.card-sub{color:var(--sub);font-size:.85rem;line-height:1.55;margin-bottom:18px;}
+.sec-label{font-size:.72rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+
+/* ── Consultation text ── */
+.consult{background:rgba(255,122,0,.07);border-left:3px solid var(--orange);border-radius:0 16px 16px 0;padding:14px 16px;margin:14px 0;font-size:.9rem;line-height:1.65;color:var(--text);}
+
+/* ── Inputs ── */
+.row{margin-bottom:14px;}
+.f-label{font-size:.82rem;font-weight:700;color:var(--sub);margin-bottom:6px;display:block;}
+.inp-wrap{position:relative;display:flex;align-items:center;}
+.inp-wrap input{width:100%;padding:16px 18px;border-radius:16px;border:2px solid var(--border);font-size:1.1rem;color:var(--text);background:var(--card);-webkit-appearance:none;}
+.inp-wrap input:focus{outline:none;border-color:var(--orange);}
+.has-pre input{padding-left:50px;}
+.i-pre{position:absolute;left:16px;color:var(--sub);font-weight:700;font-size:1rem;pointer-events:none;}
+
+/* ── Computed display ── */
+.calc-box{background:var(--bg);border-radius:16px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.calc-lbl{font-size:.8rem;font-weight:700;color:var(--sub);}
+.calc-hint{font-size:.72rem;color:var(--orange);margin-top:2px;}
+.calc-val{font-size:1.25rem;font-weight:900;}
+
+/* ── Segment buttons ── */
+.seg{display:flex;gap:8px;flex-wrap:wrap;}
+.seg-btn{flex:1;min-width:72px;padding:12px 8px;border-radius:14px;border:2px solid var(--border);background:var(--card);font-weight:700;font-size:.88rem;color:var(--sub);cursor:pointer;transition:.15s;text-align:center;}
+.seg-btn.on{background:var(--orange);color:#fff;border-color:var(--orange);}
+
+/* ── Main buttons ── */
+.btn-p{display:block;width:100%;padding:18px;border-radius:18px;background:var(--orange);color:#fff;font-size:1.05rem;font-weight:800;border:none;cursor:pointer;box-shadow:0 4px 18px rgba(255,122,0,.28);transition:.15s;}
+.btn-p:active{transform:scale(.98);}
+.btn-s{display:block;width:100%;padding:15px;border-radius:18px;background:var(--card);color:var(--text);font-size:.95rem;font-weight:700;border:2px solid var(--border);cursor:pointer;transition:.15s;margin-top:10px;}
+.btn-d{display:block;width:100%;padding:15px;border-radius:18px;background:#ffebee;color:var(--red);font-size:.95rem;font-weight:700;border:none;cursor:pointer;margin-top:10px;}
+.step-nav{display:flex;gap:12px;margin-top:20px;}
+.nav-back{padding:16px 22px;border-radius:16px;border:2px solid var(--border);background:var(--card);color:var(--sub);font-weight:700;cursor:pointer;font-size:.9rem;}
+.nav-next{flex:1;padding:16px;border-radius:16px;background:var(--orange);color:#fff;font-weight:800;border:none;cursor:pointer;font-size:.95rem;box-shadow:0 4px 14px rgba(255,122,0,.24);}
+
+/* ── Stepper ── */
+.stepper{display:inline-flex;align-items:center;border:2px solid var(--border);border-radius:16px;overflow:hidden;}
+.stepper button{padding:13px 20px;border:none;background:var(--card);color:var(--text);font-size:1.3rem;font-weight:700;cursor:pointer;}
+.stepper-v{padding:13px 24px;font-size:1.2rem;font-weight:800;background:var(--card);}
+
+/* ── Asset chips ── */
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.chip{padding:10px 16px;border-radius:14px;border:2px solid var(--border);background:var(--card);font-weight:700;font-size:.88rem;color:var(--sub);cursor:pointer;transition:.15s;}
+.chip.on{background:rgba(255,122,0,.1);border-color:var(--orange);color:var(--orange);}
+.asset-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.asset-row:last-child{border-bottom:none;}
+.asset-row-lbl{flex:1;font-weight:700;font-size:.9rem;}
+.asset-row-inp{display:flex;align-items:center;border:2px solid var(--border);border-radius:12px;overflow:hidden;}
+.asset-row-pre{padding:0 8px;font-weight:700;color:var(--sub);font-size:.85rem;}
+.asset-row-inp input{width:110px;padding:10px 8px 10px 0;border:none;font-size:.95rem;font-weight:700;color:var(--text);background:var(--card);}
+.asset-row-inp input:focus{outline:none;}
+
+/* ── Donut chart ── */
+.donut-wrap{display:flex;align-items:center;gap:20px;padding:14px 0;}
+.donut-legend{flex:1;}
+.leg-row{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:.85rem;}
+.leg-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.leg-lbl{flex:1;color:var(--sub);font-weight:600;}
+.leg-val{font-weight:800;}
+
+/* ── Bar chart ── */
+.bar-row{margin-bottom:12px;}
+.bar-top{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;margin-bottom:4px;}
+.bar-track{background:var(--border);border-radius:8px;height:11px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:8px;width:0%;transition:width .65s cubic-bezier(.4,0,.2,1);}
+
+/* ── Big number ── */
+.big-num{font-size:2.4rem;font-weight:900;letter-spacing:-.02em;}
+
+/* ── Gap hero ── */
+.gap-hero{text-align:center;padding:24px 16px;background:rgba(229,57,53,.07);border-radius:22px;margin:14px 0;}
+.gap-lbl{font-size:.72rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+.gap-amt{font-size:3rem;font-weight:900;color:var(--red);letter-spacing:-.03em;line-height:1;}
+.gap-note{font-size:.8rem;color:var(--sub);margin-top:6px;}
+
+/* ── Education child card ── */
+.child-card{background:var(--bg);border:2px solid var(--border);border-radius:20px;padding:18px;margin-bottom:12px;}
+.child-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.child-lbl{font-weight:800;font-size:.95rem;}
+.child-del{border:none;background:none;color:var(--sub);cursor:pointer;font-size:.85rem;padding:4px;}
+.edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.edu-tgts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.edu-tgt{padding:9px 14px;border-radius:12px;border:2px solid var(--border);background:var(--card);font-weight:700;font-size:.82rem;color:var(--sub);cursor:pointer;transition:.15s;}
+.edu-tgt.on{background:rgba(255,122,0,.1);border-color:var(--orange);color:var(--orange);}
+.years-pill{display:inline-block;background:rgba(255,122,0,.1);color:var(--orange);border-radius:20px;padding:4px 12px;font-size:.78rem;font-weight:700;margin-bottom:10px;}
+
+/* ── Strategy compare ── */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+.cmp-card{border-radius:20px;padding:18px;border:2px solid var(--border);background:var(--card);}
+.cmp-card.hi{border-color:var(--orange);background:rgba(255,122,0,.04);}
+.cmp-ttl{font-size:.7rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
+.cmp-val{font-size:1.5rem;font-weight:900;color:var(--orange);}
+.cmp-lbl{font-size:.73rem;color:var(--sub);margin-top:3px;}
+
+/* ── Transform visual ── */
+.xform{text-align:center;padding:24px 16px;background:linear-gradient(135deg,rgba(10,155,67,.06),rgba(255,122,0,.06));border-radius:22px;margin:14px 0;}
+.xform-from{font-size:1.4rem;font-weight:900;color:var(--sub);}
+.xform-arr{font-size:2rem;display:block;margin:6px 0;}
+.xform-mid{font-size:.78rem;font-weight:700;color:var(--sub);margin-bottom:6px;}
+.xform-to{font-size:2.8rem;font-weight:900;color:var(--green);letter-spacing:-.03em;}
+
+/* ── Summary dashboard ── */
+.sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.sum-card{background:var(--card);border-radius:20px;padding:18px;box-shadow:var(--shadow);}
+.sum-card.full{grid-column:1/-1;}
+.sum-card.gap-card{grid-column:1/-1;background:rgba(229,57,53,.06);border:2px solid rgba(229,57,53,.18);}
+.sum-clbl{font-size:.7rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.sum-cval{font-size:1.35rem;font-weight:900;}
+
+/* ── Quote ── */
+.quote{text-align:center;padding:28px 16px;color:var(--sub);font-size:.9rem;line-height:1.75;font-style:italic;}
+
+/* ── Previous analyses ── */
+.prev-item{background:var(--card);border-radius:20px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer;}
+.prev-info{flex:1;}
+.prev-name{font-weight:800;font-size:.97rem;}
+.prev-meta{font-size:.78rem;color:var(--sub);margin-top:3px;}
+.prev-gap-lbl{font-size:.88rem;font-weight:800;color:var(--red);}
+.prev-del{padding:8px;border:none;background:none;color:var(--sub);cursor:pointer;font-size:1.1rem;}
+.empty{text-align:center;padding:60px 20px;color:var(--sub);}
+.empty-ico{font-size:3rem;margin-bottom:12px;}
+
+/* ── Reveal ── */
+.reveal{display:none;}
+.reveal.show{display:block;animation:fIn .28s ease;}
+@keyframes fIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Print ── */
+@media print{
+  .app-header,.prog-bar,.step-nav,.nav-back,.nav-next,.btn-p,.btn-s,.btn-d,.no-print{display:none!important;}
+  .step{display:block!important;padding:0!important;}
+  body,.screen{background:white!important;}
+  .card,.sum-card{box-shadow:none!important;border:1px solid #ddd!important;}
+  .gap-hero{background:#fff!important;border:2px solid #e53935!important;}
+  .print-only{display:block!important;}
+}
+.print-only{display:none;font-size:.73rem;color:#888;margin-top:20px;padding:12px;border:1px solid #ddd;border-radius:8px;line-height:1.55;}
+</style>
+</head>
+<body>
+
+<!-- ═══ HOME ═══ -->
+<div class="screen active" id="sc-home">
+<div class="home-wrap">
+  <div class="home-icon">🎯</div>
+  <div class="home-title">DAME Strategy</div>
+  <div class="home-sub">Kenal Pasti · Lindungi · Rancang</div>
+  <button class="btn-p" onclick="startNew()" style="max-width:320px;font-size:1.15rem;margin-bottom:0">Mula Analisis</button>
+  <button class="btn-s no-print" onclick="goScreen('prev')" style="max-width:320px">📂 Analisis Terdahulu</button>
+  <div class="home-version">TSLA Digital Hub · DAME v1.0</div>
+</div>
+</div>
+
+<!-- ═══ PREVIOUS ANALYSES ═══ -->
+<div class="screen" id="sc-prev">
+<div class="app-header">
+  <div class="header-row">
+    <button class="h-back" onclick="goScreen('home')">← Kembali</button>
+    <span class="h-title">Analisis Terdahulu</span>
+    <span></span>
+  </div>
+</div>
+<div style="padding:18px;max-width:600px;margin:auto" id="prevList"></div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div class="screen" id="sc-app">
+<div class="app-header">
+  <div class="header-row">
+    <button class="h-back no-print" onclick="appBack()">← Balik</button>
+    <span class="h-title">DAME Strategy</span>
+    <button class="h-action no-print" onclick="toggleDark()" id="darkBtn">🌙</button>
+  </div>
+  <div class="prog-bar">
+    <div class="prog-item" id="p0"><div class="prog-dot"></div>Perlindungan</div>
+    <div class="prog-sep">→</div>
+    <div class="prog-item" id="p1"><div class="prog-dot"></div>Aset</div>
+    <div class="prog-sep">→</div>
+    <div class="prog-item" id="p2"><div class="prog-dot"></div>Pendidikan</div>
+    <div class="prog-sep">→</div>
+    <div class="prog-item" id="p3"><div class="prog-dot"></div>Ringkasan</div>
+  </div>
+</div>
+
+<!-- Step 1: Client -->
+<div class="step" id="s1">
+  <div class="card">
+    <div class="card-title">👤 Maklumat Klien</div>
+    <div class="card-sub">Masukkan maklumat asas klien untuk memulakan analisis kewangan.</div>
+    <div class="row">
+      <label class="f-label">Nama Penuh</label>
+      <div class="inp-wrap"><input type="text" id="cName" placeholder="Nama klien" oninput="S.client.name=this.value;save()"></div>
+    </div>
+    <div class="row">
+      <label class="f-label">Umur</label>
+      <div class="inp-wrap"><input type="number" id="cAge" placeholder="35" min="18" max="70" oninput="S.client.age=+this.value;save()"></div>
+    </div>
+    <div class="row">
+      <label class="f-label">Status Perkahwinan</label>
+      <div class="seg">
+        <button class="seg-btn" id="mb-single" onclick="setMarital('single')">Bujang</button>
+        <button class="seg-btn on" id="mb-married" onclick="setMarital('married')">Berkahwin</button>
+        <button class="seg-btn" id="mb-widowed" onclick="setMarital('widowed')">Balu/Duda</button>
+      </div>
+    </div>
+    <div class="row">
+      <label class="f-label">Bilangan Anak</label>
+      <div class="stepper">
+        <button onclick="adjChild(-1)">−</button>
+        <div class="stepper-v" id="childN">0</div>
+        <button onclick="adjChild(1)">+</button>
+      </div>
+    </div>
+  </div>
+  <div class="step-nav">
+    <button class="nav-next" onclick="go(2)">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- Step 2: Protection -->
+<div class="step" id="s2">
+  <div class="card">
+    <div class="card-title">🛡️ Perlindungan Keluarga</div>
+    <div class="card-sub">Langkah pertama — fahami komitmen kewangan semasa.</div>
+    <div class="consult">"Berapakah jumlah komitmen bulanan anda dari sekarang sehingga setahun akan datang?"</div>
+    <div class="row">
+      <label class="f-label">Komitmen Bulanan</label>
+      <div class="inp-wrap has-pre"><span class="i-pre">RM</span>
+        <input type="number" id="monthly" placeholder="5,000" min="0" oninput="onMonthly()">
+      </div>
+    </div>
+    <div class="reveal" id="rev-annual">
+      <div class="calc-box">
+        <div><div class="calc-lbl">Keperluan Komitmen 12 Bulan</div><div class="calc-hint" id="annualHint"></div></div>
+        <div class="calc-val" id="annualVal" style="color:var(--orange)">RM 0</div>
+      </div>
+      <div class="consult" style="margin-top:14px">"Berapakah jumlah aset atau simpanan yang anda miliki sekarang?"</div>
+      <div class="row" style="margin-top:12px">
+        <label class="f-label">Jumlah Aset / Simpanan Semasa</label>
+        <div class="inp-wrap has-pre"><span class="i-pre">RM</span>
+          <input type="number" id="p2asset" placeholder="100,000" min="0" oninput="onP2Asset()">
+        </div>
+      </div>
+    </div>
+    <div class="reveal" id="rev-donut">
+      <div class="donut-wrap">
+        <svg id="donutSvg" viewBox="0 0 140 140" width="130" height="130" style="flex-shrink:0"></svg>
+        <div class="donut-legend">
+          <div class="leg-row"><div class="leg-dot" style="background:var(--green)"></div><span class="leg-lbl">Aset Semasa</span><span class="leg-val" id="ll-asset">RM 0</span></div>
+          <div class="leg-row"><div class="leg-dot" style="background:var(--orange)"></div><span class="leg-lbl">12-Bln Komitmen</span><span class="leg-val" id="ll-commit" style="color:var(--orange)">RM 0</span></div>
+          <div class="leg-row"><div class="leg-dot" id="ll-rem-dot" style="background:var(--green)"></div><span class="leg-lbl">Baki Aset</span><span class="leg-val" id="ll-rem">RM 0</span></div>
+        </div>
+      </div>
+      <div class="consult">"Sekiranya berlaku sesuatu yang tidak dijangka, keluarga masih memerlukan wang tunai untuk meneruskan komitmen harian."<br><br>"Persoalannya, adakah aset yang ditinggalkan boleh digunakan oleh keluarga dengan segera?"</div>
+    </div>
+  </div>
+  <div class="step-nav">
+    <button class="nav-back" onclick="go(1)">← Balik</button>
+    <button class="nav-next" onclick="go(3)">Analisis Aset →</button>
+  </div>
+</div>
+
+<!-- Step 3: Asset -->
+<div class="step" id="s3">
+  <div class="card">
+    <div class="card-title">💰 Aset & Simpanan</div>
+    <div class="card-sub">Pilih jenis aset yang dimiliki dan masukkan nilai anggaran semasa.</div>
+    <div class="sec-label">Jenis Aset</div>
+    <div class="chip-grid">
+      <button class="chip" data-t="ASB" onclick="toggleA(this)">ASB</button>
+      <button class="chip" data-t="Tabung Haji" onclick="toggleA(this)">Tabung Haji</button>
+      <button class="chip" data-t="Simpanan Bank" onclick="toggleA(this)">Simpanan Bank</button>
+      <button class="chip" data-t="Fixed Deposit" onclick="toggleA(this)">Fixed Deposit</button>
+      <button class="chip" data-t="Unit Trust" onclick="toggleA(this)">Unit Trust</button>
+      <button class="chip" data-t="Hartanah" onclick="toggleA(this)">Hartanah</button>
+      <button class="chip" data-t="KWSP" onclick="toggleA(this)">KWSP</button>
+      <button class="chip" data-t="Lain-lain" onclick="toggleA(this)">Lain-lain</button>
+    </div>
+    <div id="assetInputs"></div>
+  </div>
+  <div class="reveal" id="rev-a3">
+    <div class="card">
+      <div class="consult">"Tahniah! Anda telah berjaya membina aset yang bernilai:"</div>
+      <div style="text-align:center;padding:10px 0 18px">
+        <div class="calc-lbl">Jumlah Keseluruhan Aset</div>
+        <div class="big-num" id="totalAsset" style="color:var(--green);margin-top:6px">RM 0</div>
+      </div>
+      <div id="a3bars"></div>
+      <div class="consult" style="margin-top:14px">"Namun, memiliki aset dan mempunyai akses segera kepada wang tunai adalah dua perkara yang berbeza."<br><br>"Sekiranya berlaku kematian, sesetengah aset mungkin memerlukan proses pentadbiran pusaka sebelum dapat digunakan sepenuhnya oleh waris."</div>
+    </div>
+  </div>
+  <div class="step-nav">
+    <button class="nav-back" onclick="go(2)">← Balik</button>
+    <button class="nav-next" onclick="go(4)">Analisis Pendidikan →</button>
+  </div>
+</div>
+
+<!-- Step 4: Education -->
+<div class="step" id="s4">
+  <div class="card">
+    <div class="card-title">🎓 Perancangan Pendidikan Anak</div>
+    <div class="card-sub">Rancang kos pendidikan setiap anak untuk memastikan masa depan mereka terjamin.</div>
+    <div class="consult">
+      <b>Pengajian Dalam Negara</b> — sasaran dari RM 50,000<br>
+      <b>Pengajian Luar Negara</b> — potensi sehingga RM 500,000
+      <div style="font-size:.75rem;color:var(--sub);margin-top:8px">* Kos sebenar bergantung kepada universiti, negara, kursus dan inflasi masa hadapan.</div>
+    </div>
+    <div id="childCards"></div>
+    <button class="btn-s no-print" id="addChildBtn" onclick="addChild()" style="margin-top:4px">+ Tambah Anak</button>
+  </div>
+  <div class="reveal" id="rev-edu">
+    <div class="card">
+      <div class="sec-label" style="margin-bottom:12px">Jumlah Keperluan Kewangan</div>
+      <div id="edu-bars"></div>
+      <div class="gap-hero">
+        <div class="gap-lbl">Jurang Perlindungan</div>
+        <div class="gap-amt" id="gapAmt">RM 0</div>
+        <div class="gap-note" id="gapNote"></div>
+      </div>
+      <div id="needBreak"></div>
+    </div>
+  </div>
+  <div class="step-nav">
+    <button class="nav-back" onclick="go(3)">← Balik</button>
+    <button class="nav-next" onclick="go(5)">Lihat Strategi →</button>
+  </div>
+</div>
+
+<!-- Step 5: Strategy -->
+<div class="step" id="s5">
+  <div class="card">
+    <div class="card-title">✨ Susun Semula Strategi Kewangan</div>
+    <div class="card-sub">Bagaimana jika kita susun semula aset sedia ada dengan lebih strategik untuk melindungi keluarga?</div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <div class="cmp-ttl">Situasi Semasa</div>
+        <div class="cmp-val" id="sc-asset">RM 0</div>
+        <div class="cmp-lbl">Aset Semasa</div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div class="cmp-ttl">Perlindungan</div>
+          <div style="font-size:1.1rem;font-weight:800;color:var(--sub)" id="sc-prot">RM 0</div>
+        </div>
+      </div>
+      <div class="cmp-card hi">
+        <div class="cmp-ttl" style="color:var(--orange)">Cadangan Strategik</div>
+        <div class="row" style="margin-bottom:8px">
+          <label class="f-label">Jumlah Diperuntukkan</label>
+          <div class="inp-wrap has-pre"><span class="i-pre">RM</span>
+            <input type="number" id="sAlloc" placeholder="100,000" min="0" oninput="onStrat()">
+          </div>
+        </div>
+        <div class="row" style="margin-bottom:0">
+          <label class="f-label">Cadangan Perlindungan Takaful</label>
+          <div class="inp-wrap has-pre"><span class="i-pre">RM</span>
+            <input type="number" id="sTakaful" placeholder="500,000" min="0" oninput="onStrat()">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal" id="rev-xform">
+      <div class="xform">
+        <div class="xform-from" id="xf-from">RM 0</div>
+        <span class="xform-arr">↓</span>
+        <div class="xform-mid">Perancangan Kewangan Strategik</div>
+        <span class="xform-arr">↓</span>
+        <div class="xform-mid">Potensi Perlindungan</div>
+        <div class="xform-to" id="xf-to">RM 0</div>
+      </div>
+      <div style="font-size:.72rem;color:var(--sub);text-align:center;padding:0 12px;line-height:1.55">Ilustrasi ini adalah untuk tujuan perancangan sahaja. Manfaat, nilai dan terma tertakluk kepada produk takaful yang dipilih.</div>
+    </div>
+  </div>
+  <div class="step-nav">
+    <button class="nav-back" onclick="go(4)">← Balik</button>
+    <button class="nav-next" onclick="go(6)">Lihat Ringkasan →</button>
+  </div>
+</div>
+
+<!-- Step 6: Summary -->
+<div class="step" id="s6">
+  <div class="card">
+    <div class="card-title" id="sumTitle">📋 Ringkasan Analisis</div>
+    <div class="card-sub" id="sumDate"></div>
+  </div>
+  <div class="sum-grid">
+    <div class="sum-card gap-card">
+      <div class="sum-clbl">Jurang Perlindungan</div>
+      <div class="sum-cval" id="sGap" style="font-size:2.5rem;color:var(--red)">RM 0</div>
+      <div style="font-size:.75rem;color:var(--sub);margin-top:5px" id="sGapNote"></div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-clbl">Jumlah Aset</div>
+      <div class="sum-cval" id="sAsset" style="color:var(--green)">RM 0</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-clbl">Komitmen Bulanan</div>
+      <div class="sum-cval" id="sMonthly">RM 0</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-clbl">Komitmen 12 Bulan</div>
+      <div class="sum-cval" id="sAnnual">RM 0</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-clbl">Sasaran Pendidikan</div>
+      <div class="sum-cval" id="sEdu" style="color:var(--amber)">RM 0</div>
+    </div>
+    <div class="sum-card full">
+      <div class="sum-clbl">Jumlah Keperluan Kewangan</div>
+      <div class="sum-cval" id="sNeed" style="color:var(--orange)">RM 0</div>
+    </div>
+    <div class="sum-card full" id="sTakCard" style="display:none">
+      <div class="sum-clbl">Cadangan Perlindungan Takaful</div>
+      <div class="sum-cval" id="sTakaful" style="color:var(--green)">RM 0</div>
+    </div>
+  </div>
+  <div class="quote">"Matlamat perancangan bukan sekadar mengumpul aset."<br>"Ia adalah memastikan keluarga mempunyai perlindungan dan sumber kewangan apabila mereka paling memerlukannya."</div>
+  <div class="print-only">Analisis ini adalah untuk tujuan ilustrasi dan perancangan kewangan sahaja. Nilai sebenar, manfaat, terma dan syarat tertakluk kepada produk dan dokumen rasmi yang berkaitan.</div>
+  <div class="no-print">
+    <button class="btn-s" onclick="go(1)">✏️ Ubah Analisis</button>
+    <button class="btn-p" onclick="saveAnal()" style="margin-top:10px">💾 Simpan Analisis</button>
+    <button class="btn-s" onclick="window.print()">🖨️ Generate PDF Report</button>
+    <button class="btn-d" onclick="confirmReset()">+ Mulakan Client Baru</button>
+  </div>
+</div>
+
+</div><!-- /sc-app -->
+
+<script>
+// ═══ STATE ═══
+let S = freshState();
+let curStep = 1;
+let darkMode = localStorage.getItem('dameTheme') === 'dark';
+
+function freshState() {
+  return {
+    id: null,
+    client: { name:'', age:0, marital:'married', children:0 },
+    protection: { monthly:0, asset:0 },
+    assets: [],
+    education: [],
+    strategy: { allocate:0, takaful:0 }
+  };
+}
+
+// ═══ FORMAT ═══
+function R(n) { return 'RM ' + Math.round(Math.max(0, n)).toLocaleString('en-MY'); }
+function RA(n) { return 'RM ' + Math.round(Math.abs(n)).toLocaleString('en-MY'); }
+
+// ═══ THEME ═══
+function applyTheme() {
+  document.body.dataset.theme = darkMode ? 'dark' : 'light';
+  document.getElementById('darkBtn').textContent = darkMode ? '☀️' : '🌙';
+}
+function toggleDark() {
+  darkMode = !darkMode;
+  localStorage.setItem('dameTheme', darkMode ? 'dark' : 'light');
+  applyTheme();
+}
+
+// ═══ SCREENS ═══
+function goScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('sc-' + id).classList.add('active');
+  if (id === 'prev') renderPrev();
+}
+
+// ═══ NAVIGATION ═══
+function appBack() {
+  if (curStep <= 1) goScreen('home');
+  else go(curStep - 1);
+}
+
+function go(n) {
+  if (n < 1 || n > 6) return;
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('s' + n).classList.add('active');
+  curStep = n;
+  updateProg(n);
+  save();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 4) renderChildCards();
+  if (n === 5) renderStrat();
+  if (n === 6) renderSummary();
+}
+
+function updateProg(step) {
+  const map = { 2:0, 3:1, 4:2, 5:3, 6:3 };
+  const active = map[step] ?? -1;
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('p' + i);
+    el.classList.toggle('active', i === active);
+    el.classList.toggle('done', i < active);
+  }
+}
+
+// ═══ STEP 1 ═══
+function setMarital(v) {
+  S.client.marital = v;
+  ['single','married','widowed'].forEach(m =>
+    document.getElementById('mb-' + m).classList.toggle('on', m === v));
+  save();
+}
+function adjChild(d) {
+  S.client.children = Math.max(0, S.client.children + d);
+  document.getElementById('childN').textContent = S.client.children;
+  save();
+}
+
+// ═══ STEP 2 ═══
+function onMonthly() {
+  const v = Math.max(0, parseFloat(document.getElementById('monthly').value) || 0);
+  S.protection.monthly = v;
+  save();
+  const annual = v * 12;
+  document.getElementById('annualVal').textContent = R(annual);
+  document.getElementById('annualHint').textContent = v > 0 ? `RM ${Math.round(v).toLocaleString('en-MY')} × 12 bulan` : '';
+  reveal('rev-annual', v > 0);
+  if (v > 0) onP2Asset();
+}
+
+function onP2Asset() {
+  const v = Math.max(0, parseFloat(document.getElementById('p2asset').value) || 0);
+  S.protection.asset = v;
+  save();
+  const annual = S.protection.monthly * 12;
+  if (!annual) return;
+  const rem = v - annual;
+  reveal('rev-donut', true);
+  document.getElementById('ll-asset').textContent = R(v);
+  document.getElementById('ll-commit').textContent = R(annual);
+  document.getElementById('ll-rem').textContent = rem >= 0 ? R(rem) : '-' + RA(rem);
+  document.getElementById('ll-rem-dot').style.background = rem >= 0 ? 'var(--green)' : 'var(--red)';
+  drawDonut(v, annual);
+}
+
+function drawDonut(asset, commit) {
+  const r=50, cx=70, cy=70, sw=18;
+  const C = 2 * Math.PI * r;
+  const total = Math.max(asset, commit, 1);
+  const commitF = Math.min(commit / total, 1);
+  const remF = Math.max((asset - commit) / total, 0);
+  const commitArc = commitF * C;
+  const remArc = remF * C;
+  const isDeficit = asset < commit;
+
+  let h = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="${sw}"/>`;
+  if (commitArc > 0) {
+    h += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--orange)" stroke-width="${sw}"
+      stroke-dasharray="${commitArc} ${C - commitArc}" stroke-dashoffset="0"
+      transform="rotate(-90 ${cx} ${cy})" style="transition:.6s"/>`;
+  }
+  if (remArc > 0) {
+    h += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--green)" stroke-width="${sw}"
+      stroke-dasharray="${remArc} ${C - remArc}"
+      stroke-dashoffset="${C - commitArc}"
+      transform="rotate(-90 ${cx} ${cy})" style="transition:.6s"/>`;
+  }
+  if (isDeficit) {
+    h += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--red)" stroke-width="4"
+      stroke-dasharray="0 ${C}" transform="rotate(-90 ${cx} ${cy})"/>`;
+  }
+  document.getElementById('donutSvg').innerHTML = h;
+}
+
+// ═══ STEP 3 ═══
+function toggleA(btn) {
+  const t = btn.dataset.t;
+  btn.classList.toggle('on');
+  if (btn.classList.contains('on')) {
+    if (!S.assets.find(a => a.type === t)) S.assets.push({ type: t, value: 0 });
+  } else {
+    S.assets = S.assets.filter(a => a.type !== t);
+  }
+  renderAssetInputs();
+  calcAssetTotal();
+  save();
+}
+
+function renderAssetInputs() {
+  const c = document.getElementById('assetInputs');
+  c.innerHTML = '';
+  S.assets.forEach(a => {
+    const d = document.createElement('div');
+    d.className = 'asset-row';
+    d.innerHTML = `<span class="asset-row-lbl">${a.type}</span>
+      <div class="asset-row-inp">
+        <span class="asset-row-pre">RM</span>
+        <input type="number" placeholder="0" min="0" value="${a.value || ''}"
+          oninput="setAV('${a.type}',this.value)">
+      </div>`;
+    c.appendChild(d);
+  });
+}
+
+function setAV(type, val) {
+  const a = S.assets.find(x => x.type === type);
+  if (a) a.value = Math.max(0, parseFloat(val) || 0);
+  calcAssetTotal();
+  save();
+}
+
+function calcAssetTotal() {
+  const total = totalAsset();
+  const annual = S.protection.monthly * 12;
+  const rem = total - annual;
+  const show3 = S.assets.length > 0 && total > 0;
+  reveal('rev-a3', show3);
+  if (!show3) return;
+  document.getElementById('totalAsset').textContent = R(total);
+  const max = Math.max(total, annual, 1);
+  let bars = '';
+  bars += bar('Jumlah Aset', total, total / max, 'var(--green)');
+  if (annual > 0) bars += bar('− 12-Bln Komitmen', annual, annual / max, 'var(--orange)');
+  bars += bar(rem >= 0 ? 'Baki Aset' : 'Defisit', Math.abs(rem), Math.max(0, rem) / max, rem >= 0 ? 'var(--green)' : 'var(--red)');
+  document.getElementById('a3bars').innerHTML = bars;
+  animateBars('a3bars');
+}
+
+// ═══ STEP 4 ═══
+function renderChildCards() {
+  const n = S.client.children;
+  while (S.education.length < n) S.education.push({ name:'', age:0, uniAge:18, target:0 });
+  const c = document.getElementById('childCards');
+  c.innerHTML = '';
+  S.education.forEach((e, i) => c.appendChild(mkChildCard(e, i)));
+  document.getElementById('addChildBtn').style.display = S.education.length >= 8 ? 'none' : '';
+  calcEduGap();
+}
+
+function addChild() {
+  S.education.push({ name:'', age:0, uniAge:18, target:0 });
+  const c = document.getElementById('childCards');
+  c.appendChild(mkChildCard(S.education[S.education.length - 1], S.education.length - 1));
+  calcEduGap();
+  save();
+}
+
+function mkChildCard(e, i) {
+  const yrs = Math.max(0, (e.uniAge || 18) - (e.age || 0));
+  const tgts = [50000, 100000, 250000, 500000];
+  const div = document.createElement('div');
+  div.className = 'child-card';
+  div.id = 'cc' + i;
+  div.innerHTML = `
+    <div class="child-top">
+      <span class="child-lbl">Anak ${i + 1}</span>
+      <button class="child-del no-print" onclick="delChild(${i})">✕ Buang</button>
+    </div>
+    <div class="row"><label class="f-label">Nama</label>
+      <div class="inp-wrap"><input type="text" placeholder="Nama anak" value="${e.name || ''}" oninput="setE(${i},'name',this.value)"></div>
+    </div>
+    <div class="edu-grid">
+      <div class="row"><label class="f-label">Umur Sekarang</label>
+        <div class="inp-wrap"><input type="number" placeholder="0" min="0" max="25" value="${e.age || ''}" oninput="setE(${i},'age',+this.value);updYrs(${i})"></div>
+      </div>
+      <div class="row"><label class="f-label">Umur Ke Universiti</label>
+        <div class="inp-wrap"><input type="number" placeholder="18" min="0" max="30" value="${e.uniAge || 18}" oninput="setE(${i},'uniAge',+this.value);updYrs(${i})"></div>
+      </div>
+    </div>
+    <div id="yrs${i}" class="years-pill" style="display:${yrs > 0 ? 'inline-block' : 'none'}">⏱ ${yrs} tahun lagi</div>
+    <label class="f-label" style="margin-top:10px;display:block">Sasaran Kos Pendidikan</label>
+    <div class="edu-tgts">
+      ${tgts.map(t => `<button class="edu-tgt${e.target === t ? ' on' : ''}" onclick="setTgt(${i},${t})">${t >= 1000000 ? (t/1000000)+'jt' : 'RM '+(t/1000)+'k'}</button>`).join('')}
+      <button class="edu-tgt${![0,...tgts].includes(e.target) && e.target > 0 ? ' on' : ''}" onclick="setTgt(${i},-1)">Lain</button>
+    </div>
+    <div id="cust${i}" style="display:${![0,...tgts].includes(e.target) && e.target > 0 ? 'block' : 'none'};margin-top:10px">
+      <div class="inp-wrap has-pre"><span class="i-pre">RM</span>
+        <input type="number" placeholder="Jumlah lain" min="0" value="${![0,...tgts].includes(e.target) && e.target > 0 ? e.target : ''}" oninput="setE(${i},'target',Math.max(0,+this.value));calcEduGap();save()">
+      </div>
+    </div>
+    <div id="tgtShow${i}" style="margin-top:8px;font-size:.9rem;font-weight:800;color:var(--orange);display:${e.target > 0 ? 'block' : 'none'}">
+      Sasaran: ${e.target > 0 ? R(e.target) : ''}
+    </div>`;
+  return div;
+}
+
+function delChild(i) {
+  S.education.splice(i, 1);
+  renderChildCards();
+  save();
+}
+
+function setE(i, k, v) {
+  S.education[i][k] = v;
+  calcEduGap();
+  save();
+}
+
+function updYrs(i) {
+  const e = S.education[i];
+  const y = Math.max(0, (e.uniAge || 0) - (e.age || 0));
+  const el = document.getElementById('yrs' + i);
+  if (el) { el.textContent = `⏱ ${y} tahun lagi`; el.style.display = y > 0 ? 'inline-block' : 'none'; }
+}
+
+function setTgt(i, val) {
+  const tgts = [50000, 100000, 250000, 500000];
+  if (val === -1) {
+    document.getElementById('cust' + i).style.display = 'block';
+    S.education[i].target = 0;
+  } else {
+    document.getElementById('cust' + i).style.display = 'none';
+    S.education[i].target = val;
+  }
+  const cc = document.getElementById('cc' + i);
+  if (cc) cc.querySelectorAll('.edu-tgt').forEach((b, bi) => {
+    b.classList.toggle('on', bi < 4 ? val === tgts[bi] : val === -1);
+  });
+  const ts = document.getElementById('tgtShow' + i);
+  if (ts) { ts.textContent = val > 0 ? 'Sasaran: ' + R(val) : ''; ts.style.display = val > 0 ? 'block' : 'none'; }
+  calcEduGap();
+  save();
+}
+
+function calcEduGap() {
+  const ta = totalAsset() || S.protection.asset;
+  const annual = S.protection.monthly * 12;
+  const edu = totalEdu();
+  const need = annual + edu;
+  const gap = need - ta;
+  const hasEdu = edu > 0;
+  reveal('rev-edu', need > 0);
+  if (!need) return;
+
+  const max = Math.max(ta, need, 1);
+  let bars = '';
+  bars += bar('Jumlah Aset', ta, ta / max, 'var(--green)');
+  if (annual > 0) bars += bar('− Komitmen 12 Bulan', annual, annual / max, 'var(--orange)');
+  if (edu > 0) bars += bar('− Sasaran Pendidikan', edu, edu / max, 'var(--amber)');
+  document.getElementById('edu-bars').innerHTML = bars;
+  animateBars('edu-bars');
+
+  document.getElementById('gapAmt').textContent = gap > 0 ? R(gap) : R(0);
+  document.getElementById('gapAmt').style.color = gap > 0 ? 'var(--red)' : 'var(--green)';
+  document.getElementById('gapNote').textContent = gap <= 0 ? '✅ Aset anda mencukupi!' : 'Jumlah tambahan perlindungan yang diperlukan';
+
+  let bd = '';
+  bd += calcRow('Komitmen 12 Bulan', annual, 'var(--orange)');
+  if (edu > 0) bd += calcRow('Sasaran Pendidikan', edu, 'var(--amber)');
+  bd += calcRow('Jumlah Keperluan', need, 'var(--red)');
+  bd += calcRow('Aset Semasa', ta, 'var(--green)', '−');
+  document.getElementById('needBreak').innerHTML = bd;
+}
+
+// ═══ STEP 5 ═══
+function renderStrat() {
+  const asset = totalAsset() || S.protection.asset;
+  document.getElementById('sc-asset').textContent = R(asset);
+  document.getElementById('sc-prot').textContent = R(asset);
+  if (S.strategy.allocate) document.getElementById('sAlloc').value = S.strategy.allocate;
+  if (S.strategy.takaful) { document.getElementById('sTakaful').value = S.strategy.takaful; onStrat(); }
+}
+
+function onStrat() {
+  const alloc = Math.max(0, parseFloat(document.getElementById('sAlloc').value) || 0);
+  const tak = Math.max(0, parseFloat(document.getElementById('sTakaful').value) || 0);
+  S.strategy.allocate = alloc;
+  S.strategy.takaful = tak;
+  save();
+  reveal('rev-xform', alloc > 0 || tak > 0);
+  document.getElementById('xf-from').textContent = R(alloc);
+  document.getElementById('xf-to').textContent = R(tak);
+}
+
+// ═══ STEP 6 ═══
+function renderSummary() {
+  const ta = totalAsset() || S.protection.asset;
+  const annual = S.protection.monthly * 12;
+  const edu = totalEdu();
+  const need = annual + edu;
+  const gap = Math.max(0, need - ta);
+  const name = S.client.name || 'Klien';
+  document.getElementById('sumTitle').textContent = `📋 Ringkasan — ${name}`;
+  document.getElementById('sumDate').textContent = new Date().toLocaleDateString('ms-MY', { day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('sGap').textContent = R(gap);
+  document.getElementById('sGapNote').textContent = gap === 0 ? '✅ Aset mencukupi' : 'Jumlah perlindungan tambahan yang diperlukan';
+  document.getElementById('sAsset').textContent = R(ta);
+  document.getElementById('sMonthly').textContent = R(S.protection.monthly);
+  document.getElementById('sAnnual').textContent = R(annual);
+  document.getElementById('sEdu').textContent = R(edu);
+  document.getElementById('sNeed').textContent = R(need);
+  const tc = document.getElementById('sTakCard');
+  if (S.strategy.takaful > 0) {
+    document.getElementById('sTakaful').textContent = R(S.strategy.takaful);
+    tc.style.display = 'block';
+  } else tc.style.display = 'none';
+}
+
+// ═══ CALCULATIONS ═══
+function totalAsset() { return S.assets.reduce((s, a) => s + (a.value || 0), 0); }
+function totalEdu() { return S.education.reduce((s, e) => s + (e.target || 0), 0); }
+
+// ═══ CHARTS ═══
+function bar(label, val, ratio, color) {
+  const pct = Math.round(Math.min(ratio, 1) * 100);
+  return `<div class="bar-row">
+    <div class="bar-top"><span>${label}</span><span style="color:${color}">${R(val)}</span></div>
+    <div class="bar-track"><div class="bar-fill" style="background:${color}" data-pct="${pct}"></div></div>
+  </div>`;
+}
+
+function animateBars(containerId) {
+  requestAnimationFrame(() => {
+    document.querySelectorAll(`#${containerId} .bar-fill`).forEach(b => {
+      b.style.width = (b.dataset.pct || 0) + '%';
+    });
+  });
+}
+
+function calcRow(label, val, color, prefix = '') {
+  return `<div class="calc-box" style="margin-bottom:8px">
+    <span class="calc-lbl">${prefix ? prefix + ' ' : ''}${label}</span>
+    <span class="calc-val" style="color:${color}">${R(val)}</span>
+  </div>`;
+}
+
+// ═══ REVEAL ═══
+function reveal(id, vis) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('show', vis);
+}
+
+// ═══ STORAGE ═══
+function save() {
+  try { localStorage.setItem('tslaDameSession', JSON.stringify({ S, step: curStep })); } catch(e) {}
+}
+
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('tslaDameSession'));
+    if (d && d.S) { S = { ...freshState(), ...d.S }; return d.step || 1; }
+  } catch(e) {}
+  return 1;
+}
+
+function saveAnal() {
+  if (!S.id) S.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const list = JSON.parse(localStorage.getItem('tslaDameAnalyses') || '[]');
+  const idx = list.findIndex(a => a.id === S.id);
+  const rec = { ...S, savedAt: Date.now(), gap: Math.max(0, (S.protection.monthly * 12 + totalEdu()) - (totalAsset() || S.protection.asset)) };
+  if (idx >= 0) list[idx] = rec; else list.unshift(rec);
+  localStorage.setItem('tslaDameAnalyses', JSON.stringify(list));
+  save();
+  alert('✅ Analisis berjaya disimpan!');
+}
+
+function loadAnal(id) {
+  const list = JSON.parse(localStorage.getItem('tslaDameAnalyses') || '[]');
+  const a = list.find(x => x.id === id);
+  if (!a) return;
+  S = { id: a.id, client: a.client || {}, protection: a.protection || {}, assets: a.assets || [], education: a.education || [], strategy: a.strategy || {} };
+  save();
+  goScreen('app');
+  restoreUI();
+  go(1);
+}
+
+function delAnal(id) {
+  if (!confirm('Padam analisis ini?')) return;
+  let list = JSON.parse(localStorage.getItem('tslaDameAnalyses') || '[]');
+  list = list.filter(a => a.id !== id);
+  localStorage.setItem('tslaDameAnalyses', JSON.stringify(list));
+  renderPrev();
+}
+
+function renderPrev() {
+  const list = JSON.parse(localStorage.getItem('tslaDameAnalyses') || '[]');
+  const c = document.getElementById('prevList');
+  if (!list.length) {
+    c.innerHTML = '<div class="empty"><div class="empty-ico">📂</div><div>Tiada analisis disimpan.</div><div style="margin-top:8px;font-size:.82rem">Simpan analisis pertama anda dari skrin Ringkasan.</div></div>';
+    return;
+  }
+  c.innerHTML = list.map(a => `
+    <div class="prev-item">
+      <div class="prev-info" onclick="loadAnal('${a.id}')">
+        <div class="prev-name">${a.client?.name || 'Klien'}</div>
+        <div class="prev-meta">${a.client?.age ? a.client.age + ' thn · ' : ''}${new Date(a.savedAt).toLocaleDateString('ms-MY', { day:'numeric', month:'short', year:'numeric' })}</div>
+      </div>
+      <div class="prev-gap-lbl">${a.gap > 0 ? 'Gap: ' + R(a.gap) : '✅ Mencukupi'}</div>
+      <button class="prev-del" onclick="delAnal('${a.id}')">🗑</button>
+    </div>`).join('');
+}
+
+// ═══ APP START ═══
+function startNew() {
+  S = freshState();
+  save();
+  goScreen('app');
+  restoreUI();
+  go(1);
+}
+
+function restoreUI() {
+  document.getElementById('cName').value = S.client.name || '';
+  document.getElementById('cAge').value = S.client.age || '';
+  document.getElementById('childN').textContent = S.client.children || 0;
+  setMarital(S.client.marital || 'married');
+  document.querySelectorAll('.chip').forEach(b => b.classList.toggle('on', S.assets.some(a => a.type === b.dataset.t)));
+  renderAssetInputs();
+  if (S.protection.monthly) { document.getElementById('monthly').value = S.protection.monthly; onMonthly(); }
+  if (S.protection.asset) { document.getElementById('p2asset').value = S.protection.asset; onP2Asset(); }
+}
+
+function confirmReset() {
+  if (confirm('Mulakan analisis baru? Data semasa akan hilang jika belum disimpan.')) startNew();
+}
+
+// ═══ INIT ═══
+window.addEventListener('DOMContentLoaded', () => {
+  if (darkMode) applyTheme();
+  // Don't auto-navigate into app on load — keep home screen
+});
+</script>
+</body>
+</html>
