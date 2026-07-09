@@ -198,6 +198,7 @@ font-size:1rem;
 .acc-arrow{color:rgba(255,255,255,.75);font-size:1rem;transition:transform .25s;}
 #acc-client .acc-header{background:#f97316;color:white;}
 #acc-servicing .acc-header{background:#ef4444;color:white;}
+#acc-strategy .acc-header{background:#7c3aed;color:white;}
 .acc-arrow.open{transform:rotate(180deg);}
 .acc-body{display:none;}
 .acc-item{display:flex;align-items:center;padding:14px 24px;gap:14px;text-decoration:none;color:#111;border-top:1px solid #f2f2f2;}
@@ -262,11 +263,6 @@ Rezeki Tuhan Dah Atur, Aku Usaha Aku Kerja Lagi - Azlan
 <div><div class="acc-ititle">FWD Cancellation</div><div class="acc-idesc">Generate cancellation requests from client data.</div></div>
 <span class="acc-chevron">›</span>
 </a>
-<a class="acc-item" href="dame-strategy.html">
-<span class="acc-iicon">🎯</span>
-<div><div class="acc-ititle">DAME Strategy</div><div class="acc-idesc">Analisis keperluan kewangan klien secara interaktif.</div></div>
-<span class="acc-chevron">›</span>
-</a>
 </div>
 </div>
 <div class="acc-card" id="acc-servicing">
@@ -309,6 +305,20 @@ Rezeki Tuhan Dah Atur, Aku Usaha Aku Kerja Lagi - Azlan
 <a class="acc-item" href="family-survival-calculator.html">
 <span class="acc-iicon">👨‍👩‍👧</span>
 <div><div class="acc-ititle">Tempoh Survival Keluarga</div><div class="acc-idesc">Kira berapa lama keluarga boleh bertahan.</div></div>
+<span class="acc-chevron">›</span>
+</a>
+</div>
+</div>
+<div class="acc-card" id="acc-strategy">
+<div class="acc-header" onclick="toggleAcc('strategy')">
+<span class="acc-hicon">🎯</span>
+<span class="acc-htitle">Strategy</span>
+<span class="acc-arrow" id="arr-strategy">▼</span>
+</div>
+<div class="acc-body" id="body-strategy">
+<a class="acc-item" href="dame-strategy.html">
+<span class="acc-iicon">🎯</span>
+<div><div class="acc-ititle">DAME Strategy</div><div class="acc-idesc">Analisis keperluan kewangan klien secara interaktif.</div></div>
 <span class="acc-chevron">›</span>
 </a>
 </div>
