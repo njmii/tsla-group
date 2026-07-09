@@ -194,6 +194,30 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
   .print-only{display:block!important;}
 }
 .print-only{display:none;font-size:.73rem;color:#888;margin-top:20px;padding:12px;border:1px solid #ddd;border-radius:8px;line-height:1.55;}
+
+/* ── myPusaka tap rows ── */
+.tap-section{margin-top:6px;}
+.tap-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);}
+.tap-row:last-child{border-bottom:none;}
+.tap-name{flex:1;font-weight:700;font-size:.9rem;}
+.tap-val{font-size:.78rem;color:var(--sub);margin-top:1px;}
+.tap-inp-wrap{display:flex;align-items:center;border:2px solid var(--border);border-radius:12px;overflow:hidden;flex-shrink:0;}
+.tap-inp-wrap:focus-within{border-color:var(--green);}
+.tap-pre{padding:0 6px 0 8px;font-weight:700;color:var(--sub);font-size:.82rem;}
+.tap-inp-wrap input{width:88px;padding:9px 8px 9px 0;border:none;font-size:.9rem;font-weight:700;color:var(--text);background:var(--card);}
+.tap-inp-wrap input:focus{outline:none;}
+
+/* ── myPusaka result block ── */
+.pusaka-block{background:rgba(10,155,67,.06);border:2px solid rgba(10,155,67,.2);border-radius:22px;padding:20px;margin:14px 0;}
+.pusaka-title{font-size:.7rem;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;}
+.pusaka-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:.88rem;border-bottom:1px solid rgba(10,155,67,.12);}
+.pusaka-rname{font-weight:700;}
+.pusaka-ramt{font-weight:800;color:var(--green);}
+.pusaka-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;font-weight:800;font-size:.95rem;border-top:2px solid rgba(10,155,67,.2);margin-top:6px;}
+.pusaka-cov{text-align:center;margin-top:16px;padding:20px;background:var(--green);border-radius:18px;}
+.pusaka-cov-lbl{font-size:.7rem;font-weight:800;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.pusaka-cov-amt{font-size:2.8rem;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:1;}
+.pusaka-note{font-size:.8rem;color:var(--sub);line-height:1.65;margin-top:14px;text-align:center;}
 </style>
 </head>
 <body>
@@ -391,44 +415,25 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 <!-- Step 5: Strategy -->
 <div class="step" id="s5">
   <div class="card">
-    <div class="card-title">✨ Susun Semula Strategi Kewangan</div>
-    <div class="card-sub">Bagaimana jika kita susun semula aset sedia ada dengan lebih strategik untuk melindungi keluarga?</div>
-    <div class="cmp-grid">
-      <div class="cmp-card">
-        <div class="cmp-ttl">Situasi Semasa</div>
-        <div class="cmp-val" id="sc-asset">RM 0</div>
-        <div class="cmp-lbl">Aset Semasa</div>
-        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
-          <div class="cmp-ttl">Perlindungan</div>
-          <div style="font-size:1.1rem;font-weight:800;color:var(--sub)" id="sc-prot">RM 0</div>
-        </div>
+    <div class="card-title">✨ Strategi myPusaka</div>
+    <div class="card-sub">Pilih aset yang ingin dialihkan ke akaun myPusaka untuk mendapatkan perlindungan RM 500,000.</div>
+    <div class="consult">"Bagaimana jika wang simpanan anda boleh bekerja dengan lebih keras — memberikan perlindungan RM 500,000 kepada keluarga tanpa nilai aset berkurangan?"</div>
+    <div class="sec-label" style="margin-top:16px">Aset Klien — Pilih Jumlah ke myPusaka</div>
+    <div class="tap-section" id="tapRows"></div>
+  </div>
+  <div class="reveal" id="rev-pusaka">
+    <div class="pusaka-block">
+      <div class="pusaka-title">🏦 Akaun myPusaka</div>
+      <div id="pusakaRows"></div>
+      <div class="pusaka-total">
+        <span>Jumlah Dialihkan</span>
+        <span id="pusakaTotal" style="color:var(--green)">RM 0</span>
       </div>
-      <div class="cmp-card hi">
-        <div class="cmp-ttl" style="color:var(--orange)">Cadangan Strategik</div>
-        <div class="row" style="margin-bottom:8px">
-          <label class="f-label">Jumlah Diperuntukkan</label>
-          <div class="inp-wrap has-pre"><span class="i-pre">RM</span>
-            <input type="number" id="sAlloc" placeholder="100,000" min="0" oninput="onStrat()">
-          </div>
-        </div>
-        <div class="row" style="margin-bottom:0">
-          <label class="f-label">Cadangan Perlindungan Takaful</label>
-          <div class="inp-wrap has-pre"><span class="i-pre">RM</span>
-            <input type="number" id="sTakaful" placeholder="500,000" min="0" oninput="onStrat()">
-          </div>
-        </div>
+      <div class="pusaka-cov">
+        <div class="pusaka-cov-lbl">Perlindungan myPusaka</div>
+        <div class="pusaka-cov-amt">RM 500,000</div>
       </div>
-    </div>
-    <div class="reveal" id="rev-xform">
-      <div class="xform">
-        <div class="xform-from" id="xf-from">RM 0</div>
-        <span class="xform-arr">↓</span>
-        <div class="xform-mid">Perancangan Kewangan Strategik</div>
-        <span class="xform-arr">↓</span>
-        <div class="xform-mid">Potensi Perlindungan</div>
-        <div class="xform-to" id="xf-to">RM 0</div>
-      </div>
-      <div style="font-size:.72rem;color:var(--sub);text-align:center;padding:0 12px;line-height:1.55">Ilustrasi ini adalah untuk tujuan perancangan sahaja. Manfaat, nilai dan terma tertakluk kepada produk takaful yang dipilih.</div>
+      <div class="pusaka-note">"Nilai aset tidak berkurangan — ia hanya berpindah ke akaun myPusaka yang memberikan perlindungan RM 500,000 kepada keluarga anda."<br><br><span style="font-size:.72rem;opacity:.7">Ilustrasi untuk tujuan perancangan sahaja. Manfaat dan terma tertakluk kepada produk yang dipilih.</span></div>
     </div>
   </div>
   <div class="step-nav">
@@ -469,9 +474,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
       <div class="sum-clbl">Jumlah Keperluan Kewangan</div>
       <div class="sum-cval" id="sNeed" style="color:var(--orange)">RM 0</div>
     </div>
-    <div class="sum-card full" id="sTakCard" style="display:none">
-      <div class="sum-clbl">Cadangan Perlindungan Takaful</div>
-      <div class="sum-cval" id="sTakaful" style="color:var(--green)">RM 0</div>
+    <div class="sum-card full" id="sTakCard" style="display:none;background:rgba(10,155,67,.06);border:2px solid rgba(10,155,67,.18)">
+      <div class="sum-clbl">myPusaka — Perlindungan</div>
+      <div class="sum-cval" id="sTakaful" style="color:var(--green);font-size:2rem">RM 500,000</div>
     </div>
   </div>
   <div class="quote">"Matlamat perancangan bukan sekadar mengumpul aset."<br>"Ia adalah memastikan keluarga mempunyai perlindungan dan sumber kewangan apabila mereka paling memerlukannya."</div>
@@ -498,7 +503,7 @@ function freshState() {
     protection: { monthly:0, asset:0 },
     assets: [],
     education: [],
-    strategy: { allocate:0, takaful:0 }
+    strategy: { allocate:0, takaful:0, taps:[] }
   };
 }
 
@@ -793,22 +798,54 @@ function calcEduGap() {
 
 // ═══ STEP 5 ═══
 function renderStrat() {
-  const asset = totalAsset() || S.protection.asset;
-  document.getElementById('sc-asset').textContent = R(asset);
-  document.getElementById('sc-prot').textContent = R(asset);
-  if (S.strategy.allocate) document.getElementById('sAlloc').value = S.strategy.allocate;
-  if (S.strategy.takaful) { document.getElementById('sTakaful').value = S.strategy.takaful; onStrat(); }
+  if (!S.strategy.taps) S.strategy.taps = [];
+  const c = document.getElementById('tapRows');
+  c.innerHTML = '';
+  const assets = S.assets.length ? S.assets : (S.protection.asset ? [{ type:'Simpanan', value: S.protection.asset }] : []);
+  if (!assets.length) {
+    c.innerHTML = '<div style="color:var(--sub);font-size:.88rem;padding:12px 0">Tiada aset dimasukkan. Kembali ke Langkah 3 untuk tambah aset.</div>';
+    return;
+  }
+  assets.forEach(a => {
+    const saved = S.strategy.taps.find(x => x.type === a.type);
+    const tapVal = saved ? saved.tap : 0;
+    const row = document.createElement('div');
+    row.className = 'tap-row';
+    row.innerHTML = `
+      <div style="flex:1">
+        <div class="tap-name">${a.type}</div>
+        <div class="tap-val">${R(a.value)}</div>
+      </div>
+      <div class="tap-inp-wrap">
+        <span class="tap-pre">RM</span>
+        <input type="number" placeholder="0" min="0" max="${a.value}" value="${tapVal || ''}"
+          oninput="onTap('${a.type}',this.value,${a.value})">
+      </div>`;
+    c.appendChild(row);
+  });
+  renderMyPusaka();
 }
 
-function onStrat() {
-  const alloc = Math.max(0, parseFloat(document.getElementById('sAlloc').value) || 0);
-  const tak = Math.max(0, parseFloat(document.getElementById('sTakaful').value) || 0);
-  S.strategy.allocate = alloc;
-  S.strategy.takaful = tak;
+function onTap(type, val, maxVal) {
+  if (!S.strategy.taps) S.strategy.taps = [];
+  const v = Math.min(Math.max(0, parseFloat(val) || 0), maxVal);
+  S.strategy.taps = S.strategy.taps.filter(x => x.type !== type);
+  if (v > 0) S.strategy.taps.push({ type, tap: v });
+  S.strategy.allocate = S.strategy.taps.reduce((s, x) => s + x.tap, 0);
+  S.strategy.takaful = S.strategy.allocate > 0 ? 500000 : 0;
   save();
-  reveal('rev-xform', alloc > 0 || tak > 0);
-  document.getElementById('xf-from').textContent = R(alloc);
-  document.getElementById('xf-to').textContent = R(tak);
+  renderMyPusaka();
+}
+
+function renderMyPusaka() {
+  if (!S.strategy.taps) S.strategy.taps = [];
+  const total = S.strategy.taps.reduce((s, x) => s + x.tap, 0);
+  reveal('rev-pusaka', total > 0);
+  if (!total) return;
+  document.getElementById('pusakaRows').innerHTML = S.strategy.taps.map(x =>
+    `<div class="pusaka-row"><span class="pusaka-rname">${x.type}</span><span class="pusaka-ramt">${R(x.tap)}</span></div>`
+  ).join('');
+  document.getElementById('pusakaTotal').textContent = R(total);
 }
 
 // ═══ STEP 6 ═══
