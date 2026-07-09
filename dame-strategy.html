@@ -11,15 +11,10 @@
 :root{
   --bg:#f7f8fa;--card:#fff;--text:#111;--sub:#666;--border:#eee;
   --orange:#ff7a00;--green:#0a9b43;--red:#e53935;--amber:#c77700;
-  --shadow:0 4px 24px rgba(0,0,0,.07);
+  --shadow:0 4px 20px rgba(0,0,0,.05);
 }
-@media(prefers-color-scheme:dark){
-  :root{--bg:#0f0f0f;--card:#1c1c1e;--text:#f2f2f7;--sub:#8e8e93;--border:#2c2c2e;--shadow:0 4px 24px rgba(0,0,0,.35);}
-}
-[data-theme="dark"]{--bg:#0f0f0f;--card:#1c1c1e;--text:#f2f2f7;--sub:#8e8e93;--border:#2c2c2e;--shadow:0 4px 24px rgba(0,0,0,.35);}
-[data-theme="light"]{--bg:#f7f8fa;--card:#fff;--text:#111;--sub:#666;--border:#eee;--shadow:0 4px 24px rgba(0,0,0,.07);}
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 
 /* ── Screens ── */
@@ -27,11 +22,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 .screen.active{display:block;}
 
 /* ── App header ── */
-.app-header{position:sticky;top:0;z-index:100;background:var(--card);border-bottom:1px solid var(--border);}
-.header-row{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;min-height:52px;}
-.h-back{background:none;border:none;color:var(--orange);font-size:1rem;font-weight:700;cursor:pointer;padding:4px 8px;}
-.h-title{font-size:1rem;font-weight:800;}
-.h-action{background:none;border:none;color:var(--sub);font-size:1.1rem;cursor:pointer;padding:4px 8px;}
+.app-header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.9);backdrop-filter:blur(15px);border-bottom:1px solid #eee;}
+.header-row{display:flex;align-items:center;justify-content:space-between;padding:4px 18px;min-height:55px;}
+.h-logo{width:42px;height:auto;}
+.h-back{background:none;border:none;color:var(--orange);font-size:.95rem;font-weight:700;cursor:pointer;padding:4px 8px;min-width:60px;text-align:left;}
+.h-spacer{min-width:60px;}
 
 /* ── Progress bar ── */
 .prog-bar{display:flex;align-items:center;padding:10px 18px;overflow-x:auto;gap:6px;scrollbar-width:none;}
@@ -50,11 +45,14 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 @keyframes sIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
 
 /* ── Home ── */
-.home-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 24px;text-align:center;}
-.home-icon{width:88px;height:88px;border-radius:26px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:2.6rem;margin-bottom:28px;box-shadow:0 10px 36px rgba(255,122,0,.32);}
-.home-title{font-size:2.6rem;font-weight:900;letter-spacing:-.04em;margin-bottom:8px;}
+.home-nav{background:rgba(255,255,255,.9);backdrop-filter:blur(15px);border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;padding:4px 20px;min-height:55px;}
+.home-nav-logo{width:50px;height:auto;}
+.home-nav-back{text-decoration:none;font-weight:700;color:#333;font-size:.9rem;}
+.home-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 55px);padding:40px 24px;text-align:center;}
+.home-logo{width:min(120px,35vw);animation:float 4s ease-in-out infinite;margin-bottom:20px;}
+@keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+.home-title{font-size:clamp(2rem,6vw,3rem);font-weight:900;letter-spacing:-.04em;margin-bottom:8px;}
 .home-sub{color:var(--sub);font-size:.95rem;letter-spacing:.08em;font-weight:600;text-transform:uppercase;margin-bottom:50px;}
-.home-version{font-size:.72rem;color:var(--sub);margin-top:20px;opacity:.6;}
 
 /* ── Cards ── */
 .card{background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:22px;margin-bottom:16px;}
@@ -202,13 +200,16 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 
 <!-- ═══ HOME ═══ -->
 <div class="screen active" id="sc-home">
+<div class="home-nav">
+  <img class="home-nav-logo" src="https://njmii.github.io/tsla-group/assets/tslalogo.png">
+  <a class="home-nav-back" href="index.html">← Kembali</a>
+</div>
 <div class="home-wrap">
-  <div class="home-icon">🎯</div>
+  <img class="home-logo" src="https://njmii.github.io/tsla-group/assets/tslalogo.png">
   <div class="home-title">DAME Strategy</div>
   <div class="home-sub">Kenal Pasti · Lindungi · Rancang</div>
   <button class="btn-p" onclick="startNew()" style="max-width:320px;font-size:1.15rem;margin-bottom:0">Mula Analisis</button>
   <button class="btn-s no-print" onclick="goScreen('prev')" style="max-width:320px">📂 Analisis Terdahulu</button>
-  <div class="home-version">TSLA Digital Hub · DAME v1.0</div>
 </div>
 </div>
 
@@ -216,9 +217,9 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 <div class="screen" id="sc-prev">
 <div class="app-header">
   <div class="header-row">
-    <button class="h-back" onclick="goScreen('home')">← Kembali</button>
-    <span class="h-title">Analisis Terdahulu</span>
-    <span></span>
+    <button class="h-back" onclick="goScreen('home')">← Balik</button>
+    <img class="h-logo" src="https://njmii.github.io/tsla-group/assets/tslalogo.png">
+    <span class="h-spacer"></span>
   </div>
 </div>
 <div style="padding:18px;max-width:600px;margin:auto" id="prevList"></div>
@@ -229,8 +230,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 <div class="app-header">
   <div class="header-row">
     <button class="h-back no-print" onclick="appBack()">← Balik</button>
-    <span class="h-title">DAME Strategy</span>
-    <button class="h-action no-print" onclick="toggleDark()" id="darkBtn">🌙</button>
+    <img class="h-logo" src="https://njmii.github.io/tsla-group/assets/tslalogo.png">
+    <span class="h-spacer"></span>
   </div>
   <div class="prog-bar">
     <div class="prog-item" id="p0"><div class="prog-dot"></div>Perlindungan</div>
@@ -489,7 +490,6 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 // ═══ STATE ═══
 let S = freshState();
 let curStep = 1;
-let darkMode = localStorage.getItem('dameTheme') === 'dark';
 
 function freshState() {
   return {
@@ -505,17 +505,6 @@ function freshState() {
 // ═══ FORMAT ═══
 function R(n) { return 'RM ' + Math.round(Math.max(0, n)).toLocaleString('en-MY'); }
 function RA(n) { return 'RM ' + Math.round(Math.abs(n)).toLocaleString('en-MY'); }
-
-// ═══ THEME ═══
-function applyTheme() {
-  document.body.dataset.theme = darkMode ? 'dark' : 'light';
-  document.getElementById('darkBtn').textContent = darkMode ? '☀️' : '🌙';
-}
-function toggleDark() {
-  darkMode = !darkMode;
-  localStorage.setItem('dameTheme', darkMode ? 'dark' : 'light');
-  applyTheme();
-}
 
 // ═══ SCREENS ═══
 function goScreen(id) {
@@ -967,8 +956,7 @@ function confirmReset() {
 
 // ═══ INIT ═══
 window.addEventListener('DOMContentLoaded', () => {
-  if (darkMode) applyTheme();
-  // Don't auto-navigate into app on load — keep home screen
+  // Home screen shown by default
 });
 </script>
 </body>
