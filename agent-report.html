@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Agent PR Report — TSLA Group</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+body{background:#f7f8fa;color:#111;overflow-x:hidden;}
+.glow{position:fixed;width:500px;height:500px;background:radial-gradient(circle,rgba(255,122,0,.12),transparent 70%);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:-1;}
+.navbar{position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:blur(15px);border-bottom:1px solid #eee;z-index:999;}
+.nav-content{max-width:1200px;margin:auto;padding:4px 20px;display:flex;justify-content:space-between;align-items:center;min-height:55px;}
+.nav-logo{width:50px;height:auto;}
+.nav-back{background:none;border:none;color:#ff7a00;font-weight:700;font-size:.95rem;cursor:pointer;padding:6px 0;display:none;}
+.nav-title{font-weight:800;font-size:1rem;color:#111;}
+
+.container{max-width:1200px;margin:auto;padding:24px 20px;}
+.page-header{margin-bottom:20px;}
+.page-title{font-size:1.8rem;font-weight:900;}
+.page-sub{color:#666;font-size:.9rem;margin-top:4px;}
+.updated-badge{display:inline-block;background:#f0f0f0;border-radius:10px;padding:4px 12px;font-size:.78rem;font-weight:700;color:#666;margin-top:8px;}
+
+/* Leaderboard */
+.agent-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:14px;cursor:pointer;transition:.2s;overflow:hidden;}
+.agent-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.09);}
+.agent-rank{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.9rem;flex-shrink:0;}
+.rank-1{background:#ffd700;color:#7a5c00;}
+.rank-2{background:#e8e8e8;color:#444;}
+.rank-3{background:#f4a460;color:#6b3a00;}
+.rank-n{background:#f0f0f0;color:#888;}
+.agent-main{padding:18px 20px;display:flex;align-items:center;gap:14px;}
+.agent-info{flex:1;min-width:0;}
+.agent-name{font-weight:800;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.agent-code{font-size:.78rem;color:#888;margin-top:1px;}
+.agent-stats{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.pr-badge{padding:6px 14px;border-radius:14px;font-weight:900;font-size:1rem;white-space:nowrap;}
+.pr-green{background:#e6f9ee;color:#0a9b43;}
+.pr-amber{background:#fff8e1;color:#c77700;}
+.pr-red{background:#ffebee;color:#e53935;}
+.agent-meta{display:flex;gap:16px;flex-shrink:0;}
+.meta-item{text-align:center;}
+.meta-val{font-weight:800;font-size:.95rem;}
+.meta-lbl{font-size:.72rem;color:#888;margin-top:1px;}
+.agent-chevron{color:#ccc;font-size:1.2rem;flex-shrink:0;}
+
+/* Agent detail view */
+.detail-header{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);padding:20px 24px;margin-bottom:16px;}
+.detail-name{font-size:1.3rem;font-weight:900;}
+.detail-code{font-size:.82rem;color:#888;margin-top:2px;}
+.detail-stats{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
+.stat-chip{background:#f7f8fa;border-radius:14px;padding:10px 16px;text-align:center;}
+.stat-chip-val{font-weight:900;font-size:1.1rem;}
+.stat-chip-lbl{font-size:.72rem;color:#888;margin-top:2px;}
+.stat-chip-green .stat-chip-val{color:#0a9b43;}
+.stat-chip-red .stat-chip-val{color:#e53935;}
+.stat-chip-amber .stat-chip-val{color:#c77700;}
+
+/* Client list */
+.client-card{background:white;border-radius:18px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:10px;overflow:hidden;}
+.client-main{padding:14px 18px;display:flex;align-items:flex-start;gap:12px;}
+.client-info{flex:1;min-width:0;}
+.client-name{font-weight:800;font-size:.95rem;}
+.client-cert{font-size:.78rem;color:#888;margin-top:2px;}
+.client-plan{font-size:.78rem;color:#666;margin-top:3px;}
+.client-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.status-badge{padding:3px 10px;border-radius:8px;font-size:.72rem;font-weight:700;}
+.status-inforce{background:#e6f9ee;color:#0a9b43;}
+.status-other{background:#f5f5f5;color:#888;}
+.due-badge{padding:4px 10px;border-radius:10px;font-size:.78rem;font-weight:700;}
+.due-red{background:#ffebee;color:#e53935;}
+.due-amber{background:#fff8e1;color:#c77700;}
+.due-green{background:#e6f9ee;color:#0a9b43;}
+.due-none{background:#f5f5f5;color:#aaa;}
+.client-bottom{padding:0 18px 14px;display:flex;gap:8px;flex-wrap:wrap;}
+.info-pill{background:#f7f8fa;border-radius:8px;padding:4px 10px;font-size:.75rem;color:#555;font-weight:600;}
+
+/* Section label */
+.section-label{font-size:.72rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:20px 0 10px;}
+
+/* Loading / error */
+.loading{text-align:center;padding:60px 20px;color:#888;}
+.error-box{background:#ffebee;border-radius:18px;padding:20px;color:#e53935;text-align:center;font-weight:700;}
+
+/* Hidden */
+.hidden{display:none!important;}
+
+@media(max-width:600px){
+  .agent-meta{display:none;}
+  .agent-main{gap:10px;}
+  .detail-stats{gap:8px;}
+  .stat-chip{padding:8px 12px;}
+}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="navbar">
+  <div class="nav-content">
+    <a href="index.html"><img class="nav-logo" src="https://njmii.github.io/tsla-group/assets/tslalogo.png" alt="TSLA"/></a>
+    <span class="nav-title" id="navTitle">Agent PR Report</span>
+    <button class="nav-back" id="navBack" onclick="showLeaderboard()">← Back</button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Leaderboard view -->
+  <div id="viewLeaderboard">
+    <div class="page-header">
+      <div class="page-title">📊 Agent PR Report</div>
+      <div class="page-sub">Persistency Rate leaderboard — tap an agent to see client details</div>
+      <div class="updated-badge" id="updatedBadge">Loading...</div>
+    </div>
+    <div id="leaderboardList"><div class="loading">Loading data...</div></div>
+  </div>
+
+  <!-- Agent detail view -->
+  <div id="viewDetail" class="hidden">
+    <div class="detail-header">
+      <div class="detail-name" id="detailName"></div>
+      <div class="detail-code" id="detailCode"></div>
+      <div class="detail-stats" id="detailStats"></div>
+    </div>
+    <div class="section-label">Client List</div>
+    <div id="clientList"></div>
+  </div>
+</div>
+
+<script>
+let DATA = null;
+const today = new Date();
+today.setHours(0,0,0,0);
+
+function fmt(n){return 'RM ' + Math.round(n).toLocaleString('en-MY');}
+function fmtAce(n){return 'RM ' + n.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function prClass(pr){
+  if(pr >= 90) return 'pr-green';
+  if(pr >= 70) return 'pr-amber';
+  return 'pr-red';
+}
+
+function dueBadge(dateStr){
+  if(!dateStr) return '<span class="due-badge due-none">No date</span>';
+  const d = new Date(dateStr);
+  d.setHours(0,0,0,0);
+  const diff = Math.round((d - today) / 86400000);
+  if(diff < 0) return `<span class="due-badge due-red">⚠ ${dateStr}</span>`;
+  if(diff <= 30) return `<span class="due-badge due-amber">⏰ ${dateStr}</span>`;
+  return `<span class="due-badge due-green">${dateStr}</span>`;
+}
+
+function showLeaderboard(){
+  document.getElementById('viewLeaderboard').classList.remove('hidden');
+  document.getElementById('viewDetail').classList.add('hidden');
+  document.getElementById('navBack').style.display = 'none';
+  document.getElementById('navTitle').textContent = 'Agent PR Report';
+}
+
+function showAgent(code){
+  const agent = DATA.agents.find(a => a.code === code);
+  if(!agent) return;
+  document.getElementById('viewLeaderboard').classList.add('hidden');
+  document.getElementById('viewDetail').classList.remove('hidden');
+  document.getElementById('navBack').style.display = 'block';
+  document.getElementById('navTitle').textContent = agent.name.split(' ').slice(0,2).join(' ');
+
+  document.getElementById('detailName').textContent = agent.name;
+  document.getElementById('detailCode').textContent = agent.code;
+
+  const lapsed = agent.total - agent.inforce;
+  document.getElementById('detailStats').innerHTML = `
+    <div class="stat-chip stat-chip-${agent.pr>=90?'green':agent.pr>=70?'amber':'red'}">
+      <div class="stat-chip-val">${agent.pr}%</div>
+      <div class="stat-chip-lbl">PR</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-val">${agent.total}</div>
+      <div class="stat-chip-lbl">Total Clients</div>
+    </div>
+    <div class="stat-chip stat-chip-green">
+      <div class="stat-chip-val">${agent.inforce}</div>
+      <div class="stat-chip-lbl">In Force</div>
+    </div>
+    <div class="stat-chip ${lapsed>0?'stat-chip-red':''}">
+      <div class="stat-chip-val">${lapsed}</div>
+      <div class="stat-chip-lbl">Lapsed / Others</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-val" style="font-size:.85rem">${fmtAce(agent.ace)}</div>
+      <div class="stat-chip-lbl">Total ACE</div>
+    </div>
+  `;
+
+  // Sort clients: overdue first, then by due date asc
+  const sorted = [...agent.clients].sort((a,b) => {
+    const da = a.dueDate ? new Date(a.dueDate) : new Date('9999-12-31');
+    const db = b.dueDate ? new Date(b.dueDate) : new Date('9999-12-31');
+    return da - db;
+  });
+
+  document.getElementById('clientList').innerHTML = sorted.map(c => `
+    <div class="client-card">
+      <div class="client-main">
+        <div class="client-info">
+          <div class="client-name">${c.name || '—'}</div>
+          <div class="client-cert">${c.certNo || '—'}</div>
+          <div class="client-plan">${c.plan || ''}</div>
+        </div>
+        <div class="client-right">
+          <span class="status-badge ${c.status==='In Force'?'status-inforce':'status-other'}">${c.status}</span>
+          ${dueBadge(c.dueDate)}
+        </div>
+      </div>
+      <div class="client-bottom">
+        ${c.payMode ? `<span class="info-pill">📅 ${c.payMode}</span>` : ''}
+        ${c.payMethod ? `<span class="info-pill">💳 ${c.payMethod}</span>` : ''}
+        ${c.contribution ? `<span class="info-pill">💰 RM ${c.contribution.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}/mo</span>` : ''}
+        ${c.lastPayDate ? `<span class="info-pill">✅ Last: ${c.lastPayDate}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderLeaderboard(){
+  document.getElementById('updatedBadge').textContent = `Last updated: ${DATA.updated}`;
+  const list = document.getElementById('leaderboardList');
+  list.innerHTML = DATA.agents.map((ag, i) => {
+    const rankClass = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
+    const rankLabel = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+    return `
+      <div class="agent-card" onclick="showAgent('${ag.code}')">
+        <div class="agent-main">
+          <div class="agent-rank ${rankClass}">${rankLabel}</div>
+          <div class="agent-info">
+            <div class="agent-name">${ag.name}</div>
+            <div class="agent-code">${ag.code}</div>
+          </div>
+          <div class="agent-stats">
+            <span class="pr-badge ${prClass(ag.pr)}">${ag.pr}%</span>
+          </div>
+          <div class="agent-meta">
+            <div class="meta-item">
+              <div class="meta-val">${ag.inforce}/${ag.total}</div>
+              <div class="meta-lbl">In Force</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-val" style="font-size:.82rem">${fmtAce(ag.ace)}</div>
+              <div class="meta-lbl">ACE</div>
+            </div>
+          </div>
+          <span class="agent-chevron">›</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Load data
+fetch('data/pr-data.json')
+  .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(data => {
+    DATA = data;
+    renderLeaderboard();
+  })
+  .catch(err => {
+    document.getElementById('leaderboardList').innerHTML =
+      `<div class="error-box">Failed to load data.<br><small>${err.message}</small></div>`;
+  });
+</script>
+</body>
+</html>
