@@ -161,8 +161,14 @@ td.right{text-align:right;font-weight:700;}
 
 /* Estimator card */
 .estimator-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);padding:20px 24px;margin-top:16px;}
-.estimator-title{font-weight:900;font-size:1rem;margin-bottom:2px;}
-.estimator-sub{font-size:.8rem;color:#888;margin-bottom:16px;}
+.est-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;padding:0;}
+.est-header-title{font-weight:900;font-size:1rem;}
+.est-body{padding-top:16px;}
+.est-section{padding:14px 0;}
+.est-section+.est-section{border-top:1px solid #f0f0f0;}
+.est-section-lbl{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.est-section-lbl-pr13{color:#0a9b43;}
+.est-section-lbl-ce{color:#1a73e8;}
 .estimator-inputs{display:flex;gap:12px;flex-wrap:wrap;}
 .est-inp-group{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px;}
 .est-label{font-size:.75rem;font-weight:700;color:#888;}
@@ -210,6 +216,7 @@ td.right{text-align:right;font-weight:700;}
       <div class="detail-stats" id="detailStats"></div>
     </div>
     <div id="pr13SummaryBlock"></div>
+    <div id="estimatorCard" class="estimator-card"></div>
     <div class="audit-tab-row">
       <div class="section-label" style="margin:0">Certificate-Level Audit</div>
       <div class="audit-tabs" id="auditTabs"></div>
@@ -235,7 +242,6 @@ td.right{text-align:right;font-weight:700;}
         <tfoot id="auditFoot"></tfoot>
       </table>
     </div>
-    <div id="estimatorCard" class="estimator-card"></div>
   </div>
 </div>
 
@@ -738,69 +744,121 @@ function updateProjected() {
 }
 
 /* ── New case estimator ───────────────────────────────── */
+function toggleEstimator() {
+  const body  = document.getElementById('estBody');
+  const arrow = document.getElementById('estArrow');
+  if (!body || !arrow) return;
+  const open = !body.classList.contains('hidden');
+  body.classList.toggle('hidden', open);
+  arrow.style.transform = open ? '' : 'rotate(180deg)';
+}
+
 function renderEstimator() {
   const el = document.getElementById('estimatorCard');
   if (!el) return;
   el.innerHTML = `
-    <div class="estimator-title">📈 New Case Estimator</div>
-    <div class="estimator-sub">If your agent closes new cases this month — how much would CE and PR13 change?</div>
-    <div class="estimator-inputs">
-      <div class="est-inp-group">
-        <label class="est-label">Number of new cases</label>
-        <input id="estCases" type="number" class="est-inp" placeholder="0" min="0" oninput="updateEstimator()">
+    <div class="est-header" onclick="toggleEstimator()">
+      <span class="est-header-title">📈 New Case Estimator</span>
+      <span id="estArrow" style="transition:transform .2s">▼</span>
+    </div>
+    <div id="estBody" class="est-body hidden">
+      <div class="est-section">
+        <div class="est-section-lbl est-section-lbl-ce">CE — New cases (< 1 policy year)</div>
+        <div class="estimator-inputs">
+          <div class="est-inp-group">
+            <label class="est-label">Number of new cases</label>
+            <input id="estCeCount" type="number" class="est-inp" placeholder="0" min="0" oninput="updateEstimator()">
+          </div>
+          <div class="est-inp-group">
+            <label class="est-label">Avg ACE per case (RM/yr)</label>
+            <input id="estCeAce" type="number" class="est-inp" placeholder="0" min="0" oninput="updateEstimator()">
+          </div>
+        </div>
+        <div id="estCeResult" class="est-result hidden"></div>
       </div>
-      <div class="est-inp-group">
-        <label class="est-label">Avg ACE per case (RM/year)</label>
-        <input id="estAce" type="number" class="est-inp" placeholder="0" min="0" oninput="updateEstimator()">
+      <div class="est-section">
+        <div class="est-section-lbl est-section-lbl-pr13">PR13 — Hypothetical eligible cases (all 100%)</div>
+        <div class="estimator-inputs">
+          <div class="est-inp-group">
+            <label class="est-label">Number of new cases</label>
+            <input id="estPr13Count" type="number" class="est-inp" placeholder="0" min="0" oninput="updateEstimator()">
+          </div>
+          <div class="est-inp-group">
+            <label class="est-label">Avg ACE per case (RM/yr)</label>
+            <input id="estPr13Ace" type="number" class="est-inp" placeholder="0" min="0" oninput="updateEstimator()">
+          </div>
+        </div>
+        <div id="estPr13Result" class="est-result hidden"></div>
       </div>
     </div>
-    <div id="estResult" class="est-result hidden"></div>
   `;
 }
 
 function updateEstimator() {
   if (!window._detail) return;
   const { result, ceResult } = window._detail;
-  const casesEl  = document.getElementById('estCases');
-  const aceEl    = document.getElementById('estAce');
-  const resultEl = document.getElementById('estResult');
-  if (!casesEl || !aceEl || !resultEl) return;
 
-  const cases      = parseInt(casesEl.value) || 0;
-  const acePerCase = parseFloat(aceEl.value) || 0;
-  const newACE     = cases * acePerCase;
+  // CE section
+  const ceCases   = parseInt(document.getElementById('estCeCount')?.value)  || 0;
+  const ceAce     = parseFloat(document.getElementById('estCeAce')?.value)   || 0;
+  const ceResultEl = document.getElementById('estCeResult');
+  if (ceResultEl) {
+    if (ceCases > 0 && ceAce > 0) {
+      const newACE     = ceCases * ceAce;
+      const projElig   = ceResult.eligACE + newACE;
+      const projColl   = ceResult.collACE + newACE;
+      const projCE     = projElig > 0 ? Math.round(projColl / projElig * 1000) / 10 : null;
+      const delta      = projCE !== null && ceResult.ce !== null ? projCE - ceResult.ce : null;
+      ceResultEl.innerHTML = `
+        <div class="est-result-row">
+          <span class="est-result-lbl">New ACE added</span>
+          <span class="est-result-val" style="font-weight:800">RM ${Math.round(newACE).toLocaleString('en-MY')}</span>
+        </div>
+        <div class="est-result-row">
+          <span class="est-result-lbl" style="color:#1a73e8">CE</span>
+          <span class="est-result-val">
+            ${ceResult.ce !== null ? ceResult.ce.toFixed(1) + '%' : '—'}
+            <span style="color:#ccc">→</span>
+            <strong style="color:#1a73e8">${projCE !== null ? projCE.toFixed(1) + '%' : '—'}</strong>
+            ${delta !== null ? `<span class="est-delta" style="color:#1a73e8">(+${delta.toFixed(1)}%)</span>` : ''}
+          </span>
+        </div>`;
+      ceResultEl.classList.remove('hidden');
+    } else {
+      ceResultEl.classList.add('hidden');
+    }
+  }
 
-  if (cases <= 0 || acePerCase <= 0) { resultEl.classList.add('hidden'); return; }
-
-  // New cases enter CE pool (< 1 year old), all assumed In Force / 100%
-  const projCEElig = ceResult.eligACE + newACE;
-  const projCEColl = ceResult.collACE + newACE;
-  const projCE     = projCEElig > 0 ? Math.round(projCEColl / projCEElig * 1000) / 10 : null;
-  const ceDelta    = projCE !== null && ceResult.ce !== null ? projCE - ceResult.ce : null;
-
-  resultEl.innerHTML = `
-    <div class="est-result-row">
-      <span class="est-result-lbl">Total new ACE</span>
-      <span class="est-result-val" style="font-weight:800">RM ${Math.round(newACE).toLocaleString('en-MY')}</span>
-    </div>
-    <div class="est-result-row">
-      <span class="est-result-lbl" style="color:#1a73e8">CE</span>
-      <span class="est-result-val">
-        ${ceResult.ce !== null ? ceResult.ce.toFixed(1) + '%' : '—'}
-        <span style="color:#ccc">→</span>
-        <strong style="color:#1a73e8">${projCE !== null ? projCE.toFixed(1) + '%' : '—'}</strong>
-        ${ceDelta !== null ? `<span class="est-delta" style="color:#1a73e8">(+${ceDelta.toFixed(1)}%)</span>` : ''}
-      </span>
-    </div>
-    <div class="est-result-row">
-      <span class="est-result-lbl" style="color:#0a9b43">PR13</span>
-      <span class="est-result-val">
-        ${result.pr13 !== null ? result.pr13.toFixed(1) + '%' : '—'}
-        <span class="est-note-sm">unchanged — new cases enter CE pool (< 1 yr old)</span>
-      </span>
-    </div>
-  `;
-  resultEl.classList.remove('hidden');
+  // PR13 section
+  const pr13Cases   = parseInt(document.getElementById('estPr13Count')?.value) || 0;
+  const pr13Ace     = parseFloat(document.getElementById('estPr13Ace')?.value)  || 0;
+  const pr13ResultEl = document.getElementById('estPr13Result');
+  if (pr13ResultEl) {
+    if (pr13Cases > 0 && pr13Ace > 0) {
+      const newACE     = pr13Cases * pr13Ace;
+      const projElig   = result.eligACE + newACE;
+      const projColl   = result.collACE + newACE;
+      const projPR13   = projElig > 0 ? Math.round(projColl / projElig * 1000) / 10 : null;
+      const delta      = projPR13 !== null && result.pr13 !== null ? projPR13 - result.pr13 : null;
+      pr13ResultEl.innerHTML = `
+        <div class="est-result-row">
+          <span class="est-result-lbl">New ACE added</span>
+          <span class="est-result-val" style="font-weight:800">RM ${Math.round(newACE).toLocaleString('en-MY')}</span>
+        </div>
+        <div class="est-result-row">
+          <span class="est-result-lbl" style="color:#0a9b43">PR13</span>
+          <span class="est-result-val">
+            ${result.pr13 !== null ? result.pr13.toFixed(1) + '%' : '—'}
+            <span style="color:#ccc">→</span>
+            <strong style="color:#0a9b43">${projPR13 !== null ? projPR13.toFixed(1) + '%' : '—'}</strong>
+            ${delta !== null ? `<span class="est-delta" style="color:#0a9b43">(+${delta.toFixed(1)}%)</span>` : ''}
+          </span>
+        </div>`;
+      pr13ResultEl.classList.remove('hidden');
+    } else {
+      pr13ResultEl.classList.add('hidden');
+    }
+  }
 }
 
 function showLeaderboard() {
