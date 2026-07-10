@@ -3,92 +3,107 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Agent PR Report — TSLA Group</title>
+<title>Agent PR13 Report — TSLA Group</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
 body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 .glow{position:fixed;width:500px;height:500px;background:radial-gradient(circle,rgba(255,122,0,.12),transparent 70%);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:-1;}
 .navbar{position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:blur(15px);border-bottom:1px solid #eee;z-index:999;}
-.nav-content{max-width:1200px;margin:auto;padding:4px 20px;display:flex;justify-content:space-between;align-items:center;min-height:55px;}
-.nav-logo{width:50px;height:auto;}
-.nav-back{background:none;border:none;color:#ff7a00;font-weight:700;font-size:.95rem;cursor:pointer;padding:6px 0;display:none;}
-.nav-title{font-weight:800;font-size:1rem;color:#111;}
+.nav-content{max-width:1200px;margin:auto;padding:4px 20px;display:flex;justify-content:space-between;align-items:center;min-height:55px;gap:12px;}
+.nav-logo{width:46px;height:auto;flex-shrink:0;}
+.nav-title{font-weight:800;font-size:1rem;color:#111;flex:1;text-align:center;}
+.nav-back{background:none;border:none;color:#ff7a00;font-weight:700;font-size:.92rem;cursor:pointer;padding:6px 0;white-space:nowrap;display:none;}
+.nav-spacer{width:46px;flex-shrink:0;}
 
-.container{max-width:1200px;margin:auto;padding:24px 20px;}
+.container{max-width:1200px;margin:auto;padding:24px 20px 40px;}
 .page-header{margin-bottom:20px;}
 .page-title{font-size:1.8rem;font-weight:900;}
 .page-sub{color:#666;font-size:.9rem;margin-top:4px;}
-.updated-badge{display:inline-block;background:#f0f0f0;border-radius:10px;padding:4px 12px;font-size:.78rem;font-weight:700;color:#666;margin-top:8px;}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;}
+.badge{display:inline-block;border-radius:10px;padding:4px 12px;font-size:.78rem;font-weight:700;}
+.badge-grey{background:#f0f0f0;color:#666;}
+.badge-green{background:#e6f9ee;color:#0a9b43;}
+.badge-amber{background:#fff8e1;color:#c77700;}
+.badge-red{background:#ffebee;color:#e53935;}
+.badge-blue{background:#e8f0fe;color:#1a73e8;}
 
 /* Leaderboard */
 .agent-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:14px;cursor:pointer;transition:.2s;overflow:hidden;}
 .agent-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.09);}
-.agent-rank{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.9rem;flex-shrink:0;}
+.agent-main{padding:18px 20px;display:flex;align-items:center;gap:14px;}
+.agent-rank{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.88rem;flex-shrink:0;}
 .rank-1{background:#ffd700;color:#7a5c00;}
 .rank-2{background:#e8e8e8;color:#444;}
 .rank-3{background:#f4a460;color:#6b3a00;}
 .rank-n{background:#f0f0f0;color:#888;}
-.agent-main{padding:18px 20px;display:flex;align-items:center;gap:14px;}
 .agent-info{flex:1;min-width:0;}
-.agent-name{font-weight:800;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.agent-name{font-weight:800;font-size:.97rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .agent-code{font-size:.78rem;color:#888;margin-top:1px;}
-.agent-stats{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.pr-badge{padding:6px 14px;border-radius:14px;font-weight:900;font-size:1rem;white-space:nowrap;}
-.pr-green{background:#e6f9ee;color:#0a9b43;}
-.pr-amber{background:#fff8e1;color:#c77700;}
-.pr-red{background:#ffebee;color:#e53935;}
+.agent-sub{font-size:.78rem;color:#aaa;margin-top:2px;}
+.pr13-badge{padding:7px 14px;border-radius:14px;font-weight:900;font-size:1rem;white-space:nowrap;text-align:center;min-width:72px;}
+.pr13-green{background:#e6f9ee;color:#0a9b43;}
+.pr13-amber{background:#fff8e1;color:#c77700;}
+.pr13-red{background:#ffebee;color:#e53935;}
+.pr13-grey{background:#f0f0f0;color:#aaa;}
 .agent-meta{display:flex;gap:16px;flex-shrink:0;}
 .meta-item{text-align:center;}
-.meta-val{font-weight:800;font-size:.95rem;}
-.meta-lbl{font-size:.72rem;color:#888;margin-top:1px;}
+.meta-val{font-weight:800;font-size:.92rem;}
+.meta-lbl{font-size:.7rem;color:#aaa;margin-top:1px;}
 .agent-chevron{color:#ccc;font-size:1.2rem;flex-shrink:0;}
 
-/* Agent detail view */
+/* Detail header */
 .detail-header{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);padding:20px 24px;margin-bottom:16px;}
-.detail-name{font-size:1.3rem;font-weight:900;}
+.detail-name{font-size:1.25rem;font-weight:900;}
 .detail-code{font-size:.82rem;color:#888;margin-top:2px;}
-.detail-stats{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
-.stat-chip{background:#f7f8fa;border-radius:14px;padding:10px 16px;text-align:center;}
-.stat-chip-val{font-weight:900;font-size:1.1rem;}
-.stat-chip-lbl{font-size:.72rem;color:#888;margin-top:2px;}
-.stat-chip-green .stat-chip-val{color:#0a9b43;}
-.stat-chip-red .stat-chip-val{color:#e53935;}
-.stat-chip-amber .stat-chip-val{color:#c77700;}
+.detail-stats{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.stat-chip{background:#f7f8fa;border-radius:14px;padding:10px 16px;text-align:center;min-width:80px;}
+.stat-chip-val{font-weight:900;font-size:1.05rem;}
+.stat-chip-lbl{font-size:.7rem;color:#888;margin-top:2px;}
+.stat-green .stat-chip-val{color:#0a9b43;}
+.stat-amber .stat-chip-val{color:#c77700;}
+.stat-red .stat-chip-val{color:#e53935;}
 
-/* Client list */
-.client-card{background:white;border-radius:18px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:10px;overflow:hidden;}
-.client-main{padding:14px 18px;display:flex;align-items:flex-start;gap:12px;}
-.client-info{flex:1;min-width:0;}
-.client-name{font-weight:800;font-size:.95rem;}
-.client-cert{font-size:.78rem;color:#888;margin-top:2px;}
-.client-plan{font-size:.78rem;color:#666;margin-top:3px;}
-.client-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
-.status-badge{padding:3px 10px;border-radius:8px;font-size:.72rem;font-weight:700;}
-.status-inforce{background:#e6f9ee;color:#0a9b43;}
-.status-other{background:#f5f5f5;color:#888;}
-.due-badge{padding:4px 10px;border-radius:10px;font-size:.78rem;font-weight:700;}
-.due-red{background:#ffebee;color:#e53935;}
-.due-amber{background:#fff8e1;color:#c77700;}
-.due-green{background:#e6f9ee;color:#0a9b43;}
-.due-none{background:#f5f5f5;color:#aaa;}
-.client-bottom{padding:0 18px 14px;display:flex;gap:8px;flex-wrap:wrap;}
-.info-pill{background:#f7f8fa;border-radius:8px;padding:4px 10px;font-size:.75rem;color:#555;font-weight:600;}
+/* Summary totals box */
+.pr13-summary{background:rgba(10,155,67,.06);border:2px solid rgba(10,155,67,.18);border-radius:20px;padding:18px 20px;margin-bottom:16px;}
+.pr13-summary-title{font-size:.72rem;font-weight:800;color:#0a9b43;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;}
+.pr13-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;}
+.pr13-summary-item{background:white;border-radius:14px;padding:12px 14px;}
+.pr13-summary-lbl{font-size:.72rem;color:#888;margin-bottom:4px;}
+.pr13-summary-val{font-weight:800;font-size:.95rem;}
+.pr13-big{background:#0a9b43;border-radius:16px;padding:14px 18px;text-align:center;grid-column:1/-1;}
+.pr13-big-lbl{font-size:.72rem;font-weight:800;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.pr13-big-val{font-size:2.4rem;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:1;}
 
-/* Section label */
-.section-label{font-size:.72rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:20px 0 10px;}
+/* Audit table */
+.section-label{font-size:.72rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 10px;}
+.audit-wrap{overflow-x:auto;background:white;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.05);}
+table{width:100%;border-collapse:collapse;font-size:.82rem;}
+th{background:#f7f8fa;font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:#888;padding:12px 14px;text-align:left;white-space:nowrap;}
+td{padding:11px 14px;border-top:1px solid #f2f2f2;vertical-align:top;}
+tr:hover td{background:#fafafa;}
+.cls-badge{display:inline-block;border-radius:8px;padding:3px 9px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.cls-100{background:#e6f9ee;color:#0a9b43;}
+.cls-0{background:#ffebee;color:#e53935;}
+.cls-excl{background:#f5f5f5;color:#aaa;}
+.cls-na{background:#f5f5f5;color:#bbb;}
+.watch-flag{font-size:.75rem;}
+td.right{text-align:right;font-weight:700;}
+.zero-ace{color:#e53935;}
+.excl-row td{opacity:.55;}
 
-/* Loading / error */
+/* No PR13 notice */
+.notice{background:#fff8e1;border-radius:18px;padding:20px;color:#c77700;font-weight:700;text-align:center;margin-bottom:16px;}
+.notice small{display:block;font-weight:400;color:#888;margin-top:4px;}
+
+.hidden{display:none!important;}
 .loading{text-align:center;padding:60px 20px;color:#888;}
 .error-box{background:#ffebee;border-radius:18px;padding:20px;color:#e53935;text-align:center;font-weight:700;}
 
-/* Hidden */
-.hidden{display:none!important;}
-
 @media(max-width:600px){
   .agent-meta{display:none;}
-  .agent-main{gap:10px;}
   .detail-stats{gap:8px;}
   .stat-chip{padding:8px 12px;}
+  th,td{padding:9px 10px;}
 }
 </style>
 </head>
@@ -97,136 +112,161 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 <div class="navbar">
   <div class="nav-content">
     <a href="index.html"><img class="nav-logo" src="https://njmii.github.io/tsla-group/assets/tslalogo.png" alt="TSLA"/></a>
-    <span class="nav-title" id="navTitle">Agent PR Report</span>
+    <span class="nav-title" id="navTitle">Agent PR13 Report</span>
     <button class="nav-back" id="navBack" onclick="showLeaderboard()">← Back</button>
+    <span class="nav-spacer" id="navSpacer"></span>
   </div>
 </div>
 
 <div class="container">
-  <!-- Leaderboard view -->
+  <!-- Leaderboard -->
   <div id="viewLeaderboard">
     <div class="page-header">
-      <div class="page-title">📊 Agent PR Report</div>
-      <div class="page-sub">Persistency Rate leaderboard — tap an agent to see client details</div>
-      <div class="updated-badge" id="updatedBadge">Loading...</div>
+      <div class="page-title">📊 Agent PR13 Report</div>
+      <div class="page-sub">ACE-weighted Persistency Rate — tap an agent for full audit breakdown</div>
+      <div class="badge-row">
+        <span class="badge badge-grey" id="updatedBadge">Loading…</span>
+        <span class="badge badge-blue" id="projBadge">Loading…</span>
+      </div>
     </div>
-    <div id="leaderboardList"><div class="loading">Loading data...</div></div>
+    <div id="leaderboardList"><div class="loading">Loading data…</div></div>
   </div>
 
-  <!-- Agent detail view -->
+  <!-- Agent detail -->
   <div id="viewDetail" class="hidden">
     <div class="detail-header">
       <div class="detail-name" id="detailName"></div>
       <div class="detail-code" id="detailCode"></div>
       <div class="detail-stats" id="detailStats"></div>
     </div>
-    <div class="section-label">Client List</div>
-    <div id="clientList"></div>
+    <div id="pr13SummaryBlock"></div>
+    <div class="section-label">Certificate-Level Audit</div>
+    <div class="audit-wrap">
+      <table id="auditTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Client Name</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Pay Mode</th>
+            <th>ACE (RM)</th>
+            <th>Payment Method</th>
+            <th>Status</th>
+            <th>PR13</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody id="auditBody"></tbody>
+        <tfoot id="auditFoot"></tfoot>
+      </table>
+    </div>
   </div>
 </div>
 
 <script>
-let DATA = null;
+/* ── Date helpers ─────────────────────────────────────── */
 const today = new Date();
 today.setHours(0,0,0,0);
+const PROJ_YEAR  = today.getFullYear();
+const PROJ_MONTH = today.getMonth(); // 0-indexed
+const PROJ_LAST  = new Date(PROJ_YEAR, PROJ_MONTH + 1, 0); // last day of proj month
+const TODAY_KEY  = PROJ_YEAR * 12 + PROJ_MONTH;
 
-function fmt(n){return 'RM ' + Math.round(n).toLocaleString('en-MY');}
-function fmtAce(n){return 'RM ' + n.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});}
-
-function prClass(pr){
-  if(pr >= 90) return 'pr-green';
-  if(pr >= 70) return 'pr-amber';
-  return 'pr-red';
+function projLabel() {
+  return today.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
 }
 
-function dueBadge(dateStr){
-  if(!dateStr) return '<span class="due-badge due-none">No date</span>';
-  const d = new Date(dateStr);
-  d.setHours(0,0,0,0);
-  const diff = Math.round((d - today) / 86400000);
-  if(diff < 0) return `<span class="due-badge due-red">⚠ ${dateStr}</span>`;
-  if(diff <= 30) return `<span class="due-badge due-amber">⏰ ${dateStr}</span>`;
-  return `<span class="due-badge due-green">${dateStr}</span>`;
+/* ── Formatting ───────────────────────────────────────── */
+function R(n) { return 'RM ' + Math.round(n).toLocaleString('en-MY'); }
+function RA(n) { return n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+/* ── PR13 classification (rules applied in priority order) */
+function classifyPR13(c) {
+  // Rule 1 — 1 policy year eligibility
+  if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
+  const issued = new Date(c.issueDate);
+  const eligibleFrom = new Date(issued.getFullYear() + 1, issued.getMonth(), issued.getDate());
+  if (eligibleFrom > PROJ_LAST) {
+    const ym = eligibleFrom.toISOString().slice(0, 7);
+    return { cls: 'na', reason: 'Not yet 1 policy year (eligible ' + ym + ')' };
+  }
+
+  // Rule 2 — Certificate Status
+  if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
+  if (c.status === 'Contract Surrendered')  return { cls: '0',    reason: 'Contract Surrendered' };
+
+  // Rule 3 — Biro Angkasa
+  if (c.payMethod === 'Biro Angkasa') return { cls: '100', reason: 'Biro Angkasa' };
+
+  // Rule 4 — Due Date vs current month
+  if (c.dueDate) {
+    const due    = new Date(c.dueDate);
+    const dueKey = due.getFullYear() * 12 + due.getMonth();
+    if (dueKey === TODAY_KEY) return { cls: '100', reason: 'Current-month due date', watch: true };
+    if (dueKey <  TODAY_KEY) return { cls: '0',   reason: 'Due date before current month' };
+    // Future due date — fall through to status check
+  }
+
+  // Default — In Force status
+  if (c.status === 'In Force') return { cls: '100', reason: 'In Force' };
+  return { cls: '0', reason: c.status || 'Not In Force' };
 }
 
-function showLeaderboard(){
-  document.getElementById('viewLeaderboard').classList.remove('hidden');
-  document.getElementById('viewDetail').classList.add('hidden');
-  document.getElementById('navBack').style.display = 'none';
-  document.getElementById('navTitle').textContent = 'Agent PR Report';
+/* ── Compute PR13 for one agent ───────────────────────── */
+function calcPR13(agent) {
+  let eligACE = 0, collACE = 0, zeroACE = 0, exclACE = 0;
+  let watchCount = 0, eligCount = 0, exclCount = 0, naCount = 0;
+  const rows = [];
+
+  for (const c of agent.clients) {
+    const ace = c.ace || Math.round(c.contribution * 12 * 100) / 100;
+    const { cls, reason, watch } = classifyPR13(c);
+
+    if (cls === 'na' || cls === 'excl') {
+      exclACE += ace;
+      if (cls === 'excl') exclCount++;
+      else naCount++;
+    } else if (cls === '100') {
+      eligACE  += ace;
+      collACE  += ace;
+      eligCount++;
+      if (watch) watchCount++;
+    } else {
+      eligACE += ace;
+      zeroACE += ace;
+      eligCount++;
+    }
+    rows.push({ ...c, _ace: ace, _cls: cls, _reason: reason, _watch: watch || false });
+  }
+
+  const pr13 = eligACE > 0 ? Math.round(collACE / eligACE * 1000) / 10 : null;
+  return { pr13, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount, rows };
 }
 
-function showAgent(code){
-  const agent = DATA.agents.find(a => a.code === code);
-  if(!agent) return;
-  document.getElementById('viewLeaderboard').classList.add('hidden');
-  document.getElementById('viewDetail').classList.remove('hidden');
-  document.getElementById('navBack').style.display = 'block';
-  document.getElementById('navTitle').textContent = agent.name.split(' ').slice(0,2).join(' ');
+/* ── Render leaderboard ───────────────────────────────── */
+function renderLeaderboard(data) {
+  document.getElementById('updatedBadge').textContent = 'Data: ' + data.updated;
+  document.getElementById('projBadge').textContent    = 'PR13 Projection: ' + projLabel();
 
-  document.getElementById('detailName').textContent = agent.name;
-  document.getElementById('detailCode').textContent = agent.code;
-
-  const lapsed = agent.total - agent.inforce;
-  document.getElementById('detailStats').innerHTML = `
-    <div class="stat-chip stat-chip-${agent.pr>=90?'green':agent.pr>=70?'amber':'red'}">
-      <div class="stat-chip-val">${agent.pr}%</div>
-      <div class="stat-chip-lbl">PR</div>
-    </div>
-    <div class="stat-chip">
-      <div class="stat-chip-val">${agent.total}</div>
-      <div class="stat-chip-lbl">Total Clients</div>
-    </div>
-    <div class="stat-chip stat-chip-green">
-      <div class="stat-chip-val">${agent.inforce}</div>
-      <div class="stat-chip-lbl">In Force</div>
-    </div>
-    <div class="stat-chip ${lapsed>0?'stat-chip-red':''}">
-      <div class="stat-chip-val">${lapsed}</div>
-      <div class="stat-chip-lbl">Lapsed / Others</div>
-    </div>
-    <div class="stat-chip">
-      <div class="stat-chip-val" style="font-size:.85rem">${fmtAce(agent.ace)}</div>
-      <div class="stat-chip-lbl">Total ACE</div>
-    </div>
-  `;
-
-  // Sort clients: overdue first, then by due date asc
-  const sorted = [...agent.clients].sort((a,b) => {
-    const da = a.dueDate ? new Date(a.dueDate) : new Date('9999-12-31');
-    const db = b.dueDate ? new Date(b.dueDate) : new Date('9999-12-31');
-    return da - db;
+  // Compute PR13 for every agent and sort by PR13 desc (null last)
+  const agents = data.agents.map(ag => ({ ag, result: calcPR13(ag) }));
+  agents.sort((a, b) => {
+    if (a.result.pr13 === null && b.result.pr13 === null) return 0;
+    if (a.result.pr13 === null) return 1;
+    if (b.result.pr13 === null) return -1;
+    return b.result.pr13 - a.result.pr13;
   });
 
-  document.getElementById('clientList').innerHTML = sorted.map(c => `
-    <div class="client-card">
-      <div class="client-main">
-        <div class="client-info">
-          <div class="client-name">${c.name || '—'}</div>
-          <div class="client-cert">${c.certNo || '—'}</div>
-          <div class="client-plan">${c.plan || ''}</div>
-        </div>
-        <div class="client-right">
-          <span class="status-badge ${c.status==='In Force'?'status-inforce':'status-other'}">${c.status}</span>
-          ${dueBadge(c.dueDate)}
-        </div>
-      </div>
-      <div class="client-bottom">
-        ${c.payMode ? `<span class="info-pill">📅 ${c.payMode}</span>` : ''}
-        ${c.payMethod ? `<span class="info-pill">💳 ${c.payMethod}</span>` : ''}
-        ${c.contribution ? `<span class="info-pill">💰 RM ${c.contribution.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}/mo</span>` : ''}
-        ${c.lastPayDate ? `<span class="info-pill">✅ Last: ${c.lastPayDate}</span>` : ''}
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderLeaderboard(){
-  document.getElementById('updatedBadge').textContent = `Last updated: ${DATA.updated}`;
   const list = document.getElementById('leaderboardList');
-  list.innerHTML = DATA.agents.map((ag, i) => {
-    const rankClass = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
-    const rankLabel = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+  list.innerHTML = agents.map(({ ag, result }, i) => {
+    const { pr13, eligCount, eligACE, watchCount } = result;
+    const hasData = pr13 !== null;
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+    const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+    const prClass   = !hasData ? 'pr13-grey' : pr13 >= 90 ? 'pr13-green' : pr13 >= 70 ? 'pr13-amber' : 'pr13-red';
+    const prLabel   = hasData ? pr13.toFixed(1) + '%' : '—';
+    const watchTag  = watchCount ? `<br><span style="font-size:.7rem;color:#c77700">⚠️ ${watchCount} watch</span>` : '';
     return `
       <div class="agent-card" onclick="showAgent('${ag.code}')">
         <div class="agent-main">
@@ -234,18 +274,20 @@ function renderLeaderboard(){
           <div class="agent-info">
             <div class="agent-name">${ag.name}</div>
             <div class="agent-code">${ag.code}</div>
+            <div class="agent-sub">${ag.total} clients total</div>
           </div>
-          <div class="agent-stats">
-            <span class="pr-badge ${prClass(ag.pr)}">${ag.pr}%</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0">
+            <span class="pr13-badge ${prClass}">${prLabel}</span>
+            ${hasData ? `<span style="font-size:.7rem;color:#aaa;margin-top:3px">${eligCount} eligible</span>` : '<span style="font-size:.7rem;color:#aaa;margin-top:3px">No PR13 data</span>'}
           </div>
           <div class="agent-meta">
             <div class="meta-item">
-              <div class="meta-val">${ag.inforce}/${ag.total}</div>
-              <div class="meta-lbl">In Force</div>
+              <div class="meta-val">${hasData ? R(result.collACE) : '—'}</div>
+              <div class="meta-lbl">Collected ACE</div>
             </div>
             <div class="meta-item">
-              <div class="meta-val" style="font-size:.82rem">${fmtAce(ag.ace)}</div>
-              <div class="meta-lbl">ACE</div>
+              <div class="meta-val">${hasData ? R(eligACE) : '—'}</div>
+              <div class="meta-lbl">Eligible ACE</div>
             </div>
           </div>
           <span class="agent-chevron">›</span>
@@ -253,15 +295,155 @@ function renderLeaderboard(){
       </div>
     `;
   }).join('');
+
+  // store for detail view
+  window._agents = agents;
 }
 
-// Load data
+/* ── Show agent detail ────────────────────────────────── */
+function showAgent(code) {
+  const entry = window._agents.find(e => e.ag.code === code);
+  if (!entry) return;
+  const { ag, result } = entry;
+
+  document.getElementById('viewLeaderboard').classList.add('hidden');
+  document.getElementById('viewDetail').classList.remove('hidden');
+  document.getElementById('navBack').style.display = 'block';
+  document.getElementById('navSpacer').style.display = 'none';
+  document.getElementById('navTitle').textContent = ag.name.split(' ').slice(0, 2).join(' ');
+
+  document.getElementById('detailName').textContent = ag.name;
+  document.getElementById('detailCode').textContent = ag.code;
+
+  const { pr13, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount } = result;
+  const hasData = pr13 !== null;
+  const prCls   = !hasData ? 'stat-grey' : pr13 >= 90 ? 'stat-green' : pr13 >= 70 ? 'stat-amber' : 'stat-red';
+
+  document.getElementById('detailStats').innerHTML = `
+    <div class="stat-chip ${prCls}">
+      <div class="stat-chip-val">${hasData ? pr13.toFixed(1) + '%' : '—'}</div>
+      <div class="stat-chip-lbl">PR13</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-val">${ag.total}</div>
+      <div class="stat-chip-lbl">Total Clients</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-val">${eligCount}</div>
+      <div class="stat-chip-lbl">PR13 Eligible</div>
+    </div>
+    ${watchCount ? `<div class="stat-chip stat-amber"><div class="stat-chip-val">⚠️ ${watchCount}</div><div class="stat-chip-lbl">Watch</div></div>` : ''}
+    <div class="stat-chip">
+      <div class="stat-chip-val">${naCount + exclCount}</div>
+      <div class="stat-chip-lbl">Excluded</div>
+    </div>
+  `;
+
+  // PR13 summary block
+  const summaryEl = document.getElementById('pr13SummaryBlock');
+  if (!hasData) {
+    summaryEl.innerHTML = `<div class="notice">No PR13 data for ${projLabel()}<small>All policies are less than 1 year old — they will enter PR13 when they hit their 1-year anniversary.</small></div>`;
+  } else {
+    summaryEl.innerHTML = `
+      <div class="pr13-summary">
+        <div class="pr13-summary-title">PR13 Summary — ${projLabel()}</div>
+        <div class="pr13-summary-grid">
+          <div class="pr13-big">
+            <div class="pr13-big-lbl">Final PR13</div>
+            <div class="pr13-big-val">${pr13.toFixed(1)}%</div>
+          </div>
+          <div class="pr13-summary-item">
+            <div class="pr13-summary-lbl">Total Eligible ACE</div>
+            <div class="pr13-summary-val">${RA(eligACE)}</div>
+          </div>
+          <div class="pr13-summary-item">
+            <div class="pr13-summary-lbl">Total Collected (100%)</div>
+            <div class="pr13-summary-val" style="color:#0a9b43">${RA(collACE)}</div>
+          </div>
+          <div class="pr13-summary-item">
+            <div class="pr13-summary-lbl">Total 0% ACE</div>
+            <div class="pr13-summary-val" style="color:#e53935">${RA(zeroACE)}</div>
+          </div>
+          <div class="pr13-summary-item">
+            <div class="pr13-summary-lbl">Total Excluded ACE</div>
+            <div class="pr13-summary-val" style="color:#aaa">${RA(exclACE)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Audit table — sort: 100% first, then 0%, then excluded, then not eligible
+  const order = { '100': 0, '0': 1, 'excl': 2, 'na': 3 };
+  const sorted = [...result.rows].sort((a, b) => (order[a._cls] ?? 3) - (order[b._cls] ?? 3));
+
+  const clsHTML = (cls, watch) => {
+    if (cls === '100') return `<span class="cls-badge cls-100">${watch ? '⚠️ ' : ''}100%</span>`;
+    if (cls === '0')   return `<span class="cls-badge cls-0">0%</span>`;
+    if (cls === 'excl') return `<span class="cls-badge cls-excl">Excluded</span>`;
+    return `<span class="cls-badge cls-na">Not eligible</span>`;
+  };
+
+  const tbody = document.getElementById('auditBody');
+  tbody.innerHTML = sorted.map((c, i) => {
+    const isExcl = c._cls === 'na' || c._cls === 'excl';
+    return `
+      <tr class="${isExcl ? 'excl-row' : ''}">
+        <td style="color:#aaa">${i + 1}</td>
+        <td><strong>${c.name || '—'}</strong><br><span style="font-size:.73rem;color:#aaa">${c.certNo || ''}</span></td>
+        <td>${c.issueDate || '—'}</td>
+        <td>${c.dueDate || '—'}</td>
+        <td>${c.payMode || '—'}</td>
+        <td class="right ${c._cls === '0' ? 'zero-ace' : ''}">${isExcl ? '<span style="color:#ccc">—</span>' : RA(c._ace)}</td>
+        <td>${c.payMethod || '—'}</td>
+        <td><span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.72rem">${c.status}</span></td>
+        <td>${clsHTML(c._cls, c._watch)}</td>
+        <td style="font-size:.78rem;color:${c._watch ? '#c77700' : '#888'}">${c._reason}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const tfoot = document.getElementById('auditFoot');
+  if (hasData) {
+    tfoot.innerHTML = `
+      <tr style="background:#f7f8fa;font-weight:800">
+        <td colspan="5" style="text-align:right;font-size:.8rem;color:#888">Total Eligible ACE</td>
+        <td class="right">${RA(eligACE)}</td>
+        <td colspan="4"></td>
+      </tr>
+      <tr style="background:#f7f8fa;font-weight:800">
+        <td colspan="5" style="text-align:right;font-size:.8rem;color:#0a9b43">Total Collected (100%)</td>
+        <td class="right" style="color:#0a9b43">${RA(collACE)}</td>
+        <td colspan="4"></td>
+      </tr>
+      <tr style="background:#f7f8fa;font-weight:800">
+        <td colspan="5" style="text-align:right;font-size:.8rem;color:#e53935">Total 0% ACE</td>
+        <td class="right" style="color:#e53935">${RA(zeroACE)}</td>
+        <td colspan="4"></td>
+      </tr>
+      <tr style="background:#e6f9ee">
+        <td colspan="5" style="text-align:right;font-size:.9rem;font-weight:900;color:#0a9b43">PR13 = ${RA(collACE)} ÷ ${RA(eligACE)} × 100</td>
+        <td class="right" style="color:#0a9b43;font-size:1.1rem">${pr13.toFixed(1)}%</td>
+        <td colspan="4"></td>
+      </tr>
+    `;
+  } else {
+    tfoot.innerHTML = '';
+  }
+}
+
+function showLeaderboard() {
+  document.getElementById('viewLeaderboard').classList.remove('hidden');
+  document.getElementById('viewDetail').classList.add('hidden');
+  document.getElementById('navBack').style.display = 'none';
+  document.getElementById('navSpacer').style.display = 'block';
+  document.getElementById('navTitle').textContent = 'Agent PR13 Report';
+}
+
+/* ── Bootstrap ────────────────────────────────────────── */
 fetch('data/pr-data.json')
-  .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
-  .then(data => {
-    DATA = data;
-    renderLeaderboard();
-  })
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(data => renderLeaderboard(data))
   .catch(err => {
     document.getElementById('leaderboardList').innerHTML =
       `<div class="error-box">Failed to load data.<br><small>${err.message}</small></div>`;
