@@ -279,7 +279,7 @@ function RA(n) { return n.toLocaleString('en-MY', { minimumFractionDigits: 2, ma
 /* ── Shared payment classification (rules 2-7) ───────────── */
 function classifyPayment(c) {
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
-  if (c.status === 'Contract Surrendered')  return { cls: 'excl', reason: 'Contract Surrendered' };
+  if (c.status === 'Contract Surrendered')  return { cls: '0',    reason: 'Contract Surrendered' };
   if (c.payMethod === 'Biro Angkasa')       return { cls: '100',  reason: 'Biro Angkasa' };
   if (c.dueDate) {
     const due    = new Date(c.dueDate);
@@ -352,6 +352,22 @@ function calcPR13(agent) {
   return { pr13, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount, rows };
 }
 
+/* ── Compute GROUP PR13 for a leader (direct + downlines) ─ */
+function calcGroupPR13(ag, allAgents) {
+  if (!ag.downlines || !ag.downlines.length) return null;
+  const combined = {
+    clients: [
+      ...ag.clients,
+      ...ag.downlines.flatMap(code => {
+        const sub = allAgents.find(a => a.code === code);
+        return sub ? sub.clients : [];
+      })
+    ]
+  };
+  const r = calcPR13(combined);
+  return r.pr13;
+}
+
 /* ── Compute CE for one agent ─────────────────────────── */
 function calcCE(agent) {
   let eligACE = 0, collACE = 0, zeroACE = 0, exclACE = 0;
@@ -389,7 +405,12 @@ function renderLeaderboard(data) {
   document.getElementById('projBadge').textContent    = 'PR13 Projection: ' + projLabel();
 
   // Compute PR13 and CE for every agent, sort by PR13 desc (null last)
-  const agents = data.agents.map(ag => ({ ag, result: calcPR13(ag), ceResult: calcCE(ag) }));
+  const agents = data.agents.map(ag => ({
+    ag,
+    result:   calcPR13(ag),
+    ceResult: calcCE(ag),
+    groupPR13: calcGroupPR13(ag, data.agents)
+  }));
   agents.sort((a, b) => {
     if (a.result.pr13 === null && b.result.pr13 === null) return 0;
     if (a.result.pr13 === null) return 1;
@@ -421,18 +442,21 @@ function renderLeaderboard(data) {
       </div>`;
   }
 
-  html += agents.map(({ ag, result, ceResult }, i) => {
+  html += agents.map(({ ag, result, ceResult, groupPR13 }, i) => {
     const { pr13, eligCount, eligACE, collACE: prCollACE } = result;
     const { ce, eligCount: ceEligCount } = ceResult;
     const atRisk = atRiskMap[ag.code] || [];
     const hasData = pr13 !== null;
     const hasCEData = ce !== null;
+    const hasGroup = groupPR13 !== null;
     const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
     const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
     const prClass = !hasData ? 'pr13-grey' : pr13 >= 90 ? 'pr13-green' : pr13 >= 70 ? 'pr13-amber' : 'pr13-red';
     const prLabel = hasData ? pr13.toFixed(1) + '%' : '—';
     const ceClass = !hasCEData ? 'grey' : ce >= 90 ? 'green' : ce >= 70 ? 'amber' : 'red';
     const ceLabel = hasCEData ? ce.toFixed(1) + '%' : '—';
+    const grpClass = !hasGroup ? 'pr13-grey' : groupPR13 >= 90 ? 'pr13-green' : groupPR13 >= 70 ? 'pr13-amber' : 'pr13-red';
+    const grpLabel = hasGroup ? groupPR13.toFixed(1) + '%' : '';
     return `
       <div class="agent-card" onclick="showAgent('${ag.code}')">
         <div class="agent-main">
@@ -445,9 +469,13 @@ function renderLeaderboard(data) {
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
             <div style="display:flex;align-items:center;gap:6px">
-              <span style="font-size:.68rem;font-weight:700;color:#aaa">PR13</span>
+              <span style="font-size:.68rem;font-weight:700;color:#aaa">${hasGroup ? 'Direct' : 'PR13'}</span>
               <span class="pr13-badge ${prClass}">${prLabel}</span>
             </div>
+            ${hasGroup ? `<div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:.68rem;font-weight:700;color:#aaa">Group</span>
+              <span class="pr13-badge ${grpClass}">${grpLabel}</span>
+            </div>` : ''}
             <div style="display:flex;align-items:center;gap:6px">
               <span style="font-size:.68rem;font-weight:700;color:#aaa">CE</span>
               <span class="pr13-badge ce-badge-${ceClass}">${ceLabel}</span>
@@ -479,7 +507,7 @@ function renderLeaderboard(data) {
 function showAgent(code) {
   const entry = window._agents.find(e => e.ag.code === code);
   if (!entry) return;
-  const { ag, result, ceResult } = entry;
+  const { ag, result, ceResult, groupPR13 } = entry;
 
   document.getElementById('viewLeaderboard').classList.add('hidden');
   document.getElementById('viewDetail').classList.remove('hidden');
@@ -494,14 +522,20 @@ function showAgent(code) {
   const { ce, eligACE: ceEligACE, collACE: ceCollACE, zeroACE: ceZeroACE, eligCount: ceEligCount } = ceResult;
   const hasData   = pr13 !== null;
   const hasCEData = ce !== null;
+  const hasGroup  = groupPR13 !== null;
   const prCls  = !hasData   ? 'stat-grey' : pr13 >= 90 ? 'stat-green' : pr13 >= 70 ? 'stat-amber' : 'stat-red';
   const ceCls  = !hasCEData ? ''          : ce  >= 90 ? 'stat-green' : ce  >= 70 ? 'stat-amber' : 'stat-red';
+  const grpCls = !hasGroup  ? ''          : groupPR13 >= 90 ? 'stat-green' : groupPR13 >= 70 ? 'stat-amber' : 'stat-red';
 
   document.getElementById('detailStats').innerHTML = `
     <div class="stat-chip ${prCls}">
       <div class="stat-chip-val">${hasData ? pr13.toFixed(1) + '%' : '—'}</div>
-      <div class="stat-chip-lbl">PR13</div>
+      <div class="stat-chip-lbl">${hasGroup ? 'Direct PR13' : 'PR13'}</div>
     </div>
+    ${hasGroup ? `<div class="stat-chip ${grpCls}">
+      <div class="stat-chip-val">${groupPR13.toFixed(1)}%</div>
+      <div class="stat-chip-lbl">Group PR13</div>
+    </div>` : ''}
     <div class="stat-chip ${ceCls}">
       <div class="stat-chip-val">${hasCEData ? ce.toFixed(1) + '%' : '—'}</div>
       <div class="stat-chip-lbl">CE</div>
