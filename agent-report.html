@@ -665,9 +665,13 @@ function renderAuditTable() {
     ? allRows.filter(r => r._pool === 'CE')
     : allRows.filter(r => r._pool === 'PR13' || r._pool === null);
 
-  // 0% clients first (negative impact), then excl, na, then 100%
-  const clsOrd = { '0': 0, 'excl': 1, 'na': 2, '100': 3 };
-  const sorted = [...poolRows].sort((a, b) => (clsOrd[a._cls] ?? 2) - (clsOrd[b._cls] ?? 2));
+  // Watch clients first, then 0%, excl, na, 100%
+  const clsOrd = { '0': 1, 'excl': 2, 'na': 3, '100': 4 };
+  const sorted = [...poolRows].sort((a, b) => {
+    const aKey = a._watch ? 0 : (clsOrd[a._cls] ?? 3);
+    const bKey = b._watch ? 0 : (clsOrd[b._cls] ?? 3);
+    return aKey - bKey;
+  });
 
   const metric  = pool === 'PR13' ? result : ceResult;
   const rate    = pool === 'PR13' ? result.pr13 : ceResult.ce;
@@ -686,9 +690,9 @@ function renderAuditTable() {
       ? `<input type="checkbox" class="collect-cb" data-ace="${c._ace}" data-pool="${pool}" onchange="updateProjected()">`
       : '';
     return `
-      <tr class="${isDim ? 'excl-row' : ''}">
+      <tr class="${isDim ? 'excl-row' : ''}" style="${c._watch ? 'background:rgba(199,119,0,.07);' : c.status === 'Lapsed' ? 'background:rgba(229,57,53,.05);' : ''}">
         <td style="color:#aaa;white-space:nowrap">${cbHtml}${i + 1}</td>
-        <td><strong>${c.name || '—'}</strong><br><span style="font-size:.73rem;color:#aaa">${c.certNo || ''}</span></td>
+        <td><strong>${c.name || '—'}</strong>${c._watch ? '<br><span style="font-size:.68rem;font-weight:800;color:#c77700;background:rgba(199,119,0,.12);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ Due this month</span>' : ''}<br><span style="font-size:.73rem;color:#aaa">${c.certNo || ''}</span></td>
         <td>${c.issueDate || '—'}</td>
         <td>${c.dueDate || '—'}</td>
         <td>${c.payMode || '—'}</td>
