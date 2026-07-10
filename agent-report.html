@@ -95,6 +95,25 @@ td.right{text-align:right;font-weight:700;}
 .notice{background:#fff8e1;border-radius:18px;padding:20px;color:#c77700;font-weight:700;text-align:center;margin-bottom:16px;}
 .notice small{display:block;font-weight:400;color:#888;margin-top:4px;}
 
+/* Follow-up alert */
+.followup-pill{display:inline-block;background:#ffebee;color:#e53935;font-size:.72rem;font-weight:800;border-radius:8px;padding:2px 8px;margin-top:4px;}
+.global-alert{background:#ffebee;border:2px solid rgba(229,57,53,.2);border-radius:18px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.global-alert-icon{font-size:1.4rem;flex-shrink:0;}
+.global-alert-text{font-weight:800;font-size:.92rem;color:#e53935;}
+.global-alert-sub{font-size:.78rem;color:#888;margin-top:2px;font-weight:400;}
+.followup-block{background:#ffebee;border:2px solid rgba(229,57,53,.2);border-radius:20px;padding:18px 20px;margin-bottom:16px;}
+.followup-title{font-size:.72rem;font-weight:800;color:#e53935;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.followup-sub{font-size:.88rem;font-weight:700;color:#b71c1c;margin-bottom:14px;}
+.followup-row{background:white;border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;}
+.followup-row:last-child{margin-bottom:0;}
+.followup-client-info{flex:1;min-width:0;}
+.followup-name{font-weight:800;font-size:.9rem;}
+.followup-cert{font-size:.75rem;color:#888;margin-top:1px;}
+.followup-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.followup-right{text-align:right;flex-shrink:0;}
+.followup-contrib{font-weight:800;font-size:.88rem;color:#e53935;}
+.followup-due{font-size:.75rem;color:#888;margin-top:2px;}
+
 .hidden{display:none!important;}
 .loading{text-align:center;padding:60px 20px;color:#888;}
 .error-box{background:#ffebee;border-radius:18px;padding:20px;color:#e53935;text-align:center;font-weight:700;}
@@ -172,9 +191,15 @@ const PROJ_YEAR  = today.getFullYear();
 const PROJ_MONTH = today.getMonth(); // 0-indexed
 const PROJ_LAST  = new Date(PROJ_YEAR, PROJ_MONTH + 1, 0); // last day of proj month
 const TODAY_KEY  = PROJ_YEAR * 12 + PROJ_MONTH;
+const PREV_MONTH = PROJ_MONTH === 0 ? 11 : PROJ_MONTH - 1;
+const PREV_YEAR  = PROJ_MONTH === 0 ? PROJ_YEAR - 1 : PROJ_YEAR;
+const PREV_KEY   = PREV_YEAR * 12 + PREV_MONTH;
 
 function projLabel() {
   return today.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+}
+function prevLabel() {
+  return new Date(PREV_YEAR, PREV_MONTH, 1).toLocaleString('en-MY', { month: 'long', year: 'numeric' });
 }
 
 /* ── Formatting ───────────────────────────────────────── */
@@ -211,6 +236,16 @@ function classifyPR13(c) {
   // Default — In Force status
   if (c.status === 'In Force') return { cls: '100', reason: 'In Force' };
   return { cls: '0', reason: c.status || 'Not In Force' };
+}
+
+/* ── At-risk clients: due date last month, In Force or Lapsed ── */
+function getAtRisk(clients) {
+  return clients.filter(c => {
+    if (!c.dueDate) return false;
+    const due = new Date(c.dueDate);
+    if ((due.getFullYear() * 12 + due.getMonth()) !== PREV_KEY) return false;
+    return c.status === 'In Force' || c.status === 'Lapsed';
+  });
 }
 
 /* ── Compute PR13 for one agent ───────────────────────── */
@@ -258,15 +293,38 @@ function renderLeaderboard(data) {
     return b.result.pr13 - a.result.pr13;
   });
 
-  const list = document.getElementById('leaderboardList');
-  list.innerHTML = agents.map(({ ag, result }, i) => {
+  // Compute at-risk counts for global summary
+  const atRiskMap = {};
+  let totalAtRisk = 0, agentsWithAtRisk = 0;
+  agents.forEach(({ ag }) => {
+    const ar = getAtRisk(ag.clients);
+    atRiskMap[ag.code] = ar;
+    totalAtRisk += ar.length;
+    if (ar.length) agentsWithAtRisk++;
+  });
+
+  // Global alert banner
+  const listEl = document.getElementById('leaderboardList');
+  let html = '';
+  if (totalAtRisk > 0) {
+    html += `
+      <div class="global-alert">
+        <div class="global-alert-icon">🔴</div>
+        <div>
+          <div class="global-alert-text">${totalAtRisk} client${totalAtRisk > 1 ? 's' : ''} need follow-up this month</div>
+          <div class="global-alert-sub">Due dates missed in ${prevLabel()} — across ${agentsWithAtRisk} agent${agentsWithAtRisk > 1 ? 's' : ''}</div>
+        </div>
+      </div>`;
+  }
+
+  html += agents.map(({ ag, result }, i) => {
     const { pr13, eligCount, eligACE, watchCount } = result;
+    const atRisk = atRiskMap[ag.code] || [];
     const hasData = pr13 !== null;
     const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
     const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
     const prClass   = !hasData ? 'pr13-grey' : pr13 >= 90 ? 'pr13-green' : pr13 >= 70 ? 'pr13-amber' : 'pr13-red';
     const prLabel   = hasData ? pr13.toFixed(1) + '%' : '—';
-    const watchTag  = watchCount ? `<br><span style="font-size:.7rem;color:#c77700">⚠️ ${watchCount} watch</span>` : '';
     return `
       <div class="agent-card" onclick="showAgent('${ag.code}')">
         <div class="agent-main">
@@ -275,6 +333,7 @@ function renderLeaderboard(data) {
             <div class="agent-name">${ag.name}</div>
             <div class="agent-code">${ag.code}</div>
             <div class="agent-sub">${ag.total} clients total</div>
+            ${atRisk.length ? `<span class="followup-pill">🔴 ${atRisk.length} follow-up needed</span>` : ''}
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0">
             <span class="pr13-badge ${prClass}">${prLabel}</span>
@@ -295,6 +354,8 @@ function renderLeaderboard(data) {
       </div>
     `;
   }).join('');
+
+  listEl.innerHTML = html;
 
   // store for detail view
   window._agents = agents;
@@ -339,12 +400,40 @@ function showAgent(code) {
     </div>
   `;
 
-  // PR13 summary block
+  // Follow-up alert block
+  const atRisk = getAtRisk(ag.clients);
   const summaryEl = document.getElementById('pr13SummaryBlock');
+  let summaryHTML = '';
+  if (atRisk.length) {
+    summaryHTML += `
+      <div class="followup-block">
+        <div class="followup-title">🔴 Follow-Up Needed — ${prevLabel()}</div>
+        <div class="followup-sub">${atRisk.length} client${atRisk.length > 1 ? 's' : ''} missed their due date last month</div>
+        ${atRisk.map(c => `
+          <div class="followup-row">
+            <div class="followup-client-info">
+              <div class="followup-name">${c.name || '—'}</div>
+              <div class="followup-cert">${c.certNo || ''}</div>
+              <div class="followup-tags">
+                <span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.7rem">${c.status}</span>
+                <span class="badge badge-grey" style="font-size:.7rem">${c.payMethod || c.payMode || '—'}</span>
+                <span class="badge badge-grey" style="font-size:.7rem">${c.plan || ''}</span>
+              </div>
+            </div>
+            <div class="followup-right">
+              <div class="followup-contrib">RM ${c.contribution ? c.contribution.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}/mo</div>
+              <div class="followup-due">Due: ${c.dueDate}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
+  // PR13 summary block
   if (!hasData) {
-    summaryEl.innerHTML = `<div class="notice">No PR13 data for ${projLabel()}<small>All policies are less than 1 year old — they will enter PR13 when they hit their 1-year anniversary.</small></div>`;
+    summaryHTML += `<div class="notice">No PR13 data for ${projLabel()}<small>All policies are less than 1 year old — they will enter PR13 when they hit their 1-year anniversary.</small></div>`;
   } else {
-    summaryEl.innerHTML = `
+    summaryHTML += `
       <div class="pr13-summary">
         <div class="pr13-summary-title">PR13 Summary — ${projLabel()}</div>
         <div class="pr13-summary-grid">
@@ -372,6 +461,7 @@ function showAgent(code) {
       </div>
     `;
   }
+  summaryEl.innerHTML = summaryHTML;
 
   // Audit table — sort: 100% first, then 0%, then excluded, then not eligible
   const order = { '100': 0, '0': 1, 'excl': 2, 'na': 3 };
