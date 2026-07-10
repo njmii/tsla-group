@@ -35,12 +35,15 @@ h3{margin:10px 0;color:#777;font-size:14px}
 <div class="label">Holder</div><div id="holderv" class="value">-</div>
 </div>
 <div class="card">
+<button class="g" onclick="openAnkasaGate()" style="margin-bottom:0">🔒 Ankasa Servicing</button>
+<div id="ankasaForms" style="display:none">
 <div class="grid">
 <button class="g" onclick="location.href='bl714.html'">BL714</button>
 <button class="g" onclick="location.href='ge.html'">GE</button>
 <button class="g" onclick="location.href='wl548.html'">WL548</button>
 <button class="g" onclick="location.href='b0270.html'">B0270</button>
 <button class="g" onclick="location.href='wl513.html'">WL513</button>
+</div>
 </div>
 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid #eee">
   <div>
@@ -312,4 +315,49 @@ function removeClient(){
  location.href="clients.html";
 }
 load();
-</script></body></html>
+if(sessionStorage.getItem('ankasa_unlocked')==='1'){
+ const el=document.getElementById('ankasaForms');
+ if(el)el.style.display='block';
+}
+function openAnkasaGate(){
+ if(sessionStorage.getItem('ankasa_unlocked')==='1'){
+  const el=document.getElementById('ankasaForms');
+  el.style.display=el.style.display==='block'?'none':'block';
+  return;
+ }
+ document.getElementById('ankasaModal').style.display='flex';
+ document.getElementById('ankasaPin').value='';
+ document.getElementById('ankasaErr').textContent='';
+ setTimeout(()=>document.getElementById('ankasaPin').focus(),100);
+}
+function closeAnkasaModal(){
+ document.getElementById('ankasaModal').style.display='none';
+}
+function onAnkasaPin(val){if(val.length===4)submitAnkasa();}
+function submitAnkasa(){
+ const pin=document.getElementById('ankasaPin').value;
+ if(pin==='1111'){
+  sessionStorage.setItem('ankasa_unlocked','1');
+  closeAnkasaModal();
+  document.getElementById('ankasaForms').style.display='block';
+ }else{
+  document.getElementById('ankasaErr').textContent='PIN salah. Cuba lagi.';
+  document.getElementById('ankasaPin').value='';
+  document.getElementById('ankasaPin').focus();
+ }
+}
+</script>
+<div id="ankasaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center;">
+<div style="background:white;border-radius:24px;padding:28px 24px;width:300px;max-width:90vw;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+<div style="font-size:1.5rem;margin-bottom:4px">🔒</div>
+<div style="font-weight:900;font-size:1.05rem;margin-bottom:4px">Ankasa Servicing</div>
+<div style="color:#888;font-size:.82rem;margin-bottom:18px">Masukkan PIN 4 digit untuk akses</div>
+<input id="ankasaPin" type="tel" maxlength="4" placeholder="••••"
+ style="border:2px solid #eee;border-radius:12px;padding:12px;font-size:1.4rem;letter-spacing:.3em;text-align:center;width:100%;box-sizing:border-box;outline:none;margin-bottom:8px"
+ oninput="onAnkasaPin(this.value)" onkeydown="if(event.key==='Enter')submitAnkasa()">
+<div id="ankasaErr" style="color:#ef4444;font-size:.8rem;min-height:18px;margin-bottom:8px"></div>
+<button onclick="submitAnkasa()" style="background:#25D366;color:white;border:none;border-radius:14px;padding:12px 0;font-weight:800;font-size:.95rem;cursor:pointer;width:100%">Unlock</button>
+<button onclick="closeAnkasaModal()" style="background:none;border:none;color:#aaa;font-size:.8rem;margin-top:10px;cursor:pointer;display:block;width:100%">Batal</button>
+</div>
+</div>
+</body></html>
