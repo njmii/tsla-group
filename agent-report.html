@@ -139,6 +139,42 @@ td.right{text-align:right;font-weight:700;}
   .stat-chip{padding:8px 12px;}
   th,td{padding:9px 10px;}
 }
+
+/* Audit tabs */
+.audit-tab-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:16px 0 10px;}
+.audit-tabs{display:flex;gap:8px;flex-shrink:0;}
+.audit-tab{background:#f0f0f0;border:none;border-radius:14px;padding:8px 18px;font-weight:700;font-size:.85rem;cursor:pointer;transition:.15s;color:#666;display:flex;align-items:center;gap:6px;}
+.audit-tab:hover{background:#e4e4e4;}
+.audit-tab-pr13.active{background:#0a9b43;color:white;}
+.audit-tab-ce.active{background:#1a73e8;color:white;}
+.tab-pill{display:inline-block;border-radius:7px;padding:1px 7px;font-size:.7rem;font-weight:800;}
+.audit-tab-pr13 .tab-pill{background:rgba(10,155,67,.12);color:#0a9b43;}
+.audit-tab-pr13.active .tab-pill{background:rgba(255,255,255,.25);color:white;}
+.audit-tab-ce .tab-pill{background:rgba(26,115,232,.12);color:#1a73e8;}
+.audit-tab-ce.active .tab-pill{background:rgba(255,255,255,.25);color:white;}
+
+/* Projected rate bar */
+.projected-bar{background:linear-gradient(135deg,#e6f9ee,#f0fff4);border:2px solid rgba(10,155,67,.22);border-radius:16px;padding:11px 18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.88rem;margin-bottom:10px;}
+
+/* Checkbox */
+.collect-cb{width:15px;height:15px;cursor:pointer;accent-color:#0a9b43;flex-shrink:0;vertical-align:middle;margin-right:4px;}
+
+/* Estimator card */
+.estimator-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);padding:20px 24px;margin-top:16px;}
+.estimator-title{font-weight:900;font-size:1rem;margin-bottom:2px;}
+.estimator-sub{font-size:.8rem;color:#888;margin-bottom:16px;}
+.estimator-inputs{display:flex;gap:12px;flex-wrap:wrap;}
+.est-inp-group{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px;}
+.est-label{font-size:.75rem;font-weight:700;color:#888;}
+.est-inp{border:2px solid #eee;border-radius:12px;padding:10px 14px;font-size:.95rem;font-weight:700;outline:none;width:100%;transition:.15s;color:#111;}
+.est-inp:focus{border-color:#ff7a00;}
+.est-result{margin-top:14px;background:#f7f8fa;border-radius:16px;padding:14px 16px;}
+.est-result-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #eee;font-size:.88rem;gap:10px;}
+.est-result-row:last-child{border-bottom:none;}
+.est-result-lbl{font-weight:700;flex-shrink:0;}
+.est-result-val{text-align:right;}
+.est-delta{font-weight:700;margin-left:5px;}
+.est-note-sm{font-size:.73rem;color:#aaa;display:block;margin-top:2px;}
 </style>
 </head>
 <body>
@@ -174,13 +210,16 @@ td.right{text-align:right;font-weight:700;}
       <div class="detail-stats" id="detailStats"></div>
     </div>
     <div id="pr13SummaryBlock"></div>
-    <div class="section-label">Certificate-Level Audit</div>
+    <div class="audit-tab-row">
+      <div class="section-label" style="margin:0">Certificate-Level Audit</div>
+      <div class="audit-tabs" id="auditTabs"></div>
+    </div>
+    <div id="projectedBar" class="projected-bar hidden"></div>
     <div class="audit-wrap">
       <table id="auditTable">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Pool</th>
+            <th style="width:44px">#</th>
             <th>Client Name</th>
             <th>Issue Date</th>
             <th>Due Date</th>
@@ -196,6 +235,7 @@ td.right{text-align:right;font-weight:700;}
         <tfoot id="auditFoot"></tfoot>
       </table>
     </div>
+    <div id="estimatorCard" class="estimator-card"></div>
   </div>
 </div>
 
@@ -559,7 +599,7 @@ function showAgent(code) {
   }
   summaryEl.innerHTML = summaryHTML;
 
-  // Combined audit table — each client assigned to one pool (PR13 or CE)
+  // Build combined rows and store globally for tab switching
   const allRows = ag.clients.map(c => {
     const ace = c.ace || Math.round(c.contribution * 12 * 100) / 100;
     const pr13r = classifyPR13(c);
@@ -575,20 +615,50 @@ function showAgent(code) {
     return { ...c, _ace: ace, _pool: pool, _cls: cls, _reason: reason, _watch: watch };
   });
 
-  const clsOrd  = { '100': 0, '0': 1, 'excl': 2, 'na': 3 };
-  const poolOrd = { 'PR13': 0, 'CE': 1 };
-  allRows.sort((a, b) => {
-    const ca = clsOrd[a._cls] ?? 3;
-    const cb = clsOrd[b._cls] ?? 3;
-    if (ca !== cb) return ca - cb;
-    return (poolOrd[a._pool] ?? 2) - (poolOrd[b._pool] ?? 2);
-  });
+  window._detail = { allRows, result, ceResult, ag };
+  window._currentPool = hasData ? 'PR13' : 'CE';
+  renderAuditTabs();
+  renderAuditTable();
+  renderEstimator();
+}
 
-  const poolBadge = pool => {
-    if (pool === 'PR13') return '<span class="cls-badge" style="background:#e6f9ee;color:#0a9b43">PR13</span>';
-    if (pool === 'CE')   return '<span class="cls-badge" style="background:#e8f0fe;color:#1565c0">CE</span>';
-    return '<span style="color:#ccc">—</span>';
-  };
+/* ── Audit tab rendering ──────────────────────────────── */
+function renderAuditTabs() {
+  if (!window._detail) return;
+  const { allRows } = window._detail;
+  const pool = window._currentPool;
+  const pr13Count = allRows.filter(r => r._pool === 'PR13' || r._pool === null).length;
+  const ceCount   = allRows.filter(r => r._pool === 'CE').length;
+  document.getElementById('auditTabs').innerHTML = `
+    <button class="audit-tab audit-tab-pr13 ${pool === 'PR13' ? 'active' : ''}" onclick="switchPool('PR13')">PR13 <span class="tab-pill">${pr13Count}</span></button>
+    <button class="audit-tab audit-tab-ce ${pool === 'CE' ? 'active' : ''}" onclick="switchPool('CE')">CE <span class="tab-pill">${ceCount}</span></button>
+  `;
+}
+
+function switchPool(pool) {
+  window._currentPool = pool;
+  renderAuditTabs();
+  renderAuditTable();
+}
+
+/* ── Audit table rendering ────────────────────────────── */
+function renderAuditTable() {
+  if (!window._detail) return;
+  const { allRows, result, ceResult } = window._detail;
+  const pool = window._currentPool;
+
+  const poolRows = pool === 'CE'
+    ? allRows.filter(r => r._pool === 'CE')
+    : allRows.filter(r => r._pool === 'PR13' || r._pool === null);
+
+  // 0% clients first (negative impact), then excl, na, then 100%
+  const clsOrd = { '0': 0, 'excl': 1, 'na': 2, '100': 3 };
+  const sorted = [...poolRows].sort((a, b) => (clsOrd[a._cls] ?? 2) - (clsOrd[b._cls] ?? 2));
+
+  const metric  = pool === 'PR13' ? result : ceResult;
+  const rate    = pool === 'PR13' ? result.pr13 : ceResult.ce;
+  const hasRate = rate !== null;
+
   const clsHTML = (cls, watch) => {
     if (cls === '100')  return `<span class="cls-badge cls-100">${watch ? '⚠️ ' : ''}100%</span>`;
     if (cls === '0')    return `<span class="cls-badge cls-0">0%</span>`;
@@ -596,13 +666,14 @@ function showAgent(code) {
     return `<span class="cls-badge cls-na">Not eligible</span>`;
   };
 
-  const tbody = document.getElementById('auditBody');
-  tbody.innerHTML = allRows.map((c, i) => {
+  document.getElementById('auditBody').innerHTML = sorted.map((c, i) => {
     const isDim = c._cls === 'na' || c._cls === 'excl';
+    const cbHtml = c._cls === '0'
+      ? `<input type="checkbox" class="collect-cb" data-ace="${c._ace}" data-pool="${pool}" onchange="updateProjected()">`
+      : '';
     return `
       <tr class="${isDim ? 'excl-row' : ''}">
-        <td style="color:#aaa">${i + 1}</td>
-        <td>${poolBadge(c._pool)}</td>
+        <td style="color:#aaa;white-space:nowrap">${cbHtml}${i + 1}</td>
         <td><strong>${c.name || '—'}</strong><br><span style="font-size:.73rem;color:#aaa">${c.certNo || ''}</span></td>
         <td>${c.issueDate || '—'}</td>
         <td>${c.dueDate || '—'}</td>
@@ -612,29 +683,124 @@ function showAgent(code) {
         <td><span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.72rem">${c.status}</span></td>
         <td>${clsHTML(c._cls, c._watch)}</td>
         <td style="font-size:.78rem;color:${c._watch ? '#c77700' : '#888'}">${c._reason}</td>
-      </tr>
-    `;
+      </tr>`;
   }).join('');
 
   const tfoot = document.getElementById('auditFoot');
-  let footHTML = '';
-  if (hasData) {
-    footHTML += `
-      <tr style="background:#e6f9ee">
-        <td colspan="6" style="text-align:right;font-size:.9rem;font-weight:900;color:#0a9b43">PR13 = ${RA(collACE)} ÷ ${RA(eligACE)} × 100</td>
-        <td class="right" style="color:#0a9b43;font-size:1.1rem">${pr13.toFixed(1)}%</td>
+  if (hasRate) {
+    const collACE = metric.collACE;
+    const eligACE = metric.eligACE;
+    const color = pool === 'PR13' ? '#0a9b43' : '#1a73e8';
+    const bg    = pool === 'PR13' ? '#e6f9ee'  : '#e8f0fe';
+    tfoot.innerHTML = `
+      <tr style="background:${bg}">
+        <td colspan="5" style="text-align:right;font-size:.9rem;font-weight:900;color:${color}">${pool} = ${RA(collACE)} ÷ ${RA(eligACE)} × 100</td>
+        <td class="right" style="color:${color};font-size:1.1rem">${rate.toFixed(1)}%</td>
         <td colspan="4"></td>
       </tr>`;
+  } else {
+    tfoot.innerHTML = '';
   }
-  if (hasCEData) {
-    footHTML += `
-      <tr style="background:#e8f0fe">
-        <td colspan="6" style="text-align:right;font-size:.9rem;font-weight:900;color:#1a73e8">CE = ${RA(ceCollACE)} ÷ ${RA(ceEligACE)} × 100</td>
-        <td class="right" style="color:#1a73e8;font-size:1.1rem">${ce.toFixed(1)}%</td>
-        <td colspan="4"></td>
-      </tr>`;
+
+  updateProjected();
+}
+
+/* ── Projected rate bar (checkbox simulation) ─────────── */
+function updateProjected() {
+  if (!window._detail) return;
+  const { result, ceResult } = window._detail;
+  const pool = window._currentPool;
+  const metric      = pool === 'PR13' ? result : ceResult;
+  const currentRate = pool === 'PR13' ? result.pr13 : ceResult.ce;
+
+  let addedACE = 0;
+  document.querySelectorAll('.collect-cb:checked').forEach(cb => {
+    if (cb.dataset.pool === pool) addedACE += parseFloat(cb.dataset.ace) || 0;
+  });
+
+  const projBar = document.getElementById('projectedBar');
+  if (addedACE > 0 && currentRate !== null && metric.eligACE > 0) {
+    const projRate = Math.round((metric.collACE + addedACE) / metric.eligACE * 1000) / 10;
+    const delta    = projRate - currentRate;
+    const color    = pool === 'PR13' ? '#0a9b43' : '#1a73e8';
+    projBar.innerHTML = `
+      <span style="font-weight:800">🎯 ${pool} if collected:</span>
+      <span>${currentRate.toFixed(1)}%</span>
+      <span style="color:#ccc">→</span>
+      <strong style="color:${color};font-size:1rem">${projRate.toFixed(1)}%</strong>
+      <span style="color:${color};font-weight:700">(+${delta.toFixed(1)}%)</span>
+      <span style="font-size:.75rem;color:#888">RM ${Math.round(addedACE).toLocaleString('en-MY')} ACE collected</span>
+    `;
+    projBar.classList.remove('hidden');
+  } else {
+    projBar.classList.add('hidden');
   }
-  tfoot.innerHTML = footHTML;
+}
+
+/* ── New case estimator ───────────────────────────────── */
+function renderEstimator() {
+  const el = document.getElementById('estimatorCard');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="estimator-title">📈 New Case Estimator</div>
+    <div class="estimator-sub">If your agent closes new cases this month — how much would CE and PR13 change?</div>
+    <div class="estimator-inputs">
+      <div class="est-inp-group">
+        <label class="est-label">Number of new cases</label>
+        <input id="estCases" type="number" class="est-inp" placeholder="0" min="0" oninput="updateEstimator()">
+      </div>
+      <div class="est-inp-group">
+        <label class="est-label">Avg ACE per case (RM/year)</label>
+        <input id="estAce" type="number" class="est-inp" placeholder="0" min="0" oninput="updateEstimator()">
+      </div>
+    </div>
+    <div id="estResult" class="est-result hidden"></div>
+  `;
+}
+
+function updateEstimator() {
+  if (!window._detail) return;
+  const { result, ceResult } = window._detail;
+  const casesEl  = document.getElementById('estCases');
+  const aceEl    = document.getElementById('estAce');
+  const resultEl = document.getElementById('estResult');
+  if (!casesEl || !aceEl || !resultEl) return;
+
+  const cases      = parseInt(casesEl.value) || 0;
+  const acePerCase = parseFloat(aceEl.value) || 0;
+  const newACE     = cases * acePerCase;
+
+  if (cases <= 0 || acePerCase <= 0) { resultEl.classList.add('hidden'); return; }
+
+  // New cases enter CE pool (< 1 year old), all assumed In Force / 100%
+  const projCEElig = ceResult.eligACE + newACE;
+  const projCEColl = ceResult.collACE + newACE;
+  const projCE     = projCEElig > 0 ? Math.round(projCEColl / projCEElig * 1000) / 10 : null;
+  const ceDelta    = projCE !== null && ceResult.ce !== null ? projCE - ceResult.ce : null;
+
+  resultEl.innerHTML = `
+    <div class="est-result-row">
+      <span class="est-result-lbl">Total new ACE</span>
+      <span class="est-result-val" style="font-weight:800">RM ${Math.round(newACE).toLocaleString('en-MY')}</span>
+    </div>
+    <div class="est-result-row">
+      <span class="est-result-lbl" style="color:#1a73e8">CE</span>
+      <span class="est-result-val">
+        ${ceResult.ce !== null ? ceResult.ce.toFixed(1) + '%' : '—'}
+        <span style="color:#ccc">→</span>
+        <strong style="color:#1a73e8">${projCE !== null ? projCE.toFixed(1) + '%' : '—'}</strong>
+        ${ceDelta !== null ? `<span class="est-delta" style="color:#1a73e8">(+${ceDelta.toFixed(1)}%)</span>` : ''}
+      </span>
+    </div>
+    <div class="est-result-row">
+      <span class="est-result-lbl" style="color:#0a9b43">PR13</span>
+      <span class="est-result-val">
+        ${result.pr13 !== null ? result.pr13.toFixed(1) + '%' : '—'}
+        <span class="est-note-sm">unchanged — new cases enter CE pool (< 1 yr old)</span>
+      </span>
+    </div>
+  `;
+  resultEl.classList.remove('hidden');
 }
 
 function showLeaderboard() {
