@@ -276,39 +276,68 @@ function prevLabel() {
 function R(n) { return 'RM ' + Math.round(n).toLocaleString('en-MY'); }
 function RA(n) { return n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
-/* ── Shared payment classification (rules 2-7) ───────────── */
-function classifyPayment(c) {
-  if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
-  if (c.status === 'Contract Surrendered')  return { cls: '0',    reason: 'Contract Surrendered' };
-  if (c.payMethod === 'Biro Angkasa')       return { cls: '100',  reason: 'Biro Angkasa' };
-  if (c.dueDate) {
-    const due    = new Date(c.dueDate);
-    const dueKey = due.getFullYear() * 12 + due.getMonth();
-    if (dueKey === TODAY_KEY) return { cls: '100', reason: 'Current-month due date', watch: true };
-    if (dueKey <  TODAY_KEY) return { cls: '0',   reason: 'Due date before current month' };
-  }
-  return c.status === 'In Force' ? { cls: '100', reason: 'In Force' } : { cls: '0', reason: c.status || 'Not In Force' };
+/* ── PR13 spec: ×13 annualisation correction list ────────── */
+const KNOWN_13_OVER_12 = new Set([
+  "AN589839","AN598891","AN602868","AN494145","AN462757","AN500070",
+  "AN580946","AN517631","AN500252","AN502773","AN519143","AN528593",
+  "AN546050","AN566379"
+]);
+
+function getACE(c) {
+  if (c.ace) return c.ace;
+  const mult = KNOWN_13_OVER_12.has(c.certNo) ? 13 : 12;
+  return Math.round(c.contribution * mult * 100) / 100;
 }
 
-/* ── PR13 classification — policies ≥ 1 policy year ──────── */
+/* ── PR13 cohort window helpers ───────────────────────────── */
+function pr13Window() {
+  const base = PROJ_YEAR * 12 + PROJ_MONTH;
+  const weM  = base - 13;
+  const wsM  = base - 24;
+  // windowEnd = last day of (M − 13 months)
+  const windowEnd   = new Date(Math.floor(weM / 12), weM % 12 + 1, 0);
+  // windowStart = first day of (M − 24 months)
+  const windowStart = new Date(Math.floor(wsM / 12), wsM % 12,     1);
+  return { windowStart, windowEnd };
+}
+
+/* ── Point-in-time status (back-calculation for past months) ─ */
+function pointInTimeStatus(c) {
+  if ((c.status === 'Lapsed' || c.status === 'Contract Surrendered') && c.statusUpdatedDate) {
+    if (new Date(c.statusUpdatedDate) > PROJ_LAST) return 'In Force';
+  }
+  return c.status;
+}
+
+/* ── PR13 classification — rolling 13-24 month cohort ────── */
 function classifyPR13(c) {
   if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
   const issued = new Date(c.issueDate);
-  const eligibleFrom = new Date(issued.getFullYear() + 1, issued.getMonth(), issued.getDate());
-  if (eligibleFrom > PROJ_LAST) {
-    const ym = eligibleFrom.toISOString().slice(0, 7);
-    return { cls: 'na', reason: 'Not yet 1 policy year (eligible ' + ym + ')' };
-  }
-  return classifyPayment(c);
+  const { windowStart, windowEnd } = pr13Window();
+  if (issued < windowStart) return { cls: 'na', reason: 'Aged out (>24 months)' };
+  if (issued > windowEnd)   return { cls: 'na', reason: 'Not yet 13 months old' };
+  if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
+  const eff = pointInTimeStatus(c);
+  if (eff === 'In Force' || eff === 'Contract Surrendered') return { cls: '100', reason: eff };
+  return { cls: '0', reason: 'Lapsed' };
 }
 
-/* ── CE classification — policies < 1 policy year ────────── */
+/* ── CE classification — policies < 13 months old ────────── */
 function classifyCE(c) {
   if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
   const issued = new Date(c.issueDate);
-  const eligibleFrom = new Date(issued.getFullYear() + 1, issued.getMonth(), issued.getDate());
-  if (eligibleFrom <= PROJ_LAST) return { cls: 'na', reason: 'In PR13 pool' };
-  return classifyPayment(c);
+  const { windowEnd } = pr13Window();
+  if (issued <= windowEnd) return { cls: 'na', reason: 'In PR13 pool or aged out' };
+  if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
+  const eff = pointInTimeStatus(c);
+  // Watch flag for CE: due date falls in current projection month (display only)
+  let watch = false;
+  if (c.dueDate) {
+    const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
+    if (dueKey === TODAY_KEY) watch = true;
+  }
+  if (eff === 'In Force' || eff === 'Contract Surrendered') return { cls: '100', reason: eff, watch };
+  return { cls: '0', reason: 'Lapsed' };
 }
 
 /* ── At-risk clients: due date last month, In Force or Lapsed ── */
@@ -328,7 +357,7 @@ function calcPR13(agent) {
   const rows = [];
 
   for (const c of agent.clients) {
-    const ace = c.ace || Math.round(c.contribution * 12 * 100) / 100;
+    const ace = getACE(c);
     const { cls, reason, watch } = classifyPR13(c);
 
     if (cls === 'na' || cls === 'excl') {
@@ -352,6 +381,22 @@ function calcPR13(agent) {
   return { pr13, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount, rows };
 }
 
+/* ── Compute GROUP PR13 for a leader (direct + downlines) ─ */
+function calcGroupPR13(ag, allAgents) {
+  if (!ag.downlines || !ag.downlines.length) return null;
+  const combined = {
+    clients: [
+      ...ag.clients,
+      ...ag.downlines.flatMap(code => {
+        const sub = allAgents.find(a => a.code === code);
+        return sub ? sub.clients : [];
+      })
+    ]
+  };
+  const r = calcPR13(combined);
+  return r.pr13;
+}
+
 /* ── Compute CE for one agent ─────────────────────────── */
 function calcCE(agent) {
   let eligACE = 0, collACE = 0, zeroACE = 0, exclACE = 0;
@@ -359,7 +404,7 @@ function calcCE(agent) {
   const rows = [];
 
   for (const c of agent.clients) {
-    const ace = c.ace || Math.round(c.contribution * 12 * 100) / 100;
+    const ace = getACE(c);
     const { cls, reason, watch } = classifyCE(c);
 
     if (cls === 'na' || cls === 'excl') {
@@ -389,7 +434,12 @@ function renderLeaderboard(data) {
   document.getElementById('projBadge').textContent    = 'PR13 Projection: ' + projLabel();
 
   // Compute PR13 and CE for every agent, sort by PR13 desc (null last)
-  const agents = data.agents.map(ag => ({ ag, result: calcPR13(ag), ceResult: calcCE(ag) }));
+  const agents = data.agents.map(ag => ({
+    ag,
+    result:   calcPR13(ag),
+    ceResult: calcCE(ag),
+    groupPR13: calcGroupPR13(ag, data.agents)
+  }));
   agents.sort((a, b) => {
     if (a.result.pr13 === null && b.result.pr13 === null) return 0;
     if (a.result.pr13 === null) return 1;
@@ -421,18 +471,21 @@ function renderLeaderboard(data) {
       </div>`;
   }
 
-  html += agents.map(({ ag, result, ceResult }, i) => {
+  html += agents.map(({ ag, result, ceResult, groupPR13 }, i) => {
     const { pr13, eligCount, eligACE, collACE: prCollACE } = result;
     const { ce, eligCount: ceEligCount } = ceResult;
     const atRisk = atRiskMap[ag.code] || [];
     const hasData = pr13 !== null;
     const hasCEData = ce !== null;
+    const hasGroup = groupPR13 !== null;
     const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
     const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
     const prClass = !hasData ? 'pr13-grey' : pr13 >= 90 ? 'pr13-green' : pr13 >= 70 ? 'pr13-amber' : 'pr13-red';
     const prLabel = hasData ? pr13.toFixed(1) + '%' : '—';
     const ceClass = !hasCEData ? 'grey' : ce >= 90 ? 'green' : ce >= 70 ? 'amber' : 'red';
     const ceLabel = hasCEData ? ce.toFixed(1) + '%' : '—';
+    const grpClass = !hasGroup ? 'pr13-grey' : groupPR13 >= 90 ? 'pr13-green' : groupPR13 >= 70 ? 'pr13-amber' : 'pr13-red';
+    const grpLabel = hasGroup ? groupPR13.toFixed(1) + '%' : '';
     return `
       <div class="agent-card" onclick="showAgent('${ag.code}')">
         <div class="agent-main">
@@ -445,9 +498,13 @@ function renderLeaderboard(data) {
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
             <div style="display:flex;align-items:center;gap:6px">
-              <span style="font-size:.68rem;font-weight:700;color:#aaa">PR13</span>
+              <span style="font-size:.68rem;font-weight:700;color:#aaa">${hasGroup ? 'Direct' : 'PR13'}</span>
               <span class="pr13-badge ${prClass}">${prLabel}</span>
             </div>
+            ${hasGroup ? `<div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:.68rem;font-weight:700;color:#aaa">Group</span>
+              <span class="pr13-badge ${grpClass}">${grpLabel}</span>
+            </div>` : ''}
             <div style="display:flex;align-items:center;gap:6px">
               <span style="font-size:.68rem;font-weight:700;color:#aaa">CE</span>
               <span class="pr13-badge ce-badge-${ceClass}">${ceLabel}</span>
@@ -479,7 +536,7 @@ function renderLeaderboard(data) {
 function showAgent(code) {
   const entry = window._agents.find(e => e.ag.code === code);
   if (!entry) return;
-  const { ag, result, ceResult } = entry;
+  const { ag, result, ceResult, groupPR13 } = entry;
 
   document.getElementById('viewLeaderboard').classList.add('hidden');
   document.getElementById('viewDetail').classList.remove('hidden');
@@ -494,14 +551,20 @@ function showAgent(code) {
   const { ce, eligACE: ceEligACE, collACE: ceCollACE, zeroACE: ceZeroACE, eligCount: ceEligCount } = ceResult;
   const hasData   = pr13 !== null;
   const hasCEData = ce !== null;
+  const hasGroup  = groupPR13 !== null;
   const prCls  = !hasData   ? 'stat-grey' : pr13 >= 90 ? 'stat-green' : pr13 >= 70 ? 'stat-amber' : 'stat-red';
   const ceCls  = !hasCEData ? ''          : ce  >= 90 ? 'stat-green' : ce  >= 70 ? 'stat-amber' : 'stat-red';
+  const grpCls = !hasGroup  ? ''          : groupPR13 >= 90 ? 'stat-green' : groupPR13 >= 70 ? 'stat-amber' : 'stat-red';
 
   document.getElementById('detailStats').innerHTML = `
     <div class="stat-chip ${prCls}">
       <div class="stat-chip-val">${hasData ? pr13.toFixed(1) + '%' : '—'}</div>
-      <div class="stat-chip-lbl">PR13</div>
+      <div class="stat-chip-lbl">${hasGroup ? 'Direct PR13' : 'PR13'}</div>
     </div>
+    ${hasGroup ? `<div class="stat-chip ${grpCls}">
+      <div class="stat-chip-val">${groupPR13.toFixed(1)}%</div>
+      <div class="stat-chip-lbl">Group PR13</div>
+    </div>` : ''}
     <div class="stat-chip ${ceCls}">
       <div class="stat-chip-val">${hasCEData ? ce.toFixed(1) + '%' : '—'}</div>
       <div class="stat-chip-lbl">CE</div>
@@ -665,9 +728,13 @@ function renderAuditTable() {
     ? allRows.filter(r => r._pool === 'CE')
     : allRows.filter(r => r._pool === 'PR13' || r._pool === null);
 
-  // 0% clients first (negative impact), then excl, na, then 100%
-  const clsOrd = { '0': 0, 'excl': 1, 'na': 2, '100': 3 };
-  const sorted = [...poolRows].sort((a, b) => (clsOrd[a._cls] ?? 2) - (clsOrd[b._cls] ?? 2));
+  // Watch clients first, then 0%, excl, na, 100%
+  const clsOrd = { '0': 1, 'excl': 2, 'na': 3, '100': 4 };
+  const sorted = [...poolRows].sort((a, b) => {
+    const aKey = a._watch ? 0 : (clsOrd[a._cls] ?? 3);
+    const bKey = b._watch ? 0 : (clsOrd[b._cls] ?? 3);
+    return aKey - bKey;
+  });
 
   const metric  = pool === 'PR13' ? result : ceResult;
   const rate    = pool === 'PR13' ? result.pr13 : ceResult.ce;
@@ -686,9 +753,9 @@ function renderAuditTable() {
       ? `<input type="checkbox" class="collect-cb" data-ace="${c._ace}" data-pool="${pool}" onchange="updateProjected()">`
       : '';
     return `
-      <tr class="${isDim ? 'excl-row' : ''}">
+      <tr class="${isDim ? 'excl-row' : ''}" style="${c._watch ? 'background:rgba(199,119,0,.07);' : c.status === 'Lapsed' ? 'background:rgba(229,57,53,.05);' : ''}">
         <td style="color:#aaa;white-space:nowrap">${cbHtml}${i + 1}</td>
-        <td><strong>${c.name || '—'}</strong><br><span style="font-size:.73rem;color:#aaa">${c.certNo || ''}</span></td>
+        <td><strong>${c.name || '—'}</strong>${c._watch ? '<br><span style="font-size:.68rem;font-weight:800;color:#c77700;background:rgba(199,119,0,.12);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ Due this month</span>' : ''}<br><span style="font-size:.73rem;color:#aaa">${c.certNo || ''}</span></td>
         <td>${c.issueDate || '—'}</td>
         <td>${c.dueDate || '—'}</td>
         <td>${c.payMode || '—'}</td>
