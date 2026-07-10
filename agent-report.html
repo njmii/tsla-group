@@ -181,6 +181,9 @@ td.right{text-align:right;font-weight:700;}
 .est-result-val{text-align:right;}
 .est-delta{font-weight:700;margin-left:5px;}
 .est-note-sm{font-size:.73rem;color:#aaa;display:block;margin-top:2px;}
+/* Month picker */
+.month-picker-sel{border:2px solid #eee;border-radius:12px;padding:6px 10px;font-size:.8rem;font-weight:700;color:#111;background:white;cursor:pointer;outline:none;}
+.month-picker-sel:focus{border-color:#ff7a00;}
 </style>
 </head>
 <body>
@@ -203,6 +206,7 @@ td.right{text-align:right;font-weight:700;}
       <div class="badge-row">
         <span class="badge badge-grey" id="updatedBadge">Loading…</span>
         <span class="badge badge-blue" id="projBadge">Loading…</span>
+        <select id="monthPicker" class="month-picker-sel" onchange="onMonthPick(this.value)"></select>
       </div>
     </div>
     <div id="leaderboardList"><div class="loading">Loading data…</div></div>
@@ -247,18 +251,22 @@ td.right{text-align:right;font-weight:700;}
 
 <script>
 /* ── Date helpers ─────────────────────────────────────── */
-const today = new Date();
-today.setHours(0,0,0,0);
-const PROJ_YEAR  = today.getFullYear();
-const PROJ_MONTH = today.getMonth(); // 0-indexed
-const PROJ_LAST  = new Date(PROJ_YEAR, PROJ_MONTH + 1, 0); // last day of proj month
-const TODAY_KEY  = PROJ_YEAR * 12 + PROJ_MONTH;
-const PREV_MONTH = PROJ_MONTH === 0 ? 11 : PROJ_MONTH - 1;
-const PREV_YEAR  = PROJ_MONTH === 0 ? PROJ_YEAR - 1 : PROJ_YEAR;
-const PREV_KEY   = PREV_YEAR * 12 + PREV_MONTH;
+let PROJ_YEAR, PROJ_MONTH, PROJ_LAST, TODAY_KEY, PREV_MONTH, PREV_YEAR, PREV_KEY;
+
+function setProjectionMonth(year, month) {
+  PROJ_YEAR  = year;
+  PROJ_MONTH = month;
+  PROJ_LAST  = new Date(year, month + 1, 0);
+  TODAY_KEY  = year * 12 + month;
+  PREV_MONTH = month === 0 ? 11 : month - 1;
+  PREV_YEAR  = month === 0 ? year - 1 : year;
+  PREV_KEY   = PREV_YEAR * 12 + PREV_MONTH;
+}
+const _today = new Date(); _today.setHours(0,0,0,0);
+setProjectionMonth(_today.getFullYear(), _today.getMonth());
 
 function projLabel() {
-  return today.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+  return new Date(PROJ_YEAR, PROJ_MONTH, 1).toLocaleString('en-MY', { month: 'long', year: 'numeric' });
 }
 function prevLabel() {
   return new Date(PREV_YEAR, PREV_MONTH, 1).toLocaleString('en-MY', { month: 'long', year: 'numeric' });
@@ -869,10 +877,31 @@ function showLeaderboard() {
   document.getElementById('navTitle').textContent = 'Agent PR13 Report';
 }
 
+/* ── Month picker ─────────────────────────────────────── */
+function buildMonthPicker() {
+  const sel = document.getElementById('monthPicker');
+  if (!sel) return;
+  const base = new Date(); base.setDate(1); base.setHours(0,0,0,0);
+  sel.innerHTML = '';
+  for (let i = 0; i <= 12; i++) {
+    const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
+    const opt = document.createElement('option');
+    opt.value = `${d.getFullYear()}-${d.getMonth()}`;
+    opt.textContent = d.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+function onMonthPick(val) {
+  const [y, m] = val.split('-').map(Number);
+  setProjectionMonth(y, m);
+  renderLeaderboard(window._lastData);
+}
+
 /* ── Bootstrap ────────────────────────────────────────── */
 fetch('data/pr-data.json')
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(data => renderLeaderboard(data))
+  .then(data => { window._lastData = data; buildMonthPicker(); renderLeaderboard(data); })
   .catch(err => {
     document.getElementById('leaderboardList').innerHTML =
       `<div class="error-box">Failed to load data.<br><small>${err.message}</small></div>`;

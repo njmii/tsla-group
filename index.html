@@ -199,6 +199,7 @@ font-size:1rem;
 #acc-client .acc-header{background:#f97316;color:white;}
 #acc-servicing .acc-header{background:#ef4444;color:white;}
 #acc-strategy .acc-header{background:#7c3aed;color:white;}
+#acc-ankasa .acc-header{background:#0ea5e9;color:white;}
 .acc-arrow.open{transform:rotate(180deg);}
 .acc-body{display:none;}
 .acc-item{display:flex;align-items:center;padding:14px 24px;gap:14px;text-decoration:none;color:#111;border-top:1px solid #f2f2f2;}
@@ -328,11 +329,92 @@ Rezeki Tuhan Dah Atur, Aku Usaha Aku Kerja Lagi - Azlan
 </a>
 </div>
 </div>
+<div class="acc-card" id="acc-ankasa">
+<div class="acc-header" onclick="openAnkasaGate()">
+<span class="acc-hicon">🔒</span>
+<span class="acc-htitle">Ankasa Servicing</span>
+<span class="acc-arrow" id="arr-ankasa">▼</span>
 </div>
+<div class="acc-body" id="body-ankasa">
+<a class="acc-item" href="b0270.html">
+<span class="acc-iicon">📋</span>
+<div><div class="acc-ititle">B0270</div><div class="acc-idesc">Tukar kaedah pembayaran (FWD)</div></div>
+<span class="acc-chevron">›</span>
+</a>
+<a class="acc-item" href="bl714.html">
+<span class="acc-iicon">📋</span>
+<div><div class="acc-ititle">BL714</div><div class="acc-idesc">Tukar kaedah pembayaran (Etiqa)</div></div>
+<span class="acc-chevron">›</span>
+</a>
+<a class="acc-item" href="ge.html">
+<span class="acc-iicon">📋</span>
+<div><div class="acc-ititle">GE Form</div><div class="acc-idesc">Tukar kaedah pembayaran (Great Eastern)</div></div>
+<span class="acc-chevron">›</span>
+</a>
+<a class="acc-item" href="wl513.html">
+<span class="acc-iicon">📋</span>
+<div><div class="acc-ititle">WL513</div><div class="acc-idesc">Borang perkhidmatan takaful</div></div>
+<span class="acc-chevron">›</span>
+</a>
+<a class="acc-item" href="wl548.html">
+<span class="acc-iicon">📋</span>
+<div><div class="acc-ititle">WL548</div><div class="acc-idesc">Borang perkhidmatan (FWD)</div></div>
+<span class="acc-chevron">›</span>
+</a>
+</div>
+</div>
+</div>
+
+<!-- Ankasa PIN modal -->
+<div id="ankasaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center;">
+<div style="background:white;border-radius:24px;padding:28px 24px;width:300px;max-width:90vw;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+<div style="font-size:1.5rem;margin-bottom:4px">🔒</div>
+<div style="font-weight:900;font-size:1.05rem;margin-bottom:4px">Ankasa Servicing</div>
+<div style="color:#888;font-size:.82rem;margin-bottom:18px">Masukkan PIN 4 digit untuk akses</div>
+<input id="ankasaPin" type="tel" maxlength="4" placeholder="••••"
+  style="border:2px solid #eee;border-radius:12px;padding:12px;font-size:1.4rem;letter-spacing:.3em;text-align:center;width:100%;box-sizing:border-box;outline:none;margin-bottom:8px"
+  oninput="onAnkasaPin(this.value)" onkeydown="if(event.key==='Enter')submitAnkasa()">
+<div id="ankasaErr" style="color:#ef4444;font-size:.8rem;min-height:18px;margin-bottom:8px"></div>
+<button onclick="submitAnkasa()" style="background:#0ea5e9;color:white;border:none;border-radius:14px;padding:12px 0;font-weight:800;font-size:.95rem;cursor:pointer;width:100%">Unlock</button>
+<button onclick="closeAnkasaModal()" style="background:none;border:none;color:#aaa;font-size:.8rem;margin-top:10px;cursor:pointer;display:block;width:100%">Batal</button>
+</div>
+</div>
+
 <div class="footer">
 © 2026 TSLA Group
 </div>
 <script>
+function openAnkasaGate(){
+ if(sessionStorage.getItem('ankasa_unlocked')==='1'){
+  const body=document.getElementById('body-ankasa');
+  const arr=document.getElementById('arr-ankasa');
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  arr&&arr.classList.toggle('open',!open);
+  return;
+ }
+ document.getElementById('ankasaModal').style.display='flex';
+ document.getElementById('ankasaPin').value='';
+ document.getElementById('ankasaErr').textContent='';
+ setTimeout(()=>document.getElementById('ankasaPin').focus(),100);
+}
+function closeAnkasaModal(){
+ document.getElementById('ankasaModal').style.display='none';
+}
+function onAnkasaPin(val){if(val.length===4)submitAnkasa();}
+function submitAnkasa(){
+ const pin=document.getElementById('ankasaPin').value;
+ if(pin==='8888'){
+  sessionStorage.setItem('ankasa_unlocked','1');
+  closeAnkasaModal();
+  document.getElementById('body-ankasa').style.display='block';
+  document.getElementById('arr-ankasa')?.classList.add('open');
+ }else{
+  document.getElementById('ankasaErr').textContent='PIN salah. Cuba lagi.';
+  document.getElementById('ankasaPin').value='';
+  document.getElementById('ankasaPin').focus();
+ }
+}
 function toggleAcc(id){
  const body=document.getElementById('body-'+id);
  const arr=document.getElementById('arr-'+id);
