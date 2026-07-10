@@ -279,7 +279,7 @@ function RA(n) { return n.toLocaleString('en-MY', { minimumFractionDigits: 2, ma
 /* ── Shared payment classification (rules 2-7) ───────────── */
 function classifyPayment(c) {
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
-  if (c.status === 'Contract Surrendered')  return { cls: '0',    reason: 'Contract Surrendered' };
+  if (c.status === 'Contract Surrendered')  return { cls: 'excl', reason: 'Contract Surrendered' };
   if (c.payMethod === 'Biro Angkasa')       return { cls: '100',  reason: 'Biro Angkasa' };
   if (c.dueDate) {
     const due    = new Date(c.dueDate);
