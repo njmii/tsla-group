@@ -253,6 +253,9 @@ td.right{text-align:right;font-weight:700;}
       <div class="section-label" style="margin:0">Certificate-Level Audit</div>
       <div class="audit-tabs" id="auditTabs"></div>
     </div>
+    <div id="predictionBanner" style="display:none;background:rgba(255,122,0,.08);border:2px dashed rgba(255,122,0,.35);border-radius:14px;padding:10px 16px;margin-bottom:10px;font-size:.82rem;color:#a85500;font-weight:700">
+      🔮 Prediction mode — In Force clients default to <strong>0%</strong> (payment not yet confirmed). Tick ☑ each client you expect to collect from to see the projected rate.
+    </div>
     <div id="projectedBar" class="projected-bar hidden"></div>
     <div class="audit-wrap">
       <table id="auditTable">
@@ -360,6 +363,11 @@ function monthsPaid(c) {
 }
 
 /* ── PR13 classification — rolling 13-24 month cohort ────── */
+function _watchFlag(c) {
+  if (!c.dueDate) return false;
+  return new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth() === TODAY_KEY;
+}
+
 function classifyPR13(c) {
   if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
   const issued = new Date(c.issueDate);
@@ -368,9 +376,13 @@ function classifyPR13(c) {
   if (issued > windowEnd)   return { cls: 'na', reason: 'Not yet 13 months old' };
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
   const eff = pointInTimeStatus(c);
-  if (eff === 'In Force') return { cls: '100', reason: 'In Force' };
+  if (eff === 'In Force') {
+    // Prediction month: Biro Angkasa auto-deducts (keep 100%), all others unconfirmed → 0%
+    if (_isPrediction() && c.payMethod !== 'Biro Angkasa')
+      return { cls: '0', reason: 'Prediction — unconfirmed', watch: _watchFlag(c) };
+    return { cls: '100', reason: 'In Force', watch: _watchFlag(c) };
+  }
   if (eff === 'Contract Surrendered') {
-    // Already surrendered as of report date: ≥13 months paid → 100%, else 0%
     return monthsPaid(c) >= 13
       ? { cls: '100', reason: 'Contract Surrendered (≥13mo)' }
       : { cls: '0',   reason: 'Contract Surrendered (<13mo)' };
@@ -386,13 +398,13 @@ function classifyCE(c) {
   if (issued <= windowEnd) return { cls: 'na', reason: 'In PR13 pool or aged out' };
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
   const eff = pointInTimeStatus(c);
-  // Watch flag for CE: due date falls in current projection month (display only)
-  let watch = false;
-  if (c.dueDate) {
-    const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
-    if (dueKey === TODAY_KEY) watch = true;
+  const watch = _watchFlag(c);
+  if (eff === 'In Force') {
+    // Prediction month: Biro Angkasa auto-deducts (keep 100%), all others unconfirmed → 0%
+    if (_isPrediction() && c.payMethod !== 'Biro Angkasa')
+      return { cls: '0', reason: 'Prediction — unconfirmed', watch };
+    return { cls: '100', reason: 'In Force', watch };
   }
-  if (eff === 'In Force') return { cls: '100', reason: 'In Force', watch };
   if (eff === 'Contract Surrendered') {
     return monthsPaid(c) >= 13
       ? { cls: '100', reason: 'Contract Surrendered (≥13mo)', watch }
@@ -807,6 +819,9 @@ function renderAuditTable() {
   const rate    = pool === 'PR13' ? result.pr13 : ceResult.ce;
   const hasRate = rate !== null;
 
+  const banner = document.getElementById('predictionBanner');
+  if (banner) banner.style.display = _isPrediction() ? '' : 'none';
+
   const clsHTML = (cls, watch) => {
     if (cls === '100')  return `<span class="cls-badge cls-100">${watch ? '⚠️ ' : ''}100%</span>`;
     if (cls === '0')    return `<span class="cls-badge cls-0">0%</span>`;
@@ -867,17 +882,25 @@ function updateProjected() {
   });
 
   const projBar = document.getElementById('projectedBar');
-  if (addedACE > 0 && currentRate !== null && metric.eligACE > 0) {
+  if (addedACE > 0 && metric.eligACE > 0) {
     const projRate = Math.round((metric.collACE + addedACE) / metric.eligACE * 1000) / 10;
-    const delta    = projRate - currentRate;
     const color    = pool === 'PR13' ? '#0a9b43' : '#1a73e8';
+    const lbl      = _isPrediction() ? `🔮 Predicted ${pool}:` : `🎯 ${pool} if collected:`;
+    const tail     = _isPrediction()
+      ? `<span style="font-size:.75rem;color:#888">${Math.round(addedACE).toLocaleString('en-MY')} ACE confirmed</span>`
+      : `<span style="font-size:.75rem;color:#888">RM ${Math.round(addedACE).toLocaleString('en-MY')} ACE collected</span>`;
+    const base     = currentRate !== null
+      ? `<span>${currentRate.toFixed(1)}%</span><span style="color:#ccc">→</span>`
+      : '';
+    const delta    = currentRate !== null
+      ? `<span style="color:${color};font-weight:700">(+${(projRate - currentRate).toFixed(1)}%)</span>`
+      : '';
     projBar.innerHTML = `
-      <span style="font-weight:800">🎯 ${pool} if collected:</span>
-      <span>${currentRate.toFixed(1)}%</span>
-      <span style="color:#ccc">→</span>
+      <span style="font-weight:800">${lbl}</span>
+      ${base}
       <strong style="color:${color};font-size:1rem">${projRate.toFixed(1)}%</strong>
-      <span style="color:${color};font-weight:700">(+${delta.toFixed(1)}%)</span>
-      <span style="font-size:.75rem;color:#888">RM ${Math.round(addedACE).toLocaleString('en-MY')} ACE collected</span>
+      ${delta}
+      ${tail}
     `;
     projBar.classList.remove('hidden');
   } else {
