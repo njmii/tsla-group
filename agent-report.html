@@ -300,20 +300,32 @@ function pr13Window() {
   return { windowStart, windowEnd };
 }
 
-/* ── Point-in-time status (back-calculation for past months) ─ */
+/* ── Months between two date strings (d1→d2) ─────────────── */
+function monthsDiff(d1, d2) {
+  if (!d1 || !d2) return 0;
+  const a = new Date(d1), b = new Date(d2);
+  return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+}
+
+/* ── Point-in-time status (back-calculation for past months) ─
+   CS:     use statusUpdatedDate as actual surrender date
+   Lapsed: statusUpdatedDate can be an admin backlog; use dueDate
+           as proxy for last active month — only treat as In Force
+           if the cert was active for ≥13 months (issue→dueDate)  */
 function pointInTimeStatus(c) {
-  if ((c.status === 'Lapsed' || c.status === 'Contract Surrendered') && c.statusUpdatedDate) {
+  if (c.status === 'Contract Surrendered' && c.statusUpdatedDate) {
     if (new Date(c.statusUpdatedDate) > PROJ_LAST) return 'In Force';
+  }
+  if (c.status === 'Lapsed' && c.statusUpdatedDate) {
+    if (new Date(c.statusUpdatedDate) > PROJ_LAST &&
+        monthsDiff(c.issueDate, c.dueDate) >= 13) return 'In Force';
   }
   return c.status;
 }
 
 /* ── Months paid before surrender (issueDate → statusUpdatedDate) ── */
 function monthsPaid(c) {
-  if (!c.issueDate || !c.statusUpdatedDate) return 0;
-  const iss = new Date(c.issueDate);
-  const upd = new Date(c.statusUpdatedDate);
-  return (upd.getFullYear() - iss.getFullYear()) * 12 + (upd.getMonth() - iss.getMonth());
+  return monthsDiff(c.issueDate, c.statusUpdatedDate);
 }
 
 /* ── PR13 classification — rolling 13-24 month cohort ────── */
