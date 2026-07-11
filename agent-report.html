@@ -308,6 +308,14 @@ function pointInTimeStatus(c) {
   return c.status;
 }
 
+/* ── Months paid before surrender (issueDate → statusUpdatedDate) ── */
+function monthsPaid(c) {
+  if (!c.issueDate || !c.statusUpdatedDate) return 0;
+  const iss = new Date(c.issueDate);
+  const upd = new Date(c.statusUpdatedDate);
+  return (upd.getFullYear() - iss.getFullYear()) * 12 + (upd.getMonth() - iss.getMonth());
+}
+
 /* ── PR13 classification — rolling 13-24 month cohort ────── */
 function classifyPR13(c) {
   if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
@@ -317,7 +325,13 @@ function classifyPR13(c) {
   if (issued > windowEnd)   return { cls: 'na', reason: 'Not yet 13 months old' };
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
   const eff = pointInTimeStatus(c);
-  if (eff === 'In Force' || eff === 'Contract Surrendered') return { cls: '100', reason: eff };
+  if (eff === 'In Force') return { cls: '100', reason: 'In Force' };
+  if (eff === 'Contract Surrendered') {
+    // Already surrendered as of report date: ≥13 months paid → 100%, else 0%
+    return monthsPaid(c) >= 13
+      ? { cls: '100', reason: 'Contract Surrendered (≥13mo)' }
+      : { cls: '0',   reason: 'Contract Surrendered (<13mo)' };
+  }
   return { cls: '0', reason: 'Lapsed' };
 }
 
@@ -335,7 +349,12 @@ function classifyCE(c) {
     const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
     if (dueKey === TODAY_KEY) watch = true;
   }
-  if (eff === 'In Force' || eff === 'Contract Surrendered') return { cls: '100', reason: eff, watch };
+  if (eff === 'In Force') return { cls: '100', reason: 'In Force', watch };
+  if (eff === 'Contract Surrendered') {
+    return monthsPaid(c) >= 13
+      ? { cls: '100', reason: 'Contract Surrendered (≥13mo)', watch }
+      : { cls: '0',   reason: 'Contract Surrendered (<13mo)' };
+  }
   return { cls: '0', reason: 'Lapsed' };
 }
 
