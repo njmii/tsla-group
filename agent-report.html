@@ -670,25 +670,32 @@ function showAgent(code) {
   if (atRisk.length) {
     summaryHTML += `
       <div class="followup-block">
-        <div class="followup-title">🔴 Follow-Up Needed — ${prevLabel()}</div>
-        <div class="followup-sub">${atRisk.length} client${atRisk.length > 1 ? 's' : ''} missed their due date last month</div>
-        ${atRisk.map(c => `
-          <div class="followup-row">
-            <div class="followup-client-info">
-              <div class="followup-name">${c.name || '—'}</div>
-              <div class="followup-cert">${c.certNo || ''}</div>
-              <div class="followup-tags">
-                <span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.7rem">${c.status}</span>
-                <span class="badge badge-grey" style="font-size:.7rem">${c.payMethod || c.payMode || '—'}</span>
-                <span class="badge badge-grey" style="font-size:.7rem">${c.plan || ''}</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none" onclick="this.parentElement.querySelector('.followup-list').classList.toggle('hidden');this.querySelector('.fu-arrow').style.transform=this.parentElement.querySelector('.followup-list').classList.contains('hidden')?'':'rotate(180deg)'">
+          <div>
+            <div class="followup-title">🔴 Follow-Up Needed — ${prevLabel()}</div>
+            <div class="followup-sub">${atRisk.length} client${atRisk.length > 1 ? 's' : ''} missed their due date last month</div>
+          </div>
+          <span class="fu-arrow" style="font-size:1.1rem;color:#e53935;transition:transform .2s;transform:rotate(180deg)">▼</span>
+        </div>
+        <div class="followup-list" style="margin-top:12px">
+          ${atRisk.map(c => `
+            <div class="followup-row">
+              <div class="followup-client-info">
+                <div class="followup-name">${c.name || '—'}</div>
+                <div class="followup-cert">${c.certNo || ''}</div>
+                <div class="followup-tags">
+                  <span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.7rem">${c.status}</span>
+                  <span class="badge badge-grey" style="font-size:.7rem">${c.payMethod || c.payMode || '—'}</span>
+                  <span class="badge badge-grey" style="font-size:.7rem">${c.plan || ''}</span>
+                </div>
+              </div>
+              <div class="followup-right">
+                <div class="followup-contrib">RM ${c.contribution ? c.contribution.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}/mo</div>
+                <div class="followup-due">Due: ${c.dueDate}</div>
               </div>
             </div>
-            <div class="followup-right">
-              <div class="followup-contrib">RM ${c.contribution ? c.contribution.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}/mo</div>
-              <div class="followup-due">Due: ${c.dueDate}</div>
-            </div>
-          </div>
-        `).join('')}
+          `).join('')}
+        </div>
       </div>`;
   }
 
