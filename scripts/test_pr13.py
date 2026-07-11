@@ -151,7 +151,9 @@ def main():
 
     print("A13290 Naqiyuddin:")
     for yr, mo, label, expected in [
-        (2026, 4, 'May 2026', 63.79),
+        (2026, 5, 'June 2026',  60.81),
+        (2026, 4, 'May 2026',   63.79),
+        (2026, 3, 'April 2026', 58.17),
     ]:
         got = calc_pr13(ag3['clients'], yr, mo)
         status = 'PASS' if got == expected else 'FAIL'
