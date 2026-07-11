@@ -140,6 +140,28 @@ td.right{text-align:right;font-weight:700;}
   th,td{padding:9px 10px;}
 }
 
+/* Leaderboard tabs */
+.lb-tab-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.lb-tab{background:#f0f0f0;border:none;border-radius:14px;padding:8px 18px;font-weight:700;font-size:.85rem;cursor:pointer;transition:.15s;color:#666;}
+.lb-tab:hover{background:#e4e4e4;}
+.lb-tab.active{background:#ff7a00;color:white;}
+.contest-card{background:white;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.06);padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;}
+.contest-rank{font-size:1.6rem;width:36px;text-align:center;flex-shrink:0;}
+.contest-info{flex:1;min-width:0;}
+.contest-name{font-weight:800;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.contest-code{font-size:.78rem;color:#888;margin-top:2px;}
+.contest-ace{text-align:right;flex-shrink:0;}
+.contest-ace-val{font-weight:900;font-size:1.15rem;color:#ff7a00;}
+.contest-ace-lbl{font-size:.7rem;color:#aaa;font-weight:700;}
+.contest-cases{font-size:.78rem;color:#555;margin-top:3px;text-align:right;}
+.contest-bar-wrap{width:100%;background:#f3f3f3;border-radius:6px;height:6px;margin-top:8px;}
+.contest-bar{height:6px;border-radius:6px;background:linear-gradient(90deg,#ff7a00,#ffb347);transition:width .4s;}
+.contest-header-card{background:linear-gradient(135deg,#ff7a00,#ffb347);border-radius:20px;padding:18px 20px;margin-bottom:16px;color:white;}
+.contest-header-title{font-weight:900;font-size:1.1rem;}
+.contest-header-sub{font-size:.8rem;opacity:.85;margin-top:4px;}
+.contest-header-period{font-size:.75rem;font-weight:700;opacity:.75;margin-top:8px;}
+.prediction-note{background:rgba(255,122,0,.07);border:2px dashed rgba(255,122,0,.3);border-radius:14px;padding:10px 16px;font-size:.8rem;color:#c75800;font-weight:600;margin-bottom:12px;}
+
 /* Audit tabs */
 .audit-tab-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:16px 0 10px;}
 .audit-tabs{display:flex;gap:8px;flex-shrink:0;}
@@ -210,7 +232,12 @@ td.right{text-align:right;font-weight:700;}
         <label id="importLbl" class="badge badge-grey" style="cursor:pointer;user-select:none" title="Import FWD Certificate Listing xlsx">📤 Import Excel<input type="file" id="xlsxInput" accept=".xlsx" style="display:none" onchange="handleXlsxFile(this.files[0])"></label><span id="clearImport" style="display:none;cursor:pointer;font-size:.78rem;font-weight:700;color:#e53935;border:2px solid #e53935;border-radius:10px;padding:4px 9px" onclick="clearImport()" title="Clear imported data">× Clear</span>
       </div>
     </div>
+    <div class="lb-tab-row">
+      <button id="tabLb" class="lb-tab active" onclick="switchLbTab('lb')">📊 PR13 &amp; CE</button>
+      <button id="tabContest" class="lb-tab" onclick="switchLbTab('contest')">🏆 Road to Bali</button>
+    </div>
     <div id="leaderboardList"><div class="loading">Loading data…</div></div>
+    <div id="contestList" style="display:none"></div>
   </div>
 
   <!-- Agent detail -->
@@ -465,7 +492,9 @@ function calcCE(agent) {
 /* ── Render leaderboard ───────────────────────────────── */
 function renderLeaderboard(data) {
   document.getElementById('updatedBadge').textContent = 'Data: ' + data.updated;
-  document.getElementById('projBadge').textContent    = 'PR13 Projection: ' + projLabel();
+  const pred = _isPrediction();
+  document.getElementById('projBadge').textContent = (pred ? '🔮 Prediction: ' : 'PR13 Projection: ') + projLabel();
+  if (window._lastData) renderContest(window._lastData);
 
   // Compute PR13 and CE for every agent, sort by PR13 desc (null last)
   const agents = data.agents.map(ag => ({
@@ -503,6 +532,10 @@ function renderLeaderboard(data) {
           <div class="global-alert-sub">Due dates missed in ${prevLabel()} — across ${agentsWithAtRisk} agent${agentsWithAtRisk > 1 ? 's' : ''}</div>
         </div>
       </div>`;
+  }
+
+  if (pred) {
+    html += `<div class="prediction-note">🔮 <strong>Prediction mode</strong> — based on current policy statuses. Actual figures will differ as payments are made / missed in ${projLabel()}.</div>`;
   }
 
   html += agents.map(({ ag, result, ceResult, groupPR13 }, i) => {
@@ -978,20 +1011,94 @@ function showLeaderboard() {
   document.getElementById('navTitle').textContent = 'Agent PR13 Report';
 }
 
+/* ── Leaderboard tab switch ──────────────────────────── */
+function switchLbTab(tab) {
+  document.getElementById('leaderboardList').style.display = tab === 'lb' ? '' : 'none';
+  document.getElementById('contestList').style.display     = tab === 'contest' ? '' : 'none';
+  document.getElementById('tabLb').classList.toggle('active', tab === 'lb');
+  document.getElementById('tabContest').classList.toggle('active', tab === 'contest');
+}
+
+/* ── Contest: Road to Bali ───────────────────────────── */
+const CONTEST_START = '2026-07-01';
+const CONTEST_END   = '2026-09-30';
+
+function renderContest(data) {
+  const el = document.getElementById('contestList');
+  if (!el) return;
+
+  const entries = data.agents.map(ag => {
+    const clients = ag.clients.filter(c =>
+      c.issueDate && c.issueDate >= CONTEST_START && c.issueDate <= CONTEST_END
+      && c.status !== 'Freelook Cancellation'
+    );
+    const ace   = clients.reduce((s, c) => s + getACE(c), 0);
+    const cases = clients.length;
+    return { ag, ace, cases };
+  }).filter(e => e.cases > 0 || true);
+
+  entries.sort((a, b) => b.ace - a.ace);
+  const maxAce = entries.length ? entries[0].ace : 1;
+
+  const rankEmoji = ['🥇','🥈','🥉'];
+  const now   = new Date();
+  const start = new Date(CONTEST_START);
+  const end   = new Date(CONTEST_END + 'T23:59:59');
+  const totalDays   = Math.round((end - start) / 86400000);
+  const elapsedDays = Math.min(Math.max(Math.round((now - start) / 86400000), 0), totalDays);
+  const pctElapsed  = Math.round(elapsedDays / totalDays * 100);
+
+  let html = `
+    <div class="contest-header-card">
+      <div class="contest-header-title">🏆 Road to Bali</div>
+      <div class="contest-header-sub">Ranked by New ACE — highest wins</div>
+      <div class="contest-header-period">📅 1 Jul – 30 Sep 2026 &nbsp;·&nbsp; ${elapsedDays} / ${totalDays} days elapsed (${pctElapsed}%)</div>
+      <div style="margin-top:10px;background:rgba(255,255,255,.25);border-radius:6px;height:6px">
+        <div style="width:${pctElapsed}%;height:6px;border-radius:6px;background:white;transition:width .4s"></div>
+      </div>
+    </div>`;
+
+  entries.forEach(({ ag, ace, cases }, i) => {
+    const rank = i < 3 ? rankEmoji[i] : `#${i + 1}`;
+    const barW = maxAce > 0 ? Math.round(ace / maxAce * 100) : 0;
+    const hasData = cases > 0;
+    html += `
+      <div class="contest-card">
+        <div class="contest-rank">${rank}</div>
+        <div class="contest-info">
+          <div class="contest-name">${ag.name}</div>
+          <div class="contest-code">${ag.code}</div>
+          <div class="contest-bar-wrap"><div class="contest-bar" style="width:${barW}%"></div></div>
+        </div>
+        <div class="contest-ace">
+          <div class="contest-ace-val">${hasData ? 'RM ' + ace.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : 'RM 0'}</div>
+          <div class="contest-ace-lbl">NEW ACE</div>
+          <div class="contest-cases">${cases} case${cases !== 1 ? 's' : ''}</div>
+        </div>
+      </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
 /* ── Month picker ─────────────────────────────────────── */
 function buildMonthPicker() {
   const sel = document.getElementById('monthPicker');
   if (!sel) return;
   const base = new Date(); base.setDate(1); base.setHours(0,0,0,0);
   sel.innerHTML = '';
-  for (let i = 0; i <= 12; i++) {
+  for (let i = -1; i <= 12; i++) {
     const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
     const opt = document.createElement('option');
     opt.value = `${d.getFullYear()}-${d.getMonth()}`;
-    opt.textContent = d.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+    opt.textContent = d.toLocaleString('en-MY', { month: 'long', year: 'numeric' }) + (i < 0 ? ' 🔮' : '');
     if (i === 0) opt.selected = true;
     sel.appendChild(opt);
   }
+}
+function _isPrediction() {
+  const now = new Date();
+  return PROJ_YEAR > now.getFullYear() || (PROJ_YEAR === now.getFullYear() && PROJ_MONTH > now.getMonth());
 }
 function onMonthPick(val) {
   const [y, m] = val.split('-').map(Number);
