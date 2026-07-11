@@ -17,19 +17,13 @@ DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
                          'data', 'pr-data.json')
 
 
-KNOWN_13_OVER_12 = {
-    # A11668 Najmi Fikri
-    "AN589839","AN598891","AN602868","AN494145","AN462757","AN500070",
-    "AN580946","AN517631","AN500252","AN502773","AN519143","AN528593",
-    "AN546050","AN566379",
-    # A14252 Roza
-    "AN456715","AN518679","AN469807","AN517369","AN532261","AN484983",
-    "AN563359","AN503355","AN578086","AN589799","AN595962",
-}
+X13_PLANS = {'FWD Life First', 'FWD Protect First', 'FWD Income First'}
 
 def get_ace(c):
-    """Mirror JS getACE: ×13 for known certs, else stored ace or ×12."""
-    if c.get('certNo') in KNOWN_13_OVER_12:
+    """Mirror JS getACE: ×13 for qualifying plan/date/amount, else stored ace or ×12."""
+    iss = c.get('issueDate') or ''
+    if (c.get('plan') in X13_PLANS and '2024-07-01' <= iss <= '2024-11-30'
+            and (c.get('contribution') or 0) >= 200):
         return round((c.get('contribution') or 0) * 13, 2)
     return c.get('ace') or round((c.get('contribution') or 0) * 12, 2)
 

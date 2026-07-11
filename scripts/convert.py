@@ -126,6 +126,7 @@ def main():
         'Certificate No.':       'certNo',
         'Certificate Status':    'status',
         'Pay Mode':              'payMode',
+        'Plan':                  'plan',
         'Issue Date':            'issueDate',
         'Due Date':              'dueDate',
         'Contribution Amount':   'contribution',

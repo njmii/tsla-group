@@ -276,20 +276,15 @@ function prevLabel() {
 function R(n) { return 'RM ' + Math.round(n).toLocaleString('en-MY'); }
 function RA(n) { return n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
-/* ── PR13 spec: ×13 annualisation correction list ────────── */
-const KNOWN_13_OVER_12 = new Set([
-  // A11668 Najmi Fikri
-  "AN589839","AN598891","AN602868","AN494145","AN462757","AN500070",
-  "AN580946","AN517631","AN500252","AN502773","AN519143","AN528593",
-  "AN546050","AN566379",
-  // A14252 Roza
-  "AN456715","AN518679","AN469807","AN517369","AN532261","AN484983",
-  "AN563359","AN503355","AN578086","AN589799","AN595962",
-]);
+/* ── PR13 spec: ×13 annualisation formula ─────────────────── */
+/* FWD Life First / Protect First / Income First issued Jul–Nov 2024, contribution ≥ RM200 */
+const X13_PLANS = new Set(['FWD Life First','FWD Protect First','FWD Income First']);
 
 function getACE(c) {
-  if (KNOWN_13_OVER_12.has(c.certNo)) return Math.round(c.contribution * 13 * 100) / 100;
-  return c.ace || Math.round(c.contribution * 12 * 100) / 100;
+  const iss = c.issueDate || '';
+  if (X13_PLANS.has(c.plan) && iss >= '2024-07-01' && iss <= '2024-11-30' && (c.contribution || 0) >= 200)
+    return Math.round(c.contribution * 13 * 100) / 100;
+  return c.ace || Math.round((c.contribution || 0) * 12 * 100) / 100;
 }
 
 /* ── PR13 cohort window helpers ───────────────────────────── */
