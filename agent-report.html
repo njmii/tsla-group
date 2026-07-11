@@ -678,7 +678,7 @@ function showAgent(code) {
 
   // Build combined rows and store globally for tab switching
   const allRows = ag.clients.map(c => {
-    const ace = c.ace || Math.round(c.contribution * 12 * 100) / 100;
+    const ace = getACE(c);
     const pr13r = classifyPR13(c);
     const cer   = classifyCE(c);
     let pool, cls, reason, watch;
