@@ -199,7 +199,7 @@ td.right{text-align:right;font-weight:700;}
 
 <div class="container">
   <!-- Leaderboard -->
-  <div id="viewLeaderboard">
+  <div id="viewLeaderboard" ondragover="event.preventDefault()" ondrop="event.preventDefault();if(event.dataTransfer.files[0])handleXlsxFile(event.dataTransfer.files[0])">
     <div class="page-header">
       <div class="page-title">📊 Agent PR13 Report</div>
       <div class="page-sub">ACE-weighted Persistency Rate — tap an agent for full audit breakdown</div>
@@ -207,6 +207,7 @@ td.right{text-align:right;font-weight:700;}
         <span class="badge badge-grey" id="updatedBadge">Loading…</span>
         <span class="badge badge-blue" id="projBadge">Loading…</span>
         <select id="monthPicker" class="month-picker-sel" onchange="onMonthPick(this.value)"></select>
+        <label id="importLbl" class="badge badge-grey" style="cursor:pointer;user-select:none" title="Import FWD Certificate Listing xlsx">📤 Import Excel<input type="file" id="xlsxInput" accept=".xlsx" style="display:none" onchange="handleXlsxFile(this.files[0])"></label><span id="clearImport" style="display:none;cursor:pointer;font-size:.78rem;font-weight:700;color:#e53935;border:2px solid #e53935;border-radius:10px;padding:4px 9px" onclick="clearImport()" title="Clear imported data">× Clear</span>
       </div>
     </div>
     <div id="leaderboardList"><div class="loading">Loading data…</div></div>
@@ -276,16 +277,19 @@ function prevLabel() {
 function R(n) { return 'RM ' + Math.round(n).toLocaleString('en-MY'); }
 function RA(n) { return n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
-/* ── PR13 spec: ×13 annualisation correction list ────────── */
-const KNOWN_13_OVER_12 = new Set([
-  "AN589839","AN598891","AN602868","AN494145","AN462757","AN500070",
-  "AN580946","AN517631","AN500252","AN502773","AN519143","AN528593",
-  "AN546050","AN566379"
-]);
+/* ── PR13 spec: ×13 annualisation formula ─────────────────── */
+/* FWD Life First / Protect First / Income First issued Jul–Nov 2024, contribution ≥ RM200 */
+/* FORCE_X12: certs that pass the formula but are ×12 in FWD's system (submitted before
+   the ×13 effective date despite having a July 2024 issue date) */
+const X13_PLANS  = new Set(['FWD Life First','FWD Protect First','FWD Income First']);
+const FORCE_X12  = new Set(['AN443318','AN457372']);
 
 function getACE(c) {
-  if (KNOWN_13_OVER_12.has(c.certNo)) return Math.round(c.contribution * 13 * 100) / 100;
-  return c.ace || Math.round(c.contribution * 12 * 100) / 100;
+  const iss = c.issueDate || '';
+  if (!FORCE_X12.has(c.certNo) && X13_PLANS.has(c.plan)
+      && iss >= '2024-07-01' && iss <= '2024-11-30' && (c.contribution || 0) >= 200)
+    return Math.round(c.contribution * 13 * 100) / 100;
+  return c.ace || Math.round((c.contribution || 0) * 12 * 100) / 100;
 }
 
 /* ── PR13 cohort window helpers ───────────────────────────── */
@@ -300,12 +304,32 @@ function pr13Window() {
   return { windowStart, windowEnd };
 }
 
-/* ── Point-in-time status (back-calculation for past months) ─ */
+/* ── Months between two date strings (d1→d2) ─────────────── */
+function monthsDiff(d1, d2) {
+  if (!d1 || !d2) return 0;
+  const a = new Date(d1), b = new Date(d2);
+  return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+}
+
+/* ── Point-in-time status (back-calculation for past months) ─
+   CS:     use statusUpdatedDate as actual surrender date
+   Lapsed: statusUpdatedDate can be an admin backlog; use dueDate
+           as proxy for last active month — only treat as In Force
+           if the cert was active for ≥13 months (issue→dueDate)  */
 function pointInTimeStatus(c) {
-  if ((c.status === 'Lapsed' || c.status === 'Contract Surrendered') && c.statusUpdatedDate) {
+  if (c.status === 'Contract Surrendered' && c.statusUpdatedDate) {
     if (new Date(c.statusUpdatedDate) > PROJ_LAST) return 'In Force';
   }
+  if (c.status === 'Lapsed' && c.statusUpdatedDate) {
+    if (new Date(c.statusUpdatedDate) > PROJ_LAST &&
+        monthsDiff(c.issueDate, c.dueDate) >= 13) return 'In Force';
+  }
   return c.status;
+}
+
+/* ── Months paid before surrender (issueDate → statusUpdatedDate) ── */
+function monthsPaid(c) {
+  return monthsDiff(c.issueDate, c.statusUpdatedDate);
 }
 
 /* ── PR13 classification — rolling 13-24 month cohort ────── */
@@ -317,7 +341,13 @@ function classifyPR13(c) {
   if (issued > windowEnd)   return { cls: 'na', reason: 'Not yet 13 months old' };
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
   const eff = pointInTimeStatus(c);
-  if (eff === 'In Force' || eff === 'Contract Surrendered') return { cls: '100', reason: eff };
+  if (eff === 'In Force') return { cls: '100', reason: 'In Force' };
+  if (eff === 'Contract Surrendered') {
+    // Already surrendered as of report date: ≥13 months paid → 100%, else 0%
+    return monthsPaid(c) >= 13
+      ? { cls: '100', reason: 'Contract Surrendered (≥13mo)' }
+      : { cls: '0',   reason: 'Contract Surrendered (<13mo)' };
+  }
   return { cls: '0', reason: 'Lapsed' };
 }
 
@@ -335,7 +365,12 @@ function classifyCE(c) {
     const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
     if (dueKey === TODAY_KEY) watch = true;
   }
-  if (eff === 'In Force' || eff === 'Contract Surrendered') return { cls: '100', reason: eff, watch };
+  if (eff === 'In Force') return { cls: '100', reason: 'In Force', watch };
+  if (eff === 'Contract Surrendered') {
+    return monthsPaid(c) >= 13
+      ? { cls: '100', reason: 'Contract Surrendered (≥13mo)', watch }
+      : { cls: '0',   reason: 'Contract Surrendered (<13mo)' };
+  }
   return { cls: '0', reason: 'Lapsed' };
 }
 
@@ -964,14 +999,190 @@ function onMonthPick(val) {
   renderLeaderboard(window._lastData);
 }
 
-/* ── Bootstrap ────────────────────────────────────────── */
-fetch('data/pr-data.json')
-  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(data => { window._lastData = data; buildMonthPicker(); renderLeaderboard(data); })
-  .catch(err => {
-    document.getElementById('leaderboardList').innerHTML =
-      `<div class="error-box">Failed to load data.<br><small>${err.message}</small></div>`;
+/* ── XLSX Import ──────────────────────────────────────── */
+function _restoreImportBtn() {
+  const lbl = document.getElementById('importLbl');
+  lbl.textContent = '📤 Import Excel';
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.id = 'xlsxInput'; inp.accept = '.xlsx';
+  inp.style.display = 'none';
+  inp.onchange = function() { handleXlsxFile(this.files[0]); };
+  lbl.appendChild(inp);
+}
+
+function clearImport() {
+  localStorage.removeItem('tsla_data');
+  document.getElementById('clearImport').style.display = 'none';
+  _restoreImportBtn();
+  startFetch();
+}
+
+async function handleXlsxFile(file) {
+  if (!file) return;
+  document.getElementById('importLbl').textContent = '⏳ Parsing…';
+  try {
+    const rows = await parseXlsxBuffer(await file.arrayBuffer());
+    const data = xlsxRowsToData(rows);
+    if (!data.agents.length) throw new Error('No agent data found — check this is the FWD Certificate Listing file');
+    localStorage.setItem('tsla_data', JSON.stringify(data));
+    window._lastData = data;
+    buildMonthPicker();
+    renderLeaderboard(data);
+    document.getElementById('clearImport').style.display = '';
+  } catch(err) {
+    alert('Import failed: ' + err.message);
+  }
+  _restoreImportBtn();
+}
+
+async function parseXlsxBuffer(buf) {
+  const bytes = new Uint8Array(buf);
+  const view  = new DataView(buf);
+  // Find End of Central Directory
+  let eocd = -1;
+  for (let i = bytes.length - 22; i >= 0; i--) {
+    if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('Not a valid ZIP/xlsx file');
+  const cdOff  = view.getUint32(eocd + 16, true);
+  const cdSize = view.getUint32(eocd + 12, true);
+  // Walk Central Directory
+  const targets = new Set(['xl/sharedStrings.xml', 'xl/worksheets/sheet1.xml']);
+  const fileMap = {};
+  let pos = cdOff;
+  while (pos < cdOff + cdSize) {
+    if (view.getUint32(pos, true) !== 0x02014b50) break;
+    const comp       = view.getUint16(pos + 10, true);
+    const compSize   = view.getUint32(pos + 20, true);
+    const fnLen      = view.getUint16(pos + 28, true);
+    const extraLen   = view.getUint16(pos + 30, true);
+    const commentLen = view.getUint16(pos + 32, true);
+    const localOff   = view.getUint32(pos + 42, true);
+    const fname      = new TextDecoder().decode(bytes.subarray(pos + 46, pos + 46 + fnLen));
+    if (targets.has(fname)) fileMap[fname] = { localOff, compSize, comp };
+    pos += 46 + fnLen + extraLen + commentLen;
+  }
+  if (!fileMap['xl/worksheets/sheet1.xml']) throw new Error('sheet1.xml not found — is this a valid xlsx?');
+  async function _decomp(e) {
+    const fnL  = view.getUint16(e.localOff + 26, true);
+    const exL  = view.getUint16(e.localOff + 28, true);
+    const data = bytes.subarray(e.localOff + 30 + fnL + exL, e.localOff + 30 + fnL + exL + e.compSize);
+    if (e.comp === 0) return new TextDecoder().decode(data);
+    const ds = new DecompressionStream('deflate-raw');
+    const w = ds.writable.getWriter(); w.write(data); w.close();
+    const chunks = []; const r = ds.readable.getReader();
+    for (;;) { const { done, value } = await r.read(); if (done) break; chunks.push(value); }
+    let len = 0; for (const c of chunks) len += c.length;
+    const out = new Uint8Array(len); let off = 0;
+    for (const c of chunks) { out.set(c, off); off += c.length; }
+    return new TextDecoder().decode(out);
+  }
+  const sharedXml = fileMap['xl/sharedStrings.xml'] ? await _decomp(fileMap['xl/sharedStrings.xml']) : '';
+  const sheetXml  = await _decomp(fileMap['xl/worksheets/sheet1.xml']);
+  return _parseSheetXml(sharedXml, sheetXml);
+}
+
+function _parseSheetXml(sharedXml, sheetXml) {
+  const dp = new DOMParser();
+  const shared = [];
+  if (sharedXml) {
+    for (const si of dp.parseFromString(sharedXml, 'text/xml').getElementsByTagNameNS('*', 'si')) {
+      let t = '';
+      for (const el of si.getElementsByTagNameNS('*', 't')) t += (el.textContent || '');
+      shared.push(t);
+    }
+  }
+  const rows = [];
+  for (const rowEl of dp.parseFromString(sheetXml, 'text/xml').getElementsByTagNameNS('*', 'row')) {
+    const cells = {};
+    for (const cell of rowEl.getElementsByTagNameNS('*', 'c')) {
+      const ref = cell.getAttribute('r') || '';
+      const col = ref.replace(/\d/g, '');
+      const t   = cell.getAttribute('t') || '';
+      const vEl = cell.getElementsByTagNameNS('*', 'v')[0];
+      let val   = vEl ? vEl.textContent : null;
+      if (t === 's' && val !== null) val = shared[parseInt(val)] ?? val;
+      cells[col] = val;
+    }
+    rows.push(cells);
+  }
+  return rows;
+}
+
+function _excelDateStr(val) {
+  if (!val) return null;
+  if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}/.test(val)) return val.slice(0, 10);
+  const serial = parseFloat(val);
+  if (isNaN(serial)) return String(val) || null;
+  const adj = serial >= 60 ? serial - 1 : serial;
+  return new Date(Date.UTC(1899, 11, 31) + adj * 86400000).toISOString().slice(0, 10);
+}
+
+function xlsxRowsToData(rows) {
+  const DOWNLINES_CFG = { 'A11668': ['A13290', 'A14252', 'A12322'] };
+  const fieldMap = {
+    'Selling Agent Code': 'agentCode', 'Selling Agent': 'agentName',
+    'Life Assured': 'name', 'Certificate No.': 'certNo',
+    'Certificate Status': 'status', 'Pay Mode': 'payMode', 'Plan': 'plan',
+    'Issue Date': 'issueDate', 'Due Date': 'dueDate',
+    'Contribution Amount': 'contribution', 'Payment Method Code': 'payMethod',
+    'Status Updated Date': 'statusUpdatedDate', 'ACE': 'ace',
+  };
+  // Find header row
+  let hdrIdx = -1, colToField = {};
+  for (let i = 0; i < rows.length; i++) {
+    if (Object.values(rows[i]).some(v => v && String(v).includes('Certificate No'))) { hdrIdx = i; break; }
+  }
+  if (hdrIdx < 0) throw new Error('"Certificate No" header not found — wrong file?');
+  for (const [col, val] of Object.entries(rows[hdrIdx])) {
+    if (val && fieldMap[String(val).trim()]) colToField[col] = fieldMap[String(val).trim()];
+  }
+  const clientsByAgent = {}, agentNames = {};
+  for (const row of rows.slice(hdrIdx + 1)) {
+    const rec = {};
+    for (const [col, field] of Object.entries(colToField)) rec[field] = row[col] ?? null;
+    if (!rec.certNo) continue;
+    for (const f of ['issueDate', 'dueDate', 'statusUpdatedDate']) rec[f] = _excelDateStr(rec[f]);
+    for (const f of ['contribution', 'ace']) {
+      const v = rec[f];
+      rec[f] = (v != null && !isNaN(parseFloat(v))) ? Math.round(parseFloat(v) * 100) / 100 : null;
+    }
+    const code = rec.agentCode; delete rec.agentCode;
+    const name = rec.agentName; delete rec.agentName;
+    if (!code) continue;
+    if (name) agentNames[code] = name;
+    (clientsByAgent[code] = clientsByAgent[code] || []).push(rec);
+  }
+  const agents = Object.keys(clientsByAgent).sort().map(code => {
+    const ag = { code, name: agentNames[code] || code, clients: clientsByAgent[code] };
+    if (DOWNLINES_CFG[code]) ag.downlines = DOWNLINES_CFG[code];
+    return ag;
   });
+  return { updated: new Date().toISOString().slice(0, 10), agents };
+}
+
+/* ── Bootstrap ────────────────────────────────────────── */
+function startFetch() {
+  fetch('data/pr-data.json')
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(data => { window._lastData = data; buildMonthPicker(); renderLeaderboard(data); })
+    .catch(err => {
+      document.getElementById('leaderboardList').innerHTML =
+        `<div class="error-box">Failed to load data.<br><small>${err.message}</small></div>`;
+    });
+}
+(function() {
+  const _stored = localStorage.getItem('tsla_data');
+  if (_stored) {
+    try {
+      const data = JSON.parse(_stored);
+      window._lastData = data;
+      buildMonthPicker();
+      renderLeaderboard(data);
+      document.getElementById('clearImport').style.display = '';
+    } catch(e) { localStorage.removeItem('tsla_data'); startFetch(); }
+  } else { startFetch(); }
+})();
 </script>
 </body>
 </html>
