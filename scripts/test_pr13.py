@@ -18,11 +18,14 @@ DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 
 
 X13_PLANS = {'FWD Life First', 'FWD Protect First', 'FWD Income First'}
+# Submitted before FWD's ×13 effective date — confirmed ×12 via FWD portal
+FORCE_X12 = {'AN443318', 'AN457372'}
 
 def get_ace(c):
     """Mirror JS getACE: ×13 for qualifying plan/date/amount, else stored ace or ×12."""
     iss = c.get('issueDate') or ''
-    if (c.get('plan') in X13_PLANS and '2024-07-01' <= iss <= '2024-11-30'
+    if (c.get('certNo') not in FORCE_X12 and c.get('plan') in X13_PLANS
+            and '2024-07-01' <= iss <= '2024-11-30'
             and (c.get('contribution') or 0) >= 200):
         return round((c.get('contribution') or 0) * 13, 2)
     return c.get('ace') or round((c.get('contribution') or 0) * 12, 2)
@@ -135,6 +138,22 @@ def main():
         (2026, 2, 'March 2026', 85.22),
     ]:
         got = calc_pr13(ag2['clients'], yr, mo)
+        status = 'PASS' if got == expected else 'FAIL'
+        if status == 'FAIL':
+            all_pass = False
+        print(f"  {status}  {label}: expected {expected}%  got {got}%")
+
+    # A13290 Naqiyuddin — verified against FWD portal
+    ag3 = next((a for a in data['agents'] if a['code'] == 'A13290'), None)
+    if ag3 is None:
+        print("FAIL: agent A13290 not found in data")
+        sys.exit(1)
+
+    print("A13290 Naqiyuddin:")
+    for yr, mo, label, expected in [
+        (2026, 4, 'May 2026', 63.79),
+    ]:
+        got = calc_pr13(ag3['clients'], yr, mo)
         status = 'PASS' if got == expected else 'FAIL'
         if status == 'FAIL':
             all_pass = False

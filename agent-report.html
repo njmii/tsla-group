@@ -278,11 +278,15 @@ function RA(n) { return n.toLocaleString('en-MY', { minimumFractionDigits: 2, ma
 
 /* ── PR13 spec: ×13 annualisation formula ─────────────────── */
 /* FWD Life First / Protect First / Income First issued Jul–Nov 2024, contribution ≥ RM200 */
-const X13_PLANS = new Set(['FWD Life First','FWD Protect First','FWD Income First']);
+/* FORCE_X12: certs that pass the formula but are ×12 in FWD's system (submitted before
+   the ×13 effective date despite having a July 2024 issue date) */
+const X13_PLANS  = new Set(['FWD Life First','FWD Protect First','FWD Income First']);
+const FORCE_X12  = new Set(['AN443318','AN457372']);
 
 function getACE(c) {
   const iss = c.issueDate || '';
-  if (X13_PLANS.has(c.plan) && iss >= '2024-07-01' && iss <= '2024-11-30' && (c.contribution || 0) >= 200)
+  if (!FORCE_X12.has(c.certNo) && X13_PLANS.has(c.plan)
+      && iss >= '2024-07-01' && iss <= '2024-11-30' && (c.contribution || 0) >= 200)
     return Math.round(c.contribution * 13 * 100) / 100;
   return c.ace || Math.round((c.contribution || 0) * 12 * 100) / 100;
 }
