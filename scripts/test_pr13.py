@@ -17,8 +17,16 @@ DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
                          'data', 'pr-data.json')
 
 
+KNOWN_13_OVER_12 = {
+    "AN589839","AN598891","AN602868","AN494145","AN462757","AN500070",
+    "AN580946","AN517631","AN500252","AN502773","AN519143","AN528593",
+    "AN546050","AN566379"
+}
+
 def get_ace(c):
-    """Mirror JS getACE: use stored ace, fall back to contribution × 12."""
+    """Mirror JS getACE: ×13 for known certs, else stored ace or ×12."""
+    if c.get('certNo') in KNOWN_13_OVER_12:
+        return round((c.get('contribution') or 0) * 13, 2)
     return c.get('ace') or round((c.get('contribution') or 0) * 12, 2)
 
 
@@ -74,7 +82,7 @@ def calc_pr13(clients, proj_year, proj_month_0):
 
     if elig_ace == 0:
         return None
-    return round(coll_ace / elig_ace * 1000) / 10
+    return round(coll_ace / elig_ace * 10000) / 100
 
 
 def main():
@@ -90,10 +98,10 @@ def main():
 
     # (year, month_0_indexed, label, expected_pct)
     cases = [
-        (2026, 5, 'June 2026',  93.2),
-        (2026, 4, 'May 2026',   95.6),
-        (2026, 3, 'April 2026', 95.2),
-        (2026, 2, 'March 2026', 95.5),
+        (2026, 5, 'June 2026',  93.43),
+        (2026, 4, 'May 2026',   95.74),
+        (2026, 3, 'April 2026', 95.33),
+        (2026, 2, 'March 2026', 95.68),
     ]
 
     all_pass = True

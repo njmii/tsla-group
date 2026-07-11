@@ -284,9 +284,8 @@ const KNOWN_13_OVER_12 = new Set([
 ]);
 
 function getACE(c) {
-  if (c.ace) return c.ace;
-  const mult = KNOWN_13_OVER_12.has(c.certNo) ? 13 : 12;
-  return Math.round(c.contribution * mult * 100) / 100;
+  if (KNOWN_13_OVER_12.has(c.certNo)) return Math.round(c.contribution * 13 * 100) / 100;
+  return c.ace || Math.round(c.contribution * 12 * 100) / 100;
 }
 
 /* ── PR13 cohort window helpers ───────────────────────────── */
@@ -377,7 +376,7 @@ function calcPR13(agent) {
     rows.push({ ...c, _ace: ace, _cls: cls, _reason: reason, _watch: watch || false });
   }
 
-  const pr13 = eligACE > 0 ? Math.round(collACE / eligACE * 1000) / 10 : null;
+  const pr13 = eligACE > 0 ? Math.round(collACE / eligACE * 10000) / 100 : null;
   return { pr13, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount, rows };
 }
 
@@ -424,7 +423,7 @@ function calcCE(agent) {
     rows.push({ ...c, _ace: ace, _cls: cls, _reason: reason, _watch: watch || false });
   }
 
-  const ce = eligACE > 0 ? Math.round(collACE / eligACE * 1000) / 10 : null;
+  const ce = eligACE > 0 ? Math.round(collACE / eligACE * 10000) / 100 : null;
   return { ce, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount, rows };
 }
 
