@@ -132,16 +132,92 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes slideUp{from{opacity:0;transform:translateY(105%)}to{opacity:1;transform:none}}
 @keyframes marquee{to{transform:translateX(-50%)}}
+
+/* ── ANIMATION UPGRADE ── */
+
+/* Scroll progress bar */
+#scrollBar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ff7a00,#ffb347,#ff7a00);background-size:200% 100%;z-index:10000;width:0%;pointer-events:none;animation:bar-shimmer 2s linear infinite}
+@keyframes bar-shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+
+/* Hero canvas */
+#heroCanvas{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.6}
+
+/* Spring bounce on scroll reveal */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .6s ease,transform .8s cubic-bezier(.34,1.46,.64,1)}
+
+/* Eyebrow text wipe in */
+.reveal.visible .eyebrow{animation:eyebrow-in .6s cubic-bezier(.4,0,.2,1) both}
+@keyframes eyebrow-in{from{clip-path:inset(0 100% 0 0);opacity:0}to{clip-path:inset(0 0% 0 0);opacity:1}}
+
+/* Hero orange text — flowing gradient */
+.hero-h1 .line:nth-child(2) span{
+  background:linear-gradient(90deg,#ff7a00 0%,#ff4000 25%,#ffb347 50%,#ff7a00 75%,#ff4000 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:slideUp .8s cubic-bezier(.22,1,.36,1) .52s forwards,grad-shift 5s linear 2s infinite;
+}
+@keyframes grad-shift{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+
+/* CTA button pulse ring */
+.btn-primary{position:relative}
+.btn-primary::after{content:'';position:absolute;inset:-5px;border-radius:44px;border:2px solid rgba(255,122,0,.55);opacity:0;animation:btn-ring 2.8s ease-out 2.8s infinite}
+@keyframes btn-ring{0%{transform:scale(1);opacity:.75}100%{transform:scale(1.16);opacity:0}}
+
+/* Hero stat cards hover */
+.hero-q{transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s}
+.hero-q:hover{transform:translateY(-8px) scale(1.05);box-shadow:0 20px 50px rgba(255,122,0,.18)}
+
+/* Bali card floating */
+@keyframes bali-float{
+  0%,100%{transform:translateY(0) rotate(-.3deg);box-shadow:0 8px 32px rgba(255,122,0,.1)}
+  50%{transform:translateY(-14px) rotate(.3deg);box-shadow:0 28px 60px rgba(255,122,0,.22)}
+}
+.bali-card{animation:bali-float 5.5s ease-in-out infinite}
+.bali-band .reveal:has(.bali-card){transform:none!important;opacity:1!important}
+
+/* Card icon bounce on hover */
+@keyframes icon-bounce{0%{transform:scale(1)}35%{transform:scale(1.4) rotate(-10deg)}65%{transform:scale(.88) rotate(5deg)}100%{transform:scale(1)}}
+.card:hover .card-icon{display:inline-block;animation:icon-bounce .55s cubic-bezier(.22,1,.36,1)}
+
+/* Step number pulse */
+@keyframes step-pulse{0%,100%{opacity:.18}60%{opacity:.45}}
+.step-n{animation:step-pulse 3.5s ease-in-out infinite}
+
+/* Map state paths hover glow */
+.map-state-path{transition:fill .2s ease,filter .2s ease}
+.map-state-path:hover{fill:rgba(255,122,0,.22);filter:drop-shadow(0 0 8px rgba(255,122,0,.5))}
+
+/* Sparkle burst */
+@keyframes sparkle-pop{0%{opacity:1;transform:scale(1) translate(0,0)}100%{opacity:0;transform:scale(.1) translate(var(--tx),var(--ty))}}
+.sparkle{position:fixed;pointer-events:none;z-index:9999;line-height:1;animation:sparkle-pop .9s cubic-bezier(.22,1,.36,1) forwards}
+
+/* Marquee pause on hover */
+.marquee-wrap:hover .marquee-track{animation-play-state:paused}
+
+/* Cards perspective for 3D tilt */
+.cards,.steps,.hero-quick{perspective:1200px}
+.card,.step,.hero-q{will-change:transform}
+
+/* Perks stagger */
+.perk{opacity:0;transform:translateX(-12px);transition:opacity .4s ease,transform .5s cubic-bezier(.34,1.46,.64,1)}
+.perk.perk-visible{opacity:1;transform:none}
+
+/* Stat band entrance */
+.stat-box.reveal{transform:translateY(24px) scale(.97)}
+.stat-box.reveal.visible{transform:none}
+
 @media(prefers-reduced-motion:reduce){
   .hero-h1 .line span,.hero-eyebrow,.hero-sub,.hero-actions,.hero-quick,.hero-logo{animation:none;opacity:1;transform:none}
-  .reveal{opacity:1;transform:none}
+  .reveal{opacity:1;transform:none;transition:none}
   .marquee-track{animation:none}
+  .bali-card,.btn-primary::after,.step-n,#scrollBar{animation:none}
 }
 </style>
 </head>
 <body>
 
-<div class="glow"></div>
+<div id="scrollBar"></div>
+<div class="glow" id="heroGlow"></div>
 
 <!-- NAV -->
 <div class="navbar">
@@ -153,6 +229,7 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 
 <!-- HERO -->
 <div class="hero">
+  <canvas id="heroCanvas"></canvas>
   <div class="hero-eyebrow">TSLA Group · Wealth · Takaful · Trust Fund</div>
   <img class="hero-logo" src="assets/tslalogo.png" alt="TSLA Group"/>
   <h1 class="hero-h1">
@@ -469,6 +546,135 @@ function handleForm(e) {
   note.style.color = '#0a9b43';
 }
 
+/* ── ANIMATION ENGINE ── */
+
+/* 1. Scroll progress bar */
+const scrollBar = document.getElementById('scrollBar');
+const heroGlow  = document.getElementById('heroGlow');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = h.scrollTop / (h.scrollHeight - h.clientHeight) * 100;
+  scrollBar.style.width = pct + '%';
+  // Glow parallax
+  heroGlow.style.transform = `translateX(-50%) translateY(${h.scrollTop * .14}px)`;
+}, {passive:true});
+
+/* 2. Hero floating particles */
+(function(){
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize(){
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+
+  function mkP(){
+    return {
+      x:  Math.random() * W,
+      y:  H + 8,
+      r:  Math.random() * 2.8 + .8,
+      vy: Math.random() * .55 + .18,
+      wobble: Math.random() * Math.PI * 2,
+      ws: (Math.random() - .5) * .025,
+      opacity: Math.random() * .45 + .1,
+    };
+  }
+
+  function frame(){
+    ctx.clearRect(0, 0, W, H);
+    if (particles.length < 38 && Math.random() < .25) particles.push(mkP());
+    particles = particles.filter(p => p.y > -10);
+    particles.forEach(p => {
+      p.y  -= p.vy;
+      p.wobble += p.ws;
+      p.x  += Math.sin(p.wobble) * .45;
+      const fade = Math.min(1, (H - p.y) / (H * .3));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,122,0,${p.opacity * fade})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(frame);
+  }
+
+  resize();
+  window.addEventListener('resize', resize, {passive:true});
+  frame();
+})();
+
+/* 3. Card 3D magnetic tilt */
+document.querySelectorAll('.card,.step,.hero-q').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r  = card.getBoundingClientRect();
+    const x  = (e.clientX - r.left)  / r.width  - .5;
+    const y  = (e.clientY - r.top)   / r.height - .5;
+    const lift = card.classList.contains('step') ? 4 : 6;
+    card.style.transform = `translateY(-${lift}px) rotateY(${x*12}deg) rotateX(${-y*12}deg) scale(1.02)`;
+    card.style.transition = 'transform .08s ease,box-shadow .08s ease';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+    card.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1),box-shadow .45s ease';
+  });
+});
+
+/* 4. Map state paths class + hover */
+// (applied inside the Coverage Map IIFE below when paths are created)
+
+/* 5. Perks stagger reveal */
+const perkObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.perk').forEach((p, i) => {
+        setTimeout(() => p.classList.add('perk-visible'), i * 90);
+      });
+      perkObs.unobserve(e.target);
+    }
+  });
+}, {threshold: .2});
+document.querySelectorAll('.perks').forEach(el => perkObs.observe(el));
+
+/* 6. Sparkle burst on form submit */
+function spawnSparkles(cx, cy) {
+  const symbols = ['✦','★','•','◆','✶','❋'];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('div');
+    el.className = 'sparkle';
+    const angle = (i / 14) * Math.PI * 2;
+    const dist  = 40 + Math.random() * 60;
+    el.style.cssText = `
+      left:${cx}px;top:${cy}px;
+      font-size:${8 + Math.random()*10}px;
+      color:${Math.random()>.5?'#ff7a00':'#ffb347'};
+      --tx:${Math.cos(angle)*dist}px;
+      --ty:${Math.sin(angle)*dist - 40}px;
+      animation-delay:${Math.random()*.2}s;
+    `;
+    el.textContent = symbols[i % symbols.length];
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1100);
+  }
+}
+
+const ctaForm = document.querySelector('.cta-form');
+if (ctaForm) {
+  ctaForm.addEventListener('submit', e => {
+    const r = ctaForm.getBoundingClientRect();
+    spawnSparkles(r.left + r.width/2, r.top + r.height/2);
+  });
+}
+
+/* 7. Bali card — reveal override (float anim handles it) */
+(function(){
+  const baliReveal = document.querySelector('.bali-band .reveal');
+  if (baliReveal && baliReveal.querySelector('.bali-card')) {
+    baliReveal.classList.add('visible');
+  }
+})();
+
 /* Coverage Map */
 (function(){
   const STATES = [
@@ -517,6 +723,7 @@ function handleForm(e) {
       p.setAttribute('stroke', '#ffcca0');
       p.setAttribute('stroke-width', '1.2');
       p.setAttribute('stroke-linejoin', 'round');
+      p.classList.add('map-state-path');
       shapesG.appendChild(p);
     });
   });
