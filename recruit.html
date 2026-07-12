@@ -156,7 +156,7 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
   <div class="hero-quick">
     <div class="hero-q">
       <div class="hero-q-val" id="hq1">RM0</div>
-      <div class="hero-q-lbl">Max Monthly</div>
+      <div class="hero-q-lbl">Max Monthly Commission</div>
     </div>
     <div class="hero-q">
       <div class="hero-q-val" id="hq2">0</div>
@@ -201,8 +201,8 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
     <div class="card reveal reveal-d1">
       <span class="card-icon">💰</span>
       <div class="card-title">No income ceiling</div>
-      <p class="card-body">Commission compounds as you grow. Your second-year income from existing clients alone can exceed a full-time salary — and it builds every month, even when you rest.</p>
-      <span class="card-tag">Unlimited Commission</span>
+      <p class="card-body">You earn a <strong>fixed monthly allowance from RM 2,000–3,000</strong> just for being active — completely separate from your commission. Then commission compounds on top with zero cap as your client base grows.</p>
+      <span class="card-tag">Allowance + Commission</span>
     </div>
     <div class="card reveal reveal-d2">
       <span class="card-icon">✈️</span>
@@ -223,12 +223,13 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 <div class="stats-band">
   <div class="stats-grid">
     <div class="stat-box reveal">
-      <div class="stat-num"><span class="counter" data-target="30000" data-pre="RM " data-suf="+">RM 0+</span></div>
-      <div class="stat-lbl">Max monthly earned</div>
+      <div class="stat-num"><span class="counter" data-target="80000" data-pre="RM " data-suf="+">RM 0+</span></div>
+      <div class="stat-lbl">Max monthly commission</div>
     </div>
     <div class="stat-box reveal reveal-d1">
-      <div class="stat-num" style="color:#111">FREE</div>
-      <div class="stat-lbl">Cost to start</div>
+      <div class="stat-num" style="color:#111">RM 2K–3K</div>
+      <div class="stat-lbl">Monthly allowance (starting)</div>
+      <div style="font-size:.72rem;color:#ff7a00;margin-top:6px;font-weight:700">On top of commission ↑</div>
     </div>
     <div class="stat-box reveal reveal-d2">
       <div class="stat-num"><span class="counter" data-target="200" data-suf="+">0+</span></div>
@@ -265,7 +266,7 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
     <div class="step reveal reveal-d4">
       <div class="step-n">04</div>
       <div class="step-title">Lead Your Own Team</div>
-      <p class="step-body">Ready to multiply? Recruit, mentor, and earn override bonuses from your team's production. This is how top earners pass RM 30K/month.</p>
+      <p class="step-body">Ready to multiply? Recruit, mentor, and earn override bonuses from your team's production. This is how top earners pass RM 80K/month in commission — plus a fixed monthly allowance on top.</p>
     </div>
   </div>
 </div>
@@ -335,7 +336,7 @@ function countUp(el, target, pre, suf, duration) {
 }
 window.addEventListener('load', () => {
   setTimeout(() => {
-    countUp(document.getElementById('hq1'), 30000, 'RM ', '+', 1800);
+    countUp(document.getElementById('hq1'), 80000, 'RM ', '+', 1800);
     countUp(document.getElementById('hq2'), 200, '', '+', 1600);
     countUp(document.getElementById('hq3'), 5, '', '+', 1200);
   }, 1200);
