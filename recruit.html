@@ -105,8 +105,14 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .perk-dot{width:8px;height:8px;border-radius:50%;background:#ff7a00;flex-shrink:0}
 
 /* ── COVERAGE MAP ── */
-.state-chips{display:flex;flex-wrap:wrap;gap:10px;max-width:760px;margin:24px auto 0;justify-content:center}
-.state-chip{background:#f7f8fa;border-radius:20px;padding:8px 16px;display:flex;align-items:center;gap:8px;font-size:.83rem;color:#555}
+.map-slide-section{overflow:hidden;background:white;border-top:1px solid #eee;border-bottom:1px solid #eee;padding:64px 20px}
+.map-slide-inner{max-width:1100px;margin:auto;display:flex;gap:56px;align-items:center;flex-wrap:wrap}
+.map-slide-text{flex:1;min-width:260px}
+.map-slide-visual{flex:1.5;min-width:280px;opacity:0;transform:translateX(70px);transition:opacity .85s ease,transform .85s cubic-bezier(.22,1,.36,1)}
+.map-slide-visual.slide-in{opacity:1;transform:translateX(0)}
+@media(max-width:700px){.map-slide-visual{transform:translateY(40px)}.map-slide-visual.slide-in{transform:translateY(0)}}
+.state-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.state-chip{background:#f7f8fa;border-radius:20px;padding:6px 14px;display:flex;align-items:center;gap:7px;font-size:.8rem;color:#555}
 .state-chip strong{color:#ff7a00;font-weight:900;font-variant-numeric:tabular-nums}
 @keyframes dot-pulse{0%{r:6;opacity:.65}100%{r:20;opacity:0}}
 
@@ -147,14 +153,14 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-eyebrow">TSLA Group · Wealth · Takaful · Unit Trust</div>
+  <div class="hero-eyebrow">TSLA Group · Wealth · Takaful · Trust Fund</div>
   <img class="hero-logo" src="assets/tslalogo.png" alt="TSLA Group"/>
   <h1 class="hero-h1">
     <span class="line"><span>Earn</span></span>
     <span class="line"><span>Unlimited.</span></span>
     <span class="line"><span>Live Big.</span></span>
   </h1>
-  <p class="hero-sub">Join a team of high-earning financial consultants in <strong>Wealth &amp; Estate Management, Takaful, and Unit Trust</strong> — building real income, real freedom, with trips and a community that pushes you forward.</p>
+  <p class="hero-sub">Join a team of high-earning financial consultants in <strong>Wealth &amp; Estate Management, Takaful, and Trust Fund</strong> — building real income, real freedom, with trips and a community that pushes you forward.</p>
   <div class="hero-actions">
     <a class="btn-primary" href="#join">Start Your Journey →</a>
     <a class="btn-sec" href="#why">Learn More</a>
@@ -171,6 +177,36 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
     <div class="hero-q">
       <div class="hero-q-val" id="hq3">0</div>
       <div class="hero-q-lbl">Incentive Trips</div>
+    </div>
+  </div>
+</div>
+
+<!-- COVERAGE MAP -->
+<div class="map-slide-section">
+  <div class="map-slide-inner">
+    <div class="map-slide-text">
+      <div class="reveal"><p class="eyebrow">Nationwide Reach</p></div>
+      <div class="reveal reveal-d1"><h2 class="section-title">All of<br>Malaysia.</h2></div>
+      <p class="section-body reveal reveal-d2">Dari Perlis hingga Sabah — kami ada di mana-mana untuk melindungi keluarga Malaysia.</p>
+      <div class="state-chips reveal reveal-d3" id="stateChips"></div>
+      <div class="reveal reveal-d4" style="margin-top:20px">
+        <span style="font-size:2.4rem;font-weight:900;color:#ff7a00;font-variant-numeric:tabular-nums" id="mapTotal">0</span>
+        <span style="color:#666;font-size:.88rem;margin-left:8px">keluarga dilindungi</span>
+      </div>
+    </div>
+    <div class="map-slide-visual" id="mapVisual">
+      <svg id="myMap" viewBox="0 0 760 490" style="width:100%;display:block;overflow:visible">
+        <defs>
+          <filter id="map-glow">
+            <feGaussianBlur stdDeviation="2.5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <g id="mapShapes"></g>
+        <line x1="320" y1="90" x2="320" y2="448" stroke="#eee" stroke-width="1.5" stroke-dasharray="5,4"/>
+        <text x="326" y="462" fill="#ccc" font-size="9" font-family="-apple-system,sans-serif" font-style="italic">Sarawak &amp; Sabah not to scale</text>
+        <g id="mapDots"></g>
+      </svg>
     </div>
   </div>
 </div>
@@ -218,8 +254,8 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
     </div>
     <div class="card reveal reveal-d3">
       <span class="card-icon">📈</span>
-      <div class="card-title">Unit Trust</div>
-      <p class="card-body">Connect clients with professionally managed investment funds — building passive returns while you earn ongoing advisory commissions on every portfolio.</p>
+      <div class="card-title">Trust Fund</div>
+      <p class="card-body">Connect clients with Shariah-compliant trust funds — professionally managed to grow wealth over time while you earn advisory commissions on every portfolio.</p>
       <span class="card-tag">Investment Advisory</span>
     </div>
   </div>
@@ -283,7 +319,7 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
     <div class="step reveal reveal-d1">
       <div class="step-n">01</div>
       <div class="step-title">Get Certified</div>
-      <p class="step-body">TSLA supports your licensing exams and onboarding across Takaful, Unit Trust, and Wealth Management. Full training from day one.</p>
+      <p class="step-body">TSLA supports your licensing exams and onboarding across Takaful, Trust Fund, and Wealth Management. Full training from day one.</p>
     </div>
     <div class="step reveal reveal-d2">
       <div class="step-n">02</div>
@@ -303,33 +339,6 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
   </div>
 </div>
 
-<!-- COVERAGE MAP -->
-<div style="background:white;border-top:1px solid #eee;border-bottom:1px solid #eee;padding:80px 20px">
-  <div style="max-width:1100px;margin:auto">
-    <div class="reveal"><p class="eyebrow">Nationwide Reach</p></div>
-    <div class="reveal reveal-d1"><h2 class="section-title">Covering all<br>of Malaysia.</h2></div>
-    <p class="section-body reveal reveal-d2">Dari Perlis hingga Sabah — kami ada di mana-mana untuk melindungi keluarga Malaysia.</p>
-    <div class="reveal reveal-d2" style="margin-top:40px">
-      <svg id="myMap" viewBox="0 0 760 490" style="width:100%;max-width:760px;display:block;margin:auto;overflow:visible">
-        <defs>
-          <filter id="map-glow">
-            <feGaussianBlur stdDeviation="2.5" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-        <g id="mapShapes"></g>
-        <line x1="328" y1="95" x2="328" y2="445" stroke="#eee" stroke-width="1.5" stroke-dasharray="6,4"/>
-        <text x="334" y="460" fill="#ccc" font-size="9" font-family="-apple-system,sans-serif" font-style="italic">Sarawak &amp; Sabah not to scale</text>
-        <g id="mapDots"></g>
-      </svg>
-    </div>
-    <div class="state-chips reveal reveal-d3" id="stateChips"></div>
-    <div class="reveal reveal-d3" style="text-align:center;margin-top:28px">
-      <span style="font-size:2.8rem;font-weight:900;color:#ff7a00;font-variant-numeric:tabular-nums" id="mapTotal">0</span>
-      <span style="color:#888;font-size:.95rem;margin-left:10px">keluarga dilindungi di seluruh Malaysia</span>
-    </div>
-  </div>
-</div>
 
 <!-- BALI CALLOUT -->
 <div class="bali-band">
@@ -377,7 +386,7 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 </div>
 
 <div class="footer">
-  © 2026 <strong>TSLA Group</strong> · Wealth · Takaful · Unit Trust · Malaysia<br>
+  © 2026 <strong>TSLA Group</strong> · Wealth · Takaful · Trust Fund · Malaysia<br>
   <span style="margin-top:6px;display:block">A <strong>Kaiser Group</strong> company</span>
 </div>
 
@@ -484,12 +493,12 @@ function handleForm(e) {
   const shapesG = document.getElementById('mapShapes');
   if (!shapesG) return;
   [
-    /* Peninsular Malaysia — accurate simplified outline */
-    'M 95,72 C 103,69 114,66 128,63 L 148,60 L 168,58 L 188,57 C 200,57 210,59 218,64 L 230,72 L 238,84 C 243,94 246,108 246,124 L 246,144 L 248,164 L 250,188 L 252,214 L 253,240 L 253,264 L 252,288 L 249,310 L 244,332 L 237,354 L 228,375 L 217,394 L 206,412 L 196,428 L 186,441 C 179,450 171,456 162,459 L 150,461 C 140,461 130,457 120,449 L 110,438 L 100,422 L 91,403 L 84,382 L 78,358 L 73,332 L 69,305 L 66,276 L 64,246 L 63,215 L 63,186 L 65,158 C 67,140 71,123 77,110 L 83,98 Z',
-    /* Sarawak — accurate outline (NW Borneo, long coastal state) */
-    'M 345,222 C 352,210 362,199 374,190 L 390,180 L 410,170 L 432,161 L 456,154 L 480,149 L 504,147 L 526,148 C 542,150 556,155 568,164 L 580,176 C 590,188 596,204 598,222 L 600,244 L 601,268 L 600,294 L 597,320 C 593,338 585,352 574,362 L 558,372 L 538,381 L 514,388 L 488,393 L 460,395 L 432,393 L 406,387 L 382,377 L 362,363 C 350,352 343,337 340,318 L 338,294 L 338,268 L 339,244 L 341,232 Z',
-    /* Sabah — accurate outline (NE Borneo) */
-    'M 602,182 C 612,166 626,148 644,132 L 658,118 L 672,105 L 688,95 L 705,88 L 720,85 C 733,84 744,87 753,95 L 760,108 C 765,120 766,136 762,154 L 756,174 L 746,196 L 733,216 L 718,234 C 706,248 692,258 676,264 L 658,268 L 640,268 C 624,267 610,258 598,244 L 590,228 L 585,210 Z',
+    /* Peninsular Malaysia — Natural Earth simplified */
+    'M 88,82 C 104,76 128,68 155,63 L 178,60 C 195,59 208,62 218,68 L 228,78 C 238,90 244,108 244,130 L 245,155 L 248,182 L 250,212 L 252,244 L 252,276 L 249,306 L 244,334 L 236,360 L 226,384 L 215,406 L 202,424 L 189,440 C 181,450 172,457 162,460 L 148,462 C 138,462 128,458 118,450 L 107,437 L 96,420 L 87,400 L 79,377 L 73,352 L 68,325 L 64,297 L 62,268 L 61,238 L 62,208 L 63,178 L 66,150 C 69,130 74,114 80,102 Z',
+    /* Sarawak — NW Borneo coast */
+    'M 338,230 C 348,214 364,200 383,188 L 406,176 L 432,164 L 458,155 L 484,149 L 508,147 L 528,149 C 544,152 557,159 568,170 L 578,184 C 585,198 588,216 586,236 L 584,260 L 580,284 L 574,306 C 568,324 558,337 545,347 L 526,357 L 504,365 L 480,370 L 454,372 L 428,370 L 402,364 L 380,354 C 364,344 353,330 347,312 L 342,290 L 340,266 L 338,244 Z',
+    /* Sabah — NE Borneo */
+    'M 585,192 C 596,174 614,154 636,136 L 655,120 L 673,107 L 692,97 L 710,90 C 724,86 737,87 747,95 L 756,108 C 762,122 762,140 756,160 L 746,182 L 732,204 L 716,224 C 702,240 686,251 668,256 L 648,260 C 630,260 615,251 602,236 L 592,218 L 586,200 Z',
   ].forEach(d => {
     const p = document.createElementNS(ns, 'path');
     p.setAttribute('d', d);
@@ -529,6 +538,15 @@ function handleForm(e) {
     d.innerHTML = '<span>' + s.name + '</span><strong>' + s.n + '</strong>';
     chips.appendChild(d);
   });
+
+  /* Map slide-in animation */
+  const mapVisEl = document.getElementById('mapVisual');
+  if (mapVisEl) {
+    const slideObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('slide-in'); slideObs.unobserve(e.target); } });
+    }, {threshold: 0.15});
+    slideObs.observe(mapVisEl);
+  }
 
   /* Total count-up on scroll */
   const totalEl = document.getElementById('mapTotal');
