@@ -145,6 +145,38 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 
 .modal-daily-hint{font-size:.75rem;color:#aaa;text-align:center;margin-top:4px}
 
+/* COMMITMENTS TRACKER */
+.commit-tracker{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.06);padding:20px 24px;margin-bottom:20px}
+.ct-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ct-title{font-weight:900;font-size:.95rem}
+.ct-tally{font-size:.78rem;color:#888;font-weight:700}
+.ct-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f5f5f5;flex-wrap:wrap}
+.ct-row:last-of-type{border-bottom:none}
+.ct-name{flex:1;font-size:.88rem;font-weight:700;min-width:80px}
+.ct-fullamt{font-size:.78rem;color:#bbb;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ct-action{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.pay-btn{padding:6px 16px;border:1.5px solid #eee;border-radius:20px;background:transparent;color:#888;font-size:.75rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s;white-space:nowrap}
+.pay-btn:hover{border-color:#ff7a00;color:#ff7a00;background:#fff8f4}
+.pay-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:.75rem;font-weight:800}
+.pay-chip.paid-full{background:#e8f5ee;color:#0a9b43}
+.pay-chip.paid-partial{background:#fff4eb;color:#ff7a00}
+.pay-reset{background:none;border:none;color:#ddd;cursor:pointer;font-size:.95rem;padding:0 2px;line-height:1;transition:.2s}
+.pay-reset:hover{color:#e53935}
+.pay-form{display:flex;gap:6px;align-items:center;flex-wrap:wrap;animation:rowIn .2s ease}
+.pay-form-full-btn{padding:7px 13px;border:none;border-radius:12px;background:#e8f5ee;color:#0a9b43;font-size:.75rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s;white-space:nowrap}
+.pay-form-full-btn:hover{background:#d1edd8}
+.pay-inp-wrap{display:flex;align-items:center;border:2px solid #eee;border-radius:12px;overflow:hidden;transition:.2s;width:116px;flex-shrink:0}
+.pay-inp-wrap:focus-within{border-color:#ff7a00}
+.pay-inp-pre{padding:0 7px;font-size:.72rem;font-weight:800;color:#aaa;background:#f7f8fa;border-right:2px solid #eee;align-self:stretch;display:flex;align-items:center}
+.pay-inp{width:80px;padding:7px 8px;border:none;font-size:.82rem;font-weight:700;color:#111;font-variant-numeric:tabular-nums;background:transparent;outline:none;font-family:inherit}
+.pay-ok-btn{padding:7px 13px;border:none;border-radius:12px;background:#0a9b43;color:white;font-size:.75rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s}
+.pay-ok-btn:hover{background:#088a38}
+.pay-cancel{background:none;border:none;color:#ccc;font-size:.9rem;cursor:pointer;padding:0 3px;font-family:inherit}
+.ct-prog-wrap{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid #f5f5f5}
+.ct-prog-track{flex:1;height:7px;background:#f0f0f0;border-radius:6px;overflow:hidden}
+.ct-prog-fill{height:100%;background:linear-gradient(90deg,#0a9b43,#34d399);border-radius:6px;transition:width .45s cubic-bezier(.22,1,.36,1)}
+.ct-prog-lbl{font-size:.72rem;font-weight:800;color:#888;white-space:nowrap;font-variant-numeric:tabular-nums}
+
 /* FOOTER */
 .footer{padding:32px 20px;text-align:center;color:#aaa;font-size:.78rem;border-top:1px solid #eee}
 </style>
@@ -222,6 +254,9 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
     </div>
   </div>
 
+  <!-- COMMITMENTS TRACKER -->
+  <div class="commit-tracker" id="commitTracker" style="display:none"></div>
+
   <!-- CALENDAR -->
   <div class="cal-wrap">
     <div class="cal-head" id="calHead"></div>
@@ -262,7 +297,8 @@ const SK = 'tsla_budget2';
 let data = {
   salary: 0,
   commitments: [],
-  expenses: {},   // { 'YYYY-MM-DD': [{id, desc, amt}] }
+  expenses: {},    // { 'YYYY-MM-DD': [{id, desc, amt}] }
+  payments: {},    // { 'YYYY-MM': { commitId: paidAmt } }
 };
 
 let viewYear  = new Date().getFullYear();
@@ -372,12 +408,127 @@ function recalcSetup() {
   save();
 }
 
+/* ── commitment payment tracking ── */
+function payKey() {
+  return `${viewYear}-${String(viewMonth+1).padStart(2,'0')}`;
+}
+
+function getPayment(commitId) {
+  const monthData = (data.payments || {})[payKey()] || {};
+  return monthData.hasOwnProperty(commitId) ? monthData[commitId] : null;
+}
+
+function setPayment(commitId, paidAmt) {
+  if (!data.payments) data.payments = {};
+  if (!data.payments[payKey()]) data.payments[payKey()] = {};
+  data.payments[payKey()][commitId] = paidAmt;
+  save();
+  renderCommitmentsTracker();
+}
+
+function clearPayment(commitId) {
+  if (!data.payments || !data.payments[payKey()]) return;
+  delete data.payments[payKey()][commitId];
+  save();
+  renderCommitmentsTracker();
+}
+
+function renderCommitmentsTracker() {
+  const el = document.getElementById('commitTracker');
+  if (!el) return;
+  if (!data.commitments.length) { el.style.display = 'none'; return; }
+  el.style.display = '';
+
+  let totalAmt = 0, paidTotal = 0;
+  data.commitments.forEach(c => {
+    const amt = parseFloat(c.amount) || 0;
+    totalAmt += amt;
+    const paid = getPayment(c.id);
+    if (paid !== null) paidTotal += Math.min(paid, amt);
+  });
+
+  const pct = totalAmt > 0 ? Math.round(paidTotal / totalAmt * 100) : 0;
+  const monthName = new Date(viewYear, viewMonth, 1).toLocaleString('en-MY', {month:'long', year:'numeric'});
+
+  let html = `
+    <div class="ct-header">
+      <span class="ct-title">💳 Commitments — ${monthName}</span>
+      <span class="ct-tally">${pct}% paid</span>
+    </div>`;
+
+  data.commitments.forEach(c => {
+    const amt = parseFloat(c.amount) || 0;
+    const paid = getPayment(c.id);
+    const isPaidFull = paid !== null && paid >= amt;
+    const isPaidPartial = paid !== null && paid > 0 && paid < amt;
+
+    let actionHtml;
+    if (isPaidFull) {
+      actionHtml = `<div class="ct-action">
+        <span class="pay-chip paid-full">✓ Paid RM ${amt.toFixed(2)}</span>
+        <button class="pay-reset" onclick="clearPayment(${c.id})" title="Clear">×</button>
+      </div>`;
+    } else if (isPaidPartial) {
+      actionHtml = `<div class="ct-action">
+        <span class="pay-chip paid-partial">~ RM ${paid.toFixed(2)} paid</span>
+        <button class="pay-reset" onclick="clearPayment(${c.id})" title="Clear">×</button>
+      </div>`;
+    } else {
+      actionHtml = `<div class="ct-action" id="ct-action-${c.id}">
+        <button class="pay-btn" onclick="showPayForm(${c.id})">Pay</button>
+      </div>`;
+    }
+
+    html += `<div class="ct-row">
+      <span class="ct-name">${(c.name||'Unnamed').replace(/</g,'&lt;')}</span>
+      <span class="ct-fullamt">RM ${amt.toFixed(2)}</span>
+      ${actionHtml}
+    </div>`;
+  });
+
+  html += `<div class="ct-prog-wrap">
+    <div class="ct-prog-track"><div class="ct-prog-fill" style="width:${pct}%"></div></div>
+    <span class="ct-prog-lbl">RM ${paidTotal.toFixed(2)} / RM ${totalAmt.toFixed(2)}</span>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+function showPayForm(commitId) {
+  const c = data.commitments.find(x => x.id === commitId);
+  if (!c) return;
+  const amt = parseFloat(c.amount) || 0;
+  const actionEl = document.getElementById(`ct-action-${commitId}`);
+  if (!actionEl) return;
+  actionEl.innerHTML = `<div class="pay-form">
+    <button class="pay-form-full-btn" onclick="setPayment(${commitId}, ${amt})">Full RM ${amt.toFixed(2)}</button>
+    <div class="pay-inp-wrap">
+      <span class="pay-inp-pre">RM</span>
+      <input class="pay-inp" id="pay-inp-${commitId}" type="number" min="0" step="0.01" max="${amt}" placeholder="0.00" onkeydown="if(event.key==='Enter')confirmPartial(${commitId})"/>
+    </div>
+    <button class="pay-ok-btn" onclick="confirmPartial(${commitId})">OK</button>
+    <button class="pay-cancel" onclick="renderCommitmentsTracker()">✕</button>
+  </div>`;
+  setTimeout(() => document.getElementById(`pay-inp-${commitId}`)?.focus(), 50);
+}
+
+function confirmPartial(commitId) {
+  const c = data.commitments.find(x => x.id === commitId);
+  if (!c) return;
+  const maxAmt = parseFloat(c.amount) || 0;
+  const inp = document.getElementById(`pay-inp-${commitId}`);
+  const val = parseFloat(inp?.value) || 0;
+  if (val <= 0) return;
+  setPayment(commitId, Math.min(val, maxAmt));
+}
+
 /* ── calendar ── */
 function changeMonth(delta) {
   viewMonth += delta;
   if (viewMonth > 11) { viewMonth = 0; viewYear++; }
   if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
   renderCalendar();
+  renderCommitmentsTracker();
 }
 
 function renderCalendar() {
@@ -558,12 +709,14 @@ function save() {
 function load() {
   const raw = localStorage.getItem(SK);
   if (raw) {
-    try { data = JSON.parse(raw); } catch(e) { data = {salary:0, commitments:[], expenses:{}}; }
+    try { data = JSON.parse(raw); } catch(e) { data = {salary:0, commitments:[], expenses:{}, payments:{}}; }
   }
+  if (!data.payments) data.payments = {};
   // Restore salary input
   document.getElementById('salaryInput').value = data.salary || '';
   renderCommits();
   recalcSetup();
+  renderCommitmentsTracker();
 
   // Auto-open setup if no salary set
   if (!data.salary) {
