@@ -188,6 +188,17 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .ct-prog-fill{height:100%;background:linear-gradient(90deg,#0a9b43,#34d399);border-radius:6px;transition:width .45s cubic-bezier(.22,1,.36,1)}
 .ct-prog-lbl{font-size:.72rem;font-weight:800;color:#888;white-space:nowrap;font-variant-numeric:tabular-nums}
 
+/* PERIOD INPUTS */
+.period-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.period-inp{flex:1;min-width:130px;padding:11px 12px;border:2px solid #eee;border-radius:12px;font-size:.85rem;font-weight:600;font-family:inherit;color:#111;background:#f7f8fa;outline:none;transition:.2s}
+.period-inp:focus{border-color:#ff7a00;background:white}
+.period-sep{font-size:.8rem;color:#aaa;font-weight:700;flex-shrink:0}
+
+/* OUT-OF-PERIOD CALENDAR DAYS */
+.cal-day.out-of-period{background:#f9f9f9;cursor:default}
+.cal-day.out-of-period:hover{background:#f9f9f9}
+.cal-day.out-of-period .cal-day-num{color:#ddd}
+
 /* FOOTER */
 .footer{padding:32px 20px;text-align:center;color:#aaa;font-size:.78rem;border-top:1px solid #eee}
 </style>
@@ -234,6 +245,15 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
         <div class="field-lbl">Monthly Commitments</div>
         <div class="commit-list" id="commitList"></div>
         <button class="add-btn" onclick="addCommit()">+ Add Commitment</button>
+      </div>
+      <!-- Full-width: period -->
+      <div style="grid-column:1/-1">
+        <div class="field-lbl">Budget Period</div>
+        <div class="period-row">
+          <input class="period-inp" type="date" id="periodFromInput" oninput="recalcSetup()"/>
+          <span class="period-sep">to</span>
+          <input class="period-inp" type="date" id="periodToInput" oninput="recalcSetup()"/>
+        </div>
       </div>
     </div>
   </div>
@@ -316,8 +336,10 @@ const SK = 'tsla_budget2';
 let data = {
   salary: 0,
   commitments: [],
-  expenses: {},    // { 'YYYY-MM-DD': [{id, desc, amt}] }
-  payments: {},    // { 'YYYY-MM': { commitId: paidAmt } }
+  expenses: {},     // { 'YYYY-MM-DD': [{id, desc, amt}] }
+  payments: {},     // { 'YYYY-MM': { commitId: paidAmt } }
+  periodFrom: '',   // 'YYYY-MM-DD'
+  periodTo:   '',   // 'YYYY-MM-DD'
 };
 
 let viewYear  = new Date().getFullYear();
@@ -342,25 +364,59 @@ function fmtDate(str) {
   const d = new Date(str + 'T00:00:00');
   return d.toLocaleDateString('en-MY', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 }
-function dailyBudget() {
-  const totalCommit = data.commitments.reduce((s,c) => s + (parseFloat(c.amount) || 0), 0);
-  const free = (parseFloat(data.salary) || 0) - totalCommit;
-  const days = daysInMonth(viewYear, viewMonth);
-  return free / days;
-}
 function spentOnDay(str) {
   return (data.expenses[str] || []).reduce((s, e) => s + (parseFloat(e.amt) || 0), 0);
 }
 
-/* Rolling balance up to and including a date (within viewYear/viewMonth) */
-function balanceUpTo(dayNum) {
+/* Advance a YYYY-MM-DD string by 1 day */
+function advDay(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  const dt = new Date(y, m - 1, d + 1);
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+}
+
+function isInPeriod(str) {
+  const f = data.periodFrom, t = data.periodTo;
+  if (!f || !t) return true;
+  return str >= f && str <= t;
+}
+
+function periodDays() {
+  const f = data.periodFrom, t = data.periodTo;
+  if (!f || !t || f > t) return daysInMonth(viewYear, viewMonth);
+  const [fy, fm, fd] = f.split('-').map(Number);
+  const [ty, tm, td] = t.split('-').map(Number);
+  return Math.round((new Date(ty, tm-1, td) - new Date(fy, fm-1, fd)) / 86400000) + 1;
+}
+
+function dailyBudget() {
+  const totalCommit = data.commitments.reduce((s,c) => s + (parseFloat(c.amount) || 0), 0);
+  const free = (parseFloat(data.salary) || 0) - totalCommit;
+  return free / periodDays();
+}
+
+/* Balance at a specific date, accumulating from period start (or month start if no period) */
+function balanceAtDate(targetStr) {
   const db = dailyBudget();
-  let bal = 0;
-  for (let d = 1; d <= dayNum; d++) {
-    const str = dateStr(viewYear, viewMonth, d);
-    bal += db - spentOnDay(str);
+  const f = data.periodFrom, t = data.periodTo;
+
+  if (!f || !t) {
+    // No period — accumulate from day 1 of view month
+    const dayNum = parseInt(targetStr.split('-')[2]);
+    let bal = 0;
+    for (let d = 1; d <= dayNum; d++) bal += db - spentOnDay(dateStr(viewYear, viewMonth, d));
+    return bal;
   }
+
+  if (targetStr < f) return 0;
+  const end = targetStr > t ? t : targetStr;
+  let bal = 0, cur = f;
+  while (cur <= end) { bal += db - spentOnDay(cur); cur = advDay(cur); }
   return bal;
+}
+
+function balanceUpTo(dayNum) {
+  return balanceAtDate(dateStr(viewYear, viewMonth, dayNum));
 }
 
 /* ── setup panel ── */
@@ -414,7 +470,9 @@ function updateCommit(id, field, val) {
 }
 
 function recalcSetup() {
-  data.salary = parseFloat(document.getElementById('salaryInput').value) || 0;
+  data.salary     = parseFloat(document.getElementById('salaryInput').value) || 0;
+  data.periodFrom = document.getElementById('periodFromInput').value || '';
+  data.periodTo   = document.getElementById('periodToInput').value   || '';
   const summaryEl = document.getElementById('setupSummary');
   summaryEl.textContent = data.salary > 0 ? 'Configured ✓' : 'Tap to configure salary & commitments';
   renderCalendar();
@@ -573,37 +631,40 @@ function renderCalendar() {
 
   // Day cells
   for (let d = 1; d <= days; d++) {
-    const str = dateStr(viewYear, viewMonth, d);
+    const str      = dateStr(viewYear, viewMonth, d);
     const isPast   = str < today;
     const isToday  = str === today;
     const isFuture = str > today;
-    const bal   = balanceUpTo(d);
-    const spent = spentOnDay(str);
-    const hasData = (data.expenses[str] || []).length > 0;
+    const inPeriod = isInPeriod(str);
+    const bal      = inPeriod ? balanceUpTo(d) : 0;
+    const spent    = spentOnDay(str);
+    const hasData  = (data.expenses[str] || []).length > 0;
 
     const el = document.createElement('div');
     let cls = 'cal-day';
-    if (isToday)  cls += ' today past';
-    if (isPast)   cls += ' past';
-    if (isFuture) cls += ' future';
-    if (bal > 0)  cls += ' surplus';
-    if (bal < 0)  cls += ' deficit';
-    if (hasData)  cls += ' has-data';
+    if (!inPeriod) cls += ' out-of-period';
+    if (isToday)   cls += ' today past';
+    if (isPast)    cls += ' past';
+    if (isFuture)  cls += ' future';
+    if (inPeriod && bal > 0) cls += ' surplus';
+    if (inPeriod && bal < 0) cls += ' deficit';
+    if (hasData)   cls += ' has-data';
     el.className = cls;
     el.onclick = () => openDay(str);
 
     let inner = `<span class="cal-day-num">${d}</span>`;
     if (hasData) inner += `<span class="cal-day-dot"></span>`;
 
-    if (!isFuture || isToday) {
+    if (!inPeriod) {
+      // Greyed out — outside budget period
+      inner += `<span class="cal-day-bal" style="color:#ddd;font-size:.72rem">—</span>`;
+    } else if (!isFuture || isToday) {
       const sign = bal >= 0 ? '' : '−';
       const abs  = Math.abs(bal);
       inner += `<span class="cal-day-bal"><span class="bal-wide">${sign}RM ${abs.toFixed(2)}</span><span class="bal-narrow">${sign}${abs.toFixed(0)}</span></span>`;
-      if (spent > 0) {
-        inner += `<span class="cal-day-spent">−RM ${spent.toFixed(2)}</span>`;
-      }
+      if (spent > 0) inner += `<span class="cal-day-spent">−RM ${spent.toFixed(2)}</span>`;
     } else {
-      const dbAbs = db > 0 ? db.toFixed(2) : '—';
+      const dbAbs    = db > 0 ? db.toFixed(2) : '—';
       const dbNarrow = db > 0 ? '+' + Math.round(db) : '—';
       inner += `<span class="cal-day-bal" style="color:#ccc;font-size:.78rem"><span class="bal-wide">+RM ${dbAbs}</span><span class="bal-narrow">${dbNarrow}</span></span>`;
     }
@@ -616,27 +677,34 @@ function renderCalendar() {
 }
 
 function updateSummaryStrip(today, days, db) {
-  // Total spent this month up to today
-  let totalSpent = 0;
-  const todayDate = new Date(today + 'T00:00:00');
-  const isCurrentMonth = (todayDate.getFullYear() === viewYear && todayDate.getMonth() === viewMonth);
+  const f = data.periodFrom, t = data.periodTo;
+  const effectiveFrom = f || dateStr(viewYear, viewMonth, 1);
+  const effectiveTo   = t || dateStr(viewYear, viewMonth, days);
 
-  for (let d = 1; d <= days; d++) {
-    const str = dateStr(viewYear, viewMonth, d);
-    if (str <= today) totalSpent += spentOnDay(str);
+  // Total spent within period up to today
+  let totalSpent = 0;
+  const scanTo = today < effectiveTo ? today : effectiveTo;
+  if (scanTo >= effectiveFrom) {
+    let cur = effectiveFrom;
+    while (cur <= scanTo) { totalSpent += spentOnDay(cur); cur = advDay(cur); }
   }
 
-  // Current balance (up to today or last day of month if past month)
-  const lastDay = isCurrentMonth ? todayDate.getDate() : days;
-  const bal = balanceUpTo(lastDay);
+  // Balance at today (capped to period end)
+  const balDate = today <= effectiveTo ? today : effectiveTo;
+  const bal = balDate >= effectiveFrom ? balanceAtDate(balDate) : 0;
+
+  // Days left in period from today+1
+  let daysLeft = 0;
+  if (today >= effectiveFrom && today < effectiveTo) {
+    let cur = advDay(today);
+    while (cur <= effectiveTo) { daysLeft++; cur = advDay(cur); }
+  }
 
   document.getElementById('stripDaily').textContent = db > 0 ? `RM ${db.toFixed(2)}` : '—';
   document.getElementById('stripSpent').textContent = `RM ${totalSpent.toFixed(2)}`;
   const balEl = document.getElementById('stripBalance');
   balEl.textContent = `${bal >= 0 ? '' : '−'}RM ${Math.abs(bal).toFixed(2)}`;
   balEl.className = 'strip-val ' + (bal > 0 ? 'pos' : bal < 0 ? 'neg' : '');
-
-  const daysLeft = isCurrentMonth ? days - todayDate.getDate() : 0;
   document.getElementById('stripDaysLeft').textContent = daysLeft > 0 ? `${daysLeft} days` : '—';
 }
 
@@ -735,9 +803,13 @@ function load() {
   if (raw) {
     try { data = JSON.parse(raw); } catch(e) { data = {salary:0, commitments:[], expenses:{}, payments:{}}; }
   }
-  if (!data.payments) data.payments = {};
-  // Restore salary input
-  document.getElementById('salaryInput').value = data.salary || '';
+  if (!data.payments)    data.payments    = {};
+  if (!data.periodFrom)  data.periodFrom  = '';
+  if (!data.periodTo)    data.periodTo    = '';
+  // Restore inputs
+  document.getElementById('salaryInput').value     = data.salary || '';
+  document.getElementById('periodFromInput').value = data.periodFrom;
+  document.getElementById('periodToInput').value   = data.periodTo;
   renderCommits();
   recalcSetup();
   renderCommitmentsTracker();
