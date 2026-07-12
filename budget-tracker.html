@@ -396,14 +396,8 @@ function updateCommit(id, field, val) {
 
 function recalcSetup() {
   data.salary = parseFloat(document.getElementById('salaryInput').value) || 0;
-  const db = dailyBudget();
-  const totalCommit = data.commitments.reduce((s,c) => s + (parseFloat(c.amount)||0), 0);
   const summaryEl = document.getElementById('setupSummary');
-  if (data.salary > 0) {
-    summaryEl.textContent = `Salary RM ${data.salary.toLocaleString('en-MY')} · Commitments RM ${totalCommit.toLocaleString('en-MY')} · Daily RM ${db.toFixed(2)}`;
-  } else {
-    summaryEl.textContent = 'Tap to configure salary & commitments';
-  }
+  summaryEl.textContent = data.salary > 0 ? 'Configured ✓' : 'Tap to configure salary & commitments';
   renderCalendar();
   save();
 }
