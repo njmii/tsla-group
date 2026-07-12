@@ -96,6 +96,71 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 
 /* FOOTER */
 .footer{padding:32px 20px;text-align:center;color:#aaa;font-size:.78rem;border-top:1px solid #eee}
+
+/* P&L SECTION */
+.pl-section{max-width:1100px;margin:0 auto 80px;padding:0 20px}
+.pl-section-title{margin-bottom:28px}
+.pl-section-title .eyebrow{margin-bottom:8px}
+.pl-section-title h2{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:900;letter-spacing:-.03em}
+.pl-section-title p{color:#888;font-size:.9rem;margin-top:6px}
+
+/* Add form */
+.pl-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.pl-field{display:flex;flex-direction:column;gap:6px}
+.pl-field label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#aaa}
+.pl-input{padding:12px 14px;border:2px solid #eee;border-radius:14px;font-size:.9rem;font-weight:600;font-family:inherit;color:#111;background:#f7f8fa;outline:none;transition:.2s}
+.pl-input:focus{border-color:#ff7a00;background:white}
+.pl-date{width:148px}
+.pl-desc{flex:1;min-width:160px}
+.pl-amt-wrap{display:flex;align-items:center;border:2px solid #eee;border-radius:14px;overflow:hidden;transition:.2s;background:#f7f8fa}
+.pl-amt-wrap:focus-within{border-color:#ff7a00;background:white}
+.pl-amt-pre{padding:0 10px;font-size:.78rem;font-weight:800;color:#aaa;border-right:2px solid #eee;align-self:stretch;display:flex;align-items:center}
+.pl-amt-inp{width:110px;padding:12px 10px;border:none;font-size:.9rem;font-weight:700;color:#111;font-variant-numeric:tabular-nums;background:transparent;outline:none;font-family:inherit}
+.pl-type-toggle{display:flex;border:2px solid #eee;border-radius:14px;overflow:hidden}
+.pl-type-btn{padding:12px 18px;border:none;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s;background:#f7f8fa;color:#aaa}
+.pl-type-btn.active-in{background:#e8f5ee;color:#0a9b43}
+.pl-type-btn.active-out{background:#fde8e8;color:#e53935}
+.pl-add-btn{padding:12px 22px;border:none;border-radius:14px;background:#ff7a00;color:white;font-weight:800;font-size:.88rem;cursor:pointer;font-family:inherit;transition:.2s;white-space:nowrap;align-self:flex-end}
+.pl-add-btn:hover{background:#e56d00}
+
+/* Summary strip */
+.pl-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0}
+@media(max-width:560px){.pl-strip{grid-template-columns:1fr}}
+.pl-strip-card{background:white;border-radius:22px;padding:20px 22px;box-shadow:0 4px 20px rgba(0,0,0,.05)}
+.pl-strip-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#aaa;margin-bottom:8px}
+.pl-strip-amt{font-size:1.6rem;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.amt-in{color:#0a9b43}
+.amt-out{color:#e53935}
+.amt-bal-pos{color:#ff7a00}
+.amt-bal-neg{color:#e53935}
+
+/* Entries table */
+.pl-entries-wrap{background:white;border-radius:28px;box-shadow:0 4px 20px rgba(0,0,0,.05);overflow:hidden}
+.pl-entries-head{display:grid;grid-template-columns:100px 1fr 80px 110px 120px 36px;gap:0;padding:12px 20px;background:#f7f8fa;border-bottom:1px solid #eee}
+@media(max-width:680px){.pl-entries-head{display:none}}
+.pl-entries-hcell{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#aaa}
+.pl-entry-row{display:grid;grid-template-columns:100px 1fr 80px 110px 120px 36px;gap:0;padding:14px 20px;border-bottom:1px solid #f5f5f5;align-items:center;transition:.15s}
+.pl-entry-row:last-child{border-bottom:none}
+.pl-entry-row:hover{background:#fafafa}
+@media(max-width:680px){
+  .pl-entry-row{grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:4px 0;padding:14px 16px}
+  .pl-entry-date{grid-column:1;font-size:.73rem;color:#aaa}
+  .pl-entry-desc{grid-column:1;font-weight:700}
+  .pl-entry-type{display:none}
+  .pl-entry-amt{grid-column:2;grid-row:1/3;align-self:center;text-align:right;font-size:1.05rem}
+  .pl-entry-bal{display:none}
+  .pl-entry-del{grid-column:2;justify-self:end;margin-top:4px}
+}
+.pl-entry-date{font-size:.78rem;color:#888;font-variant-numeric:tabular-nums}
+.pl-entry-desc{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:12px}
+.pl-entry-type-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:800}
+.badge-in{background:#e8f5ee;color:#0a9b43}
+.badge-out{background:#fde8e8;color:#e53935}
+.pl-entry-amt{font-size:.92rem;font-weight:800;font-variant-numeric:tabular-nums}
+.pl-entry-bal{font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums;color:#888}
+.pl-entry-del-btn{width:30px;height:30px;border-radius:50%;border:none;background:#f5f5f5;color:#bbb;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.pl-entry-del-btn:hover{background:#fde8e8;color:#e53935}
+.pl-empty{padding:40px 20px;text-align:center;color:#ccc;font-size:.88rem}
 </style>
 </head>
 <body>
@@ -189,6 +254,77 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
     </div>
   </div>
 
+</div>
+
+<!-- DIVIDER -->
+<div style="max-width:1100px;margin:0 auto;padding:0 20px"><div style="border-top:2px dashed #eee"></div></div>
+
+<!-- P&L SECTION -->
+<div class="pl-section" style="margin-top:48px">
+  <div class="pl-section-title">
+    <p class="eyebrow">Daily Tracker</p>
+    <h2>Profit &amp; Loss</h2>
+    <p>Log every ringgit in and out — see your running balance as you go.</p>
+  </div>
+
+  <!-- Add entry card -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">Add Entry</div>
+    <div class="pl-form">
+      <div class="pl-field">
+        <label>Date</label>
+        <input class="pl-input pl-date" type="date" id="plDate"/>
+      </div>
+      <div class="pl-field" style="flex:1;min-width:180px">
+        <label>Description</label>
+        <input class="pl-input pl-desc" type="text" id="plDesc" placeholder="e.g. Groceries, Salary…" maxlength="80"/>
+      </div>
+      <div class="pl-field">
+        <label>Type</label>
+        <div class="pl-type-toggle" id="plTypeToggle">
+          <button class="pl-type-btn active-in" id="plBtnIn" onclick="setPlType('in')">▲ In</button>
+          <button class="pl-type-btn" id="plBtnOut" onclick="setPlType('out')">▼ Out</button>
+        </div>
+      </div>
+      <div class="pl-field">
+        <label>Amount</label>
+        <div class="pl-amt-wrap">
+          <span class="pl-amt-pre">RM</span>
+          <input class="pl-amt-inp" type="number" min="0" step="0.01" id="plAmt" placeholder="0.00" onkeydown="if(event.key==='Enter')addPlEntry()"/>
+        </div>
+      </div>
+      <button class="pl-add-btn" onclick="addPlEntry()">+ Add</button>
+    </div>
+  </div>
+
+  <!-- Summary strip -->
+  <div class="pl-strip">
+    <div class="pl-strip-card">
+      <div class="pl-strip-lbl">💚 Total In</div>
+      <div class="pl-strip-amt amt-in" id="plTotalIn">RM 0.00</div>
+    </div>
+    <div class="pl-strip-card">
+      <div class="pl-strip-lbl">🔴 Total Out</div>
+      <div class="pl-strip-amt amt-out" id="plTotalOut">RM 0.00</div>
+    </div>
+    <div class="pl-strip-card">
+      <div class="pl-strip-lbl">⚖️ Net Balance</div>
+      <div class="pl-strip-amt amt-bal-pos" id="plBalance">RM 0.00</div>
+    </div>
+  </div>
+
+  <!-- Entries -->
+  <div class="pl-entries-wrap">
+    <div class="pl-entries-head">
+      <span class="pl-entries-hcell">Date</span>
+      <span class="pl-entries-hcell">Description</span>
+      <span class="pl-entries-hcell">Type</span>
+      <span class="pl-entries-hcell">Amount</span>
+      <span class="pl-entries-hcell">Running Balance</span>
+      <span></span>
+    </div>
+    <div id="plList"></div>
+  </div>
 </div>
 
 <div class="footer">© 2026 TSLA Group · Budget Tracker</div>
@@ -330,6 +466,99 @@ function load() {
 }
 
 load();
+
+/* ── P&L ── */
+const PL_KEY = 'tsla_pl';
+let plEntries = [];
+let plType = 'in';
+
+function fmtPL(n) {
+  return 'RM ' + Math.abs(n).toLocaleString('en-MY', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function setPlType(t) {
+  plType = t;
+  document.getElementById('plBtnIn').className = 'pl-type-btn' + (t==='in'?' active-in':'');
+  document.getElementById('plBtnOut').className = 'pl-type-btn' + (t==='out'?' active-out':'');
+}
+
+function addPlEntry() {
+  const date = document.getElementById('plDate').value;
+  const desc = document.getElementById('plDesc').value.trim();
+  const amt = parseFloat(document.getElementById('plAmt').value);
+  if (!date || !desc || isNaN(amt) || amt <= 0) {
+    const missing = !date ? 'date' : !desc ? 'description' : 'a valid amount';
+    alert('Please enter a ' + missing + '.');
+    return;
+  }
+  plEntries.push({id: Date.now() + Math.random(), date, desc, type: plType, amt});
+  plEntries.sort((a,b) => a.date.localeCompare(b.date));
+  document.getElementById('plDesc').value = '';
+  document.getElementById('plAmt').value = '';
+  renderPL();
+  savePL();
+}
+
+function removePlEntry(id) {
+  plEntries = plEntries.filter(e => e.id !== id);
+  renderPL();
+  savePL();
+}
+
+function renderPL() {
+  let totalIn = 0, totalOut = 0, balance = 0;
+  plEntries.forEach(e => {
+    if (e.type === 'in') totalIn += e.amt; else totalOut += e.amt;
+  });
+  balance = totalIn - totalOut;
+
+  document.getElementById('plTotalIn').textContent = fmtPL(totalIn);
+  document.getElementById('plTotalOut').textContent = fmtPL(totalOut);
+  const balEl = document.getElementById('plBalance');
+  balEl.textContent = (balance < 0 ? '−' : '') + fmtPL(balance);
+  balEl.className = 'pl-strip-amt ' + (balance < 0 ? 'amt-bal-neg' : 'amt-bal-pos');
+
+  const list = document.getElementById('plList');
+  if (!plEntries.length) {
+    list.innerHTML = '<div class="pl-empty">No entries yet — add your first transaction above</div>';
+    return;
+  }
+
+  // Build in reverse with running balance
+  let runBal = 0;
+  const withBal = plEntries.map(e => {
+    runBal += e.type === 'in' ? e.amt : -e.amt;
+    return {...e, runBal};
+  });
+
+  list.innerHTML = [...withBal].reverse().map(e => `
+    <div class="pl-entry-row">
+      <span class="pl-entry-date">${e.date}</span>
+      <span class="pl-entry-desc">${e.desc.replace(/</g,'&lt;')}</span>
+      <span class="pl-entry-type"><span class="pl-entry-type-badge ${e.type==='in'?'badge-in':'badge-out'}">${e.type==='in'?'▲ In':'▼ Out'}</span></span>
+      <span class="pl-entry-amt ${e.type==='in'?'amt-in':'amt-out'}">${e.type==='in'?'+':'-'} ${fmtPL(e.amt)}</span>
+      <span class="pl-entry-bal ${e.runBal<0?'amt-bal-neg':'amt-bal-pos'}">${e.runBal<0?'−':''} ${fmtPL(e.runBal)}</span>
+      <button class="pl-entry-del-btn" onclick="removePlEntry(${e.id})" title="Remove">×</button>
+    </div>`).join('');
+}
+
+function savePL() {
+  localStorage.setItem(PL_KEY, JSON.stringify(plEntries));
+}
+
+function loadPL() {
+  // Set default date to today
+  const today = new Date();
+  document.getElementById('plDate').value = today.toISOString().slice(0,10);
+
+  const saved = localStorage.getItem(PL_KEY);
+  if (saved) {
+    try { plEntries = JSON.parse(saved); } catch(e) { plEntries = []; }
+  }
+  renderPL();
+}
+
+loadPL();
 </script>
 </body>
 </html>
