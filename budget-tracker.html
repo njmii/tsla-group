@@ -20,6 +20,7 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 
 /* MAIN WRAP */
 .main{max-width:900px;margin:0 auto;padding:24px 16px 80px}
+@media(max-width:440px){.main{padding:16px 8px 80px}}
 
 /* SETUP PANEL */
 .setup-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:white;border:none;border-radius:20px;padding:16px 20px;font-family:inherit;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:12px;transition:.2s}
@@ -98,11 +99,16 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .cal-day-bal{font-size:1rem;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1;margin-top:auto}
 .cal-day-spent{font-size:.62rem;color:#bbb;font-variant-numeric:tabular-nums;margin-top:2px}
 .cal-day-dot{position:absolute;top:6px;right:8px;width:6px;height:6px;border-radius:50%;background:#ff7a00}
+/* wide: show full "RM 123.45", narrow: show just "+123" */
+.bal-narrow{display:none}
 @media(max-width:480px){
-  .cal-day{min-height:62px;padding:6px 6px}
-  .cal-day-bal{font-size:.82rem}
-  .cal-day-num{font-size:.7rem}
+  .cal-day{min-height:54px;padding:5px 4px}
+  .cal-day-bal{font-size:.75rem}
+  .cal-day-num{font-size:.68rem}
   .cal-day-spent{display:none}
+  .bal-wide{display:none}
+  .bal-narrow{display:inline}
+  .cal-day-dot{top:4px;right:4px;width:5px;height:5px}
 }
 
 /* MODAL */
@@ -144,6 +150,11 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .exp-add-btn:hover{background:#e56d00}
 
 .modal-daily-hint{font-size:.75rem;color:#aaa;text-align:center;margin-top:4px}
+
+/* EXPENSE LABELS */
+.exp-labels{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.exp-label-chip{padding:7px 13px;border:1.5px solid #eee;border-radius:20px;background:transparent;color:#555;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;white-space:nowrap}
+.exp-label-chip:hover,.exp-label-chip.active{border-color:#ff7a00;color:#ff7a00;background:#fff8f4}
 
 /* COMMITMENTS TRACKER */
 .commit-tracker{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.06);padding:20px 24px;margin-bottom:20px}
@@ -277,6 +288,14 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="exp-list" id="expList"></div>
+    <div class="exp-labels">
+      <button class="exp-label-chip" onclick="pickLabel(this,'🍽️ Food')">🍽️ Food</button>
+      <button class="exp-label-chip" onclick="pickLabel(this,'🛍️ Shopping')">🛍️ Shopping</button>
+      <button class="exp-label-chip" onclick="pickLabel(this,'🎬 Entertainment')">🎬 Entertainment</button>
+      <button class="exp-label-chip" onclick="pickLabel(this,'⛽ Petrol')">⛽ Petrol</button>
+      <button class="exp-label-chip" onclick="pickLabel(this,'☕ Drinks')">☕ Drinks</button>
+      <button class="exp-label-chip" onclick="pickLabel(this,'💊 Health')">💊 Health</button>
+    </div>
     <div class="add-exp-form">
       <input class="exp-input" type="text" id="expDesc" placeholder="Description…" maxlength="60" onkeydown="if(event.key==='Enter')addExp()"/>
       <div class="exp-amt-wrap">
@@ -577,13 +596,16 @@ function renderCalendar() {
     if (hasData) inner += `<span class="cal-day-dot"></span>`;
 
     if (!isFuture || isToday) {
-      inner += `<span class="cal-day-bal">${bal >= 0 ? '' : '−'}RM ${Math.abs(bal).toFixed(2)}</span>`;
+      const sign = bal >= 0 ? '' : '−';
+      const abs  = Math.abs(bal);
+      inner += `<span class="cal-day-bal"><span class="bal-wide">${sign}RM ${abs.toFixed(2)}</span><span class="bal-narrow">${sign}${abs.toFixed(0)}</span></span>`;
       if (spent > 0) {
         inner += `<span class="cal-day-spent">−RM ${spent.toFixed(2)}</span>`;
       }
     } else {
-      // Future: show projected daily gain faintly
-      inner += `<span class="cal-day-bal" style="color:#ccc;font-size:.78rem">+RM ${db > 0 ? db.toFixed(2) : '—'}</span>`;
+      const dbAbs = db > 0 ? db.toFixed(2) : '—';
+      const dbNarrow = db > 0 ? '+' + Math.round(db) : '—';
+      inner += `<span class="cal-day-bal" style="color:#ccc;font-size:.78rem"><span class="bal-wide">+RM ${dbAbs}</span><span class="bal-narrow">${dbNarrow}</span></span>`;
     }
 
     el.innerHTML = inner;
@@ -623,7 +645,7 @@ function openDay(str) {
   openDate = str;
   renderModal();
   document.getElementById('modalOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('expDesc').focus(), 350);
+  document.querySelectorAll('.exp-label-chip').forEach(c => c.classList.remove('active'));
 }
 
 function closeModal() {
@@ -668,6 +690,13 @@ function renderModal() {
   ).join('');
 }
 
+function pickLabel(btn, label) {
+  document.querySelectorAll('.exp-label-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('expDesc').value = label;
+  document.getElementById('expAmt').focus();
+}
+
 function addExp() {
   if (!openDate) return;
   const desc = document.getElementById('expDesc').value.trim();
@@ -679,6 +708,7 @@ function addExp() {
 
   document.getElementById('expDesc').value = '';
   document.getElementById('expAmt').value  = '';
+  document.querySelectorAll('.exp-label-chip').forEach(c => c.classList.remove('active'));
   document.getElementById('expDesc').focus();
 
   save();
