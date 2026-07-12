@@ -462,20 +462,20 @@ function handleForm(e) {
 /* Coverage Map */
 (function(){
   const STATES = [
-    {name:'Perlis',     x:83,  y:92,  n:3},
-    {name:'Kedah',      x:97,  y:120, n:7},
-    {name:'P. Pinang',  x:68,  y:154, n:15},
-    {name:'Perak',      x:105, y:228, n:12},
-    {name:'Kelantan',   x:202, y:90,  n:8},
-    {name:'Terengganu', x:230, y:170, n:6},
-    {name:'Pahang',     x:205, y:278, n:10},
-    {name:'Selangor',   x:110, y:302, n:35},
-    {name:'K.Lumpur',   x:134, y:326, n:42},
-    {name:'N.Sembilan', x:142, y:360, n:11},
-    {name:'Melaka',     x:154, y:395, n:8},
-    {name:'Johor',      x:192, y:434, n:19},
-    {name:'Sarawak',    x:478, y:310, n:9},
-    {name:'Sabah',      x:662, y:180, n:7},
+    {name:'Perlis',     x:100, y:76,  n:3},
+    {name:'Kedah',      x:93,  y:105, n:7},
+    {name:'P. Pinang',  x:68,  y:140, n:15},
+    {name:'Perak',      x:93,  y:210, n:12},
+    {name:'Kelantan',   x:215, y:82,  n:8},
+    {name:'Terengganu', x:238, y:162, n:6},
+    {name:'Pahang',     x:210, y:268, n:10},
+    {name:'Selangor',   x:103, y:293, n:35},
+    {name:'K.Lumpur',   x:126, y:315, n:42},
+    {name:'N.Sembilan', x:130, y:348, n:11},
+    {name:'Melaka',     x:143, y:380, n:8},
+    {name:'Johor',      x:180, y:428, n:19},
+    {name:'Sarawak',    x:470, y:282, n:9},
+    {name:'Sabah',      x:660, y:175, n:7},
   ];
   const total = STATES.reduce((s,x) => s + x.n, 0);
   const ns = 'http://www.w3.org/2000/svg';
@@ -484,12 +484,12 @@ function handleForm(e) {
   const shapesG = document.getElementById('mapShapes');
   if (!shapesG) return;
   [
-    /* Peninsula */
-    'M 88,68 C 110,63 148,58 168,58 L 205,62 L 222,72 L 240,108 L 248,145 L 252,188 L 255,232 L 257,278 L 258,320 L 258,358 L 250,394 L 238,425 L 222,446 L 200,456 L 188,458 C 170,458 155,450 142,438 L 130,418 L 118,392 L 105,360 L 95,328 L 87,295 L 80,260 L 75,222 L 72,182 L 70,148 L 70,118 L 74,92 Z',
-    /* Sarawak */
-    'M 360,188 C 375,175 405,165 430,160 L 470,155 L 510,153 C 528,153 545,157 562,168 L 580,183 C 592,198 600,220 602,248 L 602,288 L 598,328 C 592,348 580,360 562,370 L 535,380 L 500,388 L 462,392 L 425,390 L 388,380 L 365,365 L 352,342 L 348,312 L 348,278 L 352,245 L 356,215 Z',
-    /* Sabah */
-    'M 580,172 C 592,155 618,130 645,108 L 668,90 L 695,78 L 718,82 L 740,96 L 755,118 L 758,148 C 758,175 752,205 740,232 L 722,256 L 700,272 L 672,280 L 645,280 L 618,268 L 598,245 L 582,218 L 578,195 Z',
+    /* Peninsular Malaysia — accurate simplified outline */
+    'M 95,72 C 103,69 114,66 128,63 L 148,60 L 168,58 L 188,57 C 200,57 210,59 218,64 L 230,72 L 238,84 C 243,94 246,108 246,124 L 246,144 L 248,164 L 250,188 L 252,214 L 253,240 L 253,264 L 252,288 L 249,310 L 244,332 L 237,354 L 228,375 L 217,394 L 206,412 L 196,428 L 186,441 C 179,450 171,456 162,459 L 150,461 C 140,461 130,457 120,449 L 110,438 L 100,422 L 91,403 L 84,382 L 78,358 L 73,332 L 69,305 L 66,276 L 64,246 L 63,215 L 63,186 L 65,158 C 67,140 71,123 77,110 L 83,98 Z',
+    /* Sarawak — accurate outline (NW Borneo, long coastal state) */
+    'M 345,222 C 352,210 362,199 374,190 L 390,180 L 410,170 L 432,161 L 456,154 L 480,149 L 504,147 L 526,148 C 542,150 556,155 568,164 L 580,176 C 590,188 596,204 598,222 L 600,244 L 601,268 L 600,294 L 597,320 C 593,338 585,352 574,362 L 558,372 L 538,381 L 514,388 L 488,393 L 460,395 L 432,393 L 406,387 L 382,377 L 362,363 C 350,352 343,337 340,318 L 338,294 L 338,268 L 339,244 L 341,232 Z',
+    /* Sabah — accurate outline (NE Borneo) */
+    'M 602,182 C 612,166 626,148 644,132 L 658,118 L 672,105 L 688,95 L 705,88 L 720,85 C 733,84 744,87 753,95 L 760,108 C 765,120 766,136 762,154 L 756,174 L 746,196 L 733,216 L 718,234 C 706,248 692,258 676,264 L 658,268 L 640,268 C 624,267 610,258 598,244 L 590,228 L 585,210 Z',
   ].forEach(d => {
     const p = document.createElementNS(ns, 'path');
     p.setAttribute('d', d);
