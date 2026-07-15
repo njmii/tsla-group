@@ -131,6 +131,41 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 .pin-input:focus{border-color:#ff7a00;}
 .pin-err{color:#e53935;font-size:.78rem;font-weight:700;min-height:18px;margin-bottom:10px;}
 .pin-submit{width:100%;background:#ff7a00;color:white;border:none;border-radius:14px;padding:13px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:inherit;}
+
+/* Agent detail modal */
+.agent-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;display:flex;align-items:flex-end;justify-content:center;}
+.agent-modal{background:white;border-radius:28px 28px 0 0;padding:24px 22px 36px;width:100%;max-width:480px;box-shadow:0 -8px 40px rgba(0,0,0,.12);}
+.amod-drag{width:40px;height:4px;background:#e0e0e0;border-radius:4px;margin:0 auto 20px;}
+.amod-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.amod-name{font-size:1.15rem;font-weight:900;}
+.amod-code{font-size:.78rem;color:#aaa;font-weight:700;margin-top:2px;}
+.amod-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;padding:4px 6px;line-height:1;}
+.amod-date{font-size:.78rem;color:#aaa;font-weight:700;margin-bottom:16px;}
+.amod-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.amod-stat{background:#f7f8fa;border-radius:16px;padding:14px 16px;}
+.amod-stat-lbl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin-bottom:5px;}
+.amod-stat-val{font-size:2rem;font-weight:900;line-height:1;}
+.amod-stat-val.present{color:#1a73e8;}
+.amod-stat-val.close{color:#0a9b43;}
+.amod-stat-val.expected{color:#ff7a00;}
+.amod-derived{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.amod-d-box{background:#f7f8fa;border-radius:16px;padding:14px 16px;}
+.amod-d-lbl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin-bottom:5px;}
+.amod-d-val{font-size:1.4rem;font-weight:900;color:#111;}
+.amod-progress{background:#f7f8fa;border-radius:16px;padding:14px 16px;margin-bottom:14px;}
+.amod-prog-lbl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin-bottom:8px;}
+.amod-prog-bar-wrap{background:#e8e8e8;border-radius:8px;height:8px;overflow:hidden;margin-bottom:6px;}
+.amod-prog-bar{height:8px;border-radius:8px;background:#ff7a00;transition:width .4s;}
+.amod-prog-note{font-size:.75rem;color:#888;font-weight:600;}
+.amod-alert{background:rgba(229,57,53,.07);border:1.5px solid rgba(229,57,53,.25);border-radius:16px;padding:14px 16px;display:flex;align-items:flex-start;gap:10px;}
+.amod-alert-icon{font-size:1.3rem;flex-shrink:0;margin-top:1px;}
+.amod-alert-title{font-weight:800;font-size:.9rem;color:#c62828;margin-bottom:2px;}
+.amod-alert-sub{font-size:.78rem;color:#888;line-height:1.4;}
+.amod-good{background:rgba(10,155,67,.07);border:1.5px solid rgba(10,155,67,.25);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:10px;}
+.amod-good-icon{font-size:1.3rem;flex-shrink:0;}
+.amod-good-text{font-weight:700;font-size:.88rem;color:#0a6b2e;}
+.act-table tr{cursor:pointer;}
+.act-table tr:hover td{background:#fafafa;}
 </style>
 </head>
 <body>
@@ -470,7 +505,7 @@ function renderSummary() {
     const e = day[agent.code];
     if (e) rank++;
     const pip = rank===1?'pip-1':rank===2?'pip-2':rank===3?'pip-3':'pip-n';
-    html += `<tr${e && e.close > 0 ? ' class="highlight"' : ''}>
+    html += `<tr${e && e.close > 0 ? ' class="highlight"' : ''} onclick="showAgentDetail('${agent.code}')">
       <td><div class="rank-pip ${e ? pip : 'pip-n'}">${e ? rank : '·'}</div></td>
       <td><div class="agent-nm">${agent.name}</div><div class="agent-cd">${agent.code}</div></td>
       <td class="num">${e
@@ -518,6 +553,93 @@ function renderHistory() {
 }
 
 updateDateNav();
+
+// ── Agent detail modal ────────────────────────────────────
+function showAgentDetail(code) {
+  const agent  = AGENTS.find(a => a.code === code);
+  if (!agent) return;
+  const day    = (allData[viewDate] || {});
+  const e      = day[code];
+  const present = e ? (e.present || 0) : 0;
+  const close   = e ? (e.close   || 0) : 0;
+
+  const expected = Math.floor(present / 5);
+  const pending  = Math.max(0, expected - close);
+  const rem      = present % 5;
+  const toNext   = rem === 0 ? 5 : 5 - rem;
+  const progPct  = rem === 0 ? 100 : Math.round((rem / 5) * 100);
+
+  const dateLabel = new Date(viewDate + 'T00:00:00').toLocaleDateString('en-MY', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+
+  let alertHtml = '';
+  if (present === 0 && close === 0) {
+    alertHtml = `<div class="amod-good"><span class="amod-good-icon">📭</span><span class="amod-good-text">No activity logged for this date.</span></div>`;
+  } else if (pending > 0) {
+    alertHtml = `<div class="amod-alert">
+      <span class="amod-alert-icon">⚠️</span>
+      <div>
+        <div class="amod-alert-title">${pending} close${pending>1?'s':''} pending — ready to close!</div>
+        <div class="amod-alert-sub">${present} presentations ÷ 5 = ${expected} expected close${expected>1?'s':''}. Only ${close} recorded.</div>
+      </div>
+    </div>`;
+  } else if (expected > 0 && pending === 0) {
+    alertHtml = `<div class="amod-good"><span class="amod-good-icon">✅</span><span class="amod-good-text">All expected closes recorded. Great work!</span></div>`;
+  }
+
+  const progNote = present === 0
+    ? 'Start logging presentations'
+    : rem === 0
+      ? `At bracket — ${expected} expected close${expected>1?'s':''}. Next bracket in 5 more.`
+      : `${toNext} more presentation${toNext>1?'s':''} to next expected close`;
+
+  const html = `<div class="agent-modal-overlay" id="agentModalOverlay" onclick="closeAgentDetail(event)">
+    <div class="agent-modal">
+      <div class="amod-drag"></div>
+      <div class="amod-header">
+        <div>
+          <div class="amod-name">${agent.name}</div>
+          <div class="amod-code">${agent.code}</div>
+        </div>
+        <button class="amod-close" onclick="closeAgentDetail()">✕</button>
+      </div>
+      <div class="amod-date">📅 ${dateLabel}</div>
+      <div class="amod-stats">
+        <div class="amod-stat">
+          <div class="amod-stat-lbl">Aktiviti</div>
+          <div class="amod-stat-val present">${present}</div>
+        </div>
+        <div class="amod-stat">
+          <div class="amod-stat-lbl">Close</div>
+          <div class="amod-stat-val close">${close}</div>
+        </div>
+      </div>
+      <div class="amod-derived">
+        <div class="amod-d-box">
+          <div class="amod-d-lbl">Expected Close</div>
+          <div class="amod-d-val" style="color:#ff7a00">${expected}</div>
+        </div>
+        <div class="amod-d-box">
+          <div class="amod-d-lbl">Pending Close</div>
+          <div class="amod-d-val" style="color:${pending>0?'#e53935':'#0a9b43'}">${pending}</div>
+        </div>
+      </div>
+      <div class="amod-progress">
+        <div class="amod-prog-lbl">Progress to next bracket</div>
+        <div class="amod-prog-bar-wrap"><div class="amod-prog-bar" style="width:${progPct}%"></div></div>
+        <div class="amod-prog-note">${progNote}</div>
+      </div>
+      ${alertHtml}
+    </div>
+  </div>`;
+
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeAgentDetail(evt) {
+  if (evt && evt.target !== document.getElementById('agentModalOverlay')) return;
+  const el = document.getElementById('agentModalOverlay');
+  if (el) el.remove();
+}
 </script>
 </body>
 </html>
