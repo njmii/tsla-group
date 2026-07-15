@@ -534,7 +534,7 @@ function submitActivity() {
 
   const now = new Date();
   const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  const agent = AGENTS.find(a => a.code === code);
+  const agent = ALL_AGENTS.find(a => a.code === code);
 
   db.ref(`activity/${viewDate}/${code}`).set({
     present,
