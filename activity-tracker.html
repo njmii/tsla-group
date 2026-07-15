@@ -114,6 +114,23 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 .hchip-c{background:#e6f9ee;color:#0a9b43;}
 
 .offline-bar{background:#fff3e0;border-radius:12px;padding:9px 14px;font-size:.78rem;font-weight:700;color:#e65100;margin-bottom:14px;display:none;align-items:center;gap:6px;}
+
+/* Agent pick buttons */
+.agent-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.agent-pick-btn{padding:14px 10px;border:2px solid #eee;border-radius:16px;background:#f7f8fa;font-size:.95rem;font-weight:800;color:#555;cursor:pointer;transition:.15s;font-family:inherit;}
+.agent-pick-btn:hover{border-color:#ff7a00;color:#ff7a00;background:#fff8f4;}
+.agent-pick-btn.selected{border-color:#ff7a00;background:#ff7a00;color:white;}
+
+/* PIN gate */
+.pin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.pin-card{background:white;border-radius:28px;padding:32px 28px;width:300px;max-width:90vw;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.2);}
+.pin-icon{font-size:2rem;margin-bottom:8px;}
+.pin-title{font-weight:900;font-size:1.1rem;margin-bottom:4px;}
+.pin-sub{color:#aaa;font-size:.82rem;margin-bottom:20px;}
+.pin-input{width:100%;border:2px solid #eee;border-radius:14px;padding:14px;text-align:center;font-size:1.6rem;font-weight:900;letter-spacing:.3em;font-family:inherit;outline:none;margin-bottom:8px;transition:.2s;}
+.pin-input:focus{border-color:#ff7a00;}
+.pin-err{color:#e53935;font-size:.78rem;font-weight:700;min-height:18px;margin-bottom:10px;}
+.pin-submit{width:100%;background:#ff7a00;color:white;border:none;border-radius:14px;padding:13px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:inherit;}
 </style>
 </head>
 <body>
@@ -158,17 +175,12 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
   <div class="update-card">
     <div class="card-title"><span class="card-title-icon">✍️</span> Log Activity</div>
 
-    <select class="agent-sel" id="agentSel">
-      <option value="">— Select agent —</option>
-      <option value="A11668">A11668 · Najmi Fikri</option>
-      <option value="A13290">A13290 · Naqiyuddin</option>
-      <option value="A14252">A14252 · Ema Rozazilla</option>
-      <option value="A15475">A15475 · Muhammad Muaz</option>
-      <option value="A15741">A15741 · Nor Shahirra</option>
-      <option value="A15756">A15756 · Fadhlan Fikri</option>
-      <option value="A15781">A15781 · Ahmad Fauzan</option>
-      <option value="A16553">A16553 · Adam Muqriz</option>
-    </select>
+    <div class="agent-grid" id="agentGrid">
+      <button class="agent-pick-btn" data-code="A16553" onclick="pickAgent('A16553',this)">Adam</button>
+      <button class="agent-pick-btn" data-code="A15756" onclick="pickAgent('A15756',this)">Fadhlan</button>
+      <button class="agent-pick-btn" data-code="A15781" onclick="pickAgent('A15781',this)">Fauzan</button>
+      <button class="agent-pick-btn" data-code="A15475" onclick="pickAgent('A15475',this)">Moza</button>
+    </div>
 
     <div class="metrics-row">
       <div class="metric-box">
@@ -217,6 +229,18 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 
 <div class="toast" id="toast"></div>
 
+<!-- PIN GATE -->
+<div class="pin-overlay" id="pinOverlay">
+  <div class="pin-card">
+    <div class="pin-icon">🔒</div>
+    <div class="pin-title">Daily Activity</div>
+    <div class="pin-sub">Enter PIN to continue</div>
+    <input class="pin-input" id="pinInput" type="tel" maxlength="4" placeholder="••••" inputmode="numeric" onkeydown="if(event.key==='Enter')checkPin()"/>
+    <div class="pin-err" id="pinErr"></div>
+    <button class="pin-submit" onclick="checkPin()">Unlock</button>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════════════════
      Firebase SDK (CDN — works on GitHub Pages)
 ════════════════════════════════════════════════════════════ -->
@@ -240,20 +264,41 @@ const FIREBASE_CONFIG = {
 // ═══════════════════════════════════════════
 
 const AGENTS = [
-  { code: 'A11668', name: 'Najmi Fikri' },
-  { code: 'A13290', name: 'Naqiyuddin' },
-  { code: 'A14252', name: 'Ema Rozazilla' },
-  { code: 'A15475', name: 'Muhammad Muaz' },
-  { code: 'A15741', name: 'Nor Shahirra' },
-  { code: 'A15756', name: 'Fadhlan Fikri' },
-  { code: 'A15781', name: 'Ahmad Fauzan' },
-  { code: 'A16553', name: 'Adam Muqriz' },
+  { code: 'A16553', name: 'Adam' },
+  { code: 'A15756', name: 'Fadhlan' },
+  { code: 'A15781', name: 'Fauzan' },
+  { code: 'A15475', name: 'Moza' },
 ];
+
+let selectedAgentCode = '';
 
 let db = null;
 let viewDate = todayStr();
 let unsubscribe = null;
 let allData = {};  // full snapshot keyed by date
+
+// ── PIN gate ──────────────────────────────────────────────
+(function() {
+  const overlay = document.getElementById('pinOverlay');
+  if (sessionStorage.getItem('tsla_activity_pin') === '1') {
+    overlay.style.display = 'none';
+  } else {
+    overlay.style.display = 'flex';
+    setTimeout(() => document.getElementById('pinInput').focus(), 200);
+  }
+})();
+
+function checkPin() {
+  const val = document.getElementById('pinInput').value;
+  if (val === '1111') {
+    sessionStorage.setItem('tsla_activity_pin', '1');
+    document.getElementById('pinOverlay').style.display = 'none';
+  } else {
+    document.getElementById('pinErr').textContent = 'Wrong PIN. Try again.';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinInput').focus();
+  }
+}
 
 // ── Init ──────────────────────────────────────────────────
 function isConfigured() {
@@ -289,12 +334,12 @@ function init() {
     renderHistory();
   });
 
-  // Restore last agent selection
+  // Restore last selected agent button
   const last = localStorage.getItem('tsla_last_agent');
-  if (last) document.getElementById('agentSel').value = last;
-  document.getElementById('agentSel').addEventListener('change', function() {
-    if (this.value) localStorage.setItem('tsla_last_agent', this.value);
-  });
+  if (last) {
+    const btn = document.querySelector(`.agent-pick-btn[data-code="${last}"]`);
+    if (btn) { selectedAgentCode = last; btn.classList.add('selected'); }
+  }
 
   updateDateNav();
 }
@@ -338,14 +383,22 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2400);
 }
 
+// ── Agent pick buttons ────────────────────────────────────
+function pickAgent(code, btn) {
+  selectedAgentCode = code;
+  localStorage.setItem('tsla_last_agent', code);
+  document.querySelectorAll('.agent-pick-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
 // ── Submit ────────────────────────────────────────────────
 function submitActivity() {
   if (!db) return;
-  const code    = document.getElementById('agentSel').value;
+  const code    = selectedAgentCode;
   const present = parseInt(document.getElementById('presentInput').value) || 0;
   const close   = parseInt(document.getElementById('closeInput').value)   || 0;
 
-  if (!code) { showToast('Please select an agent'); return; }
+  if (!code) { showToast('Tap your name first'); return; }
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
