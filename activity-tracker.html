@@ -115,11 +115,37 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 
 .offline-bar{background:#fff3e0;border-radius:12px;padding:9px 14px;font-size:.78rem;font-weight:700;color:#e65100;margin-bottom:14px;display:none;align-items:center;gap:6px;}
 
+/* Group toggle */
+.group-toggle{display:flex;background:#f0f0f0;border-radius:14px;padding:3px;gap:3px;margin-bottom:18px;}
+.group-btn{flex:1;padding:9px 14px;border:none;border-radius:11px;font-size:.9rem;font-weight:800;cursor:pointer;transition:.15s;background:transparent;color:#888;font-family:inherit;}
+.group-btn.active{background:white;color:#111;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+
 /* Agent pick buttons */
 .agent-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
 .agent-pick-btn{padding:14px 10px;border:2px solid #eee;border-radius:16px;background:#f7f8fa;font-size:.95rem;font-weight:800;color:#555;cursor:pointer;transition:.15s;font-family:inherit;}
 .agent-pick-btn:hover{border-color:#ff7a00;color:#ff7a00;background:#fff8f4;}
 .agent-pick-btn.selected{border-color:#ff7a00;background:#ff7a00;color:white;}
+
+/* Summary tabs */
+.stab-row{display:flex;gap:6px;padding:12px 20px;border-bottom:1px solid #f0f0f0;}
+.stab{padding:6px 16px;border:none;border-radius:10px;font-size:.78rem;font-weight:800;cursor:pointer;font-family:inherit;background:#f0f0f0;color:#888;transition:.15s;}
+.stab.active{background:#111;color:white;}
+
+/* Monthly table */
+.monthly-hdr{padding:10px 20px 4px;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#bbb;}
+.mo-table{width:100%;border-collapse:collapse;}
+.mo-table th{padding:8px 16px;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#bbb;text-align:left;border-bottom:2px solid #f0f0f0;}
+.mo-table th.num{text-align:center;}
+.mo-table td{padding:12px 16px;border-bottom:1px solid #f7f8fa;vertical-align:middle;}
+.mo-table td.num{text-align:center;font-variant-numeric:tabular-nums;}
+.mo-table tr:last-child td{border-bottom:none;}
+.mo-name{font-weight:700;font-size:.9rem;}
+.mo-val-p{font-weight:800;color:#1a73e8;}
+.mo-val-c{font-weight:800;color:#0a9b43;}
+.mo-val-e{font-weight:800;color:#ff7a00;}
+.mo-val-z{color:#ddd;font-weight:700;}
+.mo-days{font-size:.72rem;color:#aaa;font-weight:600;}
+.mo-pending-pill{display:inline-block;background:rgba(229,57,53,.1);color:#c62828;font-size:.65rem;font-weight:800;padding:1px 6px;border-radius:6px;margin-left:4px;}
 
 /* PIN gate */
 .pin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;}
@@ -196,6 +222,12 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 
   <div class="offline-bar" id="offlineBar">⚡ Offline — reconnecting…</div>
 
+  <!-- Group toggle -->
+  <div class="group-toggle">
+    <button class="group-btn active" id="grpBtnTSLA" onclick="setGroup('TSLA')">TSLA</button>
+    <button class="group-btn" id="grpBtnATG" onclick="setGroup('ATG')">ATG</button>
+  </div>
+
   <!-- Date navigation -->
   <div class="date-nav">
     <button class="date-nav-btn" onclick="shiftDate(-1)" title="Previous">‹</button>
@@ -210,12 +242,7 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
   <div class="update-card">
     <div class="card-title"><span class="card-title-icon">✍️</span> Log Activity</div>
 
-    <div class="agent-grid" id="agentGrid">
-      <button class="agent-pick-btn" data-code="A16553" onclick="pickAgent('A16553',this)">Adam</button>
-      <button class="agent-pick-btn" data-code="A15756" onclick="pickAgent('A15756',this)">Fadhlan</button>
-      <button class="agent-pick-btn" data-code="A15781" onclick="pickAgent('A15781',this)">Fauzan</button>
-      <button class="agent-pick-btn" data-code="A15475" onclick="pickAgent('A15475',this)">Moza</button>
-    </div>
+    <div class="agent-grid" id="agentGrid"></div>
 
     <div class="metrics-row">
       <div class="metric-box">
@@ -238,6 +265,10 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
     <div class="summary-header">
       <div class="summary-title">📊 <span id="summaryTitle">Today's Activity</span></div>
       <div class="live-badge" id="liveBadge" style="display:none"><span class="live-dot"></span> Live</div>
+    </div>
+    <div class="stab-row">
+      <button class="stab active" id="stabDaily" onclick="setTab('daily')">Daily</button>
+      <button class="stab" id="stabMonthly" onclick="setTab('monthly')">Monthly</button>
     </div>
 
     <div class="totals-strip" id="totalsStrip" style="display:none">
@@ -298,15 +329,27 @@ const FIREBASE_CONFIG = {
 };
 // ═══════════════════════════════════════════
 
-const AGENTS = [
-  { code: 'A16553', name: 'Adam' },
-  { code: 'A14252', name: 'Ema' },
-  { code: 'A15756', name: 'Fadhlan' },
-  { code: 'A15781', name: 'Fauzan' },
-  { code: 'A15475', name: 'Moza' },
-  { code: 'A15741', name: 'Shahirra' },
-];
+const GROUPS = {
+  TSLA: [
+    { code: 'A16553', name: 'Adam' },
+    { code: 'A14252', name: 'Ema' },
+    { code: 'A15756', name: 'Fadhlan' },
+    { code: 'A15781', name: 'Fauzan' },
+    { code: 'A15475', name: 'Moza' },
+    { code: 'A15741', name: 'Shahirra' },
+  ],
+  ATG: [
+    { code: 'ATG_HANIF', name: 'Hanif' },
+    { code: 'ATG_AMMAR', name: 'Ammar' },
+    { code: 'ATG_ADIB',  name: 'Adib' },
+    { code: 'ATG_SUSO',  name: 'Suso' },
+    { code: 'ATG_HAKIM', name: 'Hakim' },
+  ],
+};
+const ALL_AGENTS = [...GROUPS.TSLA, ...GROUPS.ATG];
 
+let activeGroup = 'TSLA';
+let activeTab   = 'daily';
 let selectedAgentCode = '';
 
 let db = null;
@@ -371,11 +414,15 @@ function init() {
     renderHistory();
   });
 
-  // Restore last selected agent button
+  // Restore last group + agent
+  const lastGroup = localStorage.getItem('tsla_last_group');
+  if (lastGroup && GROUPS[lastGroup]) { activeGroup = lastGroup; updateGroupBtns(); }
+  renderAgentGrid();
   const last = localStorage.getItem('tsla_last_agent');
-  if (last) {
+  if (last && ALL_AGENTS.find(a => a.code === last)) {
+    selectedAgentCode = last;
     const btn = document.querySelector(`.agent-pick-btn[data-code="${last}"]`);
-    if (btn) { selectedAgentCode = last; btn.classList.add('selected'); }
+    if (btn) btn.classList.add('selected');
   }
 
   updateDateNav();
@@ -406,11 +453,21 @@ function shiftDate(delta) {
 
 function updateDateNav() {
   const today = todayStr();
-  const parts = fmtDate(viewDate).split(', ');
-  document.getElementById('dateLabel').textContent = viewDate === today ? 'Today' : (parts[0] || fmtDate(viewDate));
-  document.getElementById('dateSub').textContent   = viewDate === today ? fmtDateShort(viewDate) : (parts.slice(1).join(', ') || '');
-  document.getElementById('nextBtn').disabled      = viewDate >= today;
-  document.getElementById('summaryTitle').textContent = viewDate === today ? "Today's Activity" : fmtDateShort(viewDate);
+  const ym = viewDate.slice(0,7);
+  const todayYm = today.slice(0,7);
+  if (activeTab === 'monthly') {
+    const mLabel = new Date(ym + '-01T00:00:00').toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+    document.getElementById('dateLabel').textContent = mLabel;
+    document.getElementById('dateSub').textContent   = activeGroup;
+    document.getElementById('nextBtn').disabled      = ym >= todayYm;
+    document.getElementById('summaryTitle').textContent = mLabel;
+  } else {
+    const parts = fmtDate(viewDate).split(', ');
+    document.getElementById('dateLabel').textContent = viewDate === today ? 'Today' : (parts[0] || fmtDate(viewDate));
+    document.getElementById('dateSub').textContent   = viewDate === today ? fmtDateShort(viewDate) : (parts.slice(1).join(', ') || '');
+    document.getElementById('nextBtn').disabled      = viewDate >= today;
+    document.getElementById('summaryTitle').textContent = viewDate === today ? "Today's Activity" : fmtDateShort(viewDate);
+  }
 }
 
 function showToast(msg) {
@@ -420,7 +477,42 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2400);
 }
 
+// ── Group & tab controls ──────────────────────────────────
+function setGroup(g) {
+  activeGroup = g;
+  localStorage.setItem('tsla_last_group', g);
+  selectedAgentCode = '';
+  updateGroupBtns();
+  renderAgentGrid();
+  renderSummary();
+}
+
+function updateGroupBtns() {
+  document.getElementById('grpBtnTSLA').classList.toggle('active', activeGroup === 'TSLA');
+  document.getElementById('grpBtnATG').classList.toggle('active', activeGroup === 'ATG');
+}
+
+function setTab(t) {
+  activeTab = t;
+  document.getElementById('stabDaily').classList.toggle('active', t === 'daily');
+  document.getElementById('stabMonthly').classList.toggle('active', t === 'monthly');
+  updateDateNav();
+  renderSummary();
+}
+
 // ── Agent pick buttons ────────────────────────────────────
+function renderAgentGrid() {
+  const grid = document.getElementById('agentGrid');
+  grid.innerHTML = GROUPS[activeGroup].map(a =>
+    `<button class="agent-pick-btn" data-code="${a.code}" onclick="pickAgent('${a.code}',this)">${a.name}</button>`
+  ).join('');
+  // re-highlight if same agent is in this group
+  if (selectedAgentCode) {
+    const btn = grid.querySelector(`[data-code="${selectedAgentCode}"]`);
+    if (btn) btn.classList.add('selected');
+  }
+}
+
 function pickAgent(code, btn) {
   selectedAgentCode = code;
   localStorage.setItem('tsla_last_agent', code);
@@ -464,19 +556,21 @@ function submitActivity() {
 
 // ── Render summary for viewDate ───────────────────────────
 function renderSummary() {
-  const day = (allData[viewDate] || {});
+  if (activeTab === 'monthly') { renderMonthly(); return; }
+
+  const groupAgents = GROUPS[activeGroup];
+  const day  = (allData[viewDate] || {});
   const body = document.getElementById('summaryBody');
   const strip = document.getElementById('totalsStrip');
 
-  const hasData = AGENTS.some(a => day[a.code]);
+  const hasData = groupAgents.some(a => day[a.code]);
   if (!hasData) {
     strip.style.display = 'none';
     body.innerHTML = '<div class="summary-empty">No activity logged yet.</div>';
     return;
   }
 
-  // Sort: entries first (by close desc, then present desc), then no-entry alphabetical
-  const sorted = [...AGENTS].sort((a,b) => {
+  const sorted = [...groupAgents].sort((a,b) => {
     const da = day[a.code], db2 = day[b.code];
     if (da && !db2) return -1;
     if (!da && db2) return 1;
@@ -524,10 +618,89 @@ function renderSummary() {
   body.innerHTML = html;
 }
 
+// ── Monthly overview ──────────────────────────────────────
+function renderMonthly() {
+  const body  = document.getElementById('summaryBody');
+  const strip = document.getElementById('totalsStrip');
+  const ym    = viewDate.slice(0, 7); // "2026-07"
+  const monthLabel = new Date(ym + '-01T00:00:00').toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+  const groupAgents = GROUPS[activeGroup];
+
+  // Aggregate across all dates in the selected month
+  const totals = {};
+  groupAgents.forEach(a => { totals[a.code] = { present: 0, close: 0, days: 0 }; });
+
+  Object.keys(allData).forEach(date => {
+    if (!date.startsWith(ym)) return;
+    const day = allData[date];
+    groupAgents.forEach(a => {
+      const e = day[a.code];
+      if (e) {
+        totals[a.code].present += e.present || 0;
+        totals[a.code].close   += e.close   || 0;
+        totals[a.code].days++;
+      }
+    });
+  });
+
+  const hasAny = groupAgents.some(a => totals[a.code].present > 0 || totals[a.code].close > 0);
+  if (!hasAny) {
+    strip.style.display = 'none';
+    body.innerHTML = `<div class="summary-empty">No activity for ${monthLabel}.</div>`;
+    return;
+  }
+
+  // Totals strip
+  const totalP = groupAgents.reduce((s,a) => s + totals[a.code].present, 0);
+  const totalC = groupAgents.reduce((s,a) => s + totals[a.code].close, 0);
+  document.getElementById('totalPresent').textContent = totalP;
+  document.getElementById('totalClose').textContent   = totalC;
+  strip.style.display = '';
+
+  // Sort by close desc, then present desc
+  const sorted = [...groupAgents].sort((a, b) => {
+    const ta = totals[a.code], tb = totals[b.code];
+    return (tb.close - ta.close) || (tb.present - ta.present);
+  });
+
+  let rank = 0;
+  let html = `<div class="monthly-hdr">${monthLabel} — ${activeGroup}</div>
+  <table class="mo-table">
+    <thead><tr>
+      <th></th>
+      <th>Agent</th>
+      <th class="num">Aktiviti</th>
+      <th class="num">Close</th>
+      <th class="num">Expected</th>
+      <th class="num">Days</th>
+    </tr></thead><tbody>`;
+
+  sorted.forEach(agent => {
+    const t = totals[agent.code];
+    const hasEntry = t.present > 0 || t.close > 0;
+    if (hasEntry) rank++;
+    const pip = rank===1?'pip-1':rank===2?'pip-2':rank===3?'pip-3':'pip-n';
+    const expected = Math.floor(t.present / 5);
+    const pending  = Math.max(0, expected - t.close);
+    html += `<tr onclick="showMonthlyDetail('${agent.code}','${ym}')">
+      <td><div class="rank-pip ${hasEntry ? pip : 'pip-n'}">${hasEntry ? rank : '·'}</div></td>
+      <td><div class="mo-name">${agent.name}${pending > 0 ? `<span class="mo-pending-pill">⚠️ ${pending}</span>` : ''}</div></td>
+      <td class="num"><span class="${t.present>0?'mo-val-p':'mo-val-z'}">${t.present || '—'}</span></td>
+      <td class="num"><span class="${t.close>0?'mo-val-c':'mo-val-z'}">${t.close || '—'}</span></td>
+      <td class="num"><span class="${expected>0?'mo-val-e':'mo-val-z'}">${expected || '—'}</span></td>
+      <td class="num"><span class="mo-days">${t.days ? t.days + 'd' : '—'}</span></td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  body.innerHTML = html;
+}
+
 // ── History strip (past dates) ────────────────────────────
 function renderHistory() {
+  const groupCodes = new Set(GROUPS[activeGroup].map(a => a.code));
   const dates = Object.keys(allData)
-    .filter(d => d !== viewDate)
+    .filter(d => d !== viewDate && Object.keys(allData[d]).some(c => groupCodes.has(c)))
     .sort().reverse().slice(0, 7);
 
   const card = document.getElementById('historyCard');
@@ -537,11 +710,11 @@ function renderHistory() {
   card.style.display = '';
 
   body.innerHTML = dates.map(ds => {
-    const day   = allData[ds] || {};
-    const totalP = Object.values(day).reduce((s,e)=>s+(e.present||0),0);
-    const totalC = Object.values(day).reduce((s,e)=>s+(e.close||0),0);
-    const count  = Object.keys(day).length;
-    return `<div class="history-row" onclick="viewDate='${ds}';updateDateNav();renderSummary()">
+    const day    = allData[ds] || {};
+    const totalP = Object.entries(day).filter(([c]) => groupCodes.has(c)).reduce((s,[,e])=>s+(e.present||0),0);
+    const totalC = Object.entries(day).filter(([c]) => groupCodes.has(c)).reduce((s,[,e])=>s+(e.close||0),0);
+    const count  = Object.keys(day).filter(c => groupCodes.has(c)).length;
+    return `<div class="history-row" onclick="viewDate='${ds}';activeTab='daily';setTab('daily');updateDateNav();renderSummary()">
       <div>
         <div class="history-date">${fmtDateShort(ds)}</div>
         <div class="history-meta">${count} agent${count!==1?'s':''} logged</div>
@@ -556,26 +729,42 @@ function renderHistory() {
 
 updateDateNav();
 
+// ── Monthly row tap → detail modal with month totals ─────
+function showMonthlyDetail(code, ym) {
+  const agent = ALL_AGENTS.find(a => a.code === code);
+  if (!agent) return;
+  let present = 0, close = 0;
+  Object.keys(allData).forEach(date => {
+    if (!date.startsWith(ym)) return;
+    const e = (allData[date] || {})[code];
+    if (e) { present += e.present || 0; close += e.close || 0; }
+  });
+  const monthLabel = new Date(ym + '-01T00:00:00').toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+  _openDetailModal(agent, present, close, monthLabel);
+}
+
 // ── Agent detail modal ────────────────────────────────────
 function showAgentDetail(code) {
-  const agent  = AGENTS.find(a => a.code === code);
+  const agent = ALL_AGENTS.find(a => a.code === code);
   if (!agent) return;
-  const day    = (allData[viewDate] || {});
-  const e      = day[code];
+  const day  = (allData[viewDate] || {});
+  const e    = day[code];
   const present = e ? (e.present || 0) : 0;
   const close   = e ? (e.close   || 0) : 0;
+  const dateLabel = new Date(viewDate + 'T00:00:00').toLocaleDateString('en-MY', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+  _openDetailModal(agent, present, close, dateLabel);
+}
 
+function _openDetailModal(agent, present, close, periodLabel) {
   const expected = Math.floor(present / 5);
   const pending  = Math.max(0, expected - close);
   const rem      = present % 5;
   const toNext   = rem === 0 ? 5 : 5 - rem;
   const progPct  = rem === 0 ? 100 : Math.round((rem / 5) * 100);
 
-  const dateLabel = new Date(viewDate + 'T00:00:00').toLocaleDateString('en-MY', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
-
   let alertHtml = '';
   if (present === 0 && close === 0) {
-    alertHtml = `<div class="amod-good"><span class="amod-good-icon">📭</span><span class="amod-good-text">No activity logged for this date.</span></div>`;
+    alertHtml = `<div class="amod-good"><span class="amod-good-icon">📭</span><span class="amod-good-text">No activity logged for this period.</span></div>`;
   } else if (pending > 0) {
     alertHtml = `<div class="amod-alert">
       <span class="amod-alert-icon">⚠️</span>
@@ -604,7 +793,7 @@ function showAgentDetail(code) {
         </div>
         <button class="amod-close" onclick="closeAgentDetail()">✕</button>
       </div>
-      <div class="amod-date">📅 ${dateLabel}</div>
+      <div class="amod-date">📅 ${periodLabel}</div>
       <div class="amod-stats">
         <div class="amod-stat">
           <div class="amod-stat-lbl">Aktiviti</div>
