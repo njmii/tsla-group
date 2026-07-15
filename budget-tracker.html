@@ -209,6 +209,20 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .ct-prog-fill{height:100%;background:linear-gradient(90deg,#0a9b43,#34d399);border-radius:6px;transition:width .45s cubic-bezier(.22,1,.36,1)}
 .ct-prog-lbl{font-size:.72rem;font-weight:800;color:#888;white-space:nowrap;font-variant-numeric:tabular-nums}
 
+/* Payment instalment entries */
+.ct-pay-list{display:flex;flex-direction:column;gap:3px;padding:4px 0 2px}
+.ct-pay-entry{display:flex;align-items:center;gap:8px;padding:6px 9px;background:#f7f8fa;border-radius:10px}
+.ct-pay-date{color:#bbb;font-size:.71rem;white-space:nowrap;min-width:46px}
+.ct-pay-amt{flex:1;font-size:.82rem;font-weight:800;color:#0a9b43;font-variant-numeric:tabular-nums}
+.ct-pay-del{background:none;border:none;color:#ddd;cursor:pointer;font-size:.95rem;padding:0 2px;line-height:1;transition:.2s;flex-shrink:0}
+.ct-pay-del:hover{color:#e53935}
+.ct-balance-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;gap:8px;flex-wrap:wrap}
+.ct-paid-total{font-size:.76rem;font-weight:700;color:#aaa;font-variant-numeric:tabular-nums}
+.ct-bal-chip{font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:8px;font-variant-numeric:tabular-nums}
+.ct-bal-chip.done{background:#e8f5ee;color:#0a9b43}
+.ct-bal-chip.partial{background:#fff4eb;color:#ff7a00}
+.ct-bal-chip.none{background:#f0f0f0;color:#aaa}
+
 /* PERIOD INPUTS */
 .period-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .period-inp{flex:1;min-width:130px;padding:11px 12px;border:2px solid #eee;border-radius:12px;font-size:.85rem;font-weight:600;font-family:inherit;color:#111;background:#f7f8fa;outline:none;transition:.2s}
@@ -598,22 +612,44 @@ function payKey() {
   return `${viewYear}-${String(viewMonth+1).padStart(2,'0')}`;
 }
 
-function getPayment(commitId) {
-  const monthData = (data.payments || {})[payKey()] || {};
-  return monthData.hasOwnProperty(commitId) ? monthData[commitId] : null;
+function getPayments(commitId) {
+  const val = ((data.payments || {})[payKey()] || {})[commitId];
+  if (!val) return [];
+  // Migrate old single-number format → array
+  if (typeof val === 'number') return [{ id: 0, amount: val, date: payKey() + '-01' }];
+  return Array.isArray(val) ? val : [];
 }
 
-function setPayment(commitId, paidAmt) {
+function getPaymentTotal(commitId) {
+  return getPayments(commitId).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+}
+
+function addPaymentEntry(commitId, amount) {
+  const amt = parseFloat(amount) || 0;
+  if (amt <= 0) return;
   if (!data.payments) data.payments = {};
   if (!data.payments[payKey()]) data.payments[payKey()] = {};
-  data.payments[payKey()][commitId] = paidAmt;
+  const entries = getPayments(commitId);
+  entries.push({ id: Date.now() + Math.random(), amount: amt, date: todayStr() });
+  data.payments[payKey()][commitId] = entries;
   save();
   renderCommitmentsTracker();
 }
 
-function clearPayment(commitId) {
-  if (!data.payments || !data.payments[payKey()]) return;
-  delete data.payments[payKey()][commitId];
+function removePaymentEntry(commitId, entryId) {
+  const monthPay = data.payments?.[payKey()];
+  if (!monthPay) return;
+  const arr = getPayments(commitId).filter(e => e.id !== entryId);
+  if (!arr.length) delete monthPay[commitId];
+  else monthPay[commitId] = arr;
+  save();
+  renderCommitmentsTracker();
+}
+
+function clearAllPayments(commitId) {
+  const monthPay = data.payments?.[payKey()];
+  if (!monthPay) return;
+  delete monthPay[commitId];
   save();
   renderCommitmentsTracker();
 }
@@ -633,13 +669,11 @@ function renderCommitmentsTracker() {
   data.commitments.forEach(c => {
     const amt = parseFloat(c.amount) || 0;
     totalAmt += amt;
-    const paid = getPayment(c.id);
-    if (paid !== null) paidTotal += Math.min(paid, amt);
+    paidTotal += Math.min(getPaymentTotal(c.id), amt);
   });
   const pct = totalAmt > 0 ? Math.round(paidTotal / totalAmt * 100) : 0;
   const fmtTotal = totalAmt.toLocaleString('en-MY', {minimumFractionDigits:2, maximumFractionDigits:2});
 
-  // Header toggle (always visible)
   let html = `
     <div class="ct-toggle" onclick="toggleCommitTracker()">
       <div class="ct-toggle-left">
@@ -652,36 +686,56 @@ function renderCommitmentsTracker() {
       <span class="ct-toggle-arrow${ctOpen ? ' open' : ''}">▼</span>
     </div>`;
 
-  // Body (only when open)
   if (ctOpen) {
     html += `<div class="ct-body">`;
+
     data.commitments.forEach(c => {
-      const amt = parseFloat(c.amount) || 0;
-      const paid = getPayment(c.id);
-      const isPaidFull    = paid !== null && paid >= amt;
-      const isPaidPartial = paid !== null && paid > 0 && paid < amt;
+      const amt      = parseFloat(c.amount) || 0;
+      const entries  = getPayments(c.id);
+      const totalPaid = entries.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+      const balance  = amt - totalPaid;
+      const isDone   = totalPaid >= amt && amt > 0;
 
-      let actionHtml;
-      if (isPaidFull) {
-        actionHtml = `<div class="ct-action">
-          <span class="pay-chip paid-full">✓ Paid RM ${amt.toFixed(2)}</span>
-          <button class="pay-reset" onclick="clearPayment(${c.id})" title="Clear">×</button>
-        </div>`;
-      } else if (isPaidPartial) {
-        actionHtml = `<div class="ct-action">
-          <span class="pay-chip paid-partial">~ RM ${paid.toFixed(2)} paid</span>
-          <button class="pay-reset" onclick="clearPayment(${c.id})" title="Clear">×</button>
-        </div>`;
-      } else {
-        actionHtml = `<div class="ct-action" id="ct-action-${c.id}">
-          <button class="pay-btn" onclick="showPayForm(${c.id})">Pay</button>
-        </div>`;
-      }
+      // Payment entry rows
+      const payListHtml = entries.length ? `<div class="ct-pay-list">${
+        entries.map(e => {
+          const d = new Date(e.date + 'T00:00:00');
+          const dateLbl = d.toLocaleDateString('en-MY', {day:'numeric', month:'short'});
+          return `<div class="ct-pay-entry">
+            <span class="ct-pay-date">${dateLbl}</span>
+            <span class="ct-pay-amt">+RM ${parseFloat(e.amount).toFixed(2)}</span>
+            <button class="ct-pay-del" onclick="removePaymentEntry(${c.id}, ${e.id})" title="Remove this payment">×</button>
+          </div>`;
+        }).join('')
+      }</div>` : '';
 
-      html += `<div class="ct-row">
-        <span class="ct-name">${(c.name||'Unnamed').replace(/</g,'&lt;')}</span>
-        <span class="ct-fullamt">RM ${amt.toFixed(2)}</span>
-        ${actionHtml}
+      // Balance chip
+      const balClass = isDone ? 'done' : totalPaid > 0 ? 'partial' : 'none';
+      const balLabel = isDone ? '✓ Fully paid' : totalPaid > 0 ? `Balance RM ${balance.toFixed(2)}` : `RM ${amt.toFixed(2)} remaining`;
+      const balRow = entries.length ? `<div class="ct-balance-row">
+        <span class="ct-paid-total">Paid RM ${totalPaid.toFixed(2)}</span>
+        <span class="ct-bal-chip ${balClass}">${balLabel}</span>
+      </div>` : '';
+
+      // Action area — add payment button + optional "pay rest" shortcut
+      const remaining = Math.max(0, balance);
+      const actionArea = isDone
+        ? `<span style="font-size:.75rem;color:#0a9b43;font-weight:700">✓ Done for this month</span>`
+        : `<div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="pay-btn" onclick="showAddPayForm(${c.id})">+ Add Payment</button>
+            ${remaining > 0 && entries.length > 0 ? `<button class="pay-form-full-btn" onclick="addPaymentEntry(${c.id}, ${remaining})">Pay remaining RM ${remaining.toFixed(2)}</button>` : ''}
+            ${entries.length === 0 ? `<button class="pay-form-full-btn" onclick="addPaymentEntry(${c.id}, ${amt})">Full RM ${amt.toFixed(2)}</button>` : ''}
+           </div>`;
+
+      html += `<div class="ct-row" style="flex-direction:column;align-items:stretch;gap:6px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="ct-name">${(c.name||'Unnamed').replace(/</g,'&lt;')}</span>
+          <span class="ct-fullamt" style="margin-left:auto">RM ${amt.toFixed(2)}</span>
+          ${entries.length > 0 ? `<button class="pay-reset" onclick="clearAllPayments(${c.id})" title="Clear all payments this month">×</button>` : ''}
+        </div>
+        ${payListHtml}
+        ${balRow}
+        <div id="ct-action-${c.id}">${actionArea}</div>
       </div>`;
     });
 
@@ -694,32 +748,25 @@ function renderCommitmentsTracker() {
   el.innerHTML = html;
 }
 
-function showPayForm(commitId) {
-  const c = data.commitments.find(x => x.id === commitId);
-  if (!c) return;
-  const amt = parseFloat(c.amount) || 0;
+function showAddPayForm(commitId) {
   const actionEl = document.getElementById(`ct-action-${commitId}`);
   if (!actionEl) return;
   actionEl.innerHTML = `<div class="pay-form">
-    <button class="pay-form-full-btn" onclick="setPayment(${commitId}, ${amt})">Full RM ${amt.toFixed(2)}</button>
     <div class="pay-inp-wrap">
       <span class="pay-inp-pre">RM</span>
-      <input class="pay-inp" id="pay-inp-${commitId}" type="number" min="0" step="0.01" max="${amt}" placeholder="0.00" onkeydown="if(event.key==='Enter')confirmPartial(${commitId})"/>
+      <input class="pay-inp" id="pay-inp-${commitId}" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" onkeydown="if(event.key==='Enter')doAddPayment(${commitId})"/>
     </div>
-    <button class="pay-ok-btn" onclick="confirmPartial(${commitId})">OK</button>
+    <button class="pay-ok-btn" onclick="doAddPayment(${commitId})">Add</button>
     <button class="pay-cancel" onclick="renderCommitmentsTracker()">✕</button>
   </div>`;
   setTimeout(() => document.getElementById(`pay-inp-${commitId}`)?.focus(), 50);
 }
 
-function confirmPartial(commitId) {
-  const c = data.commitments.find(x => x.id === commitId);
-  if (!c) return;
-  const maxAmt = parseFloat(c.amount) || 0;
+function doAddPayment(commitId) {
   const inp = document.getElementById(`pay-inp-${commitId}`);
   const val = parseFloat(inp?.value) || 0;
   if (val <= 0) return;
-  setPayment(commitId, Math.min(val, maxAmt));
+  addPaymentEntry(commitId, val);
 }
 
 /* ── calendar ── */
@@ -935,6 +982,15 @@ function load() {
   if (!data.payments)    data.payments    = {};
   if (!data.periodFrom)  data.periodFrom  = '';
   if (!data.periodTo)    data.periodTo    = '';
+  // Migrate old single-number payment format → array of entries
+  Object.keys(data.payments).forEach(month => {
+    Object.keys(data.payments[month]).forEach(commitId => {
+      const val = data.payments[month][commitId];
+      if (typeof val === 'number') {
+        data.payments[month][commitId] = [{ id: 0, amount: val, date: month + '-01' }];
+      }
+    });
+  });
   // Restore inputs
   document.getElementById('salaryInput').value     = data.salary || '';
   document.getElementById('periodFromInput').value = data.periodFrom;
