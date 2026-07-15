@@ -32,8 +32,8 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .setup-arrow{font-size:.8rem;color:#aaa;transition:transform .3s}
 .setup-arrow.open{transform:rotate(180deg)}
 
-.setup-body{background:white;border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.05);overflow:hidden;max-height:0;transition:max-height .4s cubic-bezier(.22,1,.36,1),padding .3s}
-.setup-body.open{max-height:600px;padding:24px}
+.setup-body{background:white;border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.05);overflow:hidden;max-height:0;transition:max-height .5s cubic-bezier(.22,1,.36,1),padding .3s}
+.setup-body.open{max-height:900px;padding:24px}
 .setup-body-inner{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:600px){.setup-body-inner{grid-template-columns:1fr}}
 
@@ -57,6 +57,18 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .commit-del:hover{background:#e53935;color:white}
 .add-btn{width:100%;padding:11px;border:2px dashed #eee;border-radius:14px;background:transparent;color:#aaa;font-weight:700;font-size:.82rem;cursor:pointer;transition:.2s;font-family:inherit}
 .add-btn:hover{border-color:#ff7a00;color:#ff7a00;background:#fff8f4}
+
+/* COMMITMENT PAGER */
+.commit-pager{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;min-height:28px}
+.commit-page-btn{padding:5px 13px;border:1.5px solid #eee;border-radius:10px;background:transparent;color:#888;font-size:.78rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s}
+.commit-page-btn:hover:not(:disabled){border-color:#ff7a00;color:#ff7a00}
+.commit-page-btn:disabled{opacity:.3;cursor:default}
+.commit-page-info{font-size:.75rem;color:#aaa;font-weight:700}
+
+/* BACKUP */
+.backup-row{display:flex;gap:8px;flex-wrap:wrap}
+.backup-btn{padding:10px 18px;border:1.5px solid #eee;border-radius:12px;background:transparent;color:#555;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.backup-btn:hover{border-color:#ff7a00;color:#ff7a00;background:#fff8f4}
 
 /* MONTH NAV */
 .month-nav{display:flex;align-items:center;justify-content:space-between;margin:20px 0 16px;padding:0 4px}
@@ -244,6 +256,7 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
       <div>
         <div class="field-lbl">Monthly Commitments</div>
         <div class="commit-list" id="commitList"></div>
+        <div class="commit-pager" id="commitPager"></div>
         <button class="add-btn" onclick="addCommit()">+ Add Commitment</button>
       </div>
       <!-- Full-width: period -->
@@ -253,6 +266,17 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
           <input class="period-inp" type="date" id="periodFromInput" oninput="recalcSetup()"/>
           <span class="period-sep">to</span>
           <input class="period-inp" type="date" id="periodToInput" oninput="recalcSetup()"/>
+        </div>
+      </div>
+      <!-- Full-width: backup -->
+      <div style="grid-column:1/-1">
+        <div class="field-lbl">Data Backup</div>
+        <div class="backup-row">
+          <button class="backup-btn" onclick="exportData()">⬇ Export</button>
+          <label class="backup-btn">
+            ⬆ Import
+            <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(this)"/>
+          </label>
         </div>
       </div>
     </div>
@@ -345,6 +369,8 @@ let data = {
 let viewYear  = new Date().getFullYear();
 let viewMonth = new Date().getMonth();
 let openDate  = null;
+let commitPage = 0;
+const COMMIT_PER_PAGE = 4;
 
 /* ── utils ── */
 function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
@@ -430,12 +456,17 @@ function toggleSetup() {
 function addCommit(name='', amount='') {
   const id = Date.now() + Math.random();
   data.commitments.push({id, name, amount});
+  // Jump to last page so the new row is visible
+  commitPage = Math.max(0, Math.ceil(data.commitments.length / COMMIT_PER_PAGE) - 1);
   renderCommits();
   save();
 }
 
 function removeCommit(id) {
   data.commitments = data.commitments.filter(c => c.id !== id);
+  // Clamp page in case we deleted the last item on the last page
+  const totalPages = Math.max(1, Math.ceil(data.commitments.length / COMMIT_PER_PAGE));
+  commitPage = Math.min(commitPage, totalPages - 1);
   renderCommits();
   recalcSetup();
   save();
@@ -446,13 +477,17 @@ function renderCommits() {
   list.innerHTML = '';
   if (!data.commitments.length) {
     list.innerHTML = '<div style="color:#ccc;font-size:.8rem;padding:8px 0">No commitments yet</div>';
+    renderCommitPager();
     return;
   }
-  data.commitments.forEach(c => {
+  const totalPages = Math.ceil(data.commitments.length / COMMIT_PER_PAGE);
+  commitPage = Math.min(Math.max(0, commitPage), totalPages - 1);
+  const slice = data.commitments.slice(commitPage * COMMIT_PER_PAGE, (commitPage + 1) * COMMIT_PER_PAGE);
+  slice.forEach(c => {
     const row = document.createElement('div');
     row.className = 'commit-row';
     row.innerHTML = `
-      <input class="commit-name" type="text" placeholder="e.g. Car loan…" value="${c.name||''}" oninput="updateCommit(${c.id},'name',this.value)"/>
+      <input class="commit-name" type="text" placeholder="e.g. Car loan…" value="${(c.name||'').replace(/"/g,'&quot;')}" oninput="updateCommit(${c.id},'name',this.value)"/>
       <div class="commit-amt-wrap">
         <span class="commit-pre">RM</span>
         <input class="commit-amt" type="number" min="0" placeholder="0" value="${c.amount||''}" oninput="updateCommit(${c.id},'amount',this.value)"/>
@@ -460,6 +495,72 @@ function renderCommits() {
       <button class="commit-del" onclick="removeCommit(${c.id})" title="Remove">×</button>`;
     list.appendChild(row);
   });
+  renderCommitPager();
+}
+
+function renderCommitPager() {
+  const el = document.getElementById('commitPager');
+  if (!el) return;
+  const total = data.commitments.length;
+  const totalPages = Math.ceil(total / COMMIT_PER_PAGE);
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <button class="commit-page-btn" onclick="goCommitPage(${commitPage - 1})" ${commitPage === 0 ? 'disabled' : ''}>‹ Prev</button>
+    <span class="commit-page-info">${commitPage + 1} / ${totalPages}</span>
+    <button class="commit-page-btn" onclick="goCommitPage(${commitPage + 1})" ${commitPage >= totalPages - 1 ? 'disabled' : ''}>Next ›</button>`;
+}
+
+function goCommitPage(page) {
+  commitPage = page;
+  renderCommits();
+}
+
+/* ── backup ── */
+function exportData() {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `tsla-budget-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (typeof imported.salary === 'undefined' && !Array.isArray(imported.commitments)) {
+        throw new Error('Unrecognised format');
+      }
+      if (!confirm('Replace current budget data with this backup?')) { input.value = ''; return; }
+      data = Object.assign(
+        {salary:0, commitments:[], expenses:{}, payments:{}, periodFrom:'', periodTo:''},
+        imported
+      );
+      if (!data.payments)   data.payments   = {};
+      if (!data.periodFrom) data.periodFrom = '';
+      if (!data.periodTo)   data.periodTo   = '';
+      save();
+      commitPage = 0;
+      document.getElementById('salaryInput').value     = data.salary || '';
+      document.getElementById('periodFromInput').value = data.periodFrom;
+      document.getElementById('periodToInput').value   = data.periodTo;
+      renderCommits();
+      recalcSetup();
+      renderCommitmentsTracker();
+    } catch(err) {
+      alert('Import failed — make sure you select a valid TSLA budget backup file.');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
 }
 
 function updateCommit(id, field, val) {
