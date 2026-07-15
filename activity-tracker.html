@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daily Activity — TSLA Group</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+body{background:#f7f8fa;color:#111;overflow-x:hidden;}
+.glow{position:fixed;width:500px;height:500px;background:radial-gradient(circle,rgba(255,122,0,.12),transparent 70%);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:-1;}
+
+.navbar{position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(15px);border-bottom:1px solid #eee;z-index:999;}
+.nav-content{max-width:900px;margin:auto;padding:4px 20px;display:flex;justify-content:space-between;align-items:center;min-height:55px;gap:12px;}
+.nav-logo{width:46px;height:auto;flex-shrink:0;}
+.nav-title{font-weight:800;font-size:1rem;color:#111;flex:1;text-align:center;}
+.nav-back{text-decoration:none;color:#ff7a00;font-weight:700;font-size:.92rem;white-space:nowrap;}
+
+.container{max-width:900px;margin:auto;padding:20px 16px 60px;}
+
+/* Setup banner */
+.setup-banner{background:#fff8e1;border:2px solid #ffe082;border-radius:20px;padding:20px;margin-bottom:20px;}
+.setup-title{font-weight:800;font-size:.95rem;color:#c77700;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.setup-step{font-size:.83rem;color:#555;margin:6px 0;line-height:1.6;}
+.setup-step code{background:#fff;border:1px solid #eee;border-radius:6px;padding:1px 6px;font-family:monospace;font-size:.8rem;}
+.setup-step a{color:#ff7a00;}
+
+/* Live dot */
+.live-dot{width:8px;height:8px;background:#0a9b43;border-radius:50%;display:inline-block;animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.7);}}
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:#e6f9ee;color:#0a9b43;border-radius:8px;padding:3px 10px;font-size:.72rem;font-weight:700;}
+
+/* Date nav */
+.date-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px;}
+.date-nav-btn{background:white;border:2px solid #eee;border-radius:12px;width:38px;height:38px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0;}
+.date-nav-btn:hover{border-color:#ff7a00;color:#ff7a00;}
+.date-nav-btn:disabled{opacity:.3;cursor:default;}
+.date-label{font-weight:800;font-size:.97rem;min-width:140px;text-align:center;line-height:1.3;}
+.date-sub{font-size:.72rem;color:#aaa;font-weight:600;}
+
+/* Update card */
+.update-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.07);padding:22px 20px;margin-bottom:18px;}
+.card-title{font-weight:800;font-size:1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.card-title-icon{font-size:1.2rem;}
+
+.agent-sel{width:100%;border:2px solid #eee;border-radius:14px;padding:13px 14px;font-size:.95rem;font-weight:700;color:#111;background:white;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23aaa'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;outline:none;margin-bottom:14px;}
+.agent-sel:focus{border-color:#ff7a00;}
+
+.metrics-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.metric-box{background:#f7f8fa;border:2px solid #eee;border-radius:18px;padding:16px;text-align:center;transition:.15s;}
+.metric-box:focus-within{border-color:#ff7a00;background:white;}
+.metric-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;}
+.metric-lbl-present{color:#1a73e8;}
+.metric-lbl-close{color:#0a9b43;}
+.metric-input{width:100%;border:none;background:transparent;text-align:center;font-size:2.6rem;font-weight:900;color:#111;outline:none;line-height:1;}
+.metric-input::placeholder{color:#e0e0e0;}
+.metric-sub{font-size:.7rem;color:#aaa;margin-top:5px;}
+
+.submit-btn{width:100%;background:#ff7a00;color:white;border:none;border-radius:16px;padding:15px;font-size:1rem;font-weight:800;cursor:pointer;transition:.15s;letter-spacing:.02em;}
+.submit-btn:active{transform:scale(.98);}
+.submit-btn:disabled{opacity:.5;cursor:default;}
+
+/* Toast */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#111;color:white;border-radius:14px;padding:12px 24px;font-weight:700;font-size:.9rem;z-index:1000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+/* Summary */
+.summary-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.06);overflow:hidden;margin-bottom:18px;}
+.summary-header{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.summary-title{font-weight:800;font-size:.97rem;display:flex;align-items:center;gap:7px;}
+.summary-empty{padding:32px 20px;text-align:center;color:#bbb;font-size:.88rem;}
+
+.totals-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 20px;}
+.total-box{background:#f7f8fa;border-radius:14px;padding:14px 16px;text-align:center;}
+.total-lbl{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;}
+.total-lbl.present{color:#1a73e8;}
+.total-lbl.close{color:#0a9b43;}
+.total-val{font-size:2.2rem;font-weight:900;}
+.total-val.present{color:#1a73e8;}
+.total-val.close{color:#0a9b43;}
+
+.act-table{width:100%;border-collapse:collapse;}
+.act-table th{padding:8px 16px;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#bbb;text-align:left;border-bottom:2px solid #f0f0f0;}
+.act-table th.num{text-align:center;}
+.act-table td{padding:13px 16px;border-bottom:1px solid #f7f8fa;vertical-align:middle;}
+.act-table td.num{text-align:center;}
+.act-table tr:last-child td{border-bottom:none;}
+.act-table tr.highlight td{background:#fffde7;}
+
+.agent-nm{font-weight:700;font-size:.9rem;}
+.agent-cd{font-size:.72rem;color:#bbb;}
+.val-present{font-weight:800;font-size:1.15rem;color:#1a73e8;}
+.val-close{font-weight:800;font-size:1.15rem;color:#0a9b43;}
+.val-zero{color:#ddd;font-weight:700;font-size:1.05rem;}
+.time-badge{font-size:.7rem;color:#bbb;font-family:monospace;}
+.no-entry{color:#e8e8e8;font-size:.85rem;}
+
+.rank-pip{width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:.72rem;}
+.pip-1{background:#ffd700;color:#7a5c00;}
+.pip-2{background:#e8e8e8;color:#555;}
+.pip-3{background:#f4a460;color:#6b3a00;}
+.pip-n{background:#f0f0f0;color:#ccc;}
+
+/* History */
+.history-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);overflow:hidden;}
+.history-header{padding:18px 20px 14px;font-weight:800;font-size:.95rem;display:flex;align-items:center;gap:7px;border-bottom:1px solid #f0f0f0;}
+.history-row{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid #f7f8fa;cursor:pointer;transition:.1s;}
+.history-row:hover{background:#fafafa;}
+.history-row:last-child{border-bottom:none;}
+.history-date{font-weight:700;font-size:.88rem;}
+.history-meta{font-size:.74rem;color:#aaa;margin-top:1px;}
+.history-chips{display:flex;gap:8px;flex-shrink:0;}
+.hchip{font-size:.78rem;font-weight:800;padding:3px 10px;border-radius:8px;}
+.hchip-p{background:#e8f0fe;color:#1a73e8;}
+.hchip-c{background:#e6f9ee;color:#0a9b43;}
+
+.offline-bar{background:#fff3e0;border-radius:12px;padding:9px 14px;font-size:.78rem;font-weight:700;color:#e65100;margin-bottom:14px;display:none;align-items:center;gap:6px;}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+
+<div class="navbar">
+  <div class="nav-content">
+    <img class="nav-logo" src="assets/tslalogo.png" alt="TSLA"/>
+    <div class="nav-title">Daily Activity</div>
+    <a class="nav-back" href="index.html">← Back</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════════════════════════════════════════════════
+       SETUP GUIDE — remove this block after filling in config
+  ════════════════════════════════════════════════════════════ -->
+  <div class="setup-banner" id="setupBanner" style="display:none">
+    <div class="setup-title">⚙️ Firebase Setup Required</div>
+    <div class="setup-step">1. Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → Create a project (free)</div>
+    <div class="setup-step">2. In the project: <b>Build → Realtime Database → Create database</b> → Start in <b>test mode</b></div>
+    <div class="setup-step">3. Go to <b>Project Settings → General → Your apps → &lt;/&gt; Web</b> → Register app → copy the <code>firebaseConfig</code> object</div>
+    <div class="setup-step">4. Paste the values into the <code>FIREBASE_CONFIG</code> block at the top of this file's <code>&lt;script&gt;</code> section</div>
+    <div class="setup-step">5. Set Realtime Database rules to <code>".read": true, ".write": true</code> (for internal team use)</div>
+  </div>
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <div class="offline-bar" id="offlineBar">⚡ Offline — reconnecting…</div>
+
+  <!-- Date navigation -->
+  <div class="date-nav">
+    <button class="date-nav-btn" onclick="shiftDate(-1)" title="Previous">‹</button>
+    <div style="text-align:center">
+      <div class="date-label" id="dateLabel"></div>
+      <div class="date-sub" id="dateSub"></div>
+    </div>
+    <button class="date-nav-btn" id="nextBtn" onclick="shiftDate(1)" title="Next">›</button>
+  </div>
+
+  <!-- Log activity -->
+  <div class="update-card">
+    <div class="card-title"><span class="card-title-icon">✍️</span> Log Activity</div>
+
+    <select class="agent-sel" id="agentSel">
+      <option value="">— Select agent —</option>
+      <option value="A11668">A11668 · Najmi Fikri</option>
+      <option value="A13290">A13290 · Naqiyuddin</option>
+      <option value="A14252">A14252 · Ema Rozazilla</option>
+      <option value="A15475">A15475 · Muhammad Muaz</option>
+      <option value="A15741">A15741 · Nor Shahirra</option>
+      <option value="A15756">A15756 · Fadhlan Fikri</option>
+      <option value="A15781">A15781 · Ahmad Fauzan</option>
+      <option value="A16553">A16553 · Adam Muqriz</option>
+    </select>
+
+    <div class="metrics-row">
+      <div class="metric-box">
+        <div class="metric-lbl metric-lbl-present">Aktiviti</div>
+        <input class="metric-input" id="presentInput" type="number" min="0" max="99" placeholder="0" inputmode="numeric"/>
+        <div class="metric-sub">presentations</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-lbl metric-lbl-close">Close</div>
+        <input class="metric-input" id="closeInput" type="number" min="0" max="99" placeholder="0" inputmode="numeric"/>
+        <div class="metric-sub">policies sold</div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitActivity()">Update Activity</button>
+  </div>
+
+  <!-- Live summary -->
+  <div class="summary-card">
+    <div class="summary-header">
+      <div class="summary-title">📊 <span id="summaryTitle">Today's Activity</span></div>
+      <div class="live-badge" id="liveBadge" style="display:none"><span class="live-dot"></span> Live</div>
+    </div>
+
+    <div class="totals-strip" id="totalsStrip" style="display:none">
+      <div class="total-box">
+        <div class="total-lbl present">Total Aktiviti</div>
+        <div class="total-val present" id="totalPresent">0</div>
+      </div>
+      <div class="total-box">
+        <div class="total-lbl close">Total Close</div>
+        <div class="total-val close" id="totalClose">0</div>
+      </div>
+    </div>
+
+    <div id="summaryBody"><div class="summary-empty">Loading…</div></div>
+  </div>
+
+  <!-- Recent dates -->
+  <div class="history-card" id="historyCard" style="display:none">
+    <div class="history-header">📅 Recent Days</div>
+    <div id="historyBody"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     Firebase SDK (CDN — works on GitHub Pages)
+════════════════════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+// ═══════════════════════════════════════════
+// FILL IN YOUR FIREBASE CONFIG HERE
+// (from Firebase Console → Project Settings → General → Your apps → Web)
+// ═══════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "REPLACE_ME",
+  authDomain:        "REPLACE_ME",
+  databaseURL:       "REPLACE_ME",   // e.g. https://your-project-default-rtdb.asia-southeast1.firebasedatabase.app
+  projectId:         "REPLACE_ME",
+  storageBucket:     "REPLACE_ME",
+  messagingSenderId: "REPLACE_ME",
+  appId:             "REPLACE_ME"
+};
+// ═══════════════════════════════════════════
+
+const AGENTS = [
+  { code: 'A11668', name: 'Najmi Fikri' },
+  { code: 'A13290', name: 'Naqiyuddin' },
+  { code: 'A14252', name: 'Ema Rozazilla' },
+  { code: 'A15475', name: 'Muhammad Muaz' },
+  { code: 'A15741', name: 'Nor Shahirra' },
+  { code: 'A15756', name: 'Fadhlan Fikri' },
+  { code: 'A15781', name: 'Ahmad Fauzan' },
+  { code: 'A16553', name: 'Adam Muqriz' },
+];
+
+let db = null;
+let viewDate = todayStr();
+let unsubscribe = null;
+let allData = {};  // full snapshot keyed by date
+
+// ── Init ──────────────────────────────────────────────────
+function isConfigured() {
+  return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== 'REPLACE_ME';
+}
+
+if (!isConfigured()) {
+  document.getElementById('setupBanner').style.display = '';
+  document.getElementById('summaryBody').innerHTML = '<div class="summary-empty">Fill in Firebase config above to get started.</div>';
+  document.getElementById('submitBtn').disabled = true;
+} else {
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    init();
+  } catch(e) {
+    showToast('Firebase error: ' + e.message);
+  }
+}
+
+function init() {
+  // Connection state
+  firebase.database().ref('.info/connected').on('value', snap => {
+    const online = snap.val();
+    document.getElementById('offlineBar').style.display = online ? 'none' : 'flex';
+    document.getElementById('liveBadge').style.display  = online ? ''     : 'none';
+  });
+
+  // Load full data once, then listen for changes
+  db.ref('activity').on('value', snap => {
+    allData = snap.val() || {};
+    renderSummary();
+    renderHistory();
+  });
+
+  // Restore last agent selection
+  const last = localStorage.getItem('tsla_last_agent');
+  if (last) document.getElementById('agentSel').value = last;
+  document.getElementById('agentSel').addEventListener('change', function() {
+    if (this.value) localStorage.setItem('tsla_last_agent', this.value);
+  });
+
+  updateDateNav();
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function fmtDate(str) {
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('en-MY', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function fmtDateShort(str) {
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('en-MY', {day:'numeric',month:'short',year:'numeric'});
+}
+
+function shiftDate(delta) {
+  const [y,m,d] = viewDate.split('-').map(Number);
+  const dt = new Date(y,m-1,d+delta);
+  viewDate = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+  updateDateNav();
+  renderSummary();
+}
+
+function updateDateNav() {
+  const today = todayStr();
+  const parts = fmtDate(viewDate).split(', ');
+  document.getElementById('dateLabel').textContent = viewDate === today ? 'Today' : (parts[0] || fmtDate(viewDate));
+  document.getElementById('dateSub').textContent   = viewDate === today ? fmtDateShort(viewDate) : (parts.slice(1).join(', ') || '');
+  document.getElementById('nextBtn').disabled      = viewDate >= today;
+  document.getElementById('summaryTitle').textContent = viewDate === today ? "Today's Activity" : fmtDateShort(viewDate);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ── Submit ────────────────────────────────────────────────
+function submitActivity() {
+  if (!db) return;
+  const code    = document.getElementById('agentSel').value;
+  const present = parseInt(document.getElementById('presentInput').value) || 0;
+  const close   = parseInt(document.getElementById('closeInput').value)   || 0;
+
+  if (!code) { showToast('Please select an agent'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Updating…';
+
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const agent = AGENTS.find(a => a.code === code);
+
+  db.ref(`activity/${viewDate}/${code}`).set({
+    present,
+    close,
+    name:      agent ? agent.name : code,
+    updatedAt: timeStr
+  }).then(() => {
+    document.getElementById('presentInput').value = '';
+    document.getElementById('closeInput').value   = '';
+    showToast('✅ Activity updated!');
+  }).catch(err => {
+    showToast('Error: ' + err.message);
+  }).finally(() => {
+    btn.disabled = false;
+    btn.textContent = 'Update Activity';
+  });
+}
+
+// ── Render summary for viewDate ───────────────────────────
+function renderSummary() {
+  const day = (allData[viewDate] || {});
+  const body = document.getElementById('summaryBody');
+  const strip = document.getElementById('totalsStrip');
+
+  const hasData = AGENTS.some(a => day[a.code]);
+  if (!hasData) {
+    strip.style.display = 'none';
+    body.innerHTML = '<div class="summary-empty">No activity logged yet.</div>';
+    return;
+  }
+
+  // Sort: entries first (by close desc, then present desc), then no-entry alphabetical
+  const sorted = [...AGENTS].sort((a,b) => {
+    const da = day[a.code], db2 = day[b.code];
+    if (da && !db2) return -1;
+    if (!da && db2) return 1;
+    if (!da && !db2) return 0;
+    return (db2.close - da.close) || (db2.present - da.present);
+  });
+
+  let totalP = 0, totalC = 0;
+  sorted.forEach(a => {
+    if (day[a.code]) { totalP += day[a.code].present||0; totalC += day[a.code].close||0; }
+  });
+
+  document.getElementById('totalPresent').textContent = totalP;
+  document.getElementById('totalClose').textContent   = totalC;
+  strip.style.display = '';
+
+  let rank = 0;
+  let html = `<table class="act-table">
+    <thead><tr>
+      <th></th>
+      <th>Agent</th>
+      <th class="num">Aktiviti</th>
+      <th class="num">Close</th>
+      <th class="num">Updated</th>
+    </tr></thead><tbody>`;
+
+  sorted.forEach(agent => {
+    const e = day[agent.code];
+    if (e) rank++;
+    const pip = rank===1?'pip-1':rank===2?'pip-2':rank===3?'pip-3':'pip-n';
+    html += `<tr${e && e.close > 0 ? ' class="highlight"' : ''}>
+      <td><div class="rank-pip ${e ? pip : 'pip-n'}">${e ? rank : '·'}</div></td>
+      <td><div class="agent-nm">${agent.name}</div><div class="agent-cd">${agent.code}</div></td>
+      <td class="num">${e
+        ? `<span class="${e.present>0?'val-present':'val-zero'}">${e.present}</span>`
+        : '<span class="no-entry">—</span>'}</td>
+      <td class="num">${e
+        ? `<span class="${e.close>0?'val-close':'val-zero'}">${e.close}</span>`
+        : '<span class="no-entry">—</span>'}</td>
+      <td class="num"><span class="time-badge">${e ? e.updatedAt : ''}</span></td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  body.innerHTML = html;
+}
+
+// ── History strip (past dates) ────────────────────────────
+function renderHistory() {
+  const dates = Object.keys(allData)
+    .filter(d => d !== viewDate)
+    .sort().reverse().slice(0, 7);
+
+  const card = document.getElementById('historyCard');
+  const body = document.getElementById('historyBody');
+
+  if (!dates.length) { card.style.display = 'none'; return; }
+  card.style.display = '';
+
+  body.innerHTML = dates.map(ds => {
+    const day   = allData[ds] || {};
+    const totalP = Object.values(day).reduce((s,e)=>s+(e.present||0),0);
+    const totalC = Object.values(day).reduce((s,e)=>s+(e.close||0),0);
+    const count  = Object.keys(day).length;
+    return `<div class="history-row" onclick="viewDate='${ds}';updateDateNav();renderSummary()">
+      <div>
+        <div class="history-date">${fmtDateShort(ds)}</div>
+        <div class="history-meta">${count} agent${count!==1?'s':''} logged</div>
+      </div>
+      <div class="history-chips">
+        <span class="hchip hchip-p">▲ ${totalP}</span>
+        <span class="hchip hchip-c">✓ ${totalC}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+updateDateNav();
+</script>
+</body>
+</html>
