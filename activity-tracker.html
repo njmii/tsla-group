@@ -17,91 +17,103 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 
 .container{max-width:900px;margin:auto;padding:20px 16px 60px;}
 
+/* Setup banner */
+.setup-banner{background:#fff8e1;border:2px solid #ffe082;border-radius:20px;padding:20px;margin-bottom:20px;}
+.setup-title{font-weight:800;font-size:.95rem;color:#c77700;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.setup-step{font-size:.83rem;color:#555;margin:6px 0;line-height:1.6;}
+.setup-step code{background:#fff;border:1px solid #eee;border-radius:6px;padding:1px 6px;font-family:monospace;font-size:.8rem;}
+.setup-step a{color:#ff7a00;}
+
+/* Live dot */
+.live-dot{width:8px;height:8px;background:#0a9b43;border-radius:50%;display:inline-block;animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.7);}}
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:#e6f9ee;color:#0a9b43;border-radius:8px;padding:3px 10px;font-size:.72rem;font-weight:700;}
+
 /* Date nav */
 .date-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px;}
 .date-nav-btn{background:white;border:2px solid #eee;border-radius:12px;width:38px;height:38px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0;}
 .date-nav-btn:hover{border-color:#ff7a00;color:#ff7a00;}
 .date-nav-btn:disabled{opacity:.3;cursor:default;}
-.date-label{font-weight:800;font-size:1rem;min-width:160px;text-align:center;}
-.date-today-btn{background:#ff7a00;color:white;border:none;border-radius:10px;padding:5px 14px;font-size:.78rem;font-weight:700;cursor:pointer;}
+.date-label{font-weight:800;font-size:.97rem;min-width:140px;text-align:center;line-height:1.3;}
+.date-sub{font-size:.72rem;color:#aaa;font-weight:600;}
 
 /* Update card */
 .update-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.07);padding:22px 20px;margin-bottom:18px;}
-.update-card-title{font-weight:800;font-size:1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-.update-card-title span{font-size:1.2rem;}
+.card-title{font-weight:800;font-size:1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.card-title-icon{font-size:1.2rem;}
 
-.agent-sel{width:100%;border:2px solid #eee;border-radius:14px;padding:12px 14px;font-size:.95rem;font-weight:700;color:#111;background:white;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23aaa'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;outline:none;margin-bottom:14px;}
+.agent-sel{width:100%;border:2px solid #eee;border-radius:14px;padding:13px 14px;font-size:.95rem;font-weight:700;color:#111;background:white;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23aaa'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;outline:none;margin-bottom:14px;}
 .agent-sel:focus{border-color:#ff7a00;}
 
 .metrics-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
-.metric-box{background:#f7f8fa;border:2px solid #eee;border-radius:18px;padding:14px 16px;text-align:center;transition:.15s;}
+.metric-box{background:#f7f8fa;border:2px solid #eee;border-radius:18px;padding:16px;text-align:center;transition:.15s;}
 .metric-box:focus-within{border-color:#ff7a00;background:white;}
-.metric-lbl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.metric-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;}
 .metric-lbl-present{color:#1a73e8;}
 .metric-lbl-close{color:#0a9b43;}
-.metric-input{width:100%;border:none;background:transparent;text-align:center;font-size:2.4rem;font-weight:900;color:#111;outline:none;line-height:1;}
-.metric-input::placeholder{color:#ddd;}
-.metric-sub{font-size:.72rem;color:#aaa;margin-top:4px;}
+.metric-input{width:100%;border:none;background:transparent;text-align:center;font-size:2.6rem;font-weight:900;color:#111;outline:none;line-height:1;}
+.metric-input::placeholder{color:#e0e0e0;}
+.metric-sub{font-size:.7rem;color:#aaa;margin-top:5px;}
 
 .submit-btn{width:100%;background:#ff7a00;color:white;border:none;border-radius:16px;padding:15px;font-size:1rem;font-weight:800;cursor:pointer;transition:.15s;letter-spacing:.02em;}
 .submit-btn:active{transform:scale(.98);}
-.submit-btn:disabled{opacity:.4;cursor:default;}
+.submit-btn:disabled{opacity:.5;cursor:default;}
 
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#111;color:white;border-radius:14px;padding:12px 24px;font-weight:700;font-size:.9rem;z-index:1000;opacity:0;transition:opacity .25s;pointer-events:none;}
+/* Toast */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#111;color:white;border-radius:14px;padding:12px 24px;font-weight:700;font-size:.9rem;z-index:1000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
 
 /* Summary */
 .summary-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.06);overflow:hidden;margin-bottom:18px;}
-.summary-header{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between;}
+.summary-header{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 .summary-title{font-weight:800;font-size:.97rem;display:flex;align-items:center;gap:7px;}
-.summary-title span{font-size:1.1rem;}
-.summary-empty{padding:32px 20px;text-align:center;color:#aaa;font-size:.9rem;}
+.summary-empty{padding:32px 20px;text-align:center;color:#bbb;font-size:.88rem;}
 
-.act-table{width:100%;border-collapse:collapse;margin-top:14px;}
-.act-table th{padding:8px 14px;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#aaa;text-align:left;border-bottom:2px solid #f0f0f0;}
+.totals-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 20px;}
+.total-box{background:#f7f8fa;border-radius:14px;padding:14px 16px;text-align:center;}
+.total-lbl{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;}
+.total-lbl.present{color:#1a73e8;}
+.total-lbl.close{color:#0a9b43;}
+.total-val{font-size:2.2rem;font-weight:900;}
+.total-val.present{color:#1a73e8;}
+.total-val.close{color:#0a9b43;}
+
+.act-table{width:100%;border-collapse:collapse;}
+.act-table th{padding:8px 16px;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#bbb;text-align:left;border-bottom:2px solid #f0f0f0;}
 .act-table th.num{text-align:center;}
-.act-table td{padding:12px 14px;border-bottom:1px solid #f7f8fa;vertical-align:middle;}
+.act-table td{padding:13px 16px;border-bottom:1px solid #f7f8fa;vertical-align:middle;}
 .act-table td.num{text-align:center;}
 .act-table tr:last-child td{border-bottom:none;}
-.act-table tr.total-row{background:#f7f8fa;}
-.act-table tr.total-row td{font-weight:800;border-bottom:none;border-top:2px solid #eee;}
+.act-table tr.highlight td{background:#fffde7;}
 
 .agent-nm{font-weight:700;font-size:.9rem;}
-.agent-cd{font-size:.72rem;color:#aaa;}
-.val-present{font-weight:800;font-size:1.1rem;color:#1a73e8;}
-.val-close{font-weight:800;font-size:1.1rem;color:#0a9b43;}
-.val-zero{color:#ddd;font-weight:700;}
-.time-badge{font-size:.7rem;color:#aaa;}
-.no-entry{color:#e0e0e0;font-size:.85rem;}
+.agent-cd{font-size:.72rem;color:#bbb;}
+.val-present{font-weight:800;font-size:1.15rem;color:#1a73e8;}
+.val-close{font-weight:800;font-size:1.15rem;color:#0a9b43;}
+.val-zero{color:#ddd;font-weight:700;font-size:1.05rem;}
+.time-badge{font-size:.7rem;color:#bbb;font-family:monospace;}
+.no-entry{color:#e8e8e8;font-size:.85rem;}
 
-.rank-pip{width:22px;height:22px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:.72rem;flex-shrink:0;}
+.rank-pip{width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:.72rem;}
 .pip-1{background:#ffd700;color:#7a5c00;}
 .pip-2{background:#e8e8e8;color:#555;}
 .pip-3{background:#f4a460;color:#6b3a00;}
-.pip-n{background:#f0f0f0;color:#aaa;}
+.pip-n{background:#f0f0f0;color:#ccc;}
 
-/* Totals strip */
-.totals-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 20px;}
-.total-box{background:#f7f8fa;border-radius:14px;padding:13px 16px;text-align:center;}
-.total-box-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
-.total-box-lbl.present{color:#1a73e8;}
-.total-box-lbl.close{color:#0a9b43;}
-.total-box-val{font-size:2rem;font-weight:900;}
-.total-box-val.present{color:#1a73e8;}
-.total-box-val.close{color:#0a9b43;}
-
-/* History strip */
+/* History */
 .history-card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.05);overflow:hidden;}
-.history-header{padding:18px 20px 14px;font-weight:800;font-size:.97rem;display:flex;align-items:center;gap:7px;border-bottom:1px solid #f0f0f0;}
-.history-row{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #f7f8fa;cursor:pointer;transition:.1s;}
+.history-header{padding:18px 20px 14px;font-weight:800;font-size:.95rem;display:flex;align-items:center;gap:7px;border-bottom:1px solid #f0f0f0;}
+.history-row{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid #f7f8fa;cursor:pointer;transition:.1s;}
 .history-row:hover{background:#fafafa;}
 .history-row:last-child{border-bottom:none;}
 .history-date{font-weight:700;font-size:.88rem;}
-.history-meta{font-size:.75rem;color:#aaa;}
-.history-chips{display:flex;gap:8px;}
+.history-meta{font-size:.74rem;color:#aaa;margin-top:1px;}
+.history-chips{display:flex;gap:8px;flex-shrink:0;}
 .hchip{font-size:.78rem;font-weight:800;padding:3px 10px;border-radius:8px;}
 .hchip-p{background:#e8f0fe;color:#1a73e8;}
 .hchip-c{background:#e6f9ee;color:#0a9b43;}
+
+.offline-bar{background:#fff3e0;border-radius:12px;padding:9px 14px;font-size:.78rem;font-weight:700;color:#e65100;margin-bottom:14px;display:none;align-items:center;gap:6px;}
 </style>
 </head>
 <body>
@@ -117,18 +129,34 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 
 <div class="container">
 
+  <!-- ═══════════════════════════════════════════════════════
+       SETUP GUIDE — remove this block after filling in config
+  ════════════════════════════════════════════════════════════ -->
+  <div class="setup-banner" id="setupBanner" style="display:none">
+    <div class="setup-title">⚙️ Firebase Setup Required</div>
+    <div class="setup-step">1. Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → Create a project (free)</div>
+    <div class="setup-step">2. In the project: <b>Build → Realtime Database → Create database</b> → Start in <b>test mode</b></div>
+    <div class="setup-step">3. Go to <b>Project Settings → General → Your apps → &lt;/&gt; Web</b> → Register app → copy the <code>firebaseConfig</code> object</div>
+    <div class="setup-step">4. Paste the values into the <code>FIREBASE_CONFIG</code> block at the top of this file's <code>&lt;script&gt;</code> section</div>
+    <div class="setup-step">5. Set Realtime Database rules to <code>".read": true, ".write": true</code> (for internal team use)</div>
+  </div>
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <div class="offline-bar" id="offlineBar">⚡ Offline — reconnecting…</div>
+
   <!-- Date navigation -->
   <div class="date-nav">
-    <button class="date-nav-btn" onclick="shiftDate(-1)" title="Previous day">‹</button>
+    <button class="date-nav-btn" onclick="shiftDate(-1)" title="Previous">‹</button>
     <div style="text-align:center">
       <div class="date-label" id="dateLabel"></div>
+      <div class="date-sub" id="dateSub"></div>
     </div>
-    <button class="date-nav-btn" id="nextBtn" onclick="shiftDate(1)" title="Next day">›</button>
+    <button class="date-nav-btn" id="nextBtn" onclick="shiftDate(1)" title="Next">›</button>
   </div>
 
-  <!-- Update form -->
+  <!-- Log activity -->
   <div class="update-card">
-    <div class="update-card-title"><span>✍️</span> Log Activity</div>
+    <div class="card-title"><span class="card-title-icon">✍️</span> Log Activity</div>
 
     <select class="agent-sel" id="agentSel">
       <option value="">— Select agent —</option>
@@ -155,32 +183,33 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
       </div>
     </div>
 
-    <button class="submit-btn" onclick="submitActivity()">Update Activity</button>
+    <button class="submit-btn" id="submitBtn" onclick="submitActivity()">Update Activity</button>
   </div>
 
-  <!-- Summary for selected date -->
+  <!-- Live summary -->
   <div class="summary-card">
     <div class="summary-header">
-      <div class="summary-title"><span>📊</span> <span id="summaryDateLabel"></span></div>
+      <div class="summary-title">📊 <span id="summaryTitle">Today's Activity</span></div>
+      <div class="live-badge" id="liveBadge" style="display:none"><span class="live-dot"></span> Live</div>
     </div>
 
     <div class="totals-strip" id="totalsStrip" style="display:none">
       <div class="total-box">
-        <div class="total-box-lbl present">Total Aktiviti</div>
-        <div class="total-box-val present" id="totalPresent">0</div>
+        <div class="total-lbl present">Total Aktiviti</div>
+        <div class="total-val present" id="totalPresent">0</div>
       </div>
       <div class="total-box">
-        <div class="total-box-lbl close">Total Close</div>
-        <div class="total-box-val close" id="totalClose">0</div>
+        <div class="total-lbl close">Total Close</div>
+        <div class="total-val close" id="totalClose">0</div>
       </div>
     </div>
 
-    <div id="summaryBody"></div>
+    <div id="summaryBody"><div class="summary-empty">Loading…</div></div>
   </div>
 
-  <!-- Recent dates with activity -->
+  <!-- Recent dates -->
   <div class="history-card" id="historyCard" style="display:none">
-    <div class="history-header"><span>📅</span> Recent Activity</div>
+    <div class="history-header">📅 Recent Days</div>
     <div id="historyBody"></div>
   </div>
 
@@ -188,7 +217,28 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 
 <div class="toast" id="toast"></div>
 
+<!-- ═══════════════════════════════════════════════════════
+     Firebase SDK (CDN — works on GitHub Pages)
+════════════════════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
 <script>
+// ═══════════════════════════════════════════
+// FILL IN YOUR FIREBASE CONFIG HERE
+// (from Firebase Console → Project Settings → General → Your apps → Web)
+// ═══════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "REPLACE_ME",
+  authDomain:        "REPLACE_ME",
+  databaseURL:       "REPLACE_ME",   // e.g. https://your-project-default-rtdb.asia-southeast1.firebasedatabase.app
+  projectId:         "REPLACE_ME",
+  storageBucket:     "REPLACE_ME",
+  messagingSenderId: "REPLACE_ME",
+  appId:             "REPLACE_ME"
+};
+// ═══════════════════════════════════════════
+
 const AGENTS = [
   { code: 'A11668', name: 'Najmi Fikri' },
   { code: 'A13290', name: 'Naqiyuddin' },
@@ -200,168 +250,221 @@ const AGENTS = [
   { code: 'A16553', name: 'Adam Muqriz' },
 ];
 
-const STORE_KEY = 'tsla_activity';
+let db = null;
 let viewDate = todayStr();
+let unsubscribe = null;
+let allData = {};  // full snapshot keyed by date
 
+// ── Init ──────────────────────────────────────────────────
+function isConfigured() {
+  return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== 'REPLACE_ME';
+}
+
+if (!isConfigured()) {
+  document.getElementById('setupBanner').style.display = '';
+  document.getElementById('summaryBody').innerHTML = '<div class="summary-empty">Fill in Firebase config above to get started.</div>';
+  document.getElementById('submitBtn').disabled = true;
+} else {
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    init();
+  } catch(e) {
+    showToast('Firebase error: ' + e.message);
+  }
+}
+
+function init() {
+  // Connection state
+  firebase.database().ref('.info/connected').on('value', snap => {
+    const online = snap.val();
+    document.getElementById('offlineBar').style.display = online ? 'none' : 'flex';
+    document.getElementById('liveBadge').style.display  = online ? ''     : 'none';
+  });
+
+  // Load full data once, then listen for changes
+  db.ref('activity').on('value', snap => {
+    allData = snap.val() || {};
+    renderSummary();
+    renderHistory();
+  });
+
+  // Restore last agent selection
+  const last = localStorage.getItem('tsla_last_agent');
+  if (last) document.getElementById('agentSel').value = last;
+  document.getElementById('agentSel').addEventListener('change', function() {
+    if (this.value) localStorage.setItem('tsla_last_agent', this.value);
+  });
+
+  updateDateNav();
+}
+
+// ── Helpers ───────────────────────────────────────────────
 function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
+
 function fmtDate(str) {
-  const [y, m, d] = str.split('-').map(Number);
-  return new Date(y, m-1, d).toLocaleDateString('en-MY', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('en-MY', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
 function fmtDateShort(str) {
-  const [y, m, d] = str.split('-').map(Number);
-  return new Date(y, m-1, d).toLocaleDateString('en-MY', { day:'numeric', month:'short', year:'numeric' });
-}
-
-function loadData() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch { return {}; }
-}
-function saveData(d) {
-  localStorage.setItem(STORE_KEY, JSON.stringify(d));
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('en-MY', {day:'numeric',month:'short',year:'numeric'});
 }
 
 function shiftDate(delta) {
-  const [y, m, d] = viewDate.split('-').map(Number);
-  const dt = new Date(y, m-1, d + delta);
+  const [y,m,d] = viewDate.split('-').map(Number);
+  const dt = new Date(y,m-1,d+delta);
   viewDate = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
-  render();
+  updateDateNav();
+  renderSummary();
 }
 
-function submitActivity() {
-  const code = document.getElementById('agentSel').value;
-  const present = parseInt(document.getElementById('presentInput').value) || 0;
-  const close   = parseInt(document.getElementById('closeInput').value)   || 0;
-
-  if (!code) { showToast('Please select an agent'); return; }
-
-  const now = new Date();
-  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-  const all = loadData();
-  if (!all[viewDate]) all[viewDate] = {};
-  all[viewDate][code] = { present, close, updatedAt: timeStr };
-  saveData(all);
-
-  // Pre-fill agent selector for next update (same agent)
-  document.getElementById('presentInput').value = '';
-  document.getElementById('closeInput').value = '';
-
-  showToast('✅ Activity updated!');
-  render();
+function updateDateNav() {
+  const today = todayStr();
+  const parts = fmtDate(viewDate).split(', ');
+  document.getElementById('dateLabel').textContent = viewDate === today ? 'Today' : (parts[0] || fmtDate(viewDate));
+  document.getElementById('dateSub').textContent   = viewDate === today ? fmtDateShort(viewDate) : (parts.slice(1).join(', ') || '');
+  document.getElementById('nextBtn').disabled      = viewDate >= today;
+  document.getElementById('summaryTitle').textContent = viewDate === today ? "Today's Activity" : fmtDateShort(viewDate);
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  setTimeout(() => t.classList.remove('show'), 2400);
 }
 
-function render() {
-  const today = todayStr();
-  const isToday = viewDate === today;
+// ── Submit ────────────────────────────────────────────────
+function submitActivity() {
+  if (!db) return;
+  const code    = document.getElementById('agentSel').value;
+  const present = parseInt(document.getElementById('presentInput').value) || 0;
+  const close   = parseInt(document.getElementById('closeInput').value)   || 0;
 
-  // Date label
-  document.getElementById('dateLabel').textContent = isToday ? `Today — ${fmtDate(viewDate).split(',')[0].trim()}, ${fmtDate(viewDate).split(',').slice(1).join(',').trim()}` : fmtDate(viewDate);
-  document.getElementById('nextBtn').disabled = viewDate >= today;
-  document.getElementById('summaryDateLabel').textContent = isToday ? "Today's Activity" : `Activity — ${fmtDateShort(viewDate)}`;
+  if (!code) { showToast('Please select an agent'); return; }
 
-  renderSummary();
-  renderHistory();
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Updating…';
+
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const agent = AGENTS.find(a => a.code === code);
+
+  db.ref(`activity/${viewDate}/${code}`).set({
+    present,
+    close,
+    name:      agent ? agent.name : code,
+    updatedAt: timeStr
+  }).then(() => {
+    document.getElementById('presentInput').value = '';
+    document.getElementById('closeInput').value   = '';
+    showToast('✅ Activity updated!');
+  }).catch(err => {
+    showToast('Error: ' + err.message);
+  }).finally(() => {
+    btn.disabled = false;
+    btn.textContent = 'Update Activity';
+  });
 }
 
+// ── Render summary for viewDate ───────────────────────────
 function renderSummary() {
-  const all = loadData();
-  const day = all[viewDate] || {};
+  const day = (allData[viewDate] || {});
   const body = document.getElementById('summaryBody');
-  const totalsStrip = document.getElementById('totalsStrip');
+  const strip = document.getElementById('totalsStrip');
 
-  // Check if any data
   const hasData = AGENTS.some(a => day[a.code]);
-
   if (!hasData) {
-    totalsStrip.style.display = 'none';
-    body.innerHTML = '<div class="summary-empty">No activity logged for this date.</div>';
+    strip.style.display = 'none';
+    body.innerHTML = '<div class="summary-empty">No activity logged yet.</div>';
     return;
   }
 
-  // Sort agents: those with data first (by close desc, then present desc), then no-data
-  const sorted = [...AGENTS].sort((a, b) => {
-    const da = day[a.code], db = day[b.code];
-    if (da && !db) return -1;
-    if (!da && db) return 1;
-    if (!da && !db) return 0;
-    return (db.close - da.close) || (db.present - da.present);
+  // Sort: entries first (by close desc, then present desc), then no-entry alphabetical
+  const sorted = [...AGENTS].sort((a,b) => {
+    const da = day[a.code], db2 = day[b.code];
+    if (da && !db2) return -1;
+    if (!da && db2) return 1;
+    if (!da && !db2) return 0;
+    return (db2.close - da.close) || (db2.present - da.present);
   });
 
   let totalP = 0, totalC = 0;
   sorted.forEach(a => {
-    if (day[a.code]) { totalP += day[a.code].present || 0; totalC += day[a.code].close || 0; }
+    if (day[a.code]) { totalP += day[a.code].present||0; totalC += day[a.code].close||0; }
   });
 
   document.getElementById('totalPresent').textContent = totalP;
-  document.getElementById('totalClose').textContent = totalC;
-  totalsStrip.style.display = '';
+  document.getElementById('totalClose').textContent   = totalC;
+  strip.style.display = '';
 
   let rank = 0;
-  let html = '<table class="act-table"><thead><tr><th></th><th>Agent</th><th class="num">Aktiviti</th><th class="num">Close</th><th class="num">Updated</th></tr></thead><tbody>';
+  let html = `<table class="act-table">
+    <thead><tr>
+      <th></th>
+      <th>Agent</th>
+      <th class="num">Aktiviti</th>
+      <th class="num">Close</th>
+      <th class="num">Updated</th>
+    </tr></thead><tbody>`;
+
   sorted.forEach(agent => {
-    const entry = day[agent.code];
-    if (entry) rank++;
-    const pipClass = rank === 1 ? 'pip-1' : rank === 2 ? 'pip-2' : rank === 3 ? 'pip-3' : 'pip-n';
-    const pipContent = entry ? rank : '—';
-    html += `<tr>
-      <td><div class="rank-pip ${entry ? pipClass : 'pip-n'}">${pipContent}</div></td>
+    const e = day[agent.code];
+    if (e) rank++;
+    const pip = rank===1?'pip-1':rank===2?'pip-2':rank===3?'pip-3':'pip-n';
+    html += `<tr${e && e.close > 0 ? ' class="highlight"' : ''}>
+      <td><div class="rank-pip ${e ? pip : 'pip-n'}">${e ? rank : '·'}</div></td>
       <td><div class="agent-nm">${agent.name}</div><div class="agent-cd">${agent.code}</div></td>
-      <td class="num">${entry ? `<span class="${entry.present > 0 ? 'val-present' : 'val-zero'}">${entry.present}</span>` : '<span class="no-entry">—</span>'}</td>
-      <td class="num">${entry ? `<span class="${entry.close > 0 ? 'val-close' : 'val-zero'}">${entry.close}</span>` : '<span class="no-entry">—</span>'}</td>
-      <td class="num"><span class="time-badge">${entry ? entry.updatedAt : ''}</span></td>
+      <td class="num">${e
+        ? `<span class="${e.present>0?'val-present':'val-zero'}">${e.present}</span>`
+        : '<span class="no-entry">—</span>'}</td>
+      <td class="num">${e
+        ? `<span class="${e.close>0?'val-close':'val-zero'}">${e.close}</span>`
+        : '<span class="no-entry">—</span>'}</td>
+      <td class="num"><span class="time-badge">${e ? e.updatedAt : ''}</span></td>
     </tr>`;
   });
+
   html += '</tbody></table>';
   body.innerHTML = html;
 }
 
+// ── History strip (past dates) ────────────────────────────
 function renderHistory() {
-  const all = loadData();
-  const dates = Object.keys(all).filter(d => d !== viewDate).sort().reverse().slice(0, 7);
+  const dates = Object.keys(allData)
+    .filter(d => d !== viewDate)
+    .sort().reverse().slice(0, 7);
+
   const card = document.getElementById('historyCard');
   const body = document.getElementById('historyBody');
 
   if (!dates.length) { card.style.display = 'none'; return; }
   card.style.display = '';
 
-  let html = '';
-  dates.forEach(dateStr => {
-    const day = all[dateStr] || {};
-    const totalP = Object.values(day).reduce((s, e) => s + (e.present || 0), 0);
-    const totalC = Object.values(day).reduce((s, e) => s + (e.close || 0), 0);
+  body.innerHTML = dates.map(ds => {
+    const day   = allData[ds] || {};
+    const totalP = Object.values(day).reduce((s,e)=>s+(e.present||0),0);
+    const totalC = Object.values(day).reduce((s,e)=>s+(e.close||0),0);
     const count  = Object.keys(day).length;
-    html += `<div class="history-row" onclick="viewDate='${dateStr}';render()">
+    return `<div class="history-row" onclick="viewDate='${ds}';updateDateNav();renderSummary()">
       <div>
-        <div class="history-date">${fmtDateShort(dateStr)}</div>
-        <div class="history-meta">${count} agent${count !== 1 ? 's' : ''} logged</div>
+        <div class="history-date">${fmtDateShort(ds)}</div>
+        <div class="history-meta">${count} agent${count!==1?'s':''} logged</div>
       </div>
       <div class="history-chips">
         <span class="hchip hchip-p">▲ ${totalP}</span>
         <span class="hchip hchip-c">✓ ${totalC}</span>
       </div>
     </div>`;
-  });
-  body.innerHTML = html;
+  }).join('');
 }
 
-// Restore last selected agent
-const lastAgent = localStorage.getItem('tsla_last_agent');
-if (lastAgent) document.getElementById('agentSel').value = lastAgent;
-document.getElementById('agentSel').addEventListener('change', function() {
-  if (this.value) localStorage.setItem('tsla_last_agent', this.value);
-});
-
-render();
+updateDateNav();
 </script>
 </body>
 </html>
