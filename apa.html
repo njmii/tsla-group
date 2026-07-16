@@ -302,8 +302,8 @@ tr.act-row td{padding:0;background:#fffdf9;}
     <div class="pin-icon">🔒</div>
     <div class="pin-title">APA Tracker</div>
     <div class="pin-sub">Enter PIN to continue</div>
-    <input class="pin-input" id="pinInput" type="tel" maxlength="4" placeholder="••••" inputmode="numeric"
-      oninput="if(this.value.length>=4)checkPin()" onkeydown="if(event.key==='Enter')checkPin()"/>
+    <input class="pin-input" id="pinInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••"
+      oninput="if(this.value.replace(/\D/g,'').length>=4)checkPin()" onkeydown="if(event.key==='Enter')checkPin()"/>
     <div class="pin-err" id="pinErr"></div>
     <button class="pin-submit" onclick="checkPin()">Unlock</button>
   </div>
@@ -407,7 +407,7 @@ const CONTESTS = [
   },
 ];
 
-// ── State ─────────────────────────────
+// ── State ─────────────────────────────────
 let db = null;
 let curAgent = AGENTS[0].code;
 let curYear  = new Date().getFullYear();
@@ -415,7 +415,7 @@ let yearData = { months: {}, activity: {}, contests: {}, goalAce: 0 };
 let saveTimer = null;
 let activeActMonth = null;
 
-// ── PIN ──────────────────────────────
+// ── PIN ──────────────────────────────────
 (function() {
   if (sessionStorage.getItem('tsla_apa_pin') === '1') {
     document.getElementById('pinOverlay').style.display = 'none';
@@ -426,7 +426,7 @@ let activeActMonth = null;
 })();
 
 function checkPin() {
-  const v = document.getElementById('pinInput').value.trim();
+  const v = document.getElementById('pinInput').value.replace(/\D/g, '');
   if (v === '1111') {
     sessionStorage.setItem('tsla_apa_pin', '1');
     document.getElementById('pinOverlay').style.display = 'none';
@@ -438,7 +438,7 @@ function checkPin() {
   }
 }
 
-// ── Init ─────────────────────────────
+// ── Init ─────────────────────────────────
 function initApp() {
   buildSelectors();
   firebase.initializeApp(FIREBASE_CONFIG);
@@ -507,7 +507,7 @@ function scheduleSave() {
   }, 1400);
 }
 
-// ── Helpers ─────────────────────────────
+// ── Helpers ───────────────────────────────
 function rm(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
 
 function fmt(n, dp = 2) {
@@ -552,7 +552,7 @@ function pctBadge(pct) {
   return `<span class="pb ${cls}">${pct.toFixed(1)}%</span>`;
 }
 
-// ── Render ────────────────────────────
+// ── Render ────────────────────────────────
 function render() {
   renderFySummary();
   renderProdTable();
@@ -616,8 +616,8 @@ function renderProdTable() {
       html += `<tr data-m="${m}">
         <td class="td-q">Q${q}</td>
         <td class="td-m">${MONTHS[m-1]}</td>
-        <td class="td-n"><input class="num-inp" style="color:#1a73e8" type="number" min="0" step="0.01" value="${bgt||\'\'}" placeholder="0" oninput="onCell(${m},'budget',this.value)"/></td>
-        <td class="td-n"><input class="num-inp" style="color:#1a73e8" type="number" min="0" step="0.01" value="${act||\'\'}" placeholder="0" oninput="onCell(${m},'actual',this.value)"/></td>
+        <td class="td-n"><input class="num-inp" style="color:#1a73e8" type="number" min="0" step="0.01" value="${bgt||''}" placeholder="0" oninput="onCell(${m},'budget',this.value)"/></td>
+        <td class="td-n"><input class="num-inp" style="color:#1a73e8" type="number" min="0" step="0.01" value="${act||''}" placeholder="0" oninput="onCell(${m},'actual',this.value)"/></td>
         <td class="td-comp ${vari>0?'pos':vari<0?'neg':'dim'}">${bgt===0?'—':(vari>=0?'+':'')+fmt(vari)}</td>
         <td class="td-comp">${pctBadge(pct)}</td>
         <td class="td-comp">${ytd>0?fmt(ytd):'—'}</td>
@@ -717,13 +717,13 @@ function renderActivity(m) {
       <td><input class="act-inp" value="${esc(r.who||'')}" placeholder="Name" oninput="onAct(${m},${i},'who',this.value)"/></td>
       <td><input class="act-inp" value="${esc(r.occupation||'')}" placeholder="—" oninput="onAct(${m},${i},'occupation',this.value)"/></td>
       <td><input class="act-inp" value="${esc(r.from||'')}" placeholder="—" oninput="onAct(${m},${i},'from',this.value)"/></td>
-      <td><input class="act-inp r" type="number" min="0" step="0.01" value="${bgt||\'\'}" placeholder="0" oninput="onAct(${m},${i},'budget',this.value)"/></td>
-      <td><input class="act-inp r" type="number" min="0" step="0.01" value="${ach||\'\'}" placeholder="0" oninput="onAct(${m},${i},'achieve',this.value)"/></td>
-      <td><input class="act-inp r" type="number" min="0" step="0.01" value="${plg||\'\'}" placeholder="0" oninput="onAct(${m},${i},'pledge',this.value)"/></td>
+      <td><input class="act-inp r" type="number" min="0" step="0.01" value="${bgt||''}" placeholder="0" oninput="onAct(${m},${i},'budget',this.value)"/></td>
+      <td><input class="act-inp r" type="number" min="0" step="0.01" value="${ach||''}" placeholder="0" oninput="onAct(${m},${i},'achieve',this.value)"/></td>
+      <td><input class="act-inp r" type="number" min="0" step="0.01" value="${plg||''}" placeholder="0" oninput="onAct(${m},${i},'pledge',this.value)"/></td>
       <td class="act-comp ${pvb!==null?pvb>=100?'pos':'neg':'dim'}">${pvb!==null?pvb.toFixed(1)+'%':'—'}</td>
       <td class="act-comp">${pctBadge(pctA)}</td>
       <td class="act-comp ${msf>0?'neg':msf<0?'pos':'dim'}">${bgt===0?'—':(msf>0?'−':msf<0?'+':'')+fmt(Math.abs(msf))}</td>
-      <td><input class="act-inp r" type="number" min="0" value="${cust||\'\'}" placeholder="0" oninput="onAct(${m},${i},'customers',this.value)"/></td>
+      <td><input class="act-inp r" type="number" min="0" value="${cust||''}" placeholder="0" oninput="onAct(${m},${i},'customers',this.value)"/></td>
       <td><button class="del-btn" onclick="delAct(${m},${i})">✕</button></td>
     </tr>`;
   });
@@ -742,9 +742,9 @@ function renderActivity(m) {
       <td style="text-align:right">${tBgt?fmt(tBgt):'—'}</td>
       <td style="text-align:right;color:#ff7a00">${tAch?fmt(tAch):'—'}</td>
       <td style="text-align:right">${tPlg?fmt(tPlg):'—'}</td>
-      <td style="text-align:right;${tPvb!==null?tPvb>=100?'color:#0a9b43':'color:#e53935':''}}">${tPvb!==null?tPvb.toFixed(1)+'%':'—'}</td>
+      <td style="text-align:right;${tPvb!==null?tPvb>=100?'color:#0a9b43':'color:#e53935':''}">${tPvb!==null?tPvb.toFixed(1)+'%':'—'}</td>
       <td style="text-align:right">${tPctA!==null?pctBadge(tPctA):'—'}</td>
-      <td style="text-align:right;${tSf>0?'color:#e53935':tSf<0?'color:#0a9b43':''}}">${tBgt===0?'—':(tSf>0?'−':tSf<0?'+':'')+fmt(Math.abs(tSf))}</td>
+      <td style="text-align:right;${tSf>0?'color:#e53935':tSf<0?'color:#0a9b43':''}">${tBgt===0?'—':(tSf>0?'−':tSf<0?'+':'')+fmt(Math.abs(tSf))}</td>
       <td style="text-align:right">${tCust||'—'}</td>
       <td></td>
     </tr>`;
@@ -821,7 +821,7 @@ function renderContests() {
       const saved = rm(yearData.contests?.[c.id + '_target']);
       html += `<div class="c-inp-row">
         <span class="c-inp-lbl">Target ACE:</span>
-        <input class="c-inp" type="number" min="0" step="1000" value="${saved||\'\'}" placeholder="—"
+        <input class="c-inp" type="number" min="0" step="1000" value="${saved||''}" placeholder="—"
           oninput="onContestTarget('${c.id}',this.value)"/>
       </div>`;
     }
@@ -850,7 +850,7 @@ function renderProject100() {
     : `${rem} more customers needed to reach 100`;
 }
 
-// ── Interactions ────────────────────────
+// ── Interactions ──────────────────────────
 function toggleActivity(m) {
   activeActMonth = activeActMonth === m ? null : m;
   renderProdTable();
@@ -921,7 +921,7 @@ async function syncFromPrData() {
   } catch(e) { showToast('Sync failed: ' + e.message); }
 }
 
-// ── XLSX Import ─────────────────
+// ── XLSX Import ───────────────────────────
 async function handleXlsxImport(file) {
   if (!file) return;
   try {
@@ -982,7 +982,7 @@ function xlsxToMonths(rows) {
   return result;
 }
 
-// ── Minimal XLSX parser (ZIP + DecompressionStream) ─────────────────────────────
+// ── Minimal XLSX parser (ZIP + DecompressionStream) ───────────────────────────
 function u16(b,o){return b[o]|(b[o+1]<<8);}
 function u32(b,o){return (b[o]|(b[o+1]<<8)|(b[o+2]<<16)|(b[o+3]<<24))>>>0;}
 
