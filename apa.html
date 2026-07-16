@@ -10,131 +10,127 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 .glow{position:fixed;width:500px;height:500px;background:radial-gradient(circle,rgba(255,122,0,.1),transparent 70%);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:-1;}
 
 .navbar{position:sticky;top:0;background:rgba(255,255,255,.93);backdrop-filter:blur(15px);border-bottom:1px solid #eee;z-index:999;}
-.nav-content{max-width:960px;margin:auto;padding:4px 20px;display:flex;justify-content:space-between;align-items:center;min-height:55px;gap:12px;}
+.nav-content{max-width:1100px;margin:auto;padding:4px 20px;display:flex;justify-content:space-between;align-items:center;min-height:55px;gap:12px;}
 .nav-logo{width:44px;height:auto;flex-shrink:0;}
 .nav-title{font-weight:800;font-size:1rem;color:#111;flex:1;text-align:center;}
 .nav-back{text-decoration:none;color:#ff7a00;font-weight:700;font-size:.92rem;white-space:nowrap;}
 
-.container{max-width:960px;margin:auto;padding:20px 16px 80px;}
+.offline-bar{background:#e53935;color:white;text-align:center;font-size:.82rem;font-weight:700;padding:8px;display:none;}
+.container{max-width:1100px;margin:auto;padding:20px 16px 80px;}
 
-/* Controls bar */
+/* Controls */
 .controls-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
 .sel-ctrl{border:2px solid #eee;border-radius:14px;padding:9px 14px;font-size:.88rem;font-weight:700;color:#111;background:white;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M0 0l5 7 5-7z' fill='%23bbb'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;outline:none;}
 .sel-ctrl:focus{border-color:#ff7a00;}
-.import-lbl{display:inline-flex;align-items:center;gap:6px;background:white;border:2px solid #eee;border-radius:14px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer;color:#555;transition:.15s;white-space:nowrap;}
-.import-lbl:hover{border-color:#ff7a00;color:#ff7a00;}
-.sync-btn{display:inline-flex;align-items:center;gap:6px;background:white;border:2px solid #eee;border-radius:14px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer;color:#1a73e8;transition:.15s;white-space:nowrap;}
-.sync-btn:hover{border-color:#1a73e8;background:#f0f6ff;}
+.ctrl-btn{display:inline-flex;align-items:center;gap:6px;background:white;border:2px solid #eee;border-radius:14px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap;}
+.ctrl-btn:hover{border-color:#ff7a00;color:#ff7a00;}
+.ctrl-btn.blue{color:#1a73e8;}.ctrl-btn.blue:hover{border-color:#1a73e8;background:#f0f6ff;}
 
-/* FY summary strip */
-.fy-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
-.fy-box{background:white;border-radius:18px;padding:16px;text-align:center;border:2px solid #eee;}
-.fy-lbl{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;color:#888;}
-.fy-val{font-size:1.6rem;font-weight:900;color:#111;font-variant-numeric:tabular-nums;}
-.fy-val.green{color:#0a9b43;}
-.fy-val.red{color:#e53935;}
-.fy-val.orange{color:#ff7a00;}
-.fy-sub{font-size:.72rem;color:#aaa;margin-top:3px;}
+/* Summary strip */
+.summary-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
+.sum-box{background:white;border-radius:18px;padding:14px 16px;border:2px solid #eee;text-align:center;}
+.sum-lbl{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;color:#888;}
+.sum-val{font-size:1.4rem;font-weight:900;color:#111;font-variant-numeric:tabular-nums;line-height:1;}
+.sum-val.green{color:#0a9b43;}.sum-val.red{color:#e53935;}.sum-val.orange{color:#ff7a00;}
+.sum-sub{font-size:.7rem;color:#aaa;margin-top:3px;}
+.sum-inp{width:100%;border:none;background:transparent;text-align:center;font-size:1.2rem;font-weight:900;color:#ff7a00;outline:none;font-variant-numeric:tabular-nums;}
+.sum-inp::placeholder{color:#e0e0e0;}
 
 /* Card */
-.card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.06);padding:0;margin-bottom:18px;overflow:hidden;}
-.card-header{padding:18px 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.card{background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:18px;overflow:hidden;}
+.card-hd{padding:18px 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .card-title{font-weight:800;font-size:1rem;display:flex;align-items:center;gap:8px;}
+.card-note{font-size:.72rem;color:#aaa;font-weight:600;}
 
-/* Table */
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-table{width:100%;border-collapse:collapse;min-width:600px;}
-thead th{padding:8px 14px;font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;text-align:left;border-bottom:2px solid #f0f0f0;white-space:nowrap;}
-thead th.r{text-align:right;}
-tbody tr{transition:background .1s;}
+/* Main production table */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;min-width:700px;}
+thead th{padding:7px 12px;font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;text-align:right;border-bottom:2px solid #f0f0f0;white-space:nowrap;}
+thead th.l{text-align:left;}
+tbody td{border-bottom:1px solid #f5f5f5;vertical-align:middle;}
 tbody tr:hover td{background:#fafafa;}
-tbody td{padding:0;border-bottom:1px solid #f5f5f5;vertical-align:middle;}
-tbody tr:last-child td{border-bottom:none;}
-.td-month{padding:0 14px;font-weight:700;font-size:.9rem;white-space:nowrap;min-width:90px;}
-.td-num{padding:2px 6px;text-align:right;}
-.td-pct{padding:0 14px;text-align:right;font-weight:800;font-size:.9rem;font-variant-numeric:tabular-nums;}
-.td-action{padding:0 10px 0 4px;text-align:center;width:36px;}
-
-/* Quarter rows */
-tr.qrow td{background:#f7f8fa;border-top:2px solid #eee;border-bottom:2px solid #eee;}
-tr.qrow .td-month{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#888;}
-tr.qrow .td-num input{background:transparent;}
-tr.fyrow td{background:#fff8f0;border-top:2px solid #ffe0cc;}
-tr.fyrow .td-month{color:#ff7a00;font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;}
-
-/* Table number inputs */
-.num-inp{width:100%;min-width:80px;border:none;background:transparent;text-align:right;font-size:.9rem;font-weight:700;color:#111;padding:12px 8px;outline:none;font-variant-numeric:tabular-nums;}
-.num-inp:focus{background:#fff9f5;border-radius:8px;}
-.num-inp::placeholder{color:#e0e0e0;font-weight:500;}
-.num-inp.ce-inp{color:#1a73e8;}
-.num-inp.pr-inp{color:#0a9b43;}
-
-/* Shortfall */
-.sf-pos{color:#0a9b43;font-weight:800;font-size:.88rem;padding:0 14px;text-align:right;font-variant-numeric:tabular-nums;}
-.sf-neg{color:#e53935;font-weight:800;font-size:.88rem;padding:0 14px;text-align:right;font-variant-numeric:tabular-nums;}
-.sf-zero{color:#bbb;font-size:.88rem;padding:0 14px;text-align:right;}
-
-/* Achievement % badge */
-.pct-badge{display:inline-block;padding:3px 8px;border-radius:8px;font-size:.78rem;font-weight:800;font-variant-numeric:tabular-nums;}
-.pct-green{background:#e6f9ee;color:#0a9b43;}
-.pct-orange{background:#fff3e0;color:#e65100;}
-.pct-red{background:#fce8e8;color:#c62828;}
-.pct-grey{background:#f5f5f5;color:#aaa;}
-
-/* Expand button */
-.exp-btn{width:26px;height:26px;border-radius:8px;border:2px solid #eee;background:white;cursor:pointer;font-size:.7rem;display:inline-flex;align-items:center;justify-content:center;transition:.15s;color:#888;}
+.td-q{padding:0 10px;font-size:.68rem;font-weight:800;text-transform:uppercase;color:#ccc;white-space:nowrap;text-align:center;width:30px;}
+.td-m{padding:0 14px;font-weight:700;font-size:.9rem;white-space:nowrap;min-width:90px;}
+.td-n{padding:2px 4px;text-align:right;}
+.num-inp{width:100%;min-width:82px;border:none;background:transparent;text-align:right;font-size:.88rem;font-weight:700;color:#111;padding:11px 8px;outline:none;font-variant-numeric:tabular-nums;}
+.num-inp:focus{background:#fff9f5;border-radius:6px;}
+.num-inp::placeholder{color:#e0e0e0;font-weight:400;}
+.td-comp{padding:0 12px;text-align:right;font-size:.88rem;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.td-act{padding:0 8px 0 4px;text-align:center;width:32px;}
+.exp-btn{width:26px;height:26px;border-radius:8px;border:2px solid #eee;background:white;cursor:pointer;font-size:.65rem;display:inline-flex;align-items:center;justify-content:center;transition:.15s;color:#bbb;}
 .exp-btn:hover{border-color:#ff7a00;color:#ff7a00;}
 .exp-btn.open{background:#fff3e6;border-color:#ff7a00;color:#ff7a00;transform:rotate(90deg);}
 
-/* Activity sub-row */
+/* Quarter subtotal rows */
+tr.qrow td{background:#f7f8fa;border-top:2px solid #eee;border-bottom:2px solid #eee;}
+tr.qrow .td-m{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#888;}
+tr.fyrow td{background:#fff8f0;border-top:2px solid #ffe0cc;}
+tr.fyrow .td-m{font-weight:900;color:#ff7a00;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;}
+
+/* Colour helpers */
+.pos{color:#0a9b43;}.neg{color:#e53935;}.dim{color:#bbb;}
+
+/* Pct badge */
+.pb{display:inline-block;padding:3px 7px;border-radius:7px;font-size:.76rem;font-weight:800;font-variant-numeric:tabular-nums;}
+.pb-g{background:#e6f9ee;color:#0a9b43;}.pb-o{background:#fff3e0;color:#e65100;}.pb-r{background:#fce8e8;color:#c62828;}.pb-d{background:#f5f5f5;color:#aaa;}
+
+/* Activity panel */
 tr.act-row td{padding:0;background:#fffdf9;}
 .act-panel{padding:12px 20px 20px;border-top:2px dashed #ffe0cc;}
-.act-panel-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#ff7a00;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.add-row-btn{background:#ff7a00;color:white;border:none;border-radius:10px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:.15s;}
-.add-row-btn:active{transform:scale(.97);}
-
-/* Activity table inside panel */
-.act-tbl{width:100%;border-collapse:collapse;margin-top:8px;}
-.act-tbl th{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#bbb;padding:6px 8px;text-align:left;border-bottom:1px solid #f0f0f0;}
+.act-hd{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#ff7a00;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.add-btn{background:#ff7a00;color:white;border:none;border-radius:10px;padding:5px 13px;font-size:.76rem;font-weight:700;cursor:pointer;}
+.act-tbl{width:100%;border-collapse:collapse;min-width:900px;}
+.act-tbl th{font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#bbb;padding:5px 7px;text-align:left;border-bottom:1px solid #f0f0f0;}
 .act-tbl th.r{text-align:right;}
-.act-tbl td{padding:4px 8px;border-bottom:1px solid #f9f9f9;vertical-align:middle;}
-.act-tbl tr:last-child td{border-bottom:none;}
-.act-inp{border:none;background:#f7f8fa;border-radius:8px;padding:7px 10px;font-size:.85rem;font-weight:600;color:#111;outline:none;width:100%;}
+.act-tbl td{padding:3px 7px;border-bottom:1px solid #f9f9f9;vertical-align:middle;}
+.act-inp{border:none;background:#f5f5f5;border-radius:7px;padding:7px 9px;font-size:.83rem;font-weight:600;color:#111;outline:none;width:100%;}
 .act-inp:focus{background:#fff3e0;}
 .act-inp.r{text-align:right;}
-.del-btn{background:none;border:none;color:#e0e0e0;cursor:pointer;font-size:1rem;padding:4px 6px;border-radius:6px;transition:.15s;}
+.act-comp{font-size:.83rem;font-weight:700;text-align:right;padding:8px 7px;font-variant-numeric:tabular-nums;}
+.del-btn{background:none;border:none;color:#ddd;cursor:pointer;font-size:.95rem;padding:4px 6px;border-radius:6px;transition:.15s;}
 .del-btn:hover{color:#e53935;background:#fce8e8;}
+.tot-row{background:#fff8f0;}
+.tot-row td{padding:8px 7px;font-size:.82rem;font-weight:800;font-variant-numeric:tabular-nums;}
 .act-empty{padding:16px;text-align:center;color:#ccc;font-size:.85rem;}
 
 /* Contest section */
-.contest-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;padding:0 20px 20px;}
-.contest-card{background:#f7f8fa;border-radius:18px;padding:18px;border:2px solid #eee;}
-.contest-name{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:6px;}
-.contest-target{font-weight:900;font-size:1.1rem;color:#111;margin-bottom:12px;}
-.progress-bar{height:10px;background:#eee;border-radius:999px;overflow:hidden;margin-bottom:6px;}
-.progress-fill{height:100%;border-radius:999px;transition:width .4s;}
+.contest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;padding:0 20px 20px;}
+.c-card{border-radius:18px;padding:18px;border:2px solid #eee;background:#f7f8fa;}
+.c-tag{display:inline-block;font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;border-radius:6px;padding:3px 8px;margin-bottom:8px;}
+.c-tag.q1{background:#fff3e0;color:#e65100;}.c-tag.fy{background:#e8f0fe;color:#1a73e8;}
+.c-name{font-weight:900;font-size:.98rem;line-height:1.2;margin-bottom:4px;}
+.c-period{font-size:.72rem;color:#888;margin-bottom:12px;}
+.prog-bar{height:9px;background:#eee;border-radius:999px;overflow:hidden;margin-bottom:5px;}
+.prog-fill{height:100%;border-radius:999px;transition:width .4s;}
 .pf-orange{background:linear-gradient(90deg,#ff7a00,#ffb347);}
-.pf-green{background:linear-gradient(90deg,#0a9b43,#34d072);}
 .pf-blue{background:linear-gradient(90deg,#1a73e8,#60a8ff);}
-.progress-labels{display:flex;justify-content:space-between;font-size:.72rem;color:#888;font-weight:700;font-variant-numeric:tabular-nums;}
-.contest-tiers{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
-.contest-tier{display:flex;align-items:center;gap:8px;font-size:.8rem;}
+.pf-green{background:linear-gradient(90deg,#0a9b43,#34d072);}
+.prog-nums{display:flex;justify-content:space-between;font-size:.7rem;color:#888;font-weight:700;font-variant-numeric:tabular-nums;margin-bottom:10px;}
+.tier{display:flex;align-items:center;gap:7px;padding:5px 0;font-size:.8rem;border-top:1px solid #eee;}
+.tier:first-of-type{border-top:none;}
 .tier-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.tier-dot.green{background:#0a9b43;}
-.tier-dot.grey{background:#ddd;}
-.tier-lbl{flex:1;color:#666;}
-.tier-val{font-weight:700;font-variant-numeric:tabular-nums;}
-.tier-tick{font-size:.9rem;}
-.contest-note{font-size:.72rem;color:#aaa;margin-top:8px;line-height:1.5;}
+.td-green{background:#0a9b43;}.td-grey{background:#ddd;}
+.tier-lbl{flex:1;color:#555;}
+.tier-tick{font-size:.85rem;}
+.c-note{font-size:.7rem;color:#aaa;margin-top:8px;line-height:1.5;}
+.c-inp-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #eee;}
+.c-inp-lbl{font-size:.72rem;color:#888;font-weight:700;white-space:nowrap;}
+.c-inp{border:2px solid #eee;border-radius:10px;padding:6px 10px;font-size:.82rem;font-weight:700;color:#111;outline:none;width:100px;text-align:right;background:white;}
+.c-inp:focus{border-color:#ff7a00;}
+
+/* CE/PR strip */
+.cepr-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;padding:0 20px 20px;}
+.cepr-box{background:#f7f8fa;border-radius:12px;padding:10px 12px;text-align:center;border:2px solid #eee;}
+.cepr-m{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:4px;}
+.cepr-val{font-size:.95rem;font-weight:900;font-variant-numeric:tabular-nums;}
+.cepr-inp{width:100%;border:none;background:transparent;text-align:center;font-size:.9rem;font-weight:800;outline:none;}
+.cepr-inp::placeholder{color:#e0e0e0;}
 
 /* Toast */
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#111;color:white;border-radius:14px;padding:12px 24px;font-weight:700;font-size:.9rem;z-index:1000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
 
-/* Offline bar */
-.offline-bar{background:#e53935;color:white;text-align:center;font-size:.82rem;font-weight:700;padding:8px;display:none;}
-
-/* PIN overlay */
+/* PIN */
 .pin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;}
 .pin-card{background:white;border-radius:28px;padding:32px 28px;width:300px;max-width:90vw;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.2);}
 .pin-icon{font-size:2rem;margin-bottom:8px;}
@@ -145,10 +141,10 @@ tr.act-row td{padding:0;background:#fffdf9;}
 .pin-err{color:#e53935;font-size:.82rem;font-weight:700;min-height:18px;margin-bottom:10px;}
 .pin-submit{width:100%;background:#ff7a00;color:white;border:none;border-radius:14px;padding:14px;font-size:.97rem;font-weight:800;cursor:pointer;}
 
-@media(max-width:600px){
-  .fy-strip{grid-template-columns:1fr 1fr;}
+@media(max-width:680px){
+  .summary-strip{grid-template-columns:1fr 1fr;}
   .controls-bar{flex-direction:column;align-items:stretch;}
-  .sel-ctrl,.import-lbl,.sync-btn{width:100%;justify-content:center;}
+  .sel-ctrl,.ctrl-btn{width:100%;justify-content:center;}
 }
 </style>
 </head>
@@ -162,7 +158,6 @@ tr.act-row td{padding:0;background:#fffdf9;}
     <a class="nav-back" href="index.html">← Back</a>
   </div>
 </nav>
-
 <div class="offline-bar" id="offlineBar">⚡ Offline — reconnecting…</div>
 
 <div class="container">
@@ -171,38 +166,58 @@ tr.act-row td{padding:0;background:#fffdf9;}
   <div class="controls-bar">
     <select id="agentSel" class="sel-ctrl" onchange="onAgentChange()"></select>
     <select id="yearSel" class="sel-ctrl" onchange="onYearChange()"></select>
-    <button class="sync-btn" onclick="syncFromPrData()" title="Pull current CE/PR from PR Report data">🔄 Sync CE/PR</button>
-    <label class="import-lbl" title="Import monthly data from Excel (.xlsx)">
+    <button class="ctrl-btn blue" onclick="syncFromPrData()">🔄 Sync CE/PR</button>
+    <label class="ctrl-btn" title="Import from .xlsx">
       📤 Import Excel
       <input type="file" id="xlsxInput" accept=".xlsx" style="display:none" onchange="handleXlsxImport(this.files[0]);this.value=''"/>
     </label>
   </div>
 
   <!-- FY Summary -->
-  <div class="fy-strip" id="fySummary">
-    <div class="fy-box"><div class="fy-lbl">FY Budget</div><div class="fy-val" id="fyBudget">—</div></div>
-    <div class="fy-box"><div class="fy-lbl">FY Achieve</div><div class="fy-val orange" id="fyAchieve">—</div></div>
-    <div class="fy-box"><div class="fy-lbl">Achievement</div><div class="fy-val" id="fyPct">—</div></div>
-    <div class="fy-box"><div class="fy-lbl">FY Shortfall</div><div class="fy-val" id="fyShortfall">—</div></div>
+  <div class="summary-strip">
+    <div class="sum-box">
+      <div class="sum-lbl">FY Budget</div>
+      <div class="sum-val" id="fyBudget">—</div>
+    </div>
+    <div class="sum-box">
+      <div class="sum-lbl">FY Actual</div>
+      <div class="sum-val orange" id="fyActual">—</div>
+    </div>
+    <div class="sum-box">
+      <div class="sum-lbl">% Progress</div>
+      <div class="sum-val" id="fyPct">—</div>
+    </div>
+    <div class="sum-box">
+      <div class="sum-lbl">Accumulated Shortfall</div>
+      <div class="sum-val" id="fyShortfall">—</div>
+    </div>
+    <div class="sum-box">
+      <div class="sum-lbl">Goal ACE (FY)</div>
+      <input class="sum-inp" id="goalAceInp" type="number" min="0" step="1" placeholder="0" oninput="onGoalAce(this.value)"/>
+      <div class="sum-sub" id="goalPct"></div>
+    </div>
   </div>
 
   <!-- Annual Production Table -->
   <div class="card">
-    <div class="card-header">
+    <div class="card-hd">
       <div class="card-title">📅 Annual Production</div>
-      <span style="font-size:.75rem;color:#aaa;font-weight:600">ACE (RM)</span>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span class="card-note">ONLY EDIT BLUE FIELDS · ALL OTHERS AUTO-COMPUTED</span>
+      </div>
     </div>
-    <div class="table-wrap">
+    <div class="tw">
       <table>
         <thead>
           <tr>
-            <th>Month</th>
-            <th class="r">Budget</th>
-            <th class="r">Achieve</th>
-            <th class="r">%</th>
-            <th class="r">CE%</th>
-            <th class="r">PR%</th>
-            <th class="r">+/−</th>
+            <th class="l" style="width:28px">QTR</th>
+            <th class="l">Month</th>
+            <th>Budget</th>
+            <th>Actual</th>
+            <th>Variance</th>
+            <th>% Progress</th>
+            <th>Total (YTD)</th>
+            <th>Acc. Shortfall</th>
             <th></th>
           </tr>
         </thead>
@@ -211,12 +226,70 @@ tr.act-row td{padding:0;background:#fffdf9;}
     </div>
   </div>
 
-  <!-- Contest Progress -->
+  <!-- CE / PR per month -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-title">🏆 Contest Progress</div>
+    <div class="card-hd">
+      <div class="card-title">📊 Monthly CE% &amp; PR%</div>
+      <span class="card-note">Editable — or use Sync CE/PR button</span>
+    </div>
+    <div class="cepr-strip" id="ceprStrip"></div>
+  </div>
+
+  <!-- Monthly Commitment (Activity) -->
+  <div class="card" id="activityCard" style="display:none">
+    <div class="card-hd">
+      <div class="card-title" id="actTitle">📋 Monthly Commitment</div>
+      <button class="add-btn" onclick="addActivityRow()">+ Add Row</button>
+    </div>
+    <div class="tw">
+      <table class="act-tbl" id="actTable">
+        <thead>
+          <tr>
+            <th>Who?</th>
+            <th>Occupation</th>
+            <th>From</th>
+            <th class="r">Budget</th>
+            <th class="r">Achieve</th>
+            <th class="r">Total Pledge</th>
+            <th class="r">Pledged VS Budget</th>
+            <th class="r">% Achieved</th>
+            <th class="r">Monthly Shortfall</th>
+            <th class="r">No. Customers</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="actBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Contest Section -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">🏆 2026 Sales Driver Contests</div>
+    </div>
+    <div style="padding:0 20px 10px;display:flex;gap:8px;flex-wrap:wrap;">
+      <span style="background:#fff3e0;color:#e65100;border-radius:8px;padding:4px 12px;font-size:.78rem;font-weight:800">Q1 Contests — Jan 1 to Mar 31, 2026</span>
+      <span style="background:#e8f0fe;color:#1a73e8;border-radius:8px;padding:4px 12px;font-size:.78rem;font-weight:800">FY Contests — Jan 1 to Dec 31, 2026</span>
     </div>
     <div class="contest-grid" id="contestGrid"></div>
+  </div>
+
+  <!-- Project 100 -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">🎯 Project 100</div>
+      <span class="card-note">Target: 100 customers</span>
+    </div>
+    <div style="padding:0 20px 20px">
+      <div id="proj100Bar" style="margin-bottom:10px"></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="font-size:.82rem;color:#888;font-weight:700">Current customers:</div>
+        <div style="font-size:1.6rem;font-weight:900;color:#ff7a00;font-variant-numeric:tabular-nums" id="proj100Count">0</div>
+        <div style="font-size:.82rem;color:#aaa">/ 100</div>
+      </div>
+      <div id="proj100Sub" style="font-size:.78rem;color:#aaa;margin-top:4px"></div>
+    </div>
   </div>
 
 </div>
@@ -240,9 +313,6 @@ tr.act-row td{padding:0;background:#fffdf9;}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
-// ═══════════════════════════════════════════
-// FIREBASE CONFIG
-// ═══════════════════════════════════════════
 const FIREBASE_CONFIG = {
   apiKey:            'AIzaSyAyLIIH1zmeoBqH1DuT3wbSxmQlRcDJ_P4',
   authDomain:        'tsla-group.firebaseapp.com',
@@ -253,9 +323,6 @@ const FIREBASE_CONFIG = {
   appId:             '1:936132284257:web:4457079f7ee057c2803f20'
 };
 
-// ═══════════════════════════════════════════
-// AGENTS
-// ═══════════════════════════════════════════
 const AGENTS = [
   { code: 'A11668', name: 'Najmi Fikri' },
   { code: 'A16553', name: 'Adam' },
@@ -276,55 +343,76 @@ const AGENTS = [
 
 const MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
-const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MSHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-// Contest definitions (FWD standard targets)
 const CONTESTS = [
   {
-    id: 'guangzhou',
-    name: 'Fast Start Guangzhou',
-    color: 'orange',
-    note: 'Q1 production (Jan–Mar). CER ≥ 85% required.',
+    id: 'guangzhou', type: 'q1', color: 'orange',
+    name: 'Fast Start Challenge', subtitle: 'Guangzhou, China',
+    period: 'Jan 1 – Mar 31, 2026',
     tiers: [
-      { label: '1 ticket (Economy)', target: 65000, color: 'grey' },
-      { label: '2 tickets', target: 130000, color: 'green' },
+      { label: 'PP: 65,000 ACE → 1 Ticket (Economy)', target: 65000 },
+      { label: 'PP: 130,000 ACE → 2 Tickets (Economy)', target: 130000 },
     ],
-    period: 'q1',
-    extraConds: [{ label: 'CER ≥ 85%', key: 'cer' }],
+    note: 'Personal Producer category. CER ≥ 85% required.',
+    cer: true,
   },
   {
-    id: 'ironclub',
-    name: 'Iron Club',
-    color: 'blue',
-    note: 'Annual production target.',
+    id: 'hongkong', type: 'q1', color: 'orange',
+    name: 'Q1 Recruitment Challenge', subtitle: 'Rising Star – Hong Kong',
+    period: 'Jan 1 – Mar 31, 2026',
     tiers: [
-      { label: 'Iron Club', target: 250000, color: 'green' },
+      { label: 'Recruit target (see memo)', target: null, custom: true },
     ],
-    period: 'fy',
+    note: 'Recruitment-based contest. Target set by memo.',
+    recruitMode: true,
   },
   {
-    id: 'summit',
-    name: 'Summit South Africa',
-    color: 'orange',
-    note: 'Annual production target.',
+    id: 'gearup', type: 'q1', color: 'orange',
+    name: 'Gear Up with FWD Challenge', subtitle: 'Limited Edition Backpack',
+    period: 'Jan 1 – Jan 31, 2026 (Early Bird)',
     tiers: [
-      { label: 'Summit qualifier', target: 300000, color: 'green' },
+      { label: 'Early Bird target (see memo)', target: null, custom: true },
     ],
-    period: 'fy',
+    note: 'Early Bird period only — January 2026.',
+    earlyBird: true,
+  },
+  {
+    id: 'southafrica', type: 'fy', color: 'blue',
+    name: 'Summit Convention', subtitle: 'South Africa 2026',
+    period: 'Jan 1 – Dec 31, 2026',
+    tiers: [
+      { label: 'Summit qualifier', target: null, custom: true },
+    ],
+    note: 'Full-year production contest.',
+  },
+  {
+    id: 'vienna', type: 'fy', color: 'blue',
+    name: 'HiVE Agency 2027 Challenge', subtitle: 'Vienna, Austria',
+    period: 'Jan 1 – Dec 31, 2026',
+    tiers: [
+      { label: 'Agency challenge target', target: null, custom: true },
+    ],
+    note: 'Agency-level annual challenge.',
+  },
+  {
+    id: 'kunming', type: 'fy', color: 'blue',
+    name: 'Elite Leaders\' Summit 2027', subtitle: 'Kunming, China',
+    period: 'Jan 1 – Dec 31, 2026',
+    tiers: [
+      { label: 'Elite Leaders qualifier', target: null, custom: true },
+    ],
+    note: 'Leadership-tier annual summit.',
   },
 ];
 
-// ═══════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════
 let db = null;
 let curAgent = AGENTS[0].code;
 let curYear  = new Date().getFullYear();
-let yearData = {}; // { months: {1: {budget, achieve, ce, pr}, ...}, activity: {1: [...]} }
+let yearData = { months: {}, activity: {}, contests: {}, goalAce: 0 };
 let saveTimer = null;
-let expandedMonths = new Set();
+let activeActMonth = null;
 
-// ── PIN ──────────────────────────────────
 (function() {
   if (sessionStorage.getItem('tsla_apa_pin') === '1') {
     document.getElementById('pinOverlay').style.display = 'none';
@@ -347,7 +435,6 @@ function checkPin() {
   }
 }
 
-// ── Init ─────────────────────────────────
 function initApp() {
   buildSelectors();
   firebase.initializeApp(FIREBASE_CONFIG);
@@ -362,22 +449,17 @@ function buildSelectors() {
   const asel = document.getElementById('agentSel');
   AGENTS.forEach(a => {
     const o = document.createElement('option');
-    o.value = a.code;
-    o.textContent = `${a.name} (${a.code})`;
+    o.value = a.code; o.textContent = `${a.name} (${a.code})`;
     asel.appendChild(o);
   });
-  const savedAgent = localStorage.getItem('tsla_apa_agent');
-  if (savedAgent && AGENTS.find(a => a.code === savedAgent)) {
-    asel.value = savedAgent;
-    curAgent = savedAgent;
-  }
+  const saved = localStorage.getItem('tsla_apa_agent');
+  if (saved && AGENTS.find(a => a.code === saved)) { asel.value = saved; curAgent = saved; }
 
   const ysel = document.getElementById('yearSel');
   const thisYear = new Date().getFullYear();
   for (let y = thisYear + 1; y >= 2024; y--) {
     const o = document.createElement('option');
-    o.value = y;
-    o.textContent = y;
+    o.value = y; o.textContent = y;
     if (y === curYear) o.selected = true;
     ysel.appendChild(o);
   }
@@ -386,625 +468,571 @@ function buildSelectors() {
 function onAgentChange() {
   curAgent = document.getElementById('agentSel').value;
   localStorage.setItem('tsla_apa_agent', curAgent);
-  expandedMonths.clear();
+  activeActMonth = null;
   loadYearData();
 }
 
 function onYearChange() {
   curYear = parseInt(document.getElementById('yearSel').value);
-  expandedMonths.clear();
+  activeActMonth = null;
   loadYearData();
 }
 
-// ── Firebase path ─────────────────────────
 function dbPath() { return `apa/${curYear}/${curAgent}`; }
 
 function loadYearData() {
   db.ref(dbPath()).once('value').then(snap => {
-    yearData = snap.val() || { months: {}, activity: {} };
-    if (!yearData.months) yearData.months = {};
-    if (!yearData.activity) yearData.activity = {};
+    const d = snap.val() || {};
+    yearData = {
+      months:   d.months   || {},
+      activity: d.activity || {},
+      contests: d.contests || {},
+      goalAce:  d.goalAce  || 0,
+    };
+    document.getElementById('goalAceInp').value = yearData.goalAce || '';
     render();
   });
 }
 
 function scheduleSave() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveYearData, 1200);
+  saveTimer = setTimeout(() => {
+    db.ref(dbPath()).set(yearData)
+      .then(() => showToast('Saved ✓'))
+      .catch(e => showToast('Save failed: ' + e.message));
+  }, 1400);
 }
 
-function saveYearData() {
-  db.ref(dbPath()).set(yearData).then(() => showToast('Saved ✓')).catch(e => showToast('Save failed: ' + e.message));
+function rm(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+
+function fmt(n, dp = 2) {
+  if (n === null || n === undefined || (n === 0 && dp > 0)) return n === 0 ? '0.00' : '—';
+  return n.toLocaleString('en-MY', { minimumFractionDigits: dp, maximumFractionDigits: dp });
 }
 
-// ── Helpers ───────────────────────────────
-function rm(v) { return isNaN(v) || v === null || v === '' ? 0 : parseFloat(v) || 0; }
+function md(m) { return yearData.months[m] || {}; }
+function ar(m) { return yearData.activity[m] || []; }
 
-function fmt(n) {
-  if (!n && n !== 0) return '—';
-  return n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtInt(n) { return n ? n.toLocaleString() : '—'; }
-
-function monthData(m) {
-  return yearData.months[m] || { budget: 0, achieve: 0, ce: null, pr: null };
+function quarterSum(q) {
+  return [1,2,3].map(i => (q-1)*3+i).reduce((s, m) => {
+    const d = md(m);
+    return { budget: s.budget + rm(d.budget), actual: s.actual + rm(d.actual) };
+  }, { budget: 0, actual: 0 });
 }
 
-function activityRows(m) {
-  return yearData.activity[m] || [];
+function fySum() {
+  let b = 0, a = 0;
+  for (let m = 1; m <= 12; m++) { const d = md(m); b += rm(d.budget); a += rm(d.actual); }
+  return { budget: b, actual: a };
 }
 
-function quarterRange(q) {
-  // q=1→[1,2,3], q=2→[4,5,6], q=3→[7,8,9], q=4→[10,11,12]
-  const s = (q - 1) * 3 + 1;
-  return [s, s + 1, s + 2];
-}
-
-function quarterTotals(q) {
-  const ms = quarterRange(q);
-  return ms.reduce((acc, m) => {
-    const d = monthData(m);
-    acc.budget += rm(d.budget);
-    acc.achieve += rm(d.achieve);
-    return acc;
-  }, { budget: 0, achieve: 0 });
-}
-
-function fyTotals() {
-  let budget = 0, achieve = 0;
+function runningTotals() {
+  let ytd = 0, accShortfall = 0;
+  const totals = {};
   for (let m = 1; m <= 12; m++) {
-    const d = monthData(m);
-    budget += rm(d.budget);
-    achieve += rm(d.achieve);
+    const d = md(m);
+    ytd += rm(d.actual);
+    const sf = rm(d.budget) - rm(d.actual);
+    if (sf > 0) accShortfall += sf;
+    totals[m] = { ytd, accShortfall };
   }
-  return { budget, achieve };
+  return totals;
 }
 
 function pctBadge(pct) {
-  if (!pct && pct !== 0) return '<span class="pct-badge pct-grey">—</span>';
-  const cls = pct >= 100 ? 'pct-green' : pct >= 75 ? 'pct-orange' : 'pct-red';
-  return `<span class="pct-badge ${cls}">${Math.round(pct)}%</span>`;
+  if (pct === null || isNaN(pct)) return '<span class="pb pb-d">—</span>';
+  const cls = pct >= 100 ? 'pb-g' : pct >= 75 ? 'pb-o' : 'pb-r';
+  return `<span class="pb ${cls}">${pct.toFixed(1)}%</span>`;
 }
 
-// ── Render ────────────────────────────────
 function render() {
   renderFySummary();
   renderProdTable();
+  renderCepr();
   renderContests();
+  renderProject100();
+  if (activeActMonth) renderActivity(activeActMonth);
 }
 
 function renderFySummary() {
-  const { budget, achieve } = fyTotals();
-  const pct = budget > 0 ? achieve / budget * 100 : 0;
-  const sf = achieve - budget;
+  const { budget, actual } = fySum();
+  const pct = budget > 0 ? actual / budget * 100 : null;
+  const sf  = budget > 0 ? budget - actual : 0;
+  const goal = rm(yearData.goalAce);
 
   document.getElementById('fyBudget').textContent  = budget > 0 ? 'RM ' + fmt(budget) : '—';
-  document.getElementById('fyAchieve').textContent = achieve > 0 ? 'RM ' + fmt(achieve) : '—';
+  document.getElementById('fyActual').textContent  = actual > 0 ? 'RM ' + fmt(actual) : '—';
 
-  const pctEl = document.getElementById('fyPct');
-  pctEl.textContent = budget > 0 ? Math.round(pct) + '%' : '—';
-  pctEl.className = 'fy-val ' + (pct >= 100 ? 'green' : pct >= 75 ? 'orange' : 'red');
+  const pEl = document.getElementById('fyPct');
+  pEl.textContent = pct !== null ? pct.toFixed(1) + '%' : '—';
+  pEl.className = 'sum-val ' + (pct === null ? '' : pct >= 100 ? 'green' : pct >= 75 ? 'orange' : 'red');
 
   const sfEl = document.getElementById('fyShortfall');
-  if (budget === 0) { sfEl.textContent = '—'; sfEl.className = 'fy-val'; }
-  else if (sf >= 0) { sfEl.textContent = '+RM ' + fmt(sf); sfEl.className = 'fy-val green'; }
-  else              { sfEl.textContent = '−RM ' + fmt(Math.abs(sf)); sfEl.className = 'fy-val red'; }
+  if (budget === 0) { sfEl.textContent = '—'; sfEl.className = 'sum-val'; }
+  else if (sf <= 0) { sfEl.textContent = '+RM ' + fmt(Math.abs(sf)); sfEl.className = 'sum-val green'; }
+  else              { sfEl.textContent = '−RM ' + fmt(sf); sfEl.className = 'sum-val red'; }
+
+  const gEl = document.getElementById('goalPct');
+  if (goal > 0 && actual > 0) {
+    const gPct = actual / goal * 100;
+    gEl.textContent = gPct.toFixed(1) + '% of goal';
+    gEl.style.color = gPct >= 100 ? '#0a9b43' : gPct >= 75 ? '#ff7a00' : '#e53935';
+  } else {
+    gEl.textContent = '';
+  }
+}
+
+function onGoalAce(val) {
+  yearData.goalAce = parseFloat(val) || 0;
+  renderFySummary();
+  renderContests();
+  scheduleSave();
 }
 
 function renderProdTable() {
   const body = document.getElementById('prodBody');
+  const rt = runningTotals();
   let html = '';
 
   for (let q = 1; q <= 4; q++) {
-    const ms = quarterRange(q);
+    const ms = [1,2,3].map(i => (q-1)*3+i);
     for (const m of ms) {
-      const d = monthData(m);
-      const budget  = rm(d.budget);
-      const achieve = rm(d.achieve);
-      const pct     = budget > 0 ? achieve / budget * 100 : null;
-      const sf      = achieve - budget;
-      const sfFmt   = budget === 0 ? '' : (sf >= 0 ? `<span class="sf-pos">+${fmt(sf)}</span>` : `<span class="sf-neg">−${fmt(Math.abs(sf))}</span>`);
-      const ceVal   = d.ce !== null && d.ce !== undefined ? d.ce : null;
-      const prVal   = d.pr !== null && d.pr !== undefined ? d.pr : null;
-      const isExp   = expandedMonths.has(m);
+      const d     = md(m);
+      const bgt   = rm(d.budget);
+      const act   = rm(d.actual);
+      const vari  = act - bgt;
+      const pct   = bgt > 0 ? act / bgt * 100 : null;
+      const { ytd, accShortfall } = rt[m];
+      const isAct = activeActMonth === m;
 
-      html += `<tr data-month="${m}">
-        <td class="td-month">${MONTHS[m-1]}</td>
-        <td class="td-num"><input class="num-inp" data-m="${m}" data-f="budget" type="number" min="0" step="0.01" value="${budget || ''}" placeholder="0" oninput="onCellInput(${m},'budget',this.value)"/></td>
-        <td class="td-num"><input class="num-inp" data-m="${m}" data-f="achieve" type="number" min="0" step="0.01" value="${achieve || ''}" placeholder="0" oninput="onCellInput(${m},'achieve',this.value)"/></td>
-        <td class="td-pct">${pctBadge(pct)}</td>
-        <td class="td-num"><input class="num-inp ce-inp" data-m="${m}" data-f="ce" type="number" min="0" max="100" step="0.01" value="${ceVal !== null ? ceVal : ''}" placeholder="—" oninput="onCellInput(${m},'ce',this.value)"/></td>
-        <td class="td-num"><input class="num-inp pr-inp" data-m="${m}" data-f="pr" type="number" min="0" max="100" step="0.01" value="${prVal !== null ? prVal : ''}" placeholder="—" oninput="onCellInput(${m},'pr',this.value)"/></td>
-        <td>${budget === 0 ? '<span class="sf-zero">—</span>' : sfFmt}</td>
-        <td class="td-action"><button class="exp-btn${isExp ? ' open' : ''}" onclick="toggleActivity(${m})" title="Activity log">▶</button></td>
+      html += `<tr data-m="${m}">
+        <td class="td-q">Q${q}</td>
+        <td class="td-m">${MONTHS[m-1]}</td>
+        <td class="td-n"><input class="num-inp" style="color:#1a73e8" type="number" min="0" step="0.01" value="${bgt||\'\'}" placeholder="0" oninput="onCell(${m},'budget',this.value)"/></td>
+        <td class="td-n"><input class="num-inp" style="color:#1a73e8" type="number" min="0" step="0.01" value="${act||\'\'}" placeholder="0" oninput="onCell(${m},'actual',this.value)"/></td>
+        <td class="td-comp ${vari>0?'pos':vari<0?'neg':'dim'}">${bgt===0?'—':(vari>=0?'+':'')+fmt(vari)}</td>
+        <td class="td-comp">${pctBadge(pct)}</td>
+        <td class="td-comp">${ytd>0?fmt(ytd):'—'}</td>
+        <td class="td-comp ${accShortfall>0?'neg':'dim'}">${accShortfall>0?'−'+fmt(accShortfall):'—'}</td>
+        <td class="td-act"><button class="exp-btn${isAct?' open':''}" onclick="toggleActivity(${m})" title="Monthly Commitment">▶</button></td>
       </tr>`;
 
-      if (isExp) {
-        html += `<tr class="act-row"><td colspan="8"><div class="act-panel" id="actPanel${m}">${buildActivityPanel(m)}</div></td></tr>`;
+      if (isAct) {
+        html += `<tr class="act-row"><td colspan="9"><div id="actPanel"></div></td></tr>`;
       }
     }
 
-    // Quarter subtotal row
-    const qt = quarterTotals(q);
-    const qPct = qt.budget > 0 ? qt.achieve / qt.budget * 100 : null;
-    const qSf  = qt.achieve - qt.budget;
-    const qSfFmt = qt.budget === 0 ? '<span class="sf-zero">—</span>'
-      : (qSf >= 0 ? `<span class="sf-pos">+${fmt(qSf)}</span>` : `<span class="sf-neg">−${fmt(Math.abs(qSf))}</span>`);
+    const qt = quarterSum(q);
+    const qPct = qt.budget > 0 ? qt.actual / qt.budget * 100 : null;
+    const qVari = qt.actual - qt.budget;
     html += `<tr class="qrow">
-      <td class="td-month">Q${q}</td>
-      <td class="td-num" style="padding:10px 8px;text-align:right;font-weight:800;font-size:.88rem;font-variant-numeric:tabular-nums">${qt.budget > 0 ? fmt(qt.budget) : '—'}</td>
-      <td class="td-num" style="padding:10px 8px;text-align:right;font-weight:800;font-size:.88rem;font-variant-numeric:tabular-nums">${qt.achieve > 0 ? fmt(qt.achieve) : '—'}</td>
-      <td class="td-pct">${pctBadge(qPct)}</td>
+      <td class="td-q"></td>
+      <td class="td-m">Q${q} Total</td>
+      <td class="td-comp" style="padding:10px 12px">${qt.budget>0?fmt(qt.budget):'—'}</td>
+      <td class="td-comp" style="padding:10px 12px">${qt.actual>0?fmt(qt.actual):'—'}</td>
+      <td class="td-comp ${qVari>0?'pos':qVari<0?'neg':'dim'}">${qt.budget===0?'—':(qVari>=0?'+':'')+fmt(qVari)}</td>
+      <td class="td-comp">${pctBadge(qPct)}</td>
       <td colspan="2"></td>
-      <td>${qSfFmt}</td>
       <td></td>
     </tr>`;
   }
 
-  // FY Total
-  const fy = fyTotals();
-  const fyPct = fy.budget > 0 ? fy.achieve / fy.budget * 100 : null;
-  const fySf = fy.achieve - fy.budget;
-  const fySfFmt = fy.budget === 0 ? '<span class="sf-zero">—</span>'
-    : (fySf >= 0 ? `<span class="sf-pos">+${fmt(fySf)}</span>` : `<span class="sf-neg">−${fmt(Math.abs(fySf))}</span>`);
+  const fy = fySum();
+  const fyPct = fy.budget > 0 ? fy.actual / fy.budget * 100 : null;
+  const fyVari = fy.actual - fy.budget;
+  const accSF = Object.values(runningTotals()).slice(-1)[0].accShortfall;
   html += `<tr class="fyrow">
-    <td class="td-month">FY Total</td>
-    <td class="td-num" style="padding:10px 8px;text-align:right;font-weight:900;font-size:.92rem;font-variant-numeric:tabular-nums">${fy.budget > 0 ? fmt(fy.budget) : '—'}</td>
-    <td class="td-num" style="padding:10px 8px;text-align:right;font-weight:900;font-size:.92rem;color:#ff7a00;font-variant-numeric:tabular-nums">${fy.achieve > 0 ? fmt(fy.achieve) : '—'}</td>
-    <td class="td-pct">${pctBadge(fyPct)}</td>
-    <td colspan="2"></td>
-    <td>${fySfFmt}</td>
+    <td class="td-q"></td>
+    <td class="td-m">FY Total</td>
+    <td class="td-comp" style="padding:10px 12px">${fy.budget>0?fmt(fy.budget):'—'}</td>
+    <td class="td-comp orange" style="padding:10px 12px;color:#ff7a00">${fy.actual>0?fmt(fy.actual):'—'}</td>
+    <td class="td-comp ${fyVari>0?'pos':fyVari<0?'neg':'dim'}">${fy.budget===0?'—':(fyVari>=0?'+':'')+fmt(fyVari)}</td>
+    <td class="td-comp">${pctBadge(fyPct)}</td>
+    <td class="td-comp">${fy.actual>0?fmt(fy.actual):'—'}</td>
+    <td class="td-comp ${accSF>0?'neg':'dim'}">${accSF>0?'−'+fmt(accSF):'—'}</td>
     <td></td>
   </tr>`;
 
   body.innerHTML = html;
+
+  if (activeActMonth) {
+    const panel = document.getElementById('actPanel');
+    if (panel) renderActivity(activeActMonth);
+  }
 }
 
-function buildActivityPanel(m) {
-  const rows = activityRows(m);
-  let html = `<div class="act-panel-title">
-    <span>${MONTHS[m-1]} — Activity Log</span>
-    <button class="add-row-btn" onclick="addActivityRow(${m})">+ Add Row</button>
-  </div>`;
-
-  if (rows.length === 0) {
-    html += `<div class="act-empty">No entries yet. Click "+ Add Row" to start.</div>`;
-  } else {
-    html += `<div style="overflow-x:auto"><table class="act-tbl">
-      <thead><tr>
-        <th>Name / Who</th>
-        <th class="r">Budget</th>
-        <th class="r">Achieve</th>
-        <th class="r">Pledge</th>
-        <th class="r">Customers</th>
-        <th>Note</th>
-        <th></th>
-      </tr></thead>
-      <tbody>`;
-    rows.forEach((r, i) => {
-      html += `<tr>
-        <td><input class="act-inp" value="${esc(r.who||'')}" placeholder="Name" oninput="onActInput(${m},${i},'who',this.value)"/></td>
-        <td><input class="act-inp r" type="number" min="0" step="0.01" value="${r.budget||''}" placeholder="0" oninput="onActInput(${m},${i},'budget',this.value)"/></td>
-        <td><input class="act-inp r" type="number" min="0" step="0.01" value="${r.achieve||''}" placeholder="0" oninput="onActInput(${m},${i},'achieve',this.value)"/></td>
-        <td><input class="act-inp r" type="number" min="0" step="0.01" value="${r.pledge||''}" placeholder="0" oninput="onActInput(${m},${i},'pledge',this.value)"/></td>
-        <td><input class="act-inp r" type="number" min="0" value="${r.customers||''}" placeholder="0" oninput="onActInput(${m},${i},'customers',this.value)"/></td>
-        <td><input class="act-inp" value="${esc(r.note||'')}" placeholder="—" oninput="onActInput(${m},${i},'note',this.value)"/></td>
-        <td><button class="del-btn" onclick="deleteActivityRow(${m},${i})" title="Delete">✕</button></td>
-      </tr>`;
-    });
-    // Totals row
-    const totBudget  = rows.reduce((s, r) => s + rm(r.budget), 0);
-    const totAchieve = rows.reduce((s, r) => s + rm(r.achieve), 0);
-    const totPledge  = rows.reduce((s, r) => s + rm(r.pledge), 0);
-    const totCust    = rows.reduce((s, r) => s + (parseInt(r.customers) || 0), 0);
-    html += `<tr style="background:#fff8f0;">
-      <td style="font-weight:800;font-size:.78rem;padding:8px 8px;color:#888">TOTAL</td>
-      <td style="text-align:right;font-weight:800;font-size:.82rem;padding:8px;font-variant-numeric:tabular-nums">${totBudget ? fmt(totBudget) : '—'}</td>
-      <td style="text-align:right;font-weight:800;font-size:.82rem;padding:8px;color:#0a9b43;font-variant-numeric:tabular-nums">${totAchieve ? fmt(totAchieve) : '—'}</td>
-      <td style="text-align:right;font-weight:800;font-size:.82rem;padding:8px;font-variant-numeric:tabular-nums">${totPledge ? fmt(totPledge) : '—'}</td>
-      <td style="text-align:right;font-weight:800;font-size:.82rem;padding:8px">${totCust || '—'}</td>
-      <td colspan="2"></td>
-    </tr>`;
-    html += `</tbody></table></div>`;
+function renderCepr() {
+  let html = '';
+  for (let m = 1; m <= 12; m++) {
+    const d = md(m);
+    const ce = d.ce !== null && d.ce !== undefined ? d.ce : '';
+    const pr = d.pr !== null && d.pr !== undefined ? d.pr : '';
+    html += `<div class="cepr-box">
+      <div class="cepr-m">${MSHORT[m-1]}</div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="font-size:.6rem;color:#1a73e8;font-weight:800;text-align:center">CE%</div>
+        <input class="cepr-inp" style="color:#1a73e8" type="number" min="0" max="100" step="0.01" value="${ce}" placeholder="—" oninput="onCell(${m},'ce',this.value)"/>
+        <div style="font-size:.6rem;color:#0a9b43;font-weight:800;text-align:center">PR%</div>
+        <input class="cepr-inp" style="color:#0a9b43" type="number" min="0" max="100" step="0.01" value="${pr}" placeholder="—" oninput="onCell(${m},'pr',this.value)"/>
+      </div>
+    </div>`;
   }
-  return html;
+  document.getElementById('ceprStrip').innerHTML = html;
+}
+
+function renderActivity(m) {
+  const panel = document.getElementById('actPanel');
+  if (!panel) return;
+  const rows  = ar(m);
+  const mn    = MONTHS[m-1];
+
+  document.getElementById('actTitle').textContent = `📋 ${mn} — Monthly Commitment`;
+  document.getElementById('activityCard').style.display = '';
+
+  const tb = document.getElementById('actBody');
+  let html = '';
+
+  rows.forEach((r, i) => {
+    const bgt  = rm(r.budget);
+    const ach  = rm(r.achieve);
+    const plg  = rm(r.pledge);
+    const cust = parseInt(r.customers) || 0;
+    const pvb  = bgt > 0 ? plg / bgt * 100 : null;
+    const pctA = bgt > 0 ? ach / bgt * 100 : null;
+    const msf  = bgt - ach;
+
+    html += `<tr>
+      <td><input class="act-inp" value="${esc(r.who||'')}" placeholder="Name" oninput="onAct(${m},${i},'who',this.value)"/></td>
+      <td><input class="act-inp" value="${esc(r.occupation||'')}" placeholder="—" oninput="onAct(${m},${i},'occupation',this.value)"/></td>
+      <td><input class="act-inp" value="${esc(r.from||'')}" placeholder="—" oninput="onAct(${m},${i},'from',this.value)"/></td>
+      <td><input class="act-inp r" type="number" min="0" step="0.01" value="${bgt||\'\'}" placeholder="0" oninput="onAct(${m},${i},'budget',this.value)"/></td>
+      <td><input class="act-inp r" type="number" min="0" step="0.01" value="${ach||\'\'}" placeholder="0" oninput="onAct(${m},${i},'achieve',this.value)"/></td>
+      <td><input class="act-inp r" type="number" min="0" step="0.01" value="${plg||\'\'}" placeholder="0" oninput="onAct(${m},${i},'pledge',this.value)"/></td>
+      <td class="act-comp ${pvb!==null?pvb>=100?'pos':'neg':'dim'}">${pvb!==null?pvb.toFixed(1)+'%':'—'}</td>
+      <td class="act-comp">${pctBadge(pctA)}</td>
+      <td class="act-comp ${msf>0?'neg':msf<0?'pos':'dim'}">${bgt===0?'—':(msf>0?'−':msf<0?'+':'')+fmt(Math.abs(msf))}</td>
+      <td><input class="act-inp r" type="number" min="0" value="${cust||\'\'}" placeholder="0" oninput="onAct(${m},${i},'customers',this.value)"/></td>
+      <td><button class="del-btn" onclick="delAct(${m},${i})">✕</button></td>
+    </tr>`;
+  });
+
+  if (rows.length) {
+    const tBgt  = rows.reduce((s,r) => s + rm(r.budget), 0);
+    const tAch  = rows.reduce((s,r) => s + rm(r.achieve), 0);
+    const tPlg  = rows.reduce((s,r) => s + rm(r.pledge), 0);
+    const tCust = rows.reduce((s,r) => s + (parseInt(r.customers)||0), 0);
+    const tPvb  = tBgt > 0 ? tPlg / tBgt * 100 : null;
+    const tPctA = tBgt > 0 ? tAch / tBgt * 100 : null;
+    const tSf   = tBgt - tAch;
+    html += `<tr class="tot-row">
+      <td colspan="3" style="color:#888;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em">TOTAL</td>
+      <td style="text-align:right">${tBgt?fmt(tBgt):'—'}</td>
+      <td style="text-align:right;color:#ff7a00">${tAch?fmt(tAch):'—'}</td>
+      <td style="text-align:right">${tPlg?fmt(tPlg):'—'}</td>
+      <td style="text-align:right;${tPvb!==null?tPvb>=100?'color:#0a9b43':'color:#e53935':''}">${tPvb!==null?tPvb.toFixed(1)+'%':'—'}</td>
+      <td style="text-align:right">${tPctA!==null?pctBadge(tPctA):'—'}</td>
+      <td style="text-align:right;${tSf>0?'color:#e53935':tSf<0?'color:#0a9b43':''}">${tBgt===0?'—':(tSf>0?'−':tSf<0?'+':'')+fmt(Math.abs(tSf))}</td>
+      <td style="text-align:right">${tCust||'—'}</td>
+      <td></td>
+    </tr>`;
+  } else {
+    html = `<tr><td colspan="11"><div class="act-empty">No entries yet. Click "+ Add Row" to start.</div></td></tr>`;
+  }
+
+  tb.innerHTML = html;
+  panel.innerHTML = '';
 }
 
 function renderContests() {
-  const fyData = fyTotals();
-  const q1Data = quarterTotals(1);
-  // Average CE for Q1
-  let q1CeSum = 0, q1CeCount = 0;
-  for (const m of [1, 2, 3]) {
-    const d = monthData(m);
-    if (d.ce !== null && d.ce !== undefined) { q1CeSum += rm(d.ce); q1CeCount++; }
+  const { actual } = fySum();
+  const q1Act = [1,2,3].reduce((s,m) => s + rm(md(m).actual), 0);
+  const janAct = rm(md(1).actual);
+
+  let ceSum = 0, ceCount = 0;
+  for (const m of [1,2,3]) {
+    const d = md(m);
+    if (d.ce != null) { ceSum += rm(d.ce); ceCount++; }
   }
-  const q1Ce = q1CeCount > 0 ? q1CeSum / q1CeCount : null;
+  const q1Ce = ceCount > 0 ? ceSum / ceCount : null;
 
   let html = '';
   for (const c of CONTESTS) {
-    const achieve = c.period === 'q1' ? q1Data.achieve : fyData.achieve;
-    const topTarget = c.tiers[c.tiers.length - 1].target;
-    const pct = Math.min(100, achieve / topTarget * 100);
-    const fillClass = c.color === 'blue' ? 'pf-blue' : 'pf-orange';
+    const produce = c.id === 'guangzhou' || c.id === 'hongkong' ? q1Act
+                  : c.id === 'gearup' ? janAct
+                  : actual;
 
-    html += `<div class="contest-card">
-      <div class="contest-name">${c.name}</div>
-      <div class="contest-target">${c.period === 'q1' ? 'Q1' : 'FY'} Target: RM ${(topTarget/1000).toFixed(0)}k</div>
-      <div class="progress-bar"><div class="progress-fill ${fillClass}" style="width:${pct}%"></div></div>
-      <div class="progress-labels">
-        <span>${fmt(achieve)}</span>
-        <span>${fmt(topTarget)}</span>
+    const topTarget = c.tiers.find(t => t.target) || null;
+    const filledTarget = topTarget?.target
+      || rm(yearData.contests?.[c.id + '_target'])
+      || 0;
+
+    const pct   = filledTarget > 0 ? Math.min(100, produce / filledTarget * 100) : 0;
+    const pfCls = c.color === 'blue' ? 'pf-blue' : 'pf-orange';
+    const tagCls = c.type === 'q1' ? 'q1' : 'fy';
+
+    html += `<div class="c-card">
+      <span class="c-tag ${tagCls}">${c.type.toUpperCase()} Contest</span>
+      <div class="c-name">${c.name}</div>
+      <div class="c-period">${c.subtitle} · ${c.period}</div>
+      <div class="prog-bar"><div class="prog-fill ${pfCls}" style="width:${pct}%"></div></div>
+      <div class="prog-nums">
+        <span>${fmt(produce)}</span>
+        <span>${filledTarget ? fmt(filledTarget) : 'Set target →'}</span>
       </div>
-      <div class="contest-tiers">`;
+      <div class="contest-tiers" style="margin-top:4px">`;
 
     for (const t of c.tiers) {
-      const reached = achieve >= t.target;
-      const tdot = reached ? 'green' : 'grey';
-      const tick = reached ? '✅' : '○';
-      html += `<div class="contest-tier">
-        <div class="tier-dot ${tdot}"></div>
-        <span class="tier-lbl">${t.label} — RM ${(t.target/1000).toFixed(0)}k</span>
-        <span class="tier-tick">${tick}</span>
+      const target = t.target || rm(yearData.contests?.[c.id + '_target']) || 0;
+      const reached = target > 0 && produce >= target;
+      html += `<div class="tier">
+        <div class="tier-dot ${reached?'td-green':'td-grey'}"></div>
+        <span class="tier-lbl">${t.label}</span>
+        <span class="tier-tick">${reached?'✅':'○'}</span>
       </div>`;
     }
 
-    // Guangzhou CER condition
-    if (c.id === 'guangzhou') {
+    if (c.cer) {
       const cerOk = q1Ce !== null && q1Ce >= 85;
-      html += `<div class="contest-tier">
-        <div class="tier-dot ${cerOk ? 'green' : 'grey'}"></div>
-        <span class="tier-lbl">CER ≥ 85% (Q1 avg ${q1Ce !== null ? q1Ce.toFixed(1) + '%' : '—'})</span>
-        <span class="tier-tick">${cerOk ? '✅' : '○'}</span>
+      html += `<div class="tier">
+        <div class="tier-dot ${cerOk?'td-green':'td-grey'}"></div>
+        <span class="tier-lbl">CER ≥ 85% (Q1 avg: ${q1Ce!==null?q1Ce.toFixed(1)+'%':'—'})</span>
+        <span class="tier-tick">${cerOk?'✅':'○'}</span>
       </div>`;
     }
 
     html += `</div>`;
-    if (c.note) html += `<div class="contest-note">${c.note}</div>`;
+
+    if (c.tiers.some(t => t.custom)) {
+      const saved = rm(yearData.contests?.[c.id + '_target']);
+      html += `<div class="c-inp-row">
+        <span class="c-inp-lbl">Target ACE:</span>
+        <input class="c-inp" type="number" min="0" step="1000" value="${saved||''}" placeholder="—"
+          oninput="onContestTarget('${c.id}',this.value)"/>
+      </div>`;
+    }
+
+    if (c.note) html += `<div class="c-note">${c.note}</div>`;
     html += `</div>`;
   }
-
   document.getElementById('contestGrid').innerHTML = html;
 }
 
-// ── Interactions ──────────────────────────
-function toggleActivity(m) {
-  if (expandedMonths.has(m)) expandedMonths.delete(m);
-  else expandedMonths.add(m);
-  renderProdTable();
+function renderProject100() {
+  let total = 0;
+  for (let m = 1; m <= 12; m++) {
+    total += ar(m).reduce((s, r) => s + (parseInt(r.customers) || 0), 0);
+  }
+  const pct = Math.min(100, total);
+  document.getElementById('proj100Count').textContent = total;
+  document.getElementById('proj100Bar').innerHTML = `
+    <div class="prog-bar" style="height:12px">
+      <div class="prog-fill ${total>=100?'pf-green':'pf-orange'}" style="width:${pct}%"></div>
+    </div>`;
+  const rem = 100 - total;
+  document.getElementById('proj100Sub').textContent = total >= 100
+    ? '🎉 Target reached!'
+    : `${rem} more customers needed to reach 100`;
 }
 
-function onCellInput(m, field, val) {
+function toggleActivity(m) {
+  activeActMonth = activeActMonth === m ? null : m;
+  renderProdTable();
+  const card = document.getElementById('activityCard');
+  if (!activeActMonth) { card.style.display = 'none'; return; }
+  renderActivity(m);
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function onCell(m, field, val) {
   if (!yearData.months[m]) yearData.months[m] = {};
   yearData.months[m][field] = val === '' ? null : parseFloat(val);
-  // Update computed cells without full re-render
-  updateRowComputed(m);
-  updateFySummary();
-  updateContests();
-  scheduleSave();
-}
-
-function updateRowComputed(m) {
-  const d = monthData(m);
-  const budget  = rm(d.budget);
-  const achieve = rm(d.achieve);
-  const pct     = budget > 0 ? achieve / budget * 100 : null;
-  const sf      = achieve - budget;
-
-  // Find the row
-  const row = document.querySelector(`tbody tr[data-month="${m}"]`);
-  if (!row) return;
-
-  const tds = row.querySelectorAll('td');
-  // td[3] = %, td[6] = shortfall
-  tds[3].innerHTML = pctBadge(pct);
-  if (budget === 0) {
-    tds[6].innerHTML = '<span class="sf-zero">—</span>';
-  } else if (sf >= 0) {
-    tds[6].innerHTML = `<span class="sf-pos">+${fmt(sf)}</span>`;
-  } else {
-    tds[6].innerHTML = `<span class="sf-neg">−${fmt(Math.abs(sf))}</span>`;
-  }
-
-  // Update Q subtotal row
-  const q = Math.ceil(m / 3);
-  const qt = quarterTotals(q);
-  const qPct = qt.budget > 0 ? qt.achieve / qt.budget * 100 : null;
-  const qSf  = qt.achieve - qt.budget;
-  const qrow = row.closest('tbody').querySelector(`.qrow:nth-of-type(${q * 4})`);
-  // Simpler: just re-render the whole table for Q rows (they're lightweight)
-  // We already update month row; full re-render is fine for totals
   renderFySummary();
-  // Partial update Q rows
-  const qrows = document.querySelectorAll('tr.qrow');
-  const qIdx = q - 1;
-  if (qrows[qIdx]) {
-    const qtds = qrows[qIdx].querySelectorAll('td');
-    qtds[1].textContent = qt.budget > 0 ? fmt(qt.budget) : '—';
-    qtds[2].textContent = qt.achieve > 0 ? fmt(qt.achieve) : '—';
-    qtds[3].innerHTML   = pctBadge(qPct);
-    qtds[6].innerHTML   = qt.budget === 0 ? '<span class="sf-zero">—</span>'
-      : (qSf >= 0 ? `<span class="sf-pos">+${fmt(qSf)}</span>` : `<span class="sf-neg">−${fmt(Math.abs(qSf))}</span>`);
-  }
-  // FY row
-  const fyrow = document.querySelector('tr.fyrow');
-  if (fyrow) {
-    const fyd = fyTotals();
-    const fyPct = fyd.budget > 0 ? fyd.achieve / fyd.budget * 100 : null;
-    const fySf  = fyd.achieve - fyd.budget;
-    const fytds = fyrow.querySelectorAll('td');
-    fytds[1].textContent = fyd.budget > 0 ? fmt(fyd.budget) : '—';
-    fytds[2].textContent = fyd.achieve > 0 ? fmt(fyd.achieve) : '—';
-    fytds[3].innerHTML   = pctBadge(fyPct);
-    fytds[6].innerHTML   = fyd.budget === 0 ? '<span class="sf-zero">—</span>'
-      : (fySf >= 0 ? `<span class="sf-pos">+${fmt(fySf)}</span>` : `<span class="sf-neg">−${fmt(Math.abs(fySf))}</span>`);
-  }
-}
-
-function updateFySummary() { renderFySummary(); }
-function updateContests()  { renderContests(); }
-
-function addActivityRow(m) {
-  if (!yearData.activity[m]) yearData.activity[m] = [];
-  yearData.activity[m].push({ who: '', budget: 0, achieve: 0, pledge: 0, customers: 0, note: '' });
-  // Refresh activity panel in-place
-  const panel = document.getElementById('actPanel' + m);
-  if (panel) panel.innerHTML = buildActivityPanel(m);
+  renderProdTable();
+  renderContests();
+  renderProject100();
   scheduleSave();
 }
 
-function deleteActivityRow(m, idx) {
+function onContestTarget(id, val) {
+  if (!yearData.contests) yearData.contests = {};
+  yearData.contests[id + '_target'] = parseFloat(val) || 0;
+  scheduleSave();
+}
+
+function addActivityRow() {
+  const m = activeActMonth;
+  if (!m) return;
+  if (!yearData.activity[m]) yearData.activity[m] = [];
+  yearData.activity[m].push({ who:'', occupation:'', from:'', budget:0, achieve:0, pledge:0, customers:0 });
+  renderActivity(m);
+  renderProject100();
+  scheduleSave();
+}
+
+function delAct(m, idx) {
   if (!yearData.activity[m]) return;
   yearData.activity[m].splice(idx, 1);
-  const panel = document.getElementById('actPanel' + m);
-  if (panel) panel.innerHTML = buildActivityPanel(m);
+  renderActivity(m);
+  renderProject100();
   scheduleSave();
 }
 
-function onActInput(m, idx, field, val) {
-  if (!yearData.activity[m]) return;
-  if (!yearData.activity[m][idx]) return;
-  yearData.activity[m][idx][field] = field === 'who' || field === 'note' ? val : (parseFloat(val) || 0);
-  // Update totals row only
-  const panel = document.getElementById('actPanel' + m);
-  if (panel) {
-    const rows = yearData.activity[m];
-    const totBudget  = rows.reduce((s, r) => s + rm(r.budget), 0);
-    const totAchieve = rows.reduce((s, r) => s + rm(r.achieve), 0);
-    const totPledge  = rows.reduce((s, r) => s + rm(r.pledge), 0);
-    const totCust    = rows.reduce((s, r) => s + (parseInt(r.customers) || 0), 0);
-    const totRow = panel.querySelector('tbody tr:last-child');
-    if (totRow && totRow.style.background === 'rgb(255, 248, 240)') {
-      const tds = totRow.querySelectorAll('td');
-      tds[1].textContent = totBudget ? fmt(totBudget) : '—';
-      tds[2].textContent = totAchieve ? fmt(totAchieve) : '—';
-      tds[3].textContent = totPledge ? fmt(totPledge) : '—';
-      tds[4].textContent = totCust || '—';
-    }
-  }
+function onAct(m, idx, field, val) {
+  if (!yearData.activity[m]?.[idx]) return;
+  const isText = ['who','occupation','from'].includes(field);
+  yearData.activity[m][idx][field] = isText ? val : (parseFloat(val) || 0);
+  renderActivity(m);
+  renderProject100();
   scheduleSave();
 }
 
-// ── Sync CE/PR from pr-data.json ──────────
 async function syncFromPrData() {
   try {
     const resp = await fetch('data/pr-data.json');
-    if (!resp.ok) throw new Error('Failed to fetch PR data');
+    if (!resp.ok) throw new Error('pr-data.json not found');
     const data = await resp.json();
-
-    // Find the agent
     const ag = data.agents.find(a => a.code === curAgent);
     if (!ag) { showToast('Agent not found in PR data'); return; }
-
-    // Determine current month from data.updated
     const upd = new Date(data.updated);
-    const m = upd.getMonth() + 1; // 1-12
-
-    // Calculate CE and PR13 for this agent using the same logic as agent-report.html
-    // We'll just show a message since we'd need the full classify logic here
-    // Instead, let's just use the top-level pr field if available
-    const pr = ag.pr;
+    const m   = upd.getMonth() + 1;
     if (!yearData.months[m]) yearData.months[m] = {};
-
-    let synced = false;
-    if (pr !== undefined && pr !== null) {
-      yearData.months[m].pr = Math.round(pr * 100) / 100;
-      synced = true;
-    }
-
-    if (synced) {
-      scheduleSave();
-      renderProdTable();
-      showToast(`Synced PR% for ${MONTHS[m-1]} ✓`);
-    } else {
-      showToast('No data to sync for current month');
-    }
-  } catch (e) {
-    showToast('Sync failed: ' + e.message);
-  }
+    if (ag.pr != null) yearData.months[m].pr = Math.round(ag.pr * 100) / 100;
+    scheduleSave();
+    renderCepr();
+    showToast(`Synced PR% for ${MONTHS[m-1]} ✓`);
+  } catch(e) { showToast('Sync failed: ' + e.message); }
 }
 
-// ── XLSX Import ───────────────────────────
 async function handleXlsxImport(file) {
   if (!file) return;
-  const lbl = document.querySelector('.import-lbl');
-  const orig = lbl.innerHTML;
-  lbl.innerHTML = '⏳ Parsing…';
   try {
-    const buf = await file.arrayBuffer();
-    const rows = await parseXlsxBuffer(buf);
-    const months = xlsxRowsToMonths(rows);
+    const rows = await parseXlsxBuffer(await file.arrayBuffer());
+    const months = xlsxToMonths(rows);
     const count = Object.keys(months).length;
-    if (count === 0) { alert('No monthly data found. Ensure the file has Month, Budget, and Achieve columns.'); return; }
-    // Merge into yearData
+    if (!count) { alert('No monthly data found. Make sure the file has Month, Budget, and Actual/Achieve columns.'); return; }
     for (const [m, d] of Object.entries(months)) {
       if (!yearData.months[m]) yearData.months[m] = {};
       if (d.budget)  yearData.months[m].budget  = d.budget;
-      if (d.achieve) yearData.months[m].achieve = d.achieve;
+      if (d.actual)  yearData.months[m].actual  = d.actual;
       if (d.ce)      yearData.months[m].ce      = d.ce;
       if (d.pr)      yearData.months[m].pr      = d.pr;
     }
     scheduleSave();
     render();
     showToast(`Imported ${count} months ✓`);
-  } catch (e) {
-    alert('Import failed: ' + e.message);
-  } finally {
-    lbl.innerHTML = orig;
-  }
+  } catch(e) { alert('Import failed: ' + e.message); }
 }
 
-function xlsxRowsToMonths(rows) {
-  const MNAMES = ['january','february','march','april','may','june',
-                  'july','august','september','october','november','december'];
+function xlsxToMonths(rows) {
+  const MN = ['january','february','march','april','may','june',
+              'july','august','september','october','november','december'];
   const result = {};
-
-  // Find header row — look for "budget" or "achieve"
-  let colBudget = null, colAchieve = null, colMonth = null, colCE = null, colPR = null;
-  let headerIdx = -1;
+  let cB = null, cA = null, cM = null, cCE = null, cPR = null, hIdx = -1;
   for (let i = 0; i < Math.min(rows.length, 8); i++) {
     const row = rows[i];
     for (const [col, val] of Object.entries(row)) {
       const v = String(val).toLowerCase().trim();
-      if (v === 'budget')                    colBudget  = col;
-      if (v.includes('achiev'))              colAchieve = col;
-      if (v === 'month')                     colMonth   = col;
-      if (v.startsWith('ce') && !v.startsWith('cert')) colCE = col;
-      if (v === 'pr' || v.startsWith('pr1') || v.startsWith('pr%')) colPR = col;
+      if (v === 'budget')            cB  = col;
+      if (v.match(/^actual|achiev/)) cA  = col;
+      if (v === 'month')             cM  = col;
+      if (v.match(/^ce[%$]?$/))      cCE = col;
+      if (v.match(/^pr[%0-9]?/))     cPR = col;
     }
-    if (colBudget && colAchieve) { headerIdx = i; break; }
+    if (cB && cA) { hIdx = i; break; }
   }
-
-  const dataStart = headerIdx >= 0 ? headerIdx + 1 : 0;
-
-  for (let i = dataStart; i < rows.length; i++) {
+  for (let i = Math.max(0, hIdx + 1); i < rows.length; i++) {
     const row = rows[i];
-
-    // Find month index
     let mIdx = -1;
-    const tryMonth = (v) => {
+    const tryM = v => {
       const s = String(v).toLowerCase().trim();
-      const mi = MNAMES.findIndex(m => s.startsWith(m.slice(0, 3)));
+      const mi = MN.findIndex(m => s.startsWith(m.slice(0,3)));
       if (mi >= 0) return mi;
       const n = parseInt(s);
-      if (!isNaN(n) && n >= 1 && n <= 12) return n - 1;
-      return -1;
+      return (!isNaN(n) && n >= 1 && n <= 12) ? n - 1 : -1;
     };
-
-    if (colMonth && row[colMonth] !== undefined) mIdx = tryMonth(row[colMonth]);
-    if (mIdx < 0) {
-      for (const v of Object.values(row)) {
-        const mi = tryMonth(v);
-        if (mi >= 0) { mIdx = mi; break; }
-      }
-    }
+    if (cM && row[cM] != null) mIdx = tryM(row[cM]);
+    if (mIdx < 0) { for (const v of Object.values(row)) { const mi = tryM(v); if (mi>=0){mIdx=mi;break;} } }
     if (mIdx < 0) continue;
-
-    const m = mIdx + 1;
-    result[m] = {
-      budget:  colBudget  ? (parseFloat(row[colBudget])  || 0) : 0,
-      achieve: colAchieve ? (parseFloat(row[colAchieve]) || 0) : 0,
-      ce:      colCE      ? (parseFloat(row[colCE])      || null) : null,
-      pr:      colPR      ? (parseFloat(row[colPR])      || null) : null,
+    result[mIdx+1] = {
+      budget: cB  ? (parseFloat(row[cB])  || 0) : 0,
+      actual: cA  ? (parseFloat(row[cA])  || 0) : 0,
+      ce:     cCE ? (parseFloat(row[cCE]) || null) : null,
+      pr:     cPR ? (parseFloat(row[cPR]) || null) : null,
     };
   }
   return result;
 }
 
-// ── Minimal XLSX parser ───────────────────
-function u16(b, o) { return b[o] | (b[o+1] << 8); }
-function u32(b, o) { return (b[o] | (b[o+1]<<8) | (b[o+2]<<16) | (b[o+3]<<24)) >>> 0; }
+function u16(b,o){return b[o]|(b[o+1]<<8);}
+function u32(b,o){return (b[o]|(b[o+1]<<8)|(b[o+2]<<16)|(b[o+3]<<24))>>>0;}
 
 async function parseXlsxBuffer(buf) {
   const b = new Uint8Array(buf);
-
-  // Find EOCD (0x06054b50) scanning backwards
   let eocd = -1;
-  for (let i = b.length - 22; i >= Math.max(0, b.length - 65535); i--) {
-    if (b[i]===0x50 && b[i+1]===0x4b && b[i+2]===0x05 && b[i+3]===0x06) { eocd = i; break; }
+  for (let i = b.length-22; i >= Math.max(0,b.length-65535); i--) {
+    if (b[i]===0x50&&b[i+1]===0x4b&&b[i+2]===0x05&&b[i+3]===0x06){eocd=i;break;}
   }
-  if (eocd < 0) throw new Error('Not a valid xlsx file');
-
-  const cdOff = u32(b, eocd + 16);
-  const cdSize = u32(b, eocd + 12);
-
-  // Parse Central Directory → build file map
-  const files = {};
-  let pos = cdOff;
-  while (pos < cdOff + cdSize) {
-    if (u32(b, pos) !== 0x02014b50) break;
-    const method    = u16(b, pos + 10);
-    const cSize     = u32(b, pos + 20);
-    const uSize     = u32(b, pos + 24);
-    const nameLen   = u16(b, pos + 28);
-    const extraLen  = u16(b, pos + 30);
-    const commentLen= u16(b, pos + 32);
-    const lhOffset  = u32(b, pos + 42);
-    const name = new TextDecoder().decode(b.slice(pos + 46, pos + 46 + nameLen));
-    files[name] = { method, cSize, uSize, lhOffset };
-    pos += 46 + nameLen + extraLen + commentLen;
+  if (eocd<0) throw new Error('Not a valid xlsx file');
+  const cdOff=u32(b,eocd+16), cdSize=u32(b,eocd+12);
+  const files={};
+  let pos=cdOff;
+  while(pos<cdOff+cdSize){
+    if(u32(b,pos)!==0x02014b50)break;
+    const m=u16(b,pos+10),cs=u32(b,pos+20),nl=u16(b,pos+28),el=u16(b,pos+30),cl=u16(b,pos+32),lo=u32(b,pos+42);
+    const name=new TextDecoder().decode(b.slice(pos+46,pos+46+nl));
+    files[name]={m,cs,lo};
+    pos+=46+nl+el+cl;
   }
-
-  async function extractFile(name) {
-    const f = files[name];
-    if (!f) return null;
-    const lp = f.lhOffset;
-    if (u32(b, lp) !== 0x04034b50) throw new Error('Bad local header: ' + name);
-    const lnl = u16(b, lp + 26);
-    const lel = u16(b, lp + 28);
-    const data = b.slice(lp + 30 + lnl + lel, lp + 30 + lnl + lel + f.cSize);
-    if (f.method === 0) return data;
-    if (f.method !== 8) throw new Error('Unsupported compression: ' + f.method);
-    const ds = new DecompressionStream('deflate-raw');
-    const w = ds.writable.getWriter(); w.write(data); w.close();
-    const r = ds.readable.getReader();
-    const chunks = [];
-    for (;;) { const { done, value } = await r.read(); if (done) break; chunks.push(value); }
-    const out = new Uint8Array(chunks.reduce((s, c) => s + c.length, 0));
-    let off = 0; for (const c of chunks) { out.set(c, off); off += c.length; }
-    return out;
+  async function ext(name){
+    const f=files[name]; if(!f)return null;
+    const lp=f.lo;
+    if(u32(b,lp)!==0x04034b50)throw new Error('Bad header: '+name);
+    const lnl=u16(b,lp+26),lel=u16(b,lp+28);
+    const data=b.slice(lp+30+lnl+lel,lp+30+lnl+lel+f.cs);
+    if(f.m===0)return data;
+    if(f.m!==8)throw new Error('Unsupported method');
+    const ds=new DecompressionStream('deflate-raw');
+    const w=ds.writable.getWriter(); w.write(data); w.close();
+    const r=ds.readable.getReader(); const ch=[];
+    for(;;){const {done,value}=await r.read();if(done)break;ch.push(value);}
+    const out=new Uint8Array(ch.reduce((s,c)=>s+c.length,0));
+    let off=0; for(const c of ch){out.set(c,off);off+=c.length;} return out;
   }
-
-  const ssRaw    = await extractFile('xl/sharedStrings.xml');
-  const sheetRaw = await extractFile('xl/worksheets/sheet1.xml');
-  if (!sheetRaw) throw new Error('sheet1.xml not found in xlsx');
-  const dec = new TextDecoder();
-  return parseSheetXml(ssRaw ? dec.decode(ssRaw) : '', dec.decode(sheetRaw));
+  const ssRaw=await ext('xl/sharedStrings.xml');
+  const shRaw=await ext('xl/worksheets/sheet1.xml');
+  if(!shRaw)throw new Error('sheet1.xml not found');
+  const dec=new TextDecoder();
+  return parseSheetXml(ssRaw?dec.decode(ssRaw):'',dec.decode(shRaw));
 }
 
-function parseSheetXml(ssXml, sheetXml) {
-  const dp = new DOMParser();
-  const shared = [];
-  if (ssXml) {
-    dp.parseFromString(ssXml, 'application/xml').querySelectorAll('si').forEach(si => {
-      shared.push([...si.querySelectorAll('t')].map(n => n.textContent).join(''));
+function parseSheetXml(ssXml,shXml){
+  const dp=new DOMParser();
+  const ss=[];
+  if(ssXml) dp.parseFromString(ssXml,'application/xml').querySelectorAll('si').forEach(si=>{
+    ss.push([...si.querySelectorAll('t')].map(n=>n.textContent).join(''));
+  });
+  const rows=[];
+  dp.parseFromString(shXml,'application/xml').querySelectorAll('row').forEach(rowEl=>{
+    const obj={};
+    rowEl.querySelectorAll('c').forEach(c=>{
+      const ref=c.getAttribute('r');
+      const col=ref?ref.replace(/\d/g,''):'';
+      const t=c.getAttribute('t'); const v=c.querySelector('v');
+      if(!v)return;
+      const raw=v.textContent;
+      obj[col]=t==='s'?(ss[+raw]??''):(isNaN(+raw)?raw:+raw);
     });
-  }
-  const rows = [];
-  dp.parseFromString(sheetXml, 'application/xml').querySelectorAll('row').forEach(rowEl => {
-    const obj = {};
-    rowEl.querySelectorAll('c').forEach(c => {
-      const ref = c.getAttribute('r');
-      const col = ref ? ref.replace(/\d/g, '') : '';
-      const t = c.getAttribute('t');
-      const v = c.querySelector('v');
-      if (!v) return;
-      const raw = v.textContent;
-      obj[col] = t === 's' ? (shared[+raw] ?? '') : (isNaN(+raw) ? raw : +raw);
-    });
-    if (Object.keys(obj).length) rows.push(obj);
+    if(Object.keys(obj).length)rows.push(obj);
   });
   return rows;
 }
 
-// ── Utilities ─────────────────────────────
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
 }
 </script>
 </body>
