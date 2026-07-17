@@ -597,7 +597,7 @@ function renderLeaderboard(data) {
           <div class="agent-info">
             <div class="agent-name">${ag.name}</div>
             <div class="agent-code">${ag.code}</div>
-            <div class="agent-sub">${ag.total} clients total</div>
+            <div class="agent-sub">${ag.clients ? ag.clients.length : (ag.total || 0)} clients total</div>
             ${atRisk.length ? `<span class="followup-pill">🔴 ${atRisk.length} follow-up needed</span>` : ''}
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
