@@ -940,9 +940,12 @@ function renderAuditTable() {
 
   document.getElementById('auditBody').innerHTML = sorted.map((c, i) => {
     const isDim = c._cls === 'na' || c._cls === 'excl';
-    const isCECCPast = pool === 'CE' && c._reason === 'Due date passed'
+    const isBA  = c.payMethod === 'Biro Angkasa';
+    // BA: always display as 100% collected — salary deduction is guaranteed
+    const dispCls = isBA ? '100' : c._cls;
+    const isCECCPast = !isBA && pool === 'CE' && c._reason === 'Due date passed'
       && c.payMethod && c.payMethod.toLowerCase().includes('credit');
-    const cbHtml = c._cls === '0'
+    const cbHtml = dispCls === '0'
       ? `<input type="checkbox" class="collect-cb" data-ace="${c._ace}" data-pool="${pool}" onchange="updateProjected()">`
       : '';
     return `
@@ -952,11 +955,11 @@ function renderAuditTable() {
         <td>${c.issueDate || '—'}</td>
         <td>${c.dueDate || '—'}</td>
         <td>${c.payMode || '—'}</td>
-        <td class="right ${c._cls === '0' ? 'zero-ace' : ''}">${isDim ? '<span style="color:#ccc">—</span>' : RA(c._ace)}</td>
+        <td class="right ${dispCls === '0' ? 'zero-ace' : ''}">${isDim ? '<span style="color:#ccc">—</span>' : RA(c._ace)}</td>
         <td>${c.payMethod || '—'}</td>
         <td><span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.72rem">${c.status}</span></td>
-        <td>${clsHTML(c._cls, c._watch)}</td>
-        <td style="font-size:.78rem;color:${c._watch ? '#c77700' : '#888'}">${c._reason}</td>
+        <td>${clsHTML(dispCls, c._watch)}</td>
+        <td style="font-size:.78rem;color:${c._watch ? '#c77700' : '#888'}">${isBA ? 'Biro Angkasa' : c._reason}</td>
       </tr>`;
   }).join('');
 
