@@ -105,6 +105,8 @@ tr:hover td{background:#fafafa;}
 td.right{text-align:right;font-weight:700;}
 .zero-ace{color:#e53935;}
 .excl-row td{opacity:.55;}
+.ce-cc-warn td{background:rgba(255,193,7,.09)!important;}
+.ce-cc-warn td:first-child{border-left:3px solid #f9a825;}
 
 /* No PR13 notice */
 .notice{background:#fff8e1;border-radius:18px;padding:20px;color:#c77700;font-weight:700;text-align:center;margin-bottom:16px;}
@@ -637,11 +639,11 @@ function renderLeaderboard(data) {
     const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
     const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
     const prClass = !hasData ? 'pr13-grey' : pr13 >= 90 ? 'pr13-green' : pr13 >= 70 ? 'pr13-amber' : 'pr13-red';
-    const prLabel = hasData ? pr13.toFixed(1) + '%' : '—';
+    const prLabel = hasData ? pr13.toFixed(2) + '%' : '—';
     const ceClass = !hasCEData ? 'grey' : ce >= 90 ? 'green' : ce >= 70 ? 'amber' : 'red';
-    const ceLabel = hasCEData ? ce.toFixed(1) + '%' : '—';
+    const ceLabel = hasCEData ? ce.toFixed(2) + '%' : '—';
     const grpClass = !hasGroup ? 'pr13-grey' : groupPR13 >= 90 ? 'pr13-green' : groupPR13 >= 70 ? 'pr13-amber' : 'pr13-red';
-    const grpLabel = hasGroup ? groupPR13.toFixed(1) + '%' : '';
+    const grpLabel = hasGroup ? groupPR13.toFixed(2) + '%' : '';
     return `
       <div class="agent-card" onclick="showAgent('${ag.code}')">
         <div class="agent-main">
@@ -721,15 +723,15 @@ function showAgent(code) {
 
   document.getElementById('detailStats').innerHTML = `
     <div class="stat-chip ${prCls}">
-      <div class="stat-chip-val">${hasData ? pr13.toFixed(1) + '%' : '—'}</div>
+      <div class="stat-chip-val">${hasData ? pr13.toFixed(2) + '%' : '—'}</div>
       <div class="stat-chip-lbl">${hasGroup ? 'Direct PR13' : 'PR13'}</div>
     </div>
     ${hasGroup ? `<div class="stat-chip ${grpCls}">
-      <div class="stat-chip-val">${groupPR13.toFixed(1)}%</div>
+      <div class="stat-chip-val">${groupPR13.toFixed(2)}%</div>
       <div class="stat-chip-lbl">Group PR13</div>
     </div>` : ''}
     <div class="stat-chip ${ceCls}">
-      <div class="stat-chip-val">${hasCEData ? ce.toFixed(1) + '%' : '—'}</div>
+      <div class="stat-chip-val">${hasCEData ? ce.toFixed(2) + '%' : '—'}</div>
       <div class="stat-chip-lbl">CE</div>
     </div>
     <div class="stat-chip">
@@ -806,7 +808,7 @@ function showAgent(code) {
         <div class="pr13-summary-grid">
           <div class="pr13-big">
             <div class="pr13-big-lbl">Final PR13</div>
-            <div class="pr13-big-val">${pr13.toFixed(1)}%</div>
+            <div class="pr13-big-val">${pr13.toFixed(2)}%</div>
           </div>
           <div class="pr13-summary-item">
             <div class="pr13-summary-lbl">Total Eligible ACE</div>
@@ -836,7 +838,7 @@ function showAgent(code) {
         <div class="ce-summary-grid">
           <div class="ce-big">
             <div class="ce-big-lbl">Final CE</div>
-            <div class="ce-big-val">${ce.toFixed(1)}%</div>
+            <div class="ce-big-val">${ce.toFixed(2)}%</div>
           </div>
           <div class="ce-summary-item">
             <div class="ce-summary-lbl">Total Eligible ACE</div>
@@ -935,13 +937,15 @@ function renderAuditTable() {
 
   document.getElementById('auditBody').innerHTML = sorted.map((c, i) => {
     const isDim = c._cls === 'na' || c._cls === 'excl';
+    const isCECCPast = pool === 'CE' && c._reason === 'Due date passed'
+      && c.payMethod && c.payMethod.toLowerCase().includes('credit');
     const cbHtml = c._cls === '0'
       ? `<input type="checkbox" class="collect-cb" data-ace="${c._ace}" data-pool="${pool}" onchange="updateProjected()">`
       : '';
     return `
-      <tr class="${isDim ? 'excl-row' : ''}" style="${c._watch ? 'background:rgba(199,119,0,.07);' : c.status === 'Lapsed' ? 'background:rgba(229,57,53,.05);' : ''}">
+      <tr class="${isDim ? 'excl-row' : isCECCPast ? 'ce-cc-warn' : ''}" style="${c._watch ? 'background:rgba(199,119,0,.07);' : c.status === 'Lapsed' ? 'background:rgba(229,57,53,.05);' : ''}">
         <td style="color:#aaa;white-space:nowrap">${cbHtml}${i + 1}</td>
-        <td><strong>${c.name || '—'}</strong>${c._watch ? '<br><span style="font-size:.68rem;font-weight:800;color:#c77700;background:rgba(199,119,0,.12);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ Due this month</span>' : ''}<br><span style="font-size:.73rem;color:#aaa">${c.certNo || ''}</span></td>
+        <td><strong>${c.name || '—'}</strong>${c._watch ? '<br><span style="font-size:.68rem;font-weight:800;color:#c77700;background:rgba(199,119,0,.12);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ Due this month</span>' : ''}${isCECCPast ? '<br><span style="font-size:.68rem;font-weight:800;color:#e65100;background:rgba(255,193,7,.22);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ CC payment overdue — update</span>' : ''}<br><span style="font-size:.73rem;color:#aaa">${c.certNo || ''}</span></td>
         <td>${c.issueDate || '—'}</td>
         <td>${c.dueDate || '—'}</td>
         <td>${c.payMode || '—'}</td>
@@ -962,7 +966,7 @@ function renderAuditTable() {
     tfoot.innerHTML = `
       <tr style="background:${bg}">
         <td colspan="5" style="text-align:right;font-size:.9rem;font-weight:900;color:${color}">${pool} = ${RA(collACE)} ÷ ${RA(eligACE)} × 100</td>
-        <td class="right" style="color:${color};font-size:1.1rem">${rate.toFixed(1)}%</td>
+        <td class="right" style="color:${color};font-size:1.1rem">${rate.toFixed(2)}%</td>
         <td colspan="4"></td>
       </tr>`;
   } else {
@@ -994,15 +998,15 @@ function updateProjected() {
       ? `<span style="font-size:.75rem;color:#888">${Math.round(addedACE).toLocaleString('en-MY')} ACE confirmed</span>`
       : `<span style="font-size:.75rem;color:#888">RM ${Math.round(addedACE).toLocaleString('en-MY')} ACE collected</span>`;
     const base     = currentRate !== null
-      ? `<span>${currentRate.toFixed(1)}%</span><span style="color:#ccc">→</span>`
+      ? `<span>${currentRate.toFixed(2)}%</span><span style="color:#ccc">→</span>`
       : '';
     const delta    = currentRate !== null
-      ? `<span style="color:${color};font-weight:700">(+${(projRate - currentRate).toFixed(1)}%)</span>`
+      ? `<span style="color:${color};font-weight:700">(+${(projRate - currentRate).toFixed(2)}%)</span>`
       : '';
     projBar.innerHTML = `
       <span style="font-weight:800">${lbl}</span>
       ${base}
-      <strong style="color:${color};font-size:1rem">${projRate.toFixed(1)}%</strong>
+      <strong style="color:${color};font-size:1rem">${projRate.toFixed(2)}%</strong>
       ${delta}
       ${tail}
     `;
@@ -1086,10 +1090,10 @@ function updateEstimator() {
         <div class="est-result-row">
           <span class="est-result-lbl" style="color:#1a73e8">CE</span>
           <span class="est-result-val">
-            ${ceResult.ce !== null ? ceResult.ce.toFixed(1) + '%' : '—'}
+            ${ceResult.ce !== null ? ceResult.ce.toFixed(2) + '%' : '—'}
             <span style="color:#ccc">→</span>
-            <strong style="color:#1a73e8">${projCE !== null ? projCE.toFixed(1) + '%' : '—'}</strong>
-            ${delta !== null ? `<span class="est-delta" style="color:#1a73e8">(+${delta.toFixed(1)}%)</span>` : ''}
+            <strong style="color:#1a73e8">${projCE !== null ? projCE.toFixed(2) + '%' : '—'}</strong>
+            ${delta !== null ? `<span class="est-delta" style="color:#1a73e8">(+${delta.toFixed(2)}%)</span>` : ''}
           </span>
         </div>`;
       ceResultEl.classList.remove('hidden');
@@ -1117,10 +1121,10 @@ function updateEstimator() {
         <div class="est-result-row">
           <span class="est-result-lbl" style="color:#0a9b43">PR13</span>
           <span class="est-result-val">
-            ${result.pr13 !== null ? result.pr13.toFixed(1) + '%' : '—'}
+            ${result.pr13 !== null ? result.pr13.toFixed(2) + '%' : '—'}
             <span style="color:#ccc">→</span>
-            <strong style="color:#0a9b43">${projPR13 !== null ? projPR13.toFixed(1) + '%' : '—'}</strong>
-            ${delta !== null ? `<span class="est-delta" style="color:#0a9b43">(+${delta.toFixed(1)}%)</span>` : ''}
+            <strong style="color:#0a9b43">${projPR13 !== null ? projPR13.toFixed(2) + '%' : '—'}</strong>
+            ${delta !== null ? `<span class="est-delta" style="color:#0a9b43">(+${delta.toFixed(2)}%)</span>` : ''}
           </span>
         </div>`;
       pr13ResultEl.classList.remove('hidden');
