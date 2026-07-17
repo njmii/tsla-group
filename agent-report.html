@@ -626,10 +626,6 @@ function renderLeaderboard(data) {
       </div>`;
   }
 
-  if (pred) {
-    html += `<div class="prediction-note">🔮 <strong>Prediction mode</strong> — based on current policy statuses. Actual figures will differ as payments are made / missed in ${projLabel()}.</div>`;
-  }
-
   html += agents.map(({ ag, result, ceResult, groupPR13 }, i) => {
     const { pr13, eligCount, eligACE, collACE: prCollACE } = result;
     const { ce, eligCount: ceEligCount } = ceResult;
@@ -929,7 +925,7 @@ function renderAuditTable() {
   const hasRate = rate !== null;
 
   const banner = document.getElementById('predictionBanner');
-  if (banner) banner.style.display = _isPrediction() ? '' : 'none';
+  if (banner) banner.style.display = 'none';
 
   const clsHTML = (cls, watch) => {
     if (cls === '100')  return `<span class="cls-badge cls-100">${watch ? '⚠️ ' : ''}100%</span>`;
