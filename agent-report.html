@@ -352,13 +352,7 @@ function getACE(c) {
 /* ── PR13 cohort window helpers ───────────────────────────── */
 function pr13Window() {
   const base = PROJ_YEAR * 12 + PROJ_MONTH;
-  const weM  = base - 12;  // policy enters PR13 once issueDate + 12 months ≤ PROJ_LAST
-  const wsM  = base - 24;
-  // windowEnd = last day of (M − 12 months) — same boundary as CE lower bound
-  const windowEnd   = new Date(Math.floor(weM / 12), weM % 12 + 1, 0);
-  // windowStart = first day of (M − 24 months)
-  const windowStart = new Date(Math.floor(wsM / 12), wsM % 12,     1);
-  return { windowStart, windowEnd };
+  return { wsKey: base - 24, weKey: base - 12 };
 }
 
 /* ── Months between two date strings (d1→d2) ─────────────── */
@@ -398,9 +392,10 @@ function _watchFlag(c) {
 function classifyPR13(c) {
   if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
   const issued = new Date(c.issueDate);
-  const { windowStart, windowEnd } = pr13Window();
-  if (issued < windowStart) return { cls: 'na', reason: 'Aged out (>24 months)' };
-  if (issued > windowEnd)   return { cls: 'na', reason: 'Not yet 13 months old' };
+  const issuedKey = issued.getFullYear() * 12 + issued.getMonth();
+  const { wsKey, weKey } = pr13Window();
+  if (issuedKey < wsKey) return { cls: 'na', reason: 'Aged out (>24 months)' };
+  if (issuedKey > weKey) return { cls: 'na', reason: 'Not yet 13 months old' };
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
   const eff = pointInTimeStatus(c);
   if (eff === 'In Force') {
@@ -419,13 +414,10 @@ function classifyCE(c) {
   if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
   const issued = new Date(c.issueDate);
 
-  // CE window: issued after end of (PROJ_MONTH-12) AND before the projection month itself
+  const issuedKey = issued.getFullYear() * 12 + issued.getMonth();
   const ceM = PROJ_YEAR * 12 + PROJ_MONTH - 12;
-  const ceWindowEnd = new Date(Math.floor(ceM / 12), ceM % 12 + 1, 0);
-  if (issued <= ceWindowEnd) return { cls: 'na', reason: 'Not in CE window' };
-  // Policy must have been issued before the projection month (not in the same month)
-  const prevMonthEnd = new Date(PROJ_YEAR, PROJ_MONTH, 0); // last day of month before projection
-  if (issued > prevMonthEnd) return { cls: 'na', reason: 'Issued in projection month' };
+  if (issuedKey <= ceM)                            return { cls: 'na', reason: 'Not in CE window' };
+  if (issuedKey >= PROJ_YEAR * 12 + PROJ_MONTH)   return { cls: 'na', reason: 'Issued in projection month' };
 
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
 
