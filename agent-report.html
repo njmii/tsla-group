@@ -936,8 +936,7 @@ function renderAuditTable() {
 
   document.getElementById('auditBody').innerHTML = sorted.map((c, i) => {
     const isDim = c._cls === 'na' || c._cls === 'excl';
-    const isBA  = c.payMethod === 'Biro Angkasa';
-    // BA: always display as 100% collected — salary deduction is guaranteed
+    const isBA  = c.payMethod === 'Biro Angkasa' && c.status !== 'Contract Surrendered' && c.status !== 'Freelook Cancellation';
     const dispCls = isBA ? '100' : c._cls;
     const isCECCPast = !isBA && pool === 'CE' && c._reason === 'Due date passed'
       && c.payMethod && c.payMethod.toLowerCase().includes('credit');
