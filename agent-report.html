@@ -352,9 +352,9 @@ function getACE(c) {
 /* ── PR13 cohort window helpers ───────────────────────────── */
 function pr13Window() {
   const base = PROJ_YEAR * 12 + PROJ_MONTH;
-  const weM  = base - 13;
+  const weM  = base - 12;  // policy enters PR13 once issueDate + 12 months ≤ PROJ_LAST
   const wsM  = base - 24;
-  // windowEnd = last day of (M − 13 months)
+  // windowEnd = last day of (M − 12 months) — same boundary as CE lower bound
   const windowEnd   = new Date(Math.floor(weM / 12), weM % 12 + 1, 0);
   // windowStart = first day of (M − 24 months)
   const windowStart = new Date(Math.floor(wsM / 12), wsM % 12,     1);
