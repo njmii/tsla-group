@@ -435,13 +435,15 @@ function classifyCE(c) {
   return { cls: '0', reason: 'Lapsed' };
 }
 
-/* ── At-risk clients: Credit Card only, due date > 30 days ago ── */
+/* ── At-risk clients: Credit Card only, 30–90 days overdue ── */
 function getAtRisk(clients) {
   return clients.filter(c => {
     if (!c.dueDate) return false;
     if (!c.payMethod || !c.payMethod.toLowerCase().includes('credit')) return false;
     const daysPast = Math.floor((_today - new Date(c.dueDate)) / 86400000);
     if (daysPast <= 30) return false;
+    // Lapsed >3 months — too far gone, reinstatement unlikely
+    if (c.status === 'Lapsed' && daysPast > 90) return false;
     return c.status === 'In Force' || c.status === 'Lapsed';
   });
 }
