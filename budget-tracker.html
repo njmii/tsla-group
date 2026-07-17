@@ -689,12 +689,31 @@ function renderCommitmentsTracker() {
   if (ctOpen) {
     html += `<div class="ct-body">`;
 
-    data.commitments.forEach(c => {
+    // Unpaid / partial first, fully paid last
+    const sorted = [...data.commitments].sort((a, b) => {
+      const aDone = (getPaymentTotal(a.id) >= (parseFloat(a.amount)||0)) && (parseFloat(a.amount)||0) > 0;
+      const bDone = (getPaymentTotal(b.id) >= (parseFloat(b.amount)||0)) && (parseFloat(b.amount)||0) > 0;
+      return aDone - bDone;
+    });
+
+    sorted.forEach(c => {
       const amt      = parseFloat(c.amount) || 0;
       const entries  = getPayments(c.id);
       const totalPaid = entries.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
       const balance  = amt - totalPaid;
       const isDone   = totalPaid >= amt && amt > 0;
+
+      // Fully paid — compact collapsed row at the bottom
+      if (isDone) {
+        html += `<div class="ct-row" style="opacity:.45">
+          <span class="ct-name">${(c.name||'Unnamed').replace(/</g,'&lt;')}</span>
+          <span style="display:flex;align-items:center;gap:8px;margin-left:auto">
+            <span class="ct-bal-chip done" style="font-size:.7rem;padding:2px 9px">✓ Paid</span>
+            <button class="pay-reset" onclick="clearAllPayments(${c.id})" title="Undo payment">×</button>
+          </span>
+        </div>`;
+        return;
+      }
 
       // Payment entry rows
       const payListHtml = entries.length ? `<div class="ct-pay-list">${
@@ -737,7 +756,7 @@ function renderCommitmentsTracker() {
         ${balRow}
         <div id="ct-action-${c.id}">${actionArea}</div>
       </div>`;
-    });
+    }); // end sorted.forEach
 
     html += `<div class="ct-prog-wrap">
       <div class="ct-prog-track"><div class="ct-prog-fill" style="width:${pct}%"></div></div>
