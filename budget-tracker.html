@@ -70,11 +70,7 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .backup-btn{padding:10px 18px;border:1.5px solid #eee;border-radius:12px;background:transparent;color:#555;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .backup-btn:hover{border-color:#ff7a00;color:#ff7a00;background:#fff8f4}
 
-/* MONTH NAV */
-.month-nav{display:flex;align-items:center;justify-content:space-between;margin:20px 0 16px;padding:0 4px}
-.month-nav-btn{background:white;border:1px solid #eee;border-radius:12px;width:40px;height:40px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
-.month-nav-btn:hover{border-color:#ff7a00;color:#ff7a00}
-.month-title{font-size:1.25rem;font-weight:900;letter-spacing:-.02em}
+/* MONTH NAV — see pill styles added below */
 
 /* SUMMARY STRIP */
 .summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
@@ -236,16 +232,112 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 
 /* FOOTER */
 .footer{padding:32px 20px;text-align:center;color:#aaa;font-size:.78rem;border-top:1px solid #eee}
+
+/* UTILITIES */
+.hidden{display:none!important}
+
+/* LOCK / USER SCREENS */
+.lock-wrap{position:fixed;inset:0;z-index:2000;background:#f7f8fa;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px 40px;overflow-y:auto}
+.lock-card{background:white;border-radius:28px;width:100%;max-width:360px;margin:auto;box-shadow:0 8px 40px rgba(0,0,0,.12);overflow:hidden}
+.lock-banner{background:linear-gradient(135deg,#ff7a00,#ff9a40);padding:28px 0 22px;text-align:center}
+.lock-banner-logo{height:44px;filter:brightness(0) invert(1)}
+.lock-body{padding:28px 28px 32px;text-align:center}
+.lock-title{font-weight:900;font-size:1.15rem;margin-bottom:6px;letter-spacing:-.02em;color:#111}
+.lock-sub{color:#888;font-size:.82rem;margin-bottom:24px;line-height:1.5}
+
+/* PIN pad */
+.pin-dots{display:flex;gap:16px;justify-content:center;margin-bottom:28px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2.5px solid #ddd;background:transparent;transition:.15s}
+.pin-dot.filled{background:#ff7a00;border-color:#ff7a00;transform:scale(1.2)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.pin-key{height:58px;border:1.5px solid #eee;border-radius:16px;background:white;font-size:1.2rem;font-weight:800;cursor:pointer;font-family:inherit;color:#111;transition:.1s;user-select:none}
+.pin-key:active{background:#f0f0f0;transform:scale(.94)}
+.pin-key.pin-back{font-size:1rem;color:#888}
+.pin-key.pin-space{pointer-events:none;border:none;background:transparent}
+.pin-err{color:#e53935;font-size:.8rem;font-weight:700;min-height:20px}
+
+/* User picker grid */
+.user-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;text-align:left;margin-top:4px}
+@media(max-width:340px){.user-grid{grid-template-columns:1fr}}
+.user-tile{display:flex;align-items:center;gap:10px;padding:13px 12px;border:2px solid #eee;border-radius:18px;cursor:pointer;font-family:inherit;background:white;transition:.15s;width:100%;text-align:left}
+.user-tile:hover,.user-tile:focus{border-color:#ff7a00;background:#fff8f4;outline:none}
+.user-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ff7a00,#ff9a40);color:white;font-weight:900;font-size:.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.03em}
+.user-tile-name{font-weight:800;font-size:.83rem;color:#111;line-height:1.3}
+.user-tile-code{font-size:.68rem;color:#bbb;margin-top:1px}
+
+/* Navbar user badge */
+.nav-user{display:flex;align-items:center;gap:6px;padding:5px 10px 5px 6px;border:1.5px solid #eee;border-radius:12px;background:white;cursor:pointer;transition:.2s;font-family:inherit;white-space:nowrap}
+.nav-user:hover{border-color:#ff7a00}
+.nav-user-av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#ff7a00,#ff9a40);color:white;font-weight:900;font-size:.58rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.02em}
+.nav-user-name{font-size:.72rem;font-weight:800;color:#111;max-width:80px;overflow:hidden;text-overflow:ellipsis}
+
+/* Month nav pills */
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin:20px 0 16px;gap:8px}
+.month-pill{display:inline-flex;align-items:center;gap:4px;padding:8px 14px;border:1.5px solid #eee;border-radius:20px;background:white;color:#666;font-size:.78rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.month-pill:hover{border-color:#ff7a00;color:#ff7a00;background:#fff8f4}
+.month-title{font-size:1.15rem;font-weight:900;letter-spacing:-.02em;text-align:center;flex:1;padding:0 4px}
 </style>
 </head>
 <body>
 <div class="glow"></div>
 
+<!-- PIN SCREEN -->
+<div class="lock-wrap" id="pinScreen">
+  <div class="lock-card">
+    <div class="lock-banner">
+      <img src="assets/tslalogo.png" alt="TSLA" class="lock-banner-logo"/>
+    </div>
+    <div class="lock-body">
+      <div class="lock-title">Budget Tracker</div>
+      <div class="lock-sub">Enter your 4-digit PIN to continue</div>
+      <div class="pin-dots">
+        <div class="pin-dot" id="pd0"></div>
+        <div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div>
+        <div class="pin-dot" id="pd3"></div>
+      </div>
+      <div class="pin-pad">
+        <button class="pin-key" onclick="onPin('1')">1</button>
+        <button class="pin-key" onclick="onPin('2')">2</button>
+        <button class="pin-key" onclick="onPin('3')">3</button>
+        <button class="pin-key" onclick="onPin('4')">4</button>
+        <button class="pin-key" onclick="onPin('5')">5</button>
+        <button class="pin-key" onclick="onPin('6')">6</button>
+        <button class="pin-key" onclick="onPin('7')">7</button>
+        <button class="pin-key" onclick="onPin('8')">8</button>
+        <button class="pin-key" onclick="onPin('9')">9</button>
+        <div class="pin-key pin-space"></div>
+        <button class="pin-key" onclick="onPin('0')">0</button>
+        <button class="pin-key pin-back" onclick="onPinBack()">⌫</button>
+      </div>
+      <div class="pin-err" id="pinErr"></div>
+    </div>
+  </div>
+</div>
+
+<!-- USER PICKER SCREEN -->
+<div class="lock-wrap hidden" id="userScreen">
+  <div class="lock-card">
+    <div class="lock-banner">
+      <img src="assets/tslalogo.png" alt="TSLA" class="lock-banner-logo"/>
+    </div>
+    <div class="lock-body">
+      <div class="lock-title">Select Profile</div>
+      <div class="lock-sub">Tap your name to load your personal budget</div>
+      <div class="user-grid" id="userGrid"></div>
+    </div>
+  </div>
+</div>
+
 <!-- NAV -->
 <div class="navbar">
   <div class="nav-content">
     <img class="nav-logo" src="assets/tslalogo.png" alt="TSLA Group"/>
-    <div style="display:flex;align-items:center;gap:10px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="nav-user hidden" id="navUserBtn" onclick="switchUser()" title="Switch user">
+        <div class="nav-user-av" id="navUserAv">—</div>
+        <span class="nav-user-name" id="navUserName"></span>
+      </button>
       <button class="pwa-btn" id="pwaRefreshBtn" onclick="refreshPWA()" title="Check for updates">↻ Update</button>
       <a class="nav-back" href="index.html">← Back</a>
     </div>
@@ -257,9 +349,9 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 
   <!-- MONTH NAV -->
   <div class="month-nav">
-    <button class="month-nav-btn" onclick="changeMonth(-1)">‹</button>
+    <button class="month-pill" onclick="changeMonth(-1)">‹ <span id="prevMonthLbl">—</span></button>
     <span class="month-title" id="monthTitle">—</span>
-    <button class="month-nav-btn" onclick="changeMonth(1)">›</button>
+    <button class="month-pill" onclick="changeMonth(1)"><span id="nextMonthLbl">—</span> ›</button>
   </div>
 
   <!-- SUMMARY STRIP -->
@@ -381,7 +473,20 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 <div class="footer">© 2026 TSLA Group · Budget Tracker</div>
 
 <script>
-const SK = 'tsla_budget2';
+const PIN_CODE = '1111';
+const USERS = [
+  { code: 'A11668', name: 'Najmi Fikri',   init: 'NF' },
+  { code: 'A13290', name: 'Naqiyuddin',    init: 'NQ' },
+  { code: 'A14252', name: 'Ema Rozazilla', init: 'ER' },
+  { code: 'A15475', name: 'Muaz Ahmad',    init: 'MA' },
+  { code: 'A15756', name: 'Fadhlan Fikri', init: 'FF' },
+  { code: 'A15781', name: 'Ahmad Fauzan',  init: 'AF' },
+  { code: 'A16553', name: 'Adam Muqriz',   init: 'AM' },
+  { code: 'A15741', name: 'Nor Shahirra',  init: 'NS' },
+];
+let currentUser = null;
+let _pinBuf = '';
+function getSK() { return 'tsla_budget2_' + (currentUser ? currentUser.code : '_none'); }
 
 let data = {
   salary: 0,
@@ -803,9 +908,14 @@ function renderCalendar() {
   const db = dailyBudget();
   const now = new Date();
 
-  // Update month title
+  // Update month title and adjacent month labels
+  const _mo = d => d.toLocaleString('en-MY', {month:'short', year:'numeric'});
   document.getElementById('monthTitle').textContent =
     new Date(viewYear, viewMonth, 1).toLocaleString('en-MY', {month:'long', year:'numeric'});
+  const prevLbl = document.getElementById('prevMonthLbl');
+  const nextLbl = document.getElementById('nextMonthLbl');
+  if (prevLbl) prevLbl.textContent = _mo(new Date(viewYear, viewMonth - 1, 1));
+  if (nextLbl) nextLbl.textContent = _mo(new Date(viewYear, viewMonth + 1, 1));
 
   // Calendar header (Sun → Sat)
   const headEl = document.getElementById('calHead');
@@ -999,11 +1109,12 @@ function removeExp(str, id) {
 
 /* ── storage ── */
 function save() {
-  localStorage.setItem(SK, JSON.stringify(data));
+  if (!currentUser) return;
+  localStorage.setItem(getSK(), JSON.stringify(data));
 }
 
 function load() {
-  const raw = localStorage.getItem(SK);
+  const raw = localStorage.getItem(getSK());
   if (raw) {
     try { data = JSON.parse(raw); } catch(e) { data = {salary:0, commitments:[], expenses:{}, payments:{}}; }
   }
@@ -1046,8 +1157,100 @@ function refreshPWA() {
   }
 }
 
-load();
-renderCalendar();
+/* ── PIN gate + user picker ─────────────────────── */
+function initApp() {
+  if (sessionStorage.getItem('bt_unlocked') === '1') {
+    const savedCode = localStorage.getItem('tsla_bt_user');
+    if (savedCode) { _activateUser(savedCode); return; }
+    _showUserScreen();
+    return;
+  }
+  document.getElementById('pinScreen').classList.remove('hidden');
+}
+
+function onPin(digit) {
+  if (_pinBuf.length >= 4) return;
+  _pinBuf += digit;
+  _refreshDots();
+  if (_pinBuf.length === 4) {
+    setTimeout(() => {
+      if (_pinBuf === PIN_CODE) {
+        sessionStorage.setItem('bt_unlocked', '1');
+        document.getElementById('pinScreen').classList.add('hidden');
+        const saved = localStorage.getItem('tsla_bt_user');
+        if (saved) { _activateUser(saved); return; }
+        _showUserScreen();
+      } else {
+        document.getElementById('pinErr').textContent = 'PIN tidak betul. Cuba lagi.';
+        _pinBuf = '';
+        _refreshDots();
+      }
+    }, 120);
+  }
+}
+
+function onPinBack() {
+  _pinBuf = _pinBuf.slice(0, -1);
+  document.getElementById('pinErr').textContent = '';
+  _refreshDots();
+}
+
+function _refreshDots() {
+  for (let i = 0; i < 4; i++)
+    document.getElementById('pd' + i).classList.toggle('filled', i < _pinBuf.length);
+}
+
+function _showUserScreen() {
+  const grid = document.getElementById('userGrid');
+  grid.innerHTML = USERS.map(u => `
+    <button class="user-tile" onclick="selectUser('${u.code}')">
+      <div class="user-av">${u.init}</div>
+      <div>
+        <div class="user-tile-name">${u.name}</div>
+        <div class="user-tile-code">${u.code}</div>
+      </div>
+    </button>`).join('');
+  document.getElementById('userScreen').classList.remove('hidden');
+}
+
+function selectUser(code) {
+  localStorage.setItem('tsla_bt_user', code);
+  document.getElementById('userScreen').classList.add('hidden');
+  _activateUser(code);
+}
+
+function _activateUser(code) {
+  const user = USERS.find(u => u.code === code) || { code, name: code, init: code.slice(-2).toUpperCase() };
+  currentUser = user;
+
+  // One-time data migration from old generic key for the default user
+  const oldRaw = localStorage.getItem('tsla_budget2');
+  if (oldRaw && !localStorage.getItem(getSK())) {
+    if (code === 'A11668') localStorage.setItem(getSK(), oldRaw);
+  }
+
+  // Update navbar badge
+  const btn = document.getElementById('navUserBtn');
+  if (btn) {
+    btn.classList.remove('hidden');
+    document.getElementById('navUserAv').textContent  = user.init;
+    document.getElementById('navUserName').textContent = user.name;
+  }
+
+  load();
+  renderCalendar();
+}
+
+function switchUser() {
+  // Reset to user picker (stays unlocked for the session)
+  localStorage.removeItem('tsla_bt_user');
+  currentUser = null;
+  data = { salary: 0, commitments: [], expenses: {}, payments: {}, periodFrom: '', periodTo: '' };
+  document.getElementById('navUserBtn').classList.add('hidden');
+  _showUserScreen();
+}
+
+initApp();
 
 /* ── Keep add-form visible above virtual keyboard ── */
 (function () {

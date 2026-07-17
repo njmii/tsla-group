@@ -112,10 +112,12 @@ td.right{text-align:right;font-weight:700;}
 
 /* Follow-up alert */
 .followup-pill{display:inline-block;background:#ffebee;color:#e53935;font-size:.72rem;font-weight:800;border-radius:8px;padding:2px 8px;margin-top:4px;}
-.global-alert{background:#ffebee;border:2px solid rgba(229,57,53,.2);border-radius:18px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
-.global-alert-icon{font-size:1.4rem;flex-shrink:0;}
+.followup-pill-amber{background:#fff8e1;color:#c77700;}
+.global-alert{background:#ffebee;border:2px solid rgba(229,57,53,.2);border-radius:18px;padding:14px 18px;margin-bottom:16px;display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px;}
+.global-alert-icon{font-size:1.4rem;flex-shrink:0;margin-top:2px;}
 .global-alert-text{font-weight:800;font-size:.92rem;color:#e53935;}
 .global-alert-sub{font-size:.78rem;color:#888;margin-top:2px;font-weight:400;}
+.global-alert-detail{flex-basis:100%;}
 .followup-block{background:#ffebee;border:2px solid rgba(229,57,53,.2);border-radius:20px;padding:18px 20px;margin-bottom:16px;}
 .followup-title{font-size:.72rem;font-weight:800;color:#e53935;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
 .followup-sub{font-size:.88rem;font-weight:700;color:#b71c1c;margin-bottom:14px;}
@@ -318,10 +320,11 @@ function RA(n) { return n.toLocaleString('en-MY', { minimumFractionDigits: 2, ma
              → c.contribution × 13  for X13_PLANS issued Jul–Nov 2024, ≥ RM200/mo
              → c.contribution × 12  otherwise
 
-   CE pool  (Collection Efficiency) — certs issued AFTER PR13 windowEnd
+   CE pool  (Collection Efficiency) — certs < 12 months old at PROJ_LAST
    ─────────────────────────────────────────────────────────────────────
+   Window: issueDate > last day of (PROJ_MONTH − 12)
    Eligible ACE = Σ getACE(c)  for all CE-classified certs (excl Freelook)
-   Collected ACE = Σ getACE(c)  for CE certs that are 100% (In Force / CS ≥13mo)
+   Collected ACE = Σ getACE(c)  for CE certs classified as 100%
    CE% = round(Collected ACE / Eligible ACE × 100, 2dp)
 
    PR13 pool — certs issued within the rolling 13–24 month window
@@ -412,39 +415,49 @@ function classifyPR13(c) {
   return { cls: '0', reason: 'Lapsed' };
 }
 
-/* ── CE classification — policies < 13 months old ────────── */
+/* ── CE classification — policies < 12 months old ────────── */
 function classifyCE(c) {
   if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
   const issued = new Date(c.issueDate);
-  const { windowEnd } = pr13Window();
-  if (issued <= windowEnd) return { cls: 'na', reason: 'In PR13 pool or aged out' };
+
+  // CE window: < 12 calendar months old at end of projection month
+  const ceM = PROJ_YEAR * 12 + PROJ_MONTH - 12;
+  const ceWindowEnd = new Date(Math.floor(ceM / 12), ceM % 12 + 1, 0);
+  if (issued <= ceWindowEnd) return { cls: 'na', reason: 'Not in CE window' };
+
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
+
+  // dueDate rules come first — determines if premium was collected this cycle
+  if (c.dueDate) {
+    const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
+    if (dueKey === TODAY_KEY) return { cls: '100', reason: 'Due this month', watch: true };
+    if (dueKey < TODAY_KEY)  return { cls: '0',   reason: 'Due date passed' };
+  }
+
+  // Future-due (or no dueDate) — check status and payment method
+  if (c.status === 'Contract Surrendered') return { cls: '0', reason: 'Contract Surrendered' };
+  if (c.payMethod === 'Biro Angkasa')      return { cls: '100', reason: 'Biro Angkasa' };
+
   const eff = pointInTimeStatus(c);
-  const watch = _watchFlag(c);
-  if (eff === 'In Force') {
-    // Prediction month: Biro Angkasa auto-deducts (keep 100%), all others unconfirmed → 0%
-    if (_isPrediction() && c.payMethod !== 'Biro Angkasa')
-      return { cls: '0', reason: 'Prediction — unconfirmed', watch };
-    return { cls: '100', reason: 'In Force', watch };
-  }
-  if (eff === 'Contract Surrendered') {
-    return monthsPaid(c) >= 13
-      ? { cls: '100', reason: 'Contract Surrendered (≥13mo)', watch }
-      : { cls: '0',   reason: 'Contract Surrendered (<13mo)' };
-  }
-  return { cls: '0', reason: 'Lapsed' };
+  if (eff !== 'In Force') return { cls: '0', reason: eff || 'Not In Force' };
+  if (_isPrediction()) return { cls: '0', reason: 'Prediction — unconfirmed', watch: _watchFlag(c) };
+  return { cls: '100', reason: 'In Force', watch: _watchFlag(c) };
 }
 
-/* ── At-risk clients: Credit Card only, 30–90 days overdue ── */
+/* ── At-risk clients: Credit Card only, 30+ days overdue ──
+   _urgent = true  → 30–90 days  → 🔴 red alert
+   _urgent = false → >90 days    → 🟡 normal reminder        ── */
 function getAtRisk(clients) {
   return clients.filter(c => {
     if (!c.dueDate) return false;
     if (!c.payMethod || !c.payMethod.toLowerCase().includes('credit')) return false;
     const daysPast = Math.floor((_today - new Date(c.dueDate)) / 86400000);
     if (daysPast <= 30) return false;
-    // Lapsed >3 months — too far gone, reinstatement unlikely
     if (c.status === 'Lapsed' && daysPast > 90) return false;
     return c.status === 'In Force' || c.status === 'Lapsed';
+  }).map(c => {
+    const daysPast = Math.floor((_today - new Date(c.dueDate)) / 86400000);
+    return Object.assign({}, c, { _daysPast: daysPast, _urgent: daysPast <= 90 });
   });
 }
 
@@ -533,8 +546,11 @@ function renderLeaderboard(data) {
   document.getElementById('projBadge').textContent = (pred ? '🔮 Prediction: ' : 'PR13 Projection: ') + projLabel();
   if (window._lastData) renderContest(window._lastData);
 
+  // Filter out removed agents
+  const EXCLUDED_AGENTS = new Set(['A15741']);
+
   // Compute PR13 and CE for every agent, sort by PR13 desc (null last)
-  const agents = data.agents.map(ag => ({
+  const agents = data.agents.filter(ag => !EXCLUDED_AGENTS.has(ag.code)).map(ag => ({
     ag,
     result:   calcPR13(ag),
     ceResult: calcCE(ag),
@@ -549,24 +565,60 @@ function renderLeaderboard(data) {
 
   // Compute at-risk counts for global summary
   const atRiskMap = {};
-  let totalAtRisk = 0, agentsWithAtRisk = 0;
+  let urgentTotal = 0, normalTotal = 0, agentsWithAtRisk = 0;
   agents.forEach(({ ag }) => {
     const ar = getAtRisk(ag.clients);
     atRiskMap[ag.code] = ar;
-    totalAtRisk += ar.length;
+    const u = ar.filter(c => c._urgent).length;
+    const n = ar.filter(c => !c._urgent).length;
+    urgentTotal += u;
+    normalTotal += n;
     if (ar.length) agentsWithAtRisk++;
   });
+  const totalAtRisk = urgentTotal + normalTotal;
 
   // Global alert banner
   const listEl = document.getElementById('leaderboardList');
   let html = '';
   if (totalAtRisk > 0) {
+    // Build the expandable client list grouped by agent
+    const agentRows = agents
+      .map(({ ag }) => ({ ag, ar: atRiskMap[ag.code] || [] }))
+      .filter(({ ar }) => ar.length > 0)
+      .map(({ ag, ar }) => {
+        const rows = ar.map(c => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,.06)">
+            <div>
+              <div style="font-weight:700;font-size:.85rem">${c.name || '—'}</div>
+              <div style="font-size:.72rem;color:#888">${c.certNo || ''} · Due: ${c.dueDate}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:.75rem;font-weight:800;color:${c._urgent ? '#e53935' : '#c77700'}">${c._daysPast}d overdue</div>
+              <div style="font-size:.7rem;color:#aaa">${c.status}</div>
+            </div>
+          </div>`).join('');
+        return `<div style="margin-top:10px">
+          <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:4px">${ag.name}</div>
+          ${rows}
+        </div>`;
+      }).join('');
+
+    const bannerIcon = urgentTotal > 0 ? '🔴' : '🟡';
+    const bannerText = urgentTotal > 0
+      ? `${urgentTotal} urgent follow-up${urgentTotal > 1 ? 's' : ''}${normalTotal > 0 ? ` · ${normalTotal} reminder${normalTotal > 1 ? 's' : ''}` : ''}`
+      : `${normalTotal} follow-up reminder${normalTotal > 1 ? 's' : ''}`;
+    const bannerSub = `Credit card overdue — ${agentsWithAtRisk} agent${agentsWithAtRisk > 1 ? 's' : ''}. Tap to view.`;
+
     html += `
-      <div class="global-alert">
-        <div class="global-alert-icon">🔴</div>
-        <div>
-          <div class="global-alert-text">${totalAtRisk} credit card client${totalAtRisk > 1 ? 's' : ''} overdue 30+ days</div>
-          <div class="global-alert-sub">Credit card payment overdue — across ${agentsWithAtRisk} agent${agentsWithAtRisk > 1 ? 's' : ''}</div>
+      <div class="global-alert" onclick="this.querySelector('.global-alert-detail').classList.toggle('hidden');this.querySelector('.ga-arrow').style.transform=this.querySelector('.global-alert-detail').classList.contains('hidden')?'':'rotate(180deg)'" style="cursor:pointer;user-select:none">
+        <div class="global-alert-icon">${bannerIcon}</div>
+        <div style="flex:1">
+          <div class="global-alert-text">${bannerText}</div>
+          <div class="global-alert-sub">${bannerSub}</div>
+        </div>
+        <span class="ga-arrow" style="font-size:1rem;color:#e53935;transition:transform .2s">▼</span>
+        <div class="global-alert-detail hidden" onclick="event.stopPropagation()" style="width:100%;margin-top:12px;padding-top:12px;border-top:1px solid rgba(229,57,53,.2)">
+          ${agentRows}
         </div>
       </div>`;
   }
@@ -598,7 +650,14 @@ function renderLeaderboard(data) {
             <div class="agent-name">${ag.name}</div>
             <div class="agent-code">${ag.code}</div>
             <div class="agent-sub">${ag.clients ? ag.clients.length : (ag.total || 0)} clients total</div>
-            ${atRisk.length ? `<span class="followup-pill">🔴 ${atRisk.length} follow-up needed</span>` : ''}
+            ${(() => {
+              const urgent = atRisk.filter(c => c._urgent).length;
+              const normal = atRisk.filter(c => !c._urgent).length;
+              if (!urgent && !normal) return '';
+              if (urgent > 0 && normal > 0) return `<span class="followup-pill">🔴 ${urgent} urgent · 🟡 ${normal}</span>`;
+              if (urgent > 0) return `<span class="followup-pill">🔴 ${urgent} follow-up needed</span>`;
+              return `<span class="followup-pill followup-pill-amber">🟡 ${normal} reminder${normal > 1 ? 's' : ''}</span>`;
+            })()}
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
             <div style="display:flex;align-items:center;gap:6px">
@@ -674,7 +733,7 @@ function showAgent(code) {
       <div class="stat-chip-lbl">CE</div>
     </div>
     <div class="stat-chip">
-      <div class="stat-chip-val">${ag.total}</div>
+      <div class="stat-chip-val">${ag.total ?? (ag.clients ? ag.clients.length : '—')}</div>
       <div class="stat-chip-lbl">Total Clients</div>
     </div>
     <div class="stat-chip">
@@ -693,33 +752,46 @@ function showAgent(code) {
   const summaryEl = document.getElementById('pr13SummaryBlock');
   let summaryHTML = '';
   if (atRisk.length) {
+    const urgentClients = atRisk.filter(c => c._urgent);
+    const normalClients = atRisk.filter(c => !c._urgent);
+    const blockTitle = urgentClients.length
+      ? `🔴 Credit Card Follow-Up Required`
+      : `🟡 Credit Card Reminders`;
+    const blockSub = [
+      urgentClients.length ? `${urgentClients.length} urgent (30–90 days overdue)` : '',
+      normalClients.length ? `${normalClients.length} reminder${normalClients.length > 1 ? 's' : ''} (90+ days)` : ''
+    ].filter(Boolean).join(' · ');
+    const blockColor = urgentClients.length ? '#e53935' : '#c77700';
+
+    const renderRow = c => `
+      <div class="followup-row" style="${!c._urgent ? 'opacity:.75' : ''}">
+        <div class="followup-client-info">
+          <div class="followup-name">${c.name || '—'}</div>
+          <div class="followup-cert">${c.certNo || ''}</div>
+          <div class="followup-tags">
+            <span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.7rem">${c.status}</span>
+            <span class="badge badge-grey" style="font-size:.7rem">${c.payMethod || c.payMode || '—'}</span>
+            <span class="badge badge-grey" style="font-size:.7rem">${c.plan || ''}</span>
+          </div>
+        </div>
+        <div class="followup-right">
+          <div class="followup-contrib">RM ${c.contribution ? c.contribution.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}/mo</div>
+          <div class="followup-due">Due: ${c.dueDate} · <strong style="color:${c._urgent ? '#e53935' : '#c77700'}">${c._daysPast}d overdue</strong></div>
+        </div>
+      </div>`;
+
     summaryHTML += `
-      <div class="followup-block">
+      <div class="followup-block" style="${urgentClients.length ? '' : 'border-color:rgba(199,119,0,.25);background:rgba(199,119,0,.04)'}">
         <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none" onclick="this.parentElement.querySelector('.followup-list').classList.toggle('hidden');this.querySelector('.fu-arrow').style.transform=this.parentElement.querySelector('.followup-list').classList.contains('hidden')?'':'rotate(180deg)'">
           <div>
-            <div class="followup-title">🔴 Credit Card Follow-Up Required</div>
-            <div class="followup-sub">${atRisk.length} client${atRisk.length > 1 ? 's' : ''} overdue by 30+ days — credit card payment</div>
+            <div class="followup-title" style="color:${blockColor}">${blockTitle}</div>
+            <div class="followup-sub">${blockSub} — credit card</div>
           </div>
-          <span class="fu-arrow" style="font-size:1.1rem;color:#e53935;transition:transform .2s;transform:rotate(180deg)">▼</span>
+          <span class="fu-arrow" style="font-size:1.1rem;color:${blockColor};transition:transform .2s;transform:rotate(180deg)">▼</span>
         </div>
         <div class="followup-list" style="margin-top:12px">
-          ${atRisk.map(c => `
-            <div class="followup-row">
-              <div class="followup-client-info">
-                <div class="followup-name">${c.name || '—'}</div>
-                <div class="followup-cert">${c.certNo || ''}</div>
-                <div class="followup-tags">
-                  <span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.7rem">${c.status}</span>
-                  <span class="badge badge-grey" style="font-size:.7rem">${c.payMethod || c.payMode || '—'}</span>
-                  <span class="badge badge-grey" style="font-size:.7rem">${c.plan || ''}</span>
-                </div>
-              </div>
-              <div class="followup-right">
-                <div class="followup-contrib">RM ${c.contribution ? c.contribution.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}/mo</div>
-                <div class="followup-due">Due: ${c.dueDate} · <strong style="color:#e53935">${Math.floor((_today - new Date(c.dueDate)) / 86400000)}d overdue</strong></div>
-              </div>
-            </div>
-          `).join('')}
+          ${urgentClients.length ? `<div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#e53935;margin:6px 0 4px">🔴 Urgent — 30–90 days</div>${urgentClients.map(renderRow).join('')}` : ''}
+          ${normalClients.length ? `<div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#c77700;margin:${urgentClients.length ? '14px' : '6px'} 0 4px">🟡 Reminders — 90+ days</div>${normalClients.map(renderRow).join('')}` : ''}
         </div>
       </div>`;
   }
