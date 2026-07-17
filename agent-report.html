@@ -1311,6 +1311,11 @@ async function parseXlsxBuffer(buf) {
   throw new Error('"Certificate No" header not found in any sheet — wrong file?');
 }
 
+function _colLetter(n) { // 0-indexed → 'A','B',...,'Z','AA',...
+  let s = ''; n++;
+  while (n > 0) { s = String.fromCharCode(64 + (n % 26 || 26)) + s; n = Math.floor((n - 1) / 26); }
+  return s;
+}
 function _parseSheetXml(sharedXml, sheetXml) {
   const dp = new DOMParser();
   const shared = [];
@@ -1324,9 +1329,19 @@ function _parseSheetXml(sharedXml, sheetXml) {
   const rows = [];
   for (const rowEl of dp.parseFromString(sheetXml, 'text/xml').getElementsByTagNameNS('*', 'row')) {
     const cells = {};
+    let autoIdx = 0;
     for (const cell of rowEl.getElementsByTagNameNS('*', 'c')) {
       const ref = cell.getAttribute('r') || '';
-      const col = ref.replace(/\d/g, '');
+      let col;
+      if (ref) {
+        col = ref.replace(/\d/g, '');
+        // Sync autoIdx so subsequent no-r cells continue from correct position
+        let n = 0; for (const ch of col) n = n * 26 + (ch.charCodeAt(0) - 64);
+        autoIdx = n; // n is 1-indexed, next auto cell = _colLetter(n) = next letter
+      } else {
+        col = _colLetter(autoIdx);
+        autoIdx++;
+      }
       const t   = cell.getAttribute('t') || '';
       const vEl = cell.getElementsByTagNameNS('*', 'v')[0];
       let val   = vEl ? vEl.textContent : null;
@@ -1351,8 +1366,9 @@ function xlsxRowsToData(rows) {
   const DOWNLINES_CFG = { 'A11668': ['A13290', 'A14252', 'A12322'] };
   const fieldMap = {
     'Selling Agent Code': 'agentCode', 'Selling Agent': 'agentName',
-    'Life Assured': 'name', 'Certificate No.': 'certNo',
-    'Certificate Status': 'status', 'Pay Mode': 'payMode', 'Plan': 'plan',
+    'Life Assured': 'name', 'Certificate No.': 'certNo', 'Certificate No': 'certNo',
+    'Certificate Status': 'status', 'Pay Mode': 'payMode',
+    'Plan': 'plan', 'Plan Name': 'plan',
     'Issue Date': 'issueDate', 'Due Date': 'dueDate',
     'Contribution Amount': 'contribution', 'Payment Method Code': 'payMethod',
     'Status Updated Date': 'statusUpdatedDate', 'ACE': 'ace',
