@@ -1265,8 +1265,7 @@ async function parseXlsxBuffer(buf) {
   if (eocd < 0) throw new Error('Not a valid ZIP/xlsx file');
   const cdOff  = view.getUint32(eocd + 16, true);
   const cdSize = view.getUint32(eocd + 12, true);
-  // Walk Central Directory
-  const targets = new Set(['xl/sharedStrings.xml', 'xl/worksheets/sheet1.xml']);
+  // Walk Central Directory — collect shared strings + ALL worksheets
   const fileMap = {};
   let pos = cdOff;
   while (pos < cdOff + cdSize) {
@@ -1278,10 +1277,15 @@ async function parseXlsxBuffer(buf) {
     const commentLen = view.getUint16(pos + 32, true);
     const localOff   = view.getUint32(pos + 42, true);
     const fname      = new TextDecoder().decode(bytes.subarray(pos + 46, pos + 46 + fnLen));
-    if (targets.has(fname)) fileMap[fname] = { localOff, compSize, comp };
+    if (fname === 'xl/sharedStrings.xml' || /^xl\/worksheets\/sheet\d+\.xml$/.test(fname)) {
+      fileMap[fname] = { localOff, compSize, comp };
+    }
     pos += 46 + fnLen + extraLen + commentLen;
   }
-  if (!fileMap['xl/worksheets/sheet1.xml']) throw new Error('sheet1.xml not found — is this a valid xlsx?');
+  const sheetKeys = Object.keys(fileMap)
+    .filter(k => k !== 'xl/sharedStrings.xml')
+    .sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
+  if (!sheetKeys.length) throw new Error('No worksheets found — is this a valid xlsx?');
   async function _decomp(e) {
     const fnL  = view.getUint16(e.localOff + 26, true);
     const exL  = view.getUint16(e.localOff + 28, true);
@@ -1297,8 +1301,14 @@ async function parseXlsxBuffer(buf) {
     return new TextDecoder().decode(out);
   }
   const sharedXml = fileMap['xl/sharedStrings.xml'] ? await _decomp(fileMap['xl/sharedStrings.xml']) : '';
-  const sheetXml  = await _decomp(fileMap['xl/worksheets/sheet1.xml']);
-  return _parseSheetXml(sharedXml, sheetXml);
+  // Try each sheet in order — use the first one that contains "Certificate No" header
+  for (const key of sheetKeys) {
+    const rows = _parseSheetXml(sharedXml, await _decomp(fileMap[key]));
+    if (rows.some(r => Object.values(r).some(v => v && String(v).includes('Certificate No')))) {
+      return rows;
+    }
+  }
+  throw new Error('"Certificate No" header not found in any sheet — wrong file?');
 }
 
 function _parseSheetXml(sharedXml, sheetXml) {
