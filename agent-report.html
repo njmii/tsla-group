@@ -229,7 +229,7 @@ td.right{text-align:right;font-weight:700;}
         <span class="badge badge-grey" id="updatedBadge">Loading…</span>
         <span class="badge badge-blue" id="projBadge">Loading…</span>
         <select id="monthPicker" class="month-picker-sel" onchange="onMonthPick(this.value)"></select>
-        <label id="importLbl" class="badge badge-grey" style="cursor:pointer;user-select:none" title="Import FWD Certificate Listing xlsx">📤 Import Excel<input type="file" id="xlsxInput" accept=".xlsx" style="display:none" onchange="handleXlsxFile(this.files[0])"></label><span id="clearImport" style="display:none;cursor:pointer;font-size:.78rem;font-weight:700;color:#e53935;border:2px solid #e53935;border-radius:10px;padding:4px 9px" onclick="clearImport()" title="Clear imported data">× Clear</span>
+        <label id="importLbl" class="badge badge-grey" style="cursor:pointer;user-select:none" title="Import FWD Certificate Listing xlsx">📤 Import Excel<input type="file" id="xlsxInput" accept=".xlsx" style="display:none" onchange="handleXlsxFile(this.files[0])"></label><span id="clearImport" style="display:none;cursor:pointer;font-size:.78rem;font-weight:700;color:#e53935;border:2px solid #e53935;border-radius:10px;padding:4px 9px" onclick="clearImport()" title="Clear imported data">× Clear</span><span id="ghTokenBtn" class="badge badge-grey" style="cursor:pointer" onclick="showTokenModal()" title="Set GitHub token — enables auto-push to website after import">⚙️</span>
       </div>
     </div>
     <div class="lb-tab-row">
@@ -1161,6 +1161,47 @@ function onMonthPick(val) {
   renderLeaderboard(window._lastData);
 }
 
+/* ── GitHub Push ─────────────────────────────────────── */
+const _GH_OWNER = 'njmii', _GH_REPO = 'tsla-group', _GH_PATH = 'data/pr-data.json';
+const _GH_KEY   = 'tsla_gh_pat';
+
+function showTokenModal() {
+  document.getElementById('tokenInput').value = localStorage.getItem(_GH_KEY) || '';
+  document.getElementById('tokenErr').textContent = '';
+  document.getElementById('tokenModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('tokenInput').focus(), 100);
+}
+function closeTokenModal() { document.getElementById('tokenModal').style.display = 'none'; }
+function saveToken() {
+  const val = document.getElementById('tokenInput').value.trim();
+  if (!val) { document.getElementById('tokenErr').textContent = 'Please enter a token.'; return; }
+  localStorage.setItem(_GH_KEY, val);
+  closeTokenModal();
+  const btn = document.getElementById('ghTokenBtn');
+  btn.textContent = '✅'; setTimeout(() => { btn.textContent = '⚙️'; }, 2000);
+}
+function clearToken() {
+  if (!confirm('Remove the saved GitHub token from this device?')) return;
+  localStorage.removeItem(_GH_KEY); closeTokenModal();
+}
+async function pushToGitHub(jsonData) {
+  const token = localStorage.getItem(_GH_KEY);
+  if (!token) return;
+  const apiUrl = `https://api.github.com/repos/${_GH_OWNER}/${_GH_REPO}/contents/${_GH_PATH}`;
+  const hdrs = { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' };
+  const getRes = await fetch(apiUrl, { headers: hdrs });
+  if (!getRes.ok) throw new Error(`GitHub GET ${getRes.status}`);
+  const { sha } = await getRes.json();
+  const enc = new TextEncoder().encode(JSON.stringify(jsonData, null, 2));
+  let b64 = ''; const chunk = 8192;
+  for (let i = 0; i < enc.length; i += chunk) b64 += String.fromCharCode(...enc.subarray(i, i + chunk));
+  const putRes = await fetch(apiUrl, {
+    method: 'PUT', headers: { ...hdrs, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: `Update PR data — ${jsonData.updated}`, content: btoa(b64), sha })
+  });
+  if (!putRes.ok) throw new Error(`GitHub PUT ${putRes.status}`);
+}
+
 /* ── XLSX Import ──────────────────────────────────────── */
 function _restoreImportBtn() {
   const lbl = document.getElementById('importLbl');
@@ -1181,7 +1222,8 @@ function clearImport() {
 
 async function handleXlsxFile(file) {
   if (!file) return;
-  document.getElementById('importLbl').textContent = '⏳ Parsing…';
+  const lbl = document.getElementById('importLbl');
+  lbl.textContent = '⏳ Parsing…';
   try {
     const rows = await parseXlsxBuffer(await file.arrayBuffer());
     const data = xlsxRowsToData(rows);
@@ -1191,6 +1233,21 @@ async function handleXlsxFile(file) {
     buildMonthPicker();
     renderLeaderboard(data);
     document.getElementById('clearImport').style.display = '';
+    // Push to GitHub if token is configured
+    if (localStorage.getItem(_GH_KEY)) {
+      lbl.textContent = '📤 Pushing…';
+      try {
+        await pushToGitHub(data);
+        lbl.textContent = '✅ Website updated!';
+        setTimeout(_restoreImportBtn, 3000);
+        return;
+      } catch(pushErr) {
+        lbl.textContent = '⚠️ Push failed';
+        setTimeout(_restoreImportBtn, 3000);
+        alert('Data imported locally, but GitHub push failed:\n' + pushErr.message + '\n\nCheck your token via ⚙️');
+        return;
+      }
+    }
   } catch(err) {
     alert('Import failed: ' + err.message);
   }
@@ -1346,5 +1403,20 @@ function startFetch() {
   } else { startFetch(); }
 })();
 </script>
+
+<!-- GitHub Token Modal -->
+<div id="tokenModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1100;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:24px;padding:28px 24px;width:340px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <div style="font-size:1.1rem;font-weight:900;margin-bottom:6px">⚙️ GitHub Auto-Push</div>
+    <div style="color:#888;font-size:.8rem;line-height:1.55;margin-bottom:16px">After importing the FWD xlsx, the dashboard will automatically push <code>pr-data.json</code> to GitHub so everyone sees the updated data.<br><br>Enter a GitHub Personal Access Token with <strong>repo write</strong> access. Stored on this device only.</div>
+    <input id="tokenInput" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" style="width:100%;padding:12px 14px;border:2px solid #eee;border-radius:14px;font-size:.85rem;font-family:inherit;outline:none;box-sizing:border-box;transition:.2s" onfocus="this.style.borderColor='#ff7a00'" onblur="this.style.borderColor='#eee'" onkeydown="if(event.key==='Enter')saveToken()"/>
+    <div id="tokenErr" style="color:#e53935;font-size:.78rem;margin-top:6px;min-height:18px"></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="saveToken()" style="flex:1;padding:12px;border:none;border-radius:14px;background:#ff7a00;color:white;font-weight:800;font-size:.88rem;cursor:pointer;font-family:inherit">Save</button>
+      <button onclick="closeTokenModal()" style="flex:1;padding:12px;border:2px solid #eee;border-radius:14px;background:transparent;color:#888;font-weight:700;font-size:.88rem;cursor:pointer;font-family:inherit">Cancel</button>
+    </div>
+    <div style="text-align:center;margin-top:14px"><button onclick="clearToken()" style="background:none;border:none;color:#ccc;font-size:.75rem;cursor:pointer;font-family:inherit">Remove saved token</button></div>
+  </div>
+</div>
 </body>
 </html>
