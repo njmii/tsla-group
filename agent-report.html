@@ -422,10 +422,13 @@ function classifyCE(c) {
   if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
   const issued = new Date(c.issueDate);
 
-  // CE window: < 12 calendar months old at end of projection month
+  // CE window: issued after end of (PROJ_MONTH-12) AND before the projection month itself
   const ceM = PROJ_YEAR * 12 + PROJ_MONTH - 12;
   const ceWindowEnd = new Date(Math.floor(ceM / 12), ceM % 12 + 1, 0);
   if (issued <= ceWindowEnd) return { cls: 'na', reason: 'Not in CE window' };
+  // Policy must have been issued before the projection month (not in the same month)
+  const prevMonthEnd = new Date(PROJ_YEAR, PROJ_MONTH, 0); // last day of month before projection
+  if (issued > prevMonthEnd) return { cls: 'na', reason: 'Issued in projection month' };
 
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
 
