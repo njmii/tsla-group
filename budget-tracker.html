@@ -887,13 +887,22 @@ function updateSummaryStrip(today, days, db) {
 /* ── day modal ── */
 function openDay(str) {
   openDate = str;
+  // Reset any keyboard-driven style overrides before opening
+  const overlay = document.getElementById('modalOverlay');
+  const card    = document.getElementById('modalCard');
+  overlay.style.height = '';
+  card.style.maxHeight = '';
   renderModal();
-  document.getElementById('modalOverlay').classList.add('open');
+  overlay.classList.add('open');
   document.querySelectorAll('.exp-label-chip').forEach(c => c.classList.remove('active'));
 }
 
 function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
+  const overlay = document.getElementById('modalOverlay');
+  const card    = document.getElementById('modalCard');
+  overlay.classList.remove('open');
+  overlay.style.height = '';
+  card.style.maxHeight = '';
   openDate = null;
 }
 
@@ -1020,6 +1029,39 @@ function refreshPWA() {
 
 load();
 renderCalendar();
+
+/* ── Keep add-form visible above virtual keyboard ── */
+(function () {
+  const vp = window.visualViewport;
+  if (!vp) return;
+
+  function syncKbd() {
+    const overlay = document.getElementById('modalOverlay');
+    if (!overlay || !overlay.classList.contains('open')) return;
+    const card = document.getElementById('modalCard');
+    // visH = height of the area above the keyboard
+    const visH = vp.height + (vp.offsetTop || 0);
+    const kbH  = Math.max(0, window.innerHeight - visH);
+    overlay.style.height = visH + 'px';
+    card.style.maxHeight = Math.max(220, visH - 16) + 'px';
+    // Scroll so the input row is visible
+    if (kbH > 50) setTimeout(() => card.scrollTo({ top: card.scrollHeight, behavior: 'smooth' }), 80);
+  }
+
+  vp.addEventListener('resize', syncKbd);
+
+  // Also scroll on focus in case the resize fires before layout settles
+  ['expDesc', 'expAmt'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('focus', () => {
+      setTimeout(() => {
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        syncKbd();
+      }, 350);
+    });
+  });
+})();
 </script>
 </body>
 </html>
