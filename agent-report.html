@@ -395,7 +395,7 @@ function classifyPR13(c) {
   const issuedKey = issued.getFullYear() * 12 + issued.getMonth();
   const { wsKey, weKey } = pr13Window();
   if (issuedKey < wsKey) return { cls: 'na', reason: 'Aged out (>24 months)' };
-  if (issuedKey > weKey) return { cls: 'na', reason: 'Not yet 13 months old' };
+  if (issuedKey >= weKey) return { cls: 'na', reason: 'Not yet 13 months old' };
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
   const eff = pointInTimeStatus(c);
   if (eff === 'In Force') {
@@ -416,7 +416,7 @@ function classifyCE(c) {
 
   const issuedKey = issued.getFullYear() * 12 + issued.getMonth();
   const ceM = PROJ_YEAR * 12 + PROJ_MONTH - 12;
-  if (issuedKey <= ceM)                            return { cls: 'na', reason: 'Not in CE window' };
+  if (issuedKey < ceM)                             return { cls: 'na', reason: 'Not in CE window' };
   if (issuedKey >= PROJ_YEAR * 12 + PROJ_MONTH)   return { cls: 'na', reason: 'Issued in projection month' };
 
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
