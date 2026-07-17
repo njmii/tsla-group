@@ -404,9 +404,6 @@ function classifyPR13(c) {
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
   const eff = pointInTimeStatus(c);
   if (eff === 'In Force') {
-    // Prediction month: Biro Angkasa auto-deducts (keep 100%), all others unconfirmed → 0%
-    if (_isPrediction() && c.payMethod !== 'Biro Angkasa')
-      return { cls: '0', reason: 'Prediction — unconfirmed', watch: _watchFlag(c) };
     return { cls: '100', reason: 'In Force', watch: _watchFlag(c) };
   }
   if (eff === 'Contract Surrendered') {
@@ -445,24 +442,25 @@ function classifyCE(c) {
 
   const eff = pointInTimeStatus(c);
   if (eff !== 'In Force') return { cls: '0', reason: eff || 'Not In Force' };
-  if (_isPrediction()) return { cls: '0', reason: 'Prediction — unconfirmed', watch: _watchFlag(c) };
   return { cls: '100', reason: 'In Force', watch: _watchFlag(c) };
 }
 
-/* ── At-risk clients: Credit Card only, 30+ days overdue ──
-   _urgent = true  → 30–90 days  → 🔴 red alert
-   _urgent = false → >90 days    → 🟡 normal reminder        ── */
+/* ── At-risk clients: Credit Card with overdue due date ──
+   Uses projection month (TODAY_KEY) — no dependency on today's date.
+   _urgent = true  → 1–2 months overdue  → 🔴 red
+   _urgent = false → 3+ months overdue   → 🟡 reminder          ── */
 function getAtRisk(clients) {
   return clients.filter(c => {
     if (!c.dueDate) return false;
     if (!c.payMethod || !c.payMethod.toLowerCase().includes('credit')) return false;
-    const daysPast = Math.floor((_today - new Date(c.dueDate)) / 86400000);
-    if (daysPast <= 30) return false;
-    if (c.status === 'Lapsed' && daysPast > 90) return false;
+    const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
+    if (dueKey >= TODAY_KEY) return false; // not yet overdue in this projection month
     return c.status === 'In Force' || c.status === 'Lapsed';
   }).map(c => {
-    const daysPast = Math.floor((_today - new Date(c.dueDate)) / 86400000);
-    return Object.assign({}, c, { _daysPast: daysPast, _urgent: daysPast <= 90 });
+    const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
+    const monthsOverdue = TODAY_KEY - dueKey;
+    const totalOwed = monthsOverdue * (c.contribution || 0);
+    return Object.assign({}, c, { _monthsOverdue: monthsOverdue, _totalOwed: totalOwed, _urgent: monthsOverdue <= 2 });
   });
 }
 
@@ -547,8 +545,7 @@ function calcCE(agent) {
 /* ── Render leaderboard ───────────────────────────────── */
 function renderLeaderboard(data) {
   document.getElementById('updatedBadge').textContent = 'Data: ' + data.updated;
-  const pred = _isPrediction();
-  document.getElementById('projBadge').textContent = (pred ? '🔮 Prediction: ' : 'PR13 Projection: ') + projLabel();
+  document.getElementById('projBadge').textContent = 'PR13 Projection: ' + projLabel();
   if (window._lastData) renderContest(window._lastData);
 
   // Filter out removed agents
@@ -570,7 +567,7 @@ function renderLeaderboard(data) {
 
   // Compute at-risk counts for global summary
   const atRiskMap = {};
-  let urgentTotal = 0, normalTotal = 0, agentsWithAtRisk = 0;
+  let urgentTotal = 0, normalTotal = 0, agentsWithAtRisk = 0, grandOwed = 0;
   agents.forEach(({ ag }) => {
     const ar = getAtRisk(ag.clients);
     atRiskMap[ag.code] = ar;
@@ -578,6 +575,7 @@ function renderLeaderboard(data) {
     const n = ar.filter(c => !c._urgent).length;
     urgentTotal += u;
     normalTotal += n;
+    grandOwed += ar.reduce((s, c) => s + (c._totalOwed || 0), 0);
     if (ar.length) agentsWithAtRisk++;
   });
   const totalAtRisk = urgentTotal + normalTotal;
@@ -598,8 +596,8 @@ function renderLeaderboard(data) {
               <div style="font-size:.72rem;color:#888">${c.certNo || ''} · Due: ${c.dueDate}</div>
             </div>
             <div style="text-align:right;flex-shrink:0">
-              <div style="font-size:.75rem;font-weight:800;color:${c._urgent ? '#e53935' : '#c77700'}">${c._daysPast}d overdue</div>
-              <div style="font-size:.7rem;color:#aaa">${c.status}</div>
+              <div style="font-size:.75rem;font-weight:800;color:${c._urgent ? '#e53935' : '#c77700'}">${c._monthsOverdue} mth overdue</div>
+              <div style="font-size:.7rem;color:#aaa">RM ${c._totalOwed.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})} owed</div>
             </div>
           </div>`).join('');
         return `<div style="margin-top:10px">
@@ -612,7 +610,7 @@ function renderLeaderboard(data) {
     const bannerText = urgentTotal > 0
       ? `${urgentTotal} urgent follow-up${urgentTotal > 1 ? 's' : ''}${normalTotal > 0 ? ` · ${normalTotal} reminder${normalTotal > 1 ? 's' : ''}` : ''}`
       : `${normalTotal} follow-up reminder${normalTotal > 1 ? 's' : ''}`;
-    const bannerSub = `Credit card overdue — ${agentsWithAtRisk} agent${agentsWithAtRisk > 1 ? 's' : ''}. Tap to view.`;
+    const bannerSub = `Credit card overdue — ${agentsWithAtRisk} agent${agentsWithAtRisk > 1 ? 's' : ''} · RM ${grandOwed.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})} total outstanding. Tap to view.`;
 
     html += `
       <div class="global-alert" onclick="this.querySelector('.global-alert-detail').classList.toggle('hidden');this.querySelector('.ga-arrow').style.transform=this.querySelector('.global-alert-detail').classList.contains('hidden')?'':'rotate(180deg)'" style="cursor:pointer;user-select:none">
@@ -762,9 +760,11 @@ function showAgent(code) {
     const blockTitle = urgentClients.length
       ? `🔴 Credit Card Follow-Up Required`
       : `🟡 Credit Card Reminders`;
+    const grandTotal = atRisk.reduce((s, c) => s + (c._totalOwed || 0), 0);
     const blockSub = [
-      urgentClients.length ? `${urgentClients.length} urgent (30–90 days overdue)` : '',
-      normalClients.length ? `${normalClients.length} reminder${normalClients.length > 1 ? 's' : ''} (90+ days)` : ''
+      urgentClients.length ? `${urgentClients.length} urgent (1–2 months)` : '',
+      normalClients.length ? `${normalClients.length} reminder${normalClients.length > 1 ? 's' : ''} (3+ months)` : '',
+      `RM ${grandTotal.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2})} total outstanding`
     ].filter(Boolean).join(' · ');
     const blockColor = urgentClients.length ? '#e53935' : '#c77700';
 
@@ -780,8 +780,8 @@ function showAgent(code) {
           </div>
         </div>
         <div class="followup-right">
-          <div class="followup-contrib">RM ${c.contribution ? c.contribution.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}/mo</div>
-          <div class="followup-due">Due: ${c.dueDate} · <strong style="color:${c._urgent ? '#e53935' : '#c77700'}">${c._daysPast}d overdue</strong></div>
+          <div class="followup-contrib">RM ${c.contribution ? c.contribution.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}/mo · <strong style="color:${c._urgent ? '#e53935' : '#c77700'}">${c._monthsOverdue} month${c._monthsOverdue > 1 ? 's' : ''} overdue</strong></div>
+          <div class="followup-due">Due: ${c.dueDate} · Total outstanding: <strong style="color:${c._urgent ? '#e53935' : '#c77700'}">RM ${c._totalOwed.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2})}</strong></div>
         </div>
       </div>`;
 
