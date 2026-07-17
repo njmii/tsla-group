@@ -320,10 +320,11 @@ function RA(n) { return n.toLocaleString('en-MY', { minimumFractionDigits: 2, ma
              → c.contribution × 13  for X13_PLANS issued Jul–Nov 2024, ≥ RM200/mo
              → c.contribution × 12  otherwise
 
-   CE pool  (Collection Efficiency) — certs issued AFTER PR13 windowEnd
+   CE pool  (Collection Efficiency) — certs < 12 months old at PROJ_LAST
    ─────────────────────────────────────────────────────────────────────
+   Window: issueDate > last day of (PROJ_MONTH − 12)
    Eligible ACE = Σ getACE(c)  for all CE-classified certs (excl Freelook)
-   Collected ACE = Σ getACE(c)  for CE certs that are 100% (In Force / CS ≥13mo)
+   Collected ACE = Σ getACE(c)  for CE certs classified as 100%
    CE% = round(Collected ACE / Eligible ACE × 100, 2dp)
 
    PR13 pool — certs issued within the rolling 13–24 month window
@@ -414,27 +415,33 @@ function classifyPR13(c) {
   return { cls: '0', reason: 'Lapsed' };
 }
 
-/* ── CE classification — policies < 13 months old ────────── */
+/* ── CE classification — policies < 12 months old ────────── */
 function classifyCE(c) {
   if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
   const issued = new Date(c.issueDate);
-  const { windowEnd } = pr13Window();
-  if (issued <= windowEnd) return { cls: 'na', reason: 'In PR13 pool or aged out' };
+
+  // CE window: < 12 calendar months old at end of projection month
+  const ceM = PROJ_YEAR * 12 + PROJ_MONTH - 12;
+  const ceWindowEnd = new Date(Math.floor(ceM / 12), ceM % 12 + 1, 0);
+  if (issued <= ceWindowEnd) return { cls: 'na', reason: 'Not in CE window' };
+
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
+
+  // dueDate rules come first — determines if premium was collected this cycle
+  if (c.dueDate) {
+    const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
+    if (dueKey === TODAY_KEY) return { cls: '100', reason: 'Due this month', watch: true };
+    if (dueKey < TODAY_KEY)  return { cls: '0',   reason: 'Due date passed' };
+  }
+
+  // Future-due (or no dueDate) — check status and payment method
+  if (c.status === 'Contract Surrendered') return { cls: '0', reason: 'Contract Surrendered' };
+  if (c.payMethod === 'Biro Angkasa')      return { cls: '100', reason: 'Biro Angkasa' };
+
   const eff = pointInTimeStatus(c);
-  const watch = _watchFlag(c);
-  if (eff === 'In Force') {
-    // Prediction month: Biro Angkasa auto-deducts (keep 100%), all others unconfirmed → 0%
-    if (_isPrediction() && c.payMethod !== 'Biro Angkasa')
-      return { cls: '0', reason: 'Prediction — unconfirmed', watch };
-    return { cls: '100', reason: 'In Force', watch };
-  }
-  if (eff === 'Contract Surrendered') {
-    return monthsPaid(c) >= 13
-      ? { cls: '100', reason: 'Contract Surrendered (≥13mo)', watch }
-      : { cls: '0',   reason: 'Contract Surrendered (<13mo)' };
-  }
-  return { cls: '0', reason: 'Lapsed' };
+  if (eff !== 'In Force') return { cls: '0', reason: eff || 'Not In Force' };
+  if (_isPrediction()) return { cls: '0', reason: 'Prediction — unconfirmed', watch: _watchFlag(c) };
+  return { cls: '100', reason: 'In Force', watch: _watchFlag(c) };
 }
 
 /* ── At-risk clients: Credit Card only, 30+ days overdue ──
