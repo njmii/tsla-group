@@ -89,6 +89,12 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 .pr13-big-lbl{font-size:.72rem;font-weight:800;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
 .pr13-big-val{font-size:2.4rem;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:1;}
 
+/* Audit filter bar */
+.audit-filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.audit-search-inp{flex:1;min-width:160px;border:2px solid #eee;border-radius:12px;padding:8px 12px;font-size:.82rem;outline:none;font-family:inherit;color:#111;}
+.audit-search-inp:focus{border-color:#ff7a00;}
+.audit-filter-sel{border:2px solid #eee;border-radius:12px;padding:8px 10px;font-size:.78rem;font-weight:700;outline:none;background:white;color:#555;cursor:pointer;}
+.audit-filter-sel:focus{border-color:#ff7a00;}
 /* Audit table */
 .section-label{font-size:.72rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 10px;}
 .audit-wrap{overflow-x:auto;background:white;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.05);}
@@ -261,6 +267,28 @@ td.right{text-align:right;font-weight:700;}
       🔮 Prediction mode — In Force clients default to <strong>0%</strong> (payment not yet confirmed). Tick ☑ each client you expect to collect from to see the projected rate.
     </div>
     <div id="projectedBar" class="projected-bar hidden"></div>
+    <div class="audit-filter-bar">
+      <input type="search" id="auditSearch" class="audit-search-inp" placeholder="Search name or cert…" oninput="filterAuditTable()">
+      <select id="auditFilterCls" class="audit-filter-sel" onchange="filterAuditTable()">
+        <option value="">All</option>
+        <option value="0">0% only</option>
+        <option value="100">100% only</option>
+        <option value="excl">Excluded</option>
+        <option value="na">Not eligible</option>
+      </select>
+      <select id="auditFilterStatus" class="audit-filter-sel" onchange="filterAuditTable()">
+        <option value="">All status</option>
+        <option value="In Force">In Force</option>
+        <option value="Lapsed">Lapsed</option>
+        <option value="Contract Surrendered">Surrendered</option>
+      </select>
+      <select id="auditFilterDue" class="audit-filter-sel" onchange="filterAuditTable()">
+        <option value="">All due dates</option>
+        <option value="overdue">Overdue</option>
+        <option value="this-month">Due this month</option>
+        <option value="next-month">Due next month</option>
+      </select>
+    </div>
     <div class="audit-wrap">
       <table id="auditTable">
         <thead>
@@ -340,6 +368,11 @@ function RA(n) { return n.toLocaleString('en-MY', { minimumFractionDigits: 2, ma
    the ×13 effective date despite having a July 2024 issue date) */
 const X13_PLANS  = new Set(['FWD Life First','FWD Protect First','FWD Income First']);
 const FORCE_X12  = new Set(['AN443318','AN457372']);
+const SHORT_NAMES = {
+  'A11668': 'Najmi', 'A13290': 'Naqi',   'A14252': 'Roza',
+  'A15475': 'Muaz',  'A15756': 'Fadhlan', 'A15781': 'Fauzan',
+  'A16553': 'Adam',
+};
 
 function getACE(c) {
   const iss = c.issueDate || '';
@@ -550,11 +583,12 @@ function renderLeaderboard(data) {
     ceResult: calcCE(ag),
     groupPR13: calcGroupPR13(ag, data.agents)
   }));
+  const LEADER = 'A11668';
   agents.sort((a, b) => {
-    if (a.result.pr13 === null && b.result.pr13 === null) return 0;
-    if (a.result.pr13 === null) return 1;
-    if (b.result.pr13 === null) return -1;
-    return b.result.pr13 - a.result.pr13;
+    if (a.ag.code === LEADER && b.ag.code !== LEADER) return 1;
+    if (b.ag.code === LEADER && a.ag.code !== LEADER) return -1;
+    // YTD champion = most new-business ACE in CE pool
+    return (b.ceResult.eligACE || 0) - (a.ceResult.eligACE || 0);
   });
 
   // Compute at-risk counts for global summary
@@ -625,8 +659,11 @@ function renderLeaderboard(data) {
     const hasData = pr13 !== null;
     const hasCEData = ce !== null;
     const hasGroup = groupPR13 !== null;
-    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
-    const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+    const isLeader  = ag.code === LEADER;
+    const dispRank  = isLeader ? agents.length : i + 1;
+    const rankClass = isLeader ? 'rank-n' : i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+    const rankLabel = isLeader ? '★' : i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+    const shortName = SHORT_NAMES[ag.code] || ag.name.split(' ')[0];
     const prClass = !hasData ? 'pr13-grey' : pr13 >= 90 ? 'pr13-green' : pr13 >= 70 ? 'pr13-amber' : 'pr13-red';
     const prLabel = hasData ? pr13.toFixed(2) + '%' : '—';
     const ceClass = !hasCEData ? 'grey' : ce >= 90 ? 'green' : ce >= 70 ? 'amber' : 'red';
@@ -638,9 +675,8 @@ function renderLeaderboard(data) {
         <div class="agent-main">
           <div class="agent-rank ${rankClass}">${rankLabel}</div>
           <div class="agent-info">
-            <div class="agent-name">${ag.name}</div>
-            <div class="agent-code">${ag.code}</div>
-            <div class="agent-sub">${ag.clients ? ag.clients.length : (ag.total || 0)} clients total</div>
+            <div class="agent-name">${shortName}</div>
+            <div class="agent-code">${ag.code} · YTD ACE ${R(ceResult.eligACE)}</div>
             ${(() => {
               const urgent = atRisk.filter(c => c._urgent).length;
               const normal = atRisk.filter(c => !c._urgent).length;
@@ -926,6 +962,11 @@ function renderAuditTable() {
     return `<span class="cls-badge cls-na">Not eligible</span>`;
   };
 
+  // Reset filter inputs on re-render
+  ['auditSearch','auditFilterCls','auditFilterStatus','auditFilterDue'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+
   document.getElementById('auditBody').innerHTML = sorted.map((c, i) => {
     const isDim = c._cls === 'na' || c._cls === 'excl';
     const isBA  = c.payMethod === 'Biro Angkasa' && c.status !== 'Contract Surrendered' && c.status !== 'Freelook Cancellation';
@@ -935,8 +976,9 @@ function renderAuditTable() {
     const cbHtml = dispCls === '0'
       ? `<input type="checkbox" class="collect-cb" data-ace="${c._ace}" data-pool="${pool}" onchange="updateProjected()">`
       : '';
+    const dueDateKey = c.dueDate ? new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth() : -1;
     return `
-      <tr class="${isDim ? 'excl-row' : isCECCPast ? 'ce-cc-warn' : ''}" style="${c._watch ? 'background:rgba(199,119,0,.07);' : c.status === 'Lapsed' ? 'background:rgba(229,57,53,.05);' : ''}">
+      <tr class="${isDim ? 'excl-row' : isCECCPast ? 'ce-cc-warn' : ''}" style="${c._watch ? 'background:rgba(199,119,0,.07);' : c.status === 'Lapsed' ? 'background:rgba(229,57,53,.05);' : ''}" data-name="${(c.name||'').toLowerCase().replace(/"/g,'')}" data-cert="${(c.certNo||'').toLowerCase()}" data-cls="${dispCls}" data-status="${c.status||''}" data-duekey="${dueDateKey}">
         <td style="color:#aaa;white-space:nowrap">${cbHtml}${i + 1}</td>
         <td><strong>${c.name || '—'}</strong>${c._watch ? '<br><span style="font-size:.68rem;font-weight:800;color:#c77700;background:rgba(199,119,0,.12);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ Due this month</span>' : ''}${isCECCPast ? '<br><span style="font-size:.68rem;font-weight:800;color:#e65100;background:rgba(255,193,7,.22);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ CC payment overdue — update</span>' : ''}<br><span style="font-size:.73rem;color:#aaa">${c.certNo || ''}</span></td>
         <td>${c.issueDate || '—'}</td>
@@ -1007,6 +1049,31 @@ function updateProjected() {
   } else {
     projBar.classList.add('hidden');
   }
+}
+
+/* ── Audit filter ─────────────────────────────────────── */
+function filterAuditTable() {
+  const q      = (document.getElementById('auditSearch')?.value || '').trim().toLowerCase();
+  const cls    = document.getElementById('auditFilterCls')?.value || '';
+  const status = document.getElementById('auditFilterStatus')?.value || '';
+  const due    = document.getElementById('auditFilterDue')?.value || '';
+  const now    = new Date(); now.setHours(0,0,0,0);
+  const todayKey  = now.getFullYear() * 12 + now.getMonth();
+  const nextKey   = todayKey + 1;
+
+  document.querySelectorAll('#auditBody tr').forEach(tr => {
+    const matchQ   = !q || (tr.dataset.name||'').includes(q) || (tr.dataset.cert||'').includes(q);
+    const matchCls = !cls || tr.dataset.cls === cls;
+    const matchSt  = !status || tr.dataset.status === status;
+    let matchDue = true;
+    if (due) {
+      const dk = parseInt(tr.dataset.duekey || '-1');
+      if      (due === 'overdue')    matchDue = dk >= 0 && dk < todayKey;
+      else if (due === 'this-month') matchDue = dk === todayKey;
+      else if (due === 'next-month') matchDue = dk === nextKey;
+    }
+    tr.style.display = matchQ && matchCls && matchSt && matchDue ? '' : 'none';
+  });
 }
 
 /* ── New case estimator ───────────────────────────────── */
