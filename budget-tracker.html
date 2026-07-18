@@ -462,9 +462,8 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 <div id="acctMenu" style="display:none;position:fixed;top:55px;right:16px;z-index:1000;background:white;border-radius:16px;padding:10px;box-shadow:0 4px 24px rgba(0,0,0,.12);min-width:190px">
   <div style="font-size:.72rem;color:#aaa;font-weight:700;padding:4px 10px 4px">Logged in as</div>
   <div id="acctMenuName" style="font-weight:900;font-size:.92rem;padding:0 10px 10px"></div>
-  <button class="acct-menu-item" onclick="exportData()">Export Data</button>
+  <button class="acct-menu-item" onclick="exportData();closeAcctMenu()">Export Data</button>
   <button class="acct-menu-item" onclick="triggerImport()">Import Data</button>
-  <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importDataFile(this)">
   <div style="border-top:1px solid #f0f0f0;margin:6px 0"></div>
   <button class="acct-menu-item" style="color:#e53935" onclick="doLogout()">Log Out</button>
 </div>
@@ -472,7 +471,11 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 <div class="footer">© 2026 TSLA Group · Budget Tracker</div>
 
 <script>
-const SK = 'tsla_budget2_local';
+const SK          = 'tsla_budget2_local';
+const ACCTS_KEY   = 'tsla_accts';
+const CUR_USR_KEY = 'tsla_cur_user';
+let currentSK     = SK;
+let currentUser   = null;
 
 let data = {
   salary: 0,
@@ -1180,11 +1183,6 @@ renderCalendar();
 })();
 
 /* ─── ACCOUNT MANAGEMENT ───────────────────────────────── */
-const ACCTS_KEY   = 'tsla_accts';
-const CUR_USR_KEY = 'tsla_cur_user';
-let currentSK   = SK;   // SK = 'tsla_budget2_local' (local/legacy mode)
-let currentUser = null;
-
 function getAccts() {
   try { return JSON.parse(localStorage.getItem(ACCTS_KEY)) || {}; } catch(e) { return {}; }
 }
@@ -1291,41 +1289,10 @@ function updateAcctNav() {
   }
 }
 
-/* ── export / import ── */
-function exportData() {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `budget-${currentUser || 'local'}-${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  closeAcctMenu();
-}
+/* ── export / import (account menu wrappers) ── */
 function triggerImport() {
-  document.getElementById('importFileInput').click();
+  document.getElementById('importInput').click();
   closeAcctMenu();
-}
-function importDataFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const imp = JSON.parse(e.target.result);
-      if (imp.salary === undefined && imp.commitments === undefined) throw new Error('invalid');
-      data = { salary:0, commitments:[], expenses:{}, payments:{}, periodFrom:'', periodTo:'', ...imp };
-      save();
-      document.getElementById('salaryInput').value     = data.salary || '';
-      document.getElementById('periodFromInput').value = data.periodFrom || '';
-      document.getElementById('periodToInput').value   = data.periodTo   || '';
-      renderCommits();
-      recalcSetup();
-      renderCommitmentsTracker();
-      renderCalendar();
-      alert('Data imported!');
-    } catch(err) { alert('Invalid data file.'); }
-  };
-  reader.readAsText(file);
-  input.value = '';
 }
 
 /* ── init account ── */
