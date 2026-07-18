@@ -1211,11 +1211,11 @@ function buildMonthPicker() {
   if (!sel) return;
   const base = new Date(); base.setDate(1); base.setHours(0,0,0,0);
   sel.innerHTML = '';
-  for (let i = -3; i <= 12; i++) {
+  for (let i = 0; i <= 12; i++) {
     const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
     const opt = document.createElement('option');
     opt.value = `${d.getFullYear()}-${d.getMonth()}`;
-    opt.textContent = d.toLocaleString('en-MY', { month: 'long', year: 'numeric' }) + (i < 0 ? ' 🔮' : '');
+    opt.textContent = d.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
     if (i === 0) opt.selected = true;
     sel.appendChild(opt);
   }
