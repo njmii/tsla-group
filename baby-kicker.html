@@ -640,7 +640,7 @@ function _fmtWaMsg() {
     msg += kicks.map(k=>fmtTime(k.ts)).join(' · ');
     msg += `\n\n⏰ *Tendangan terakhir: ${fmtTime(kicks[kicks.length-1].ts)}*`;
   }
-  msg += '\n\n_Dihantar dari Baby Kicker 💕_';
+  msg += `\n\n${location.origin}${location.pathname}`;
   return msg;
 }
 function sendToHusband() {
