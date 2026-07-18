@@ -61,12 +61,21 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;t
   background:#22c55e;margin-left:6px;vertical-align:middle;opacity:0;transition:opacity .3s;}
 .sync-dot.show{opacity:1;}
 
-/* ── button zone ─────────────────── */
-.btn-zone{display:flex;flex-direction:column;align-items:center;padding:26px 20px 16px;}
+/* ── button zone (fixed dock — thumb reach) ── */
+.btn-zone{
+  display:flex;flex-direction:column;align-items:center;
+  position:fixed;left:0;right:0;bottom:0;z-index:500;
+  background:var(--bg);
+  padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px));
+  border-top-left-radius:28px;border-top-right-radius:28px;
+  box-shadow:0 -10px 34px rgba(0,0,0,.12);
+  max-height:56vh;overflow-y:auto;
+  transition:background .3s;
+}
 .kick-btn{
-  width:230px;height:230px;border-radius:50%;border:none;cursor:pointer;
+  width:150px;height:150px;border-radius:50%;border:none;cursor:pointer;
   background:var(--btn-grad);
-  color:white;font-size:2.6rem;font-weight:900;letter-spacing:.08em;
+  color:white;font-size:1.8rem;font-weight:900;letter-spacing:.08em;
   box-shadow:0 12px 40px var(--shadow),0 0 0 0 var(--ring);
   transition:transform .12s,box-shadow .12s,background .3s;
   position:relative;overflow:hidden;
@@ -83,7 +92,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;t
   pointer-events:none;animation:rippleAnim .65s ease-out forwards;}
 @keyframes rippleAnim{
   from{width:0;height:0;opacity:1;transform:translate(-50%,-50%);}
-  to{width:270px;height:270px;opacity:0;transform:translate(-50%,-50%);}
+  to{width:175px;height:175px;opacity:0;transform:translate(-50%,-50%);}
 }
 .float-tag{position:fixed;pointer-events:none;z-index:999;
   font-size:2rem;font-weight:900;color:var(--primary);
@@ -93,17 +102,17 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;t
   30% {opacity:1;transform:translateY(-20px) scale(1.2);}
   100%{opacity:0;transform:translateY(-90px) scale(.8);}
 }
-.count-wrap{margin-top:20px;text-align:center;}
-.count-num{font-size:4rem;font-weight:900;color:var(--primary);line-height:1;
+.count-wrap{margin-top:10px;text-align:center;}
+.count-num{font-size:2.2rem;font-weight:900;color:var(--primary);line-height:1;
   letter-spacing:-.04em;transition:color .3s;}
-.count-label{font-size:.9rem;font-weight:600;color:var(--sub);margin-top:4px;}
-.undo-btn{margin-top:12px;background:none;border:2px solid var(--pale);
-  border-radius:12px;padding:9px 20px;font-weight:700;font-size:.82rem;
+.count-label{font-size:.82rem;font-weight:600;color:var(--sub);margin-top:2px;}
+.undo-btn{margin-top:8px;background:none;border:2px solid var(--pale);
+  border-radius:12px;padding:7px 18px;font-weight:700;font-size:.78rem;
   color:var(--sub);cursor:pointer;transition:.15s;}
 .undo-btn:hover{border-color:var(--light);color:var(--primary);}
 
 /* ── WA button ───────────────────── */
-.wa-wrap{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;}
+.wa-wrap{margin-top:10px;display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;}
 .wa-btn{background:#25D366;color:white;border:none;border-radius:16px;
   padding:15px 32px;font-weight:900;font-size:1rem;cursor:pointer;
   display:flex;align-items:center;gap:8px;
@@ -578,7 +587,17 @@ function render() {
         <div><div class="hist-date">${fmtLabel(d)}</div><div class="hist-sub">${d}</div></div>
         <span class="hist-badge">${byDay[d]} kick${byDay[d]!==1?'s':''}</span></div>`).join('')
     : '<div class="empty">No history yet</div>';
+  _syncBtnZoneSpacer();
 }
+
+// ── Fixed dock spacer (keeps content clear of the fixed KICK panel) ──
+function _syncBtnZoneSpacer() {
+  const bz  = document.querySelector('.btn-zone');
+  const app = document.getElementById('app');
+  if (!bz || !app) return;
+  requestAnimationFrame(() => { app.style.paddingBottom = (bz.offsetHeight + 16) + 'px'; });
+}
+window.addEventListener('resize', _syncBtnZoneSpacer, {passive:true});
 
 // ── Record / Undo ───────────���─────────────────────────────────
 function recordKick(e) {
@@ -622,6 +641,7 @@ function _toggleWaEdit() {
     document.getElementById('waNumField').value = localStorage.getItem('tsla_bk_husband_wa')||'';
     setTimeout(()=>document.getElementById('waNumField').focus(),60);
   }
+  _syncBtnZoneSpacer();
 }
 function saveWaNum() {
   const raw = document.getElementById('waNumField').value.trim().replace(/\D/g,'');

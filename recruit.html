@@ -116,15 +116,6 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .state-chip strong{color:#ff7a00;font-weight:900;font-variant-numeric:tabular-nums}
 @keyframes dot-pulse{0%{r:6;opacity:.65}100%{r:20;opacity:0}}
 
-/* ── BABY KICKER FAB (thumb-reach zone) ── */
-.fab-baby{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:9000;
-  width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:1.6rem;text-decoration:none;background:linear-gradient(145deg,#ff6b9d,#e91e8c);
-  box-shadow:0 10px 28px rgba(233,30,140,.4);transition:transform .25s,box-shadow .25s}
-.fab-baby:hover{transform:scale(1.08);box-shadow:0 14px 34px rgba(233,30,140,.5)}
-.fab-baby:active{transform:scale(.94)}
-@media(max-width:700px){.fab-baby{right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px))}}
-
 /* ── FOOTER ── */
 .footer{padding:40px 20px;text-align:center;color:#888;font-size:.82rem;border-top:1px solid #eee}
 .footer strong{color:#ff7a00}
@@ -476,8 +467,6 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
   © 2026 <strong>TSLA Group</strong> · Wealth · Takaful · Trust Fund · Malaysia<br>
   <span style="margin-top:6px;display:block">A <strong>Kaiser Group</strong> company</span>
 </div>
-
-<a class="fab-baby" href="baby-kicker.html" aria-label="Baby Kicker" title="Baby Kicker">👶</a>
 
 <script>
 /* Hero count-up */
