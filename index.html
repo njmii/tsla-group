@@ -116,6 +116,8 @@ font-size:.95rem;
 .nav-links a:last-child{border:none;}
 }
 </style>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 <div class="glow"></div>
@@ -129,6 +131,13 @@ font-size:.95rem;
 <a href="gaji-calculator.html">Gaji Calculator</a>
 <a href="clients.html">Client Manager</a>
 <a href="pr-calculator.html">PR Calculator</a>
+</div>
+<div id="navAuth" style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+<button id="navLoginBtn" onclick="showLoginModal()" style="background:#ff7a00;color:white;border:none;border-radius:10px;padding:7px 14px;font-weight:700;font-size:.82rem;cursor:pointer">Login</button>
+<div id="navUserChip" style="display:none;align-items:center;gap:6px;background:#f0f0f0;border-radius:10px;padding:5px 10px">
+<span id="navUserLabel" style="font-size:.82rem;font-weight:700;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+<button onclick="doLogout()" style="background:none;border:none;color:#e53935;font-size:.75rem;font-weight:700;cursor:pointer;padding:0 2px;white-space:nowrap">Keluar</button>
+</div>
 </div>
 </div>
 </div>
@@ -314,6 +323,98 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
  el.innerHTML=h;
  el.style.display='block';
 })();
+</script>
+
+<div id='authModal' style='display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center'>
+<div style='background:white;border-radius:24px;padding:28px 24px;width:320px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.25)'>
+<div style='font-size:1.5rem;margin-bottom:6px'>👤</div>
+<div style='font-weight:900;font-size:1.1rem;margin-bottom:4px'>TSLA Hub</div>
+<div style='color:#888;font-size:.82rem;margin-bottom:18px'>Login atau daftar akaun baru</div>
+<input id='authUser' type='text' placeholder='Username' autocomplete='username'
+  style='width:100%;padding:13px;border:2px solid #eee;border-radius:12px;font-size:.95rem;margin-bottom:10px;outline:none;box-sizing:border-box'
+  onkeydown='if(event.key==="Enter")document.getElementById("authPin").focus()'>
+<input id='authPin' type='tel' maxlength='4' placeholder='PIN (4 digit)' autocomplete='off'
+  style='width:100%;padding:13px;border:2px solid #eee;border-radius:12px;font-size:1.1rem;text-align:center;letter-spacing:.25em;font-weight:900;outline:none;box-sizing:border-box'
+  oninput='if(this.value.length===4&&document.getElementById("authUser").value.trim())doAuthLogin()'
+  onkeydown='if(event.key==="Enter")doAuthLogin()'>
+<div id='authErr' style='color:#e53935;font-size:.82rem;margin:8px 0;min-height:18px'></div>
+<div style='display:flex;gap:8px;margin-top:4px'>
+<button onclick='doAuthRegister()' style='flex:1;padding:13px;border:2px solid #eee;border-radius:12px;font-weight:700;background:white;color:#555;cursor:pointer;font-size:.9rem'>Daftar</button>
+<button onclick='doAuthLogin()' style='flex:2;padding:13px;border:none;border-radius:12px;font-weight:900;background:#ff7a00;color:white;cursor:pointer;font-size:.95rem'>Masuk →</button>
+</div>
+<button onclick='closeAuthModal()' style='width:100%;padding:10px;border:none;background:none;color:#bbb;font-size:.82rem;cursor:pointer;margin-top:6px'>Batal</button>
+</div>
+</div>
+
+<script>
+(function(){
+  firebase.initializeApp({
+    apiKey:'AIzaSyAyLIIH1zmeoBqH1DuT3wbSxmQlRcDJ_P4',
+    authDomain:'tsla-group.firebaseapp.com',
+    databaseURL:'https://tsla-group-default-rtdb.asia-southeast1.firebasedatabase.app',
+    projectId:'tsla-group'
+  });
+  window._idxDb=firebase.database();
+})();
+function _updateNavAuth(){
+  const user=localStorage.getItem('tsla_cur_user');
+  const loginBtn=document.getElementById('navLoginBtn');
+  const chip=document.getElementById('navUserChip');
+  const lbl=document.getElementById('navUserLabel');
+  if(user){loginBtn.style.display='none';chip.style.display='flex';lbl.textContent='👤 '+user;}
+  else{loginBtn.style.display='';chip.style.display='none';}
+}
+function showLoginModal(){
+  document.getElementById('authModal').style.display='flex';
+  document.getElementById('authUser').value='';
+  document.getElementById('authPin').value='';
+  document.getElementById('authErr').textContent='';
+  setTimeout(()=>document.getElementById('authUser').focus(),100);
+}
+function closeAuthModal(){document.getElementById('authModal').style.display='none';}
+function _authFinish(user){
+  localStorage.setItem('tsla_cur_user',user);
+  const accts=JSON.parse(localStorage.getItem('tsla_accts')||'{}');
+  accts[user]=accts[user]||{};
+  localStorage.setItem('tsla_accts',JSON.stringify(accts));
+  closeAuthModal();
+  _updateNavAuth();
+}
+function doAuthLogin(){
+  const user=document.getElementById('authUser').value.trim().toLowerCase();
+  const pin=document.getElementById('authPin').value.trim();
+  if(!user||pin.length!==4){document.getElementById('authErr').textContent='Masukkan username dan PIN 4 digit';return;}
+  window._idxDb.ref('budget/accounts/'+user).once('value').then(snap=>{
+    const acct=snap.val();
+    if(!acct){document.getElementById('authErr').textContent='Akaun tidak dijumpai. Daftar dahulu.';return;}
+    if(acct.pin!==pin){document.getElementById('authErr').textContent='PIN salah.';document.getElementById('authPin').value='';return;}
+    _authFinish(user);
+  }).catch(()=>{
+    const accts=JSON.parse(localStorage.getItem('tsla_accts')||'{}');
+    if(accts[user]&&accts[user].pin===pin){_authFinish(user);}
+    else{document.getElementById('authErr').textContent='Tiada sambungan. Cuba lagi.';}
+  });
+}
+function doAuthRegister(){
+  const user=document.getElementById('authUser').value.trim().toLowerCase();
+  const pin=document.getElementById('authPin').value.trim();
+  if(!user||pin.length!==4){document.getElementById('authErr').textContent='Masukkan username dan PIN 4 digit';return;}
+  if(!/^[a-z0-9_]+$/.test(user)){document.getElementById('authErr').textContent='Username: huruf kecil, nombor, _ sahaja';return;}
+  window._idxDb.ref('budget/accounts/'+user).once('value').then(snap=>{
+    if(snap.val()){document.getElementById('authErr').textContent='Username sudah digunakan.';return;}
+    const acct={pin,created:Date.now()};
+    window._idxDb.ref('budget/accounts/'+user).set(acct);
+    const accts=JSON.parse(localStorage.getItem('tsla_accts')||'{}');
+    accts[user]=acct;
+    localStorage.setItem('tsla_accts',JSON.stringify(accts));
+    _authFinish(user);
+  }).catch(()=>{document.getElementById('authErr').textContent='Tiada sambungan. Cuba lagi.';});
+}
+function doLogout(){
+  localStorage.removeItem('tsla_cur_user');
+  _updateNavAuth();
+}
+_updateNavAuth();
 </script>
 </body>
 </html>
