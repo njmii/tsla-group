@@ -567,6 +567,20 @@ function calcCE(agent) {
   return { ce, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount, rows };
 }
 
+/* ── Compute YTD ACE (Jan 1 – today) for one agent ───── */
+function calcYTD(agent) {
+  const jan1   = new Date(new Date().getFullYear(), 0, 1);
+  const cutoff = new Date(); cutoff.setHours(23, 59, 59, 999);
+  let ytd = 0;
+  for (const c of agent.clients) {
+    if (!c.issueDate) continue;
+    if (c.status === 'Freelook Cancellation') continue;
+    const issued = new Date(c.issueDate);
+    if (issued >= jan1 && issued <= cutoff) ytd += getACE(c);
+  }
+  return ytd;
+}
+
 /* ── Render leaderboard ───────────────────────────────── */
 function renderLeaderboard(data) {
   document.getElementById('updatedBadge').textContent = 'Data: ' + data.updated;
@@ -579,16 +593,17 @@ function renderLeaderboard(data) {
   // Compute PR13 and CE for every agent, sort by PR13 desc (null last)
   const agents = data.agents.filter(ag => !EXCLUDED_AGENTS.has(ag.code)).map(ag => ({
     ag,
-    result:   calcPR13(ag),
-    ceResult: calcCE(ag),
+    result:    calcPR13(ag),
+    ceResult:  calcCE(ag),
+    ytdACE:    calcYTD(ag),
     groupPR13: calcGroupPR13(ag, data.agents)
   }));
   const LEADER = 'A11668';
   agents.sort((a, b) => {
     if (a.ag.code === LEADER && b.ag.code !== LEADER) return 1;
     if (b.ag.code === LEADER && a.ag.code !== LEADER) return -1;
-    // YTD champion = most new-business ACE in CE pool
-    return (b.ceResult.eligACE || 0) - (a.ceResult.eligACE || 0);
+    // YTD champion = most new-business ACE issued Jan 1 – today
+    return (b.ytdACE || 0) - (a.ytdACE || 0);
   });
 
   // Compute at-risk counts for global summary
@@ -652,7 +667,7 @@ function renderLeaderboard(data) {
       </div>`;
   }
 
-  html += agents.map(({ ag, result, ceResult, groupPR13 }, i) => {
+  html += agents.map(({ ag, result, ceResult, ytdACE, groupPR13 }, i) => {
     const { pr13, eligCount, eligACE, collACE: prCollACE } = result;
     const { ce, eligCount: ceEligCount } = ceResult;
     const atRisk = atRiskMap[ag.code] || [];
@@ -676,7 +691,7 @@ function renderLeaderboard(data) {
           <div class="agent-rank ${rankClass}">${rankLabel}</div>
           <div class="agent-info">
             <div class="agent-name">${shortName}</div>
-            <div class="agent-code">${ag.code} · YTD ACE ${R(ceResult.eligACE)}</div>
+            <div class="agent-code">${ag.code} · YTD ACE ${R(ytdACE)}</div>
             ${(() => {
               const urgent = atRisk.filter(c => c._urgent).length;
               const normal = atRisk.filter(c => !c._urgent).length;

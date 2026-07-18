@@ -236,6 +236,29 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 /* UTILITIES */
 .hidden{display:none!important}
 
+/* ACCOUNT SYSTEM */
+.acct-screen-btn{width:100%;padding:14px;border-radius:16px;font-size:.95rem;font-weight:800;font-family:inherit;cursor:pointer;border:2px solid #eee;background:white;color:#333;transition:.15s}
+.acct-screen-btn:hover{border-color:#ff7a00;background:#fff8f4;color:#ff7a00}
+.acct-screen-primary{background:#ff7a00;color:white;border-color:#ff7a00}
+.acct-screen-primary:hover{background:#e06b00;border-color:#e06b00;color:white}
+.acct-screen-ghost{background:transparent;border-color:#ddd;color:#aaa}
+.acct-screen-ghost:hover{color:#555;border-color:#bbb;background:#f7f8fa}
+.acct-modal-card{background:white;border-radius:24px;padding:28px 24px;width:340px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.acct-modal-title{font-weight:900;font-size:1.1rem;margin-bottom:16px}
+.acct-field-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:#aaa;margin-bottom:6px}
+.acct-input{width:100%;padding:11px 14px;border:2px solid #eee;border-radius:12px;font-size:.95rem;font-weight:700;font-family:inherit;color:#111;outline:none;transition:.2s;background:white}
+.acct-input:focus{border-color:#ff7a00}
+.acct-err{min-height:18px;font-size:.78rem;color:#e53935;font-weight:700;margin-top:8px}
+.acct-btn-row{display:flex;gap:8px;margin-top:16px}
+.acct-modal-btn-ok{flex:1;padding:11px;background:#ff7a00;color:white;border:none;border-radius:12px;font-weight:800;font-size:.88rem;cursor:pointer;font-family:inherit;transition:.2s}
+.acct-modal-btn-ok:hover{background:#e06b00}
+.acct-modal-btn-cancel{flex:1;padding:11px;background:#f5f5f5;color:#555;border:none;border-radius:12px;font-weight:800;font-size:.88rem;cursor:pointer;font-family:inherit;transition:.2s}
+.acct-modal-btn-cancel:hover{background:#eee}
+.acct-nav-btn{padding:7px 12px;border:1.5px solid #eee;border-radius:12px;background:white;font-size:.76rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s;color:#555;white-space:nowrap}
+.acct-nav-btn:hover{border-color:#ff7a00;color:#ff7a00;background:#fff8f4}
+.acct-menu-item{width:100%;padding:9px 10px;text-align:left;border:none;background:none;font-size:.84rem;font-weight:700;cursor:pointer;font-family:inherit;color:#333;border-radius:10px;transition:.15s;display:block}
+.acct-menu-item:hover{background:#f5f5f5}
+
 
 /* Month nav pills */
 .month-nav{display:flex;align-items:center;justify-content:space-between;margin:20px 0 16px;gap:8px}
@@ -253,6 +276,7 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
     <img class="nav-logo" src="assets/tslalogo.png" alt="TSLA Group"/>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="pwa-btn" id="pwaRefreshBtn" onclick="refreshPWA()" title="Check for updates">↻ Update</button>
+      <button class="acct-nav-btn" id="acctNavBtn" onclick="toggleAcctMenu()" style="display:none">👤 <span id="acctNavName"></span></button>
       <a class="nav-back" href="index.html">← Back</a>
     </div>
   </div>
@@ -382,6 +406,67 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
     </div>
     <div class="modal-daily-hint" id="modalDailyHint"></div>
   </div>
+</div>
+
+<!-- ACCOUNT SCREEN -->
+<div id="acctScreen" style="position:fixed;inset:0;background:#f7f8fa;z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:340px">
+    <div style="text-align:center;margin-bottom:32px">
+      <img src="assets/tslalogo.png" style="width:56px;margin-bottom:14px;display:block;margin-left:auto;margin-right:auto" alt="TSLA">
+      <div style="font-size:1.5rem;font-weight:900;letter-spacing:-.03em">Budget Tracker</div>
+      <div style="color:#aaa;font-size:.82rem;margin-top:4px">TSLA Group</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="acct-screen-btn acct-screen-primary" onclick="showLoginModal()">Log In</button>
+      <button class="acct-screen-btn" onclick="showRegModal()">Register</button>
+      <button class="acct-screen-btn acct-screen-ghost" onclick="useLocally()">Continue without account</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;align-items:center;justify-content:center">
+  <div class="acct-modal-card">
+    <div class="acct-modal-title">Log In</div>
+    <div class="acct-field-lbl">Username</div>
+    <input id="loginUser" class="acct-input" type="text" placeholder="your username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('loginPin').focus()">
+    <div class="acct-field-lbl" style="margin-top:12px">PIN</div>
+    <input id="loginPin" class="acct-input" type="tel" maxlength="6" placeholder="••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="loginErr" class="acct-err"></div>
+    <div class="acct-btn-row">
+      <button class="acct-modal-btn-cancel" onclick="closeLoginModal()">Cancel</button>
+      <button class="acct-modal-btn-ok" onclick="doLogin()">Log In</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div id="regModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;align-items:center;justify-content:center">
+  <div class="acct-modal-card">
+    <div class="acct-modal-title">Create Account</div>
+    <div class="acct-field-lbl">Username</div>
+    <input id="regUser" class="acct-input" type="text" placeholder="choose a username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('regPin').focus()">
+    <div class="acct-field-lbl" style="margin-top:12px">PIN (4–6 digits)</div>
+    <input id="regPin" class="acct-input" type="tel" maxlength="6" placeholder="••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')document.getElementById('regPin2').focus()">
+    <div class="acct-field-lbl" style="margin-top:8px">Confirm PIN</div>
+    <input id="regPin2" class="acct-input" type="tel" maxlength="6" placeholder="••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
+    <div id="regErr" class="acct-err"></div>
+    <div class="acct-btn-row">
+      <button class="acct-modal-btn-cancel" onclick="closeRegModal()">Cancel</button>
+      <button class="acct-modal-btn-ok" onclick="doRegister()">Register</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACCOUNT MENU DROPDOWN -->
+<div id="acctMenu" style="display:none;position:fixed;top:55px;right:16px;z-index:1000;background:white;border-radius:16px;padding:10px;box-shadow:0 4px 24px rgba(0,0,0,.12);min-width:190px">
+  <div style="font-size:.72rem;color:#aaa;font-weight:700;padding:4px 10px 4px">Logged in as</div>
+  <div id="acctMenuName" style="font-weight:900;font-size:.92rem;padding:0 10px 10px"></div>
+  <button class="acct-menu-item" onclick="exportData()">Export Data</button>
+  <button class="acct-menu-item" onclick="triggerImport()">Import Data</button>
+  <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importDataFile(this)">
+  <div style="border-top:1px solid #f0f0f0;margin:6px 0"></div>
+  <button class="acct-menu-item" style="color:#e53935" onclick="doLogout()">Log Out</button>
 </div>
 
 <div class="footer">© 2026 TSLA Group · Budget Tracker</div>
@@ -1010,11 +1095,11 @@ function removeExp(str, id) {
 
 /* ── storage ── */
 function save() {
-  localStorage.setItem(SK, JSON.stringify(data));
+  localStorage.setItem(currentSK, JSON.stringify(data));
 }
 
 function load() {
-  const raw = localStorage.getItem(SK);
+  const raw = localStorage.getItem(currentSK);
   if (raw) {
     try { data = JSON.parse(raw); } catch(e) { data = {salary:0, commitments:[], expenses:{}, payments:{}}; }
   }
@@ -1057,6 +1142,7 @@ function refreshPWA() {
   }
 }
 
+initAccount();
 load();
 renderCalendar();
 
@@ -1092,6 +1178,179 @@ renderCalendar();
     });
   });
 })();
+
+/* ─── ACCOUNT MANAGEMENT ───────────────────────────────── */
+const ACCTS_KEY   = 'tsla_accts';
+const CUR_USR_KEY = 'tsla_cur_user';
+let currentSK   = SK;   // SK = 'tsla_budget2_local' (local/legacy mode)
+let currentUser = null;
+
+function getAccts() {
+  try { return JSON.parse(localStorage.getItem(ACCTS_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveAccts(a) { localStorage.setItem(ACCTS_KEY, JSON.stringify(a)); }
+
+/* ── account screen ── */
+function showAcctScreen() {
+  document.getElementById('acctScreen').style.display = 'flex';
+}
+function hideAcctScreen() {
+  document.getElementById('acctScreen').style.display = 'none';
+}
+function useLocally() {
+  currentUser = null;
+  currentSK   = SK;
+  localStorage.removeItem(CUR_USR_KEY);
+  hideAcctScreen();
+  data = { salary:0, commitments:[], expenses:{}, payments:{}, periodFrom:'', periodTo:'' };
+  load();
+  renderCalendar();
+  updateAcctNav();
+}
+
+/* ── login ── */
+function showLoginModal() {
+  document.getElementById('loginModal').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPin').value  = '';
+  document.getElementById('loginErr').textContent = '';
+  setTimeout(() => document.getElementById('loginUser').focus(), 100);
+}
+function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+function doLogin() {
+  const user = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pin  = document.getElementById('loginPin').value.trim();
+  const accts = getAccts();
+  if (!accts[user]) { document.getElementById('loginErr').textContent = 'Account not found.'; return; }
+  if (accts[user].pin !== pin) {
+    document.getElementById('loginErr').textContent = 'Wrong PIN. Try again.';
+    document.getElementById('loginPin').value = '';
+    document.getElementById('loginPin').focus();
+    return;
+  }
+  loginAs(user);
+}
+function loginAs(user) {
+  currentUser = user;
+  currentSK   = 'tsla_bdata_' + user;
+  localStorage.setItem(CUR_USR_KEY, user);
+  closeLoginModal();
+  hideAcctScreen();
+  data = { salary:0, commitments:[], expenses:{}, payments:{}, periodFrom:'', periodTo:'' };
+  load();
+  renderCalendar();
+  updateAcctNav();
+}
+
+/* ── register ── */
+function showRegModal() {
+  document.getElementById('regModal').style.display = 'flex';
+  document.getElementById('regUser').value  = '';
+  document.getElementById('regPin').value   = '';
+  document.getElementById('regPin2').value  = '';
+  document.getElementById('regErr').textContent = '';
+  setTimeout(() => document.getElementById('regUser').focus(), 100);
+}
+function closeRegModal() { document.getElementById('regModal').style.display = 'none'; }
+function doRegister() {
+  const user = document.getElementById('regUser').value.trim().toLowerCase();
+  const pin  = document.getElementById('regPin').value.trim();
+  const pin2 = document.getElementById('regPin2').value.trim();
+  if (!user || user.length < 2) { document.getElementById('regErr').textContent = 'Username must be at least 2 characters.'; return; }
+  if (!/^\d{4,6}$/.test(pin)) { document.getElementById('regErr').textContent = 'PIN must be 4–6 digits.'; return; }
+  if (pin !== pin2) { document.getElementById('regErr').textContent = 'PINs do not match.'; return; }
+  const accts = getAccts();
+  if (accts[user]) { document.getElementById('regErr').textContent = 'Username already taken.'; return; }
+  accts[user] = { pin, created: new Date().toISOString() };
+  saveAccts(accts);
+  loginAs(user);
+}
+
+/* ── account menu ── */
+function toggleAcctMenu() {
+  const m = document.getElementById('acctMenu');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+function closeAcctMenu() { document.getElementById('acctMenu').style.display = 'none'; }
+function doLogout() {
+  currentUser = null;
+  currentSK   = SK;
+  localStorage.removeItem(CUR_USR_KEY);
+  closeAcctMenu();
+  updateAcctNav();
+  showAcctScreen();
+}
+function updateAcctNav() {
+  const btn = document.getElementById('acctNavBtn');
+  if (currentUser) {
+    btn.style.display = '';
+    document.getElementById('acctNavName').textContent   = currentUser;
+    document.getElementById('acctMenuName').textContent  = currentUser;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+/* ── export / import ── */
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `budget-${currentUser || 'local'}-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  closeAcctMenu();
+}
+function triggerImport() {
+  document.getElementById('importFileInput').click();
+  closeAcctMenu();
+}
+function importDataFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imp = JSON.parse(e.target.result);
+      if (imp.salary === undefined && imp.commitments === undefined) throw new Error('invalid');
+      data = { salary:0, commitments:[], expenses:{}, payments:{}, periodFrom:'', periodTo:'', ...imp };
+      save();
+      document.getElementById('salaryInput').value     = data.salary || '';
+      document.getElementById('periodFromInput').value = data.periodFrom || '';
+      document.getElementById('periodToInput').value   = data.periodTo   || '';
+      renderCommits();
+      recalcSetup();
+      renderCommitmentsTracker();
+      renderCalendar();
+      alert('Data imported!');
+    } catch(err) { alert('Invalid data file.'); }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+/* ── init account ── */
+function initAccount() {
+  const saved = localStorage.getItem(CUR_USR_KEY);
+  if (saved) {
+    const accts = getAccts();
+    if (accts[saved]) {
+      currentUser = saved;
+      currentSK   = 'tsla_bdata_' + saved;
+      hideAcctScreen();
+      updateAcctNav();
+      return;
+    }
+    localStorage.removeItem(CUR_USR_KEY);
+  }
+  // Legacy local data exists — stay in local mode silently
+  if (localStorage.getItem(SK)) {
+    hideAcctScreen();
+    updateAcctNav();
+    return;
+  }
+  // Fresh user — prompt
+  showAcctScreen();
+}
 </script>
 </body>
 </html>
