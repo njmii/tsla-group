@@ -4,16 +4,53 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Baby Kicker</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
 body{background:#fff5f7;color:#2d1b2e;min-height:100vh;overflow-x:hidden;}
 
-.page-header{padding:24px 20px 0;text-align:center;}
-.page-title{font-size:1.5rem;font-weight:900;color:#c2185b;letter-spacing:-.01em;}
-.page-date{font-size:.82rem;color:#c9a8be;margin-top:4px;font-weight:500;}
+/* ── login gate ────────────────────────────────────────────── */
+#loginGate{display:none;position:fixed;inset:0;background:rgba(45,27,46,.55);
+  z-index:9999;align-items:center;justify-content:center;}
+.lg-card{background:white;border-radius:26px;padding:30px 24px;width:310px;
+  max-width:92vw;text-align:center;box-shadow:0 24px 64px rgba(194,24,91,.2);}
+.lg-icon{font-size:2.2rem;margin-bottom:8px;}
+.lg-title{font-weight:900;font-size:1.1rem;color:#2d1b2e;margin-bottom:4px;}
+.lg-sub{color:#c9a8be;font-size:.82rem;margin-bottom:20px;}
+.lg-inp{width:100%;padding:13px;border:2px solid #fce4ec;border-radius:12px;
+  font-size:.95rem;outline:none;box-sizing:border-box;margin-bottom:10px;}
+.lg-inp:focus{border-color:#ff6b9d;}
+.lg-pin{font-size:1.2rem;text-align:center;letter-spacing:.25em;font-weight:900;}
+.lg-err{color:#e53935;font-size:.8rem;min-height:18px;margin-bottom:8px;}
+.lg-btns{display:flex;gap:8px;}
+.lg-reg{flex:1;padding:13px;border:2px solid #fce4ec;border-radius:12px;
+  font-weight:700;background:white;color:#888;cursor:pointer;font-size:.88rem;}
+.lg-go{flex:2;padding:13px;border:none;border-radius:12px;
+  font-weight:900;background:linear-gradient(135deg,#ff6b9d,#e91e8c);
+  color:white;cursor:pointer;font-size:.95rem;}
 
-.btn-zone{display:flex;flex-direction:column;align-items:center;padding:32px 20px 20px;}
+/* ── app wrapper ───────────────────────────────────────────── */
+#app{display:none;}
 
+/* ── header ────────────────────────────────────────────────── */
+.page-header{padding:20px 20px 0;}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;}
+.page-title{font-size:1.4rem;font-weight:900;color:#c2185b;}
+.user-chip{display:flex;align-items:center;gap:6px;background:#fce4ec;
+  border-radius:10px;padding:6px 10px;}
+.user-name{font-size:.78rem;font-weight:700;color:#c2185b;max-width:90px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.logout-btn{background:none;border:none;font-size:.72rem;font-weight:700;
+  color:#e91e8c;cursor:pointer;padding:0;}
+.page-date{font-size:.8rem;color:#c9a8be;margin-top:4px;font-weight:500;}
+.sync-dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:#22c55e;margin-left:6px;vertical-align:middle;opacity:0;
+  transition:opacity .3s;}
+.sync-dot.show{opacity:1;}
+
+/* ── button zone ────────────────────────────────────────────── */
+.btn-zone{display:flex;flex-direction:column;align-items:center;padding:28px 20px 16px;}
 .kick-btn{
   width:230px;height:230px;border-radius:50%;border:none;cursor:pointer;
   background:linear-gradient(145deg,#ff6b9d 0%,#e91e8c 100%);
@@ -21,72 +58,98 @@ body{background:#fff5f7;color:#2d1b2e;min-height:100vh;overflow-x:hidden;}
   box-shadow:0 12px 40px rgba(233,30,140,.4),0 0 0 0 rgba(255,107,157,.3);
   transition:transform .12s,box-shadow .12s;
   position:relative;overflow:hidden;
-  -webkit-tap-highlight-color:transparent;
-  user-select:none;
+  -webkit-tap-highlight-color:transparent;user-select:none;
 }
 .kick-btn:active{transform:scale(.92);box-shadow:0 4px 18px rgba(233,30,140,.3);}
 .kick-btn.pop{animation:pop .5s ease-out;}
 @keyframes pop{
   0%{box-shadow:0 12px 40px rgba(233,30,140,.4),0 0 0 0 rgba(255,107,157,.5);}
-  60%{box-shadow:0 12px 40px rgba(233,30,140,.1),0 0 0 40px rgba(255,107,157,0);}
+  60%{box-shadow:0 12px 40px rgba(233,30,140,.1),0 0 0 44px rgba(255,107,157,0);}
   100%{box-shadow:0 12px 40px rgba(233,30,140,.4),0 0 0 0 rgba(255,107,157,0);}
 }
-
-.ripple{
-  position:absolute;border-radius:50%;
-  background:rgba(255,255,255,.3);
-  pointer-events:none;
-  animation:ripple .65s ease-out forwards;
-}
-@keyframes ripple{
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.32);
+  pointer-events:none;animation:rippleAnim .65s ease-out forwards;}
+@keyframes rippleAnim{
   from{width:0;height:0;opacity:1;transform:translate(-50%,-50%);}
-  to{width:260px;height:260px;opacity:0;transform:translate(-50%,-50%);}
+  to{width:270px;height:270px;opacity:0;transform:translate(-50%,-50%);}
 }
-
-.float-tag{
-  position:fixed;pointer-events:none;z-index:999;
+.float-tag{position:fixed;pointer-events:none;z-index:999;
   font-size:2rem;font-weight:900;color:#e91e8c;
-  animation:floatUp .9s ease-out forwards;
-}
+  animation:floatUp .9s ease-out forwards;}
 @keyframes floatUp{
   0%{opacity:1;transform:translateY(0) scale(1);}
   30%{opacity:1;transform:translateY(-20px) scale(1.2);}
   100%{opacity:0;transform:translateY(-90px) scale(.8);}
 }
-
-.count-wrap{margin-top:22px;text-align:center;}
+.count-wrap{margin-top:20px;text-align:center;}
 .count-num{font-size:4rem;font-weight:900;color:#c2185b;line-height:1;letter-spacing:-.04em;}
 .count-label{font-size:.9rem;font-weight:600;color:#c9a8be;margin-top:4px;}
-
-.undo-btn{
-  margin-top:14px;background:none;border:2px solid #f8bbd0;
+.undo-btn{margin-top:12px;background:none;border:2px solid #f8bbd0;
   border-radius:12px;padding:9px 20px;font-weight:700;font-size:.82rem;
-  color:#c9a8be;cursor:pointer;transition:.15s;
-}
+  color:#c9a8be;cursor:pointer;transition:.15s;}
 .undo-btn:hover{border-color:#ff6b9d;color:#c2185b;}
 
-.section{margin:0 16px 14px;background:white;border-radius:20px;padding:18px 20px;box-shadow:0 2px 12px rgba(194,24,91,.05);}
-.sec-title{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#c9a8be;margin-bottom:12px;}
+/* ── sections ───────────────────────────────────────────────── */
+.section{margin:0 16px 14px;background:white;border-radius:20px;
+  padding:18px 20px;box-shadow:0 2px 12px rgba(194,24,91,.05);}
+.sec-title{font-size:.68rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.1em;color:#c9a8be;margin-bottom:14px;}
 
-.chips{display:flex;flex-wrap:wrap;gap:7px;}
-.chip{background:#fce4ec;border-radius:10px;padding:6px 12px;font-size:.82rem;font-weight:700;color:#c2185b;}
+/* chart containers */
+.chart-wrap{width:100%;overflow:hidden;}
+
+/* time chips */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
+.chip{background:#fce4ec;border-radius:10px;padding:6px 12px;
+  font-size:.82rem;font-weight:700;color:#c2185b;}
 .chip.latest{background:#ff6b9d;color:white;}
 
-.hist-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #fce4ec;}
+/* history */
+.hist-row{display:flex;justify-content:space-between;align-items:center;
+  padding:11px 0;border-bottom:1px solid #fce4ec;}
 .hist-row:last-child{border:none;padding-bottom:0;}
 .hist-date{font-size:.9rem;font-weight:700;}
 .hist-sub{font-size:.72rem;color:#c9a8be;margin-top:2px;}
-.hist-badge{background:#fce4ec;color:#c2185b;border-radius:10px;padding:5px 13px;font-size:.88rem;font-weight:800;white-space:nowrap;}
+.hist-badge{background:#fce4ec;color:#c2185b;border-radius:10px;
+  padding:5px 13px;font-size:.88rem;font-weight:800;white-space:nowrap;}
 
 .empty{text-align:center;color:#e0b0c0;font-size:.88rem;padding:18px 0;}
-
-.footer{text-align:center;color:#e0b0c0;font-size:.75rem;padding:16px 20px 32px;}
+.footer{text-align:center;color:#e0b0c0;font-size:.75rem;padding:16px 20px 40px;}
 </style>
 </head>
 <body>
 
+<!-- Login gate -->
+<div id="loginGate">
+<div class="lg-card">
+  <div class="lg-icon">🤰</div>
+  <div class="lg-title">Baby Kicker</div>
+  <div class="lg-sub">Login atau daftar untuk mula</div>
+  <input id="lgUser" class="lg-inp" type="text" placeholder="Username" autocomplete="username"
+    onkeydown='if(event.key==="Enter")document.getElementById("lgPin").focus()'>
+  <input id="lgPin" class="lg-inp lg-pin" type="tel" maxlength="4" placeholder="PIN (4 digit)"
+    autocomplete="off"
+    oninput='if(this.value.length===4&&document.getElementById("lgUser").value.trim())_lgLogin()'
+    onkeydown='if(event.key==="Enter")_lgLogin()'>
+  <div class="lg-err" id="lgErr"></div>
+  <div class="lg-btns">
+    <button class="lg-reg" onclick="_lgRegister()">Daftar</button>
+    <button class="lg-go"  onclick="_lgLogin()">Masuk →</button>
+  </div>
+</div>
+</div>
+
+<!-- Main app -->
+<div id="app">
+
 <div class="page-header">
-  <div class="page-title">🤰 Baby Kicker</div>
+  <div class="hdr-top">
+    <div class="page-title">🤰 Baby Kicker</div>
+    <div class="user-chip">
+      <span class="user-name" id="userLabel"></span>
+      <button class="logout-btn" onclick="doLogout()">Keluar</button>
+    </div>
+  </div>
   <div class="page-date" id="pageDate"></div>
 </div>
 
@@ -94,14 +157,20 @@ body{background:#fff5f7;color:#2d1b2e;min-height:100vh;overflow-x:hidden;}
   <button class="kick-btn" id="kickBtn" onclick="recordKick(event)">KICK</button>
   <div class="count-wrap">
     <div class="count-num" id="countNum">0</div>
-    <div class="count-label">kicks today</div>
+    <div class="count-label">kicks today <span class="sync-dot" id="syncDot"></span></div>
   </div>
   <button class="undo-btn" id="undoBtn" onclick="undoLast()" style="display:none">↩ Undo last</button>
 </div>
 
 <div class="section">
-  <div class="sec-title">Today's kicks</div>
+  <div class="sec-title">Kicks by hour — today</div>
+  <div class="chart-wrap" id="hourlyChart"></div>
   <div class="chips" id="chips"><div class="empty">Tap KICK to start tracking</div></div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Last 7 days</div>
+  <div class="chart-wrap" id="dailyChart"></div>
 </div>
 
 <div class="section">
@@ -109,19 +178,29 @@ body{background:#fff5f7;color:#2d1b2e;min-height:100vh;overflow-x:hidden;}
   <div id="histList"><div class="empty">No history yet</div></div>
 </div>
 
-<div class="footer">Data saved on this device</div>
+<div class="footer" id="footer">Synced to Firebase ☁️</div>
+
+</div><!-- /app -->
 
 <script>
 const KEY = 'tsla_babykicks';
 
+// ── Firebase ────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:'AIzaSyAyLIIH1zmeoBqH1DuT3wbSxmQlRcDJ_P4',
+  authDomain:'tsla-group.firebaseapp.com',
+  databaseURL:'https://tsla-group-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId:'tsla-group'
+});
+const _db = firebase.database();
+
+// ── Data helpers ────────────────────────────────────────────
 function load() {
   try { return JSON.parse(localStorage.getItem(KEY) || '{"kicks":[]}'); }
   catch(e) { return {kicks:[]}; }
 }
-function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
-
+function persist(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
 function todayStr() { return new Date().toISOString().split('T')[0]; }
-
 function fmtTime(ts) {
   const d = new Date(ts);
   let h = d.getHours(), m = d.getMinutes();
@@ -129,16 +208,157 @@ function fmtTime(ts) {
   h = h % 12 || 12;
   return h + ':' + String(m).padStart(2,'0') + ' ' + ap;
 }
-
-function fmtLabel(dateStr) {
+function fmtLabel(ds) {
   const today = todayStr();
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  if (dateStr === today) return 'Today';
-  if (dateStr === yesterday) return 'Yesterday';
-  const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('en-MY', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+  const yest  = new Date(Date.now()-86400000).toISOString().split('T')[0];
+  if (ds === today) return 'Today';
+  if (ds === yest)  return 'Yesterday';
+  return new Date(ds+'T12:00:00').toLocaleDateString('en-MY',
+    {weekday:'short',day:'numeric',month:'short',year:'numeric'});
 }
 
+// ── Firebase sync ────────────────────────────────────────────
+let _syncTimer = null;
+function _fbSync() {
+  const user = localStorage.getItem('tsla_cur_user');
+  if (!user) return;
+  _db.ref('baby/kicks/'+user).set({json: localStorage.getItem(KEY)||'{"kicks":[]}'});
+  const dot = document.getElementById('syncDot');
+  if (dot) { dot.classList.add('show'); setTimeout(()=>dot.classList.remove('show'),1500); }
+}
+function _debouncedSync() {
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(_fbSync, 1000);
+}
+function _fbLoad(user) {
+  _db.ref('baby/kicks/'+user).once('value').then(snap => {
+    const d = snap.val();
+    if (d && d.json) {
+      const remote = JSON.parse(d.json).kicks || [];
+      const local  = load().kicks;
+      const byTs = {};
+      [...remote, ...local].forEach(k => { byTs[k.ts] = k; });
+      const merged = {kicks: Object.values(byTs).sort((a,b) => a.ts - b.ts)};
+      persist(merged);
+      render();
+      if (merged.kicks.length !== remote.length) _fbSync();
+    } else {
+      // first login on this account — push local data up
+      if (load().kicks.length) _fbSync();
+    }
+  }).catch(()=>{});
+}
+
+// ── Auth ─────────────────────────────────────────────────────
+(function init() {
+  const user = localStorage.getItem('tsla_cur_user');
+  if (user) {
+    showApp(user);
+    setTimeout(() => _fbLoad(user), 800);
+  } else {
+    document.getElementById('loginGate').style.display = 'flex';
+    setTimeout(() => document.getElementById('lgUser').focus(), 100);
+  }
+})();
+
+function showApp(user) {
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('userLabel').textContent = '👤 ' + user;
+  document.getElementById('pageDate').textContent = new Date().toLocaleDateString('en-MY',
+    {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  render();
+}
+function _unlock(user) {
+  localStorage.setItem('tsla_cur_user', user);
+  showApp(user);
+  _fbLoad(user);
+}
+function _lgLogin() {
+  const user = document.getElementById('lgUser').value.trim().toLowerCase();
+  const pin  = document.getElementById('lgPin').value.trim();
+  if (!user || pin.length !== 4) { document.getElementById('lgErr').textContent='Masukkan username dan PIN 4 digit'; return; }
+  _db.ref('budget/accounts/'+user).once('value').then(snap => {
+    const a = snap.val();
+    if (!a) { document.getElementById('lgErr').textContent='Akaun tidak dijumpai.'; return; }
+    if (a.pin !== pin) { document.getElementById('lgErr').textContent='PIN salah.'; document.getElementById('lgPin').value=''; return; }
+    _unlock(user);
+  }).catch(() => {
+    const ac = JSON.parse(localStorage.getItem('tsla_accts')||'{}');
+    if (ac[user]&&ac[user].pin===pin) { _unlock(user); }
+    else { document.getElementById('lgErr').textContent='Tiada sambungan. Cuba lagi.'; }
+  });
+}
+function _lgRegister() {
+  const user = document.getElementById('lgUser').value.trim().toLowerCase();
+  const pin  = document.getElementById('lgPin').value.trim();
+  if (!user || pin.length !== 4) { document.getElementById('lgErr').textContent='Masukkan username dan PIN 4 digit'; return; }
+  if (!/^[a-z0-9_]+$/.test(user)) { document.getElementById('lgErr').textContent='Huruf kecil, nombor, _ sahaja'; return; }
+  _db.ref('budget/accounts/'+user).once('value').then(snap => {
+    if (snap.val()) { document.getElementById('lgErr').textContent='Username sudah digunakan.'; return; }
+    const acct = {pin, created: Date.now()};
+    _db.ref('budget/accounts/'+user).set(acct);
+    const ac = JSON.parse(localStorage.getItem('tsla_accts')||'{}');
+    ac[user] = acct; localStorage.setItem('tsla_accts', JSON.stringify(ac));
+    _unlock(user);
+  }).catch(() => { document.getElementById('lgErr').textContent='Tiada sambungan. Cuba lagi.'; });
+}
+function doLogout() {
+  localStorage.removeItem('tsla_cur_user');
+  location.reload();
+}
+
+// ── Charts ───────────────────────────────────────────────────
+function hourlyChartSVG(todayKicks) {
+  const byH = new Array(24).fill(0);
+  todayKicks.forEach(k => byH[new Date(k.ts).getHours()]++);
+  const max = Math.max(...byH, 1);
+  const bw=9, gap=2, ch=60, padT=18, padL=4, padB=20;
+  const W = padL*2 + 24*(bw+gap);
+  const H = padT + ch + padB;
+  const nowH = new Date().getHours();
+  let s = `<svg width="100%" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  byH.forEach((cnt, h) => {
+    const bh = cnt ? Math.max(5, (cnt/max)*ch) : 2;
+    const x = padL + h*(bw+gap);
+    const y = padT + ch - bh;
+    const fill = h===nowH ? '#e91e8c' : cnt>0 ? '#ff6b9d' : '#fce4ec';
+    s += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="3" fill="${fill}"/>`;
+    if (cnt > 0) s += `<text x="${x+bw/2}" y="${y-3}" text-anchor="middle" font-size="7" fill="#c2185b" font-weight="800">${cnt}</text>`;
+  });
+  [[0,'12a'],[6,'6a'],[12,'12p'],[18,'6p']].forEach(([h,lbl]) => {
+    const x = padL + h*(bw+gap) + bw/2;
+    s += `<text x="${x}" y="${H-4}" text-anchor="middle" font-size="8" fill="#c9a8be">${lbl}</text>`;
+  });
+  return s + '</svg>';
+}
+
+function dailyChartSVG(data) {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const dt = new Date(Date.now() - i*86400000);
+    const ds = dt.toISOString().split('T')[0];
+    const cnt = data.kicks.filter(k => k.date === ds).length;
+    const lbl = i===0 ? 'Today' : dt.toLocaleDateString('en-MY',{weekday:'short'});
+    days.push({cnt, lbl, isToday: i===0});
+  }
+  const max = Math.max(...days.map(d => d.cnt), 1);
+  const bw=32, gap=10, ch=80, padT=22, padL=6, padB=20;
+  const W = padL*2 + 7*(bw+gap) - gap;
+  const H = padT + ch + padB;
+  let s = `<svg width="100%" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  days.forEach((d, i) => {
+    const bh = d.cnt ? Math.max(6, (d.cnt/max)*ch) : 3;
+    const x = padL + i*(bw+gap);
+    const y = padT + ch - bh;
+    s += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="7" fill="${d.isToday?'#e91e8c':'#ff6b9d'}"/>`;
+    if (d.cnt>0) s += `<text x="${x+bw/2}" y="${y-6}" text-anchor="middle" font-size="11" fill="${d.isToday?'#c2185b':'#e91e8c'}" font-weight="800">${d.cnt}</text>`;
+    s += `<text x="${x+bw/2}" y="${H-4}" text-anchor="middle" font-size="9.5" fill="${d.isToday?'#c2185b':'#c9a8be'}" font-weight="${d.isToday?'800':'600'}">${d.lbl}</text>`;
+  });
+  return s + '</svg>';
+}
+
+// ── Render ───────────────────────────────────────────────────
 function render() {
   const data = load();
   const today = todayStr();
@@ -147,92 +367,65 @@ function render() {
   document.getElementById('countNum').textContent = todayKicks.length;
   document.getElementById('undoBtn').style.display = todayKicks.length ? '' : 'none';
 
-  // today's chips
-  const chipsEl = document.getElementById('chips');
-  if (!todayKicks.length) {
-    chipsEl.innerHTML = '<div class="empty">Tap KICK to start tracking</div>';
-  } else {
-    chipsEl.innerHTML = todayKicks.map((k, i) => {
-      const isLatest = i === todayKicks.length - 1;
-      return `<div class="chip${isLatest ? ' latest' : ''}">${fmtTime(k.ts)}</div>`;
-    }).join('');
-  }
+  // hourly chart
+  document.getElementById('hourlyChart').innerHTML = hourlyChartSVG(todayKicks);
 
-  // history (days other than today, newest first)
+  // time chips
+  const chipsEl = document.getElementById('chips');
+  chipsEl.innerHTML = todayKicks.length
+    ? todayKicks.map((k,i) => `<div class="chip${i===todayKicks.length-1?' latest':''}">${fmtTime(k.ts)}</div>`).join('')
+    : '<div class="empty">Tap KICK to start tracking</div>';
+
+  // 7-day chart
+  document.getElementById('dailyChart').innerHTML = dailyChartSVG(data);
+
+  // history list
   const byDay = {};
-  data.kicks.forEach(k => { byDay[k.date] = (byDay[k.date] || 0) + 1; });
-  const pastDays = Object.keys(byDay).filter(d => d !== today).sort().reverse().slice(0, 30);
-  const histEl = document.getElementById('histList');
-  if (!pastDays.length) {
-    histEl.innerHTML = '<div class="empty">No history yet</div>';
-  } else {
-    histEl.innerHTML = pastDays.map(d => `
-      <div class="hist-row">
-        <div>
-          <div class="hist-date">${fmtLabel(d)}</div>
-          <div class="hist-sub">${d}</div>
-        </div>
+  data.kicks.forEach(k => { byDay[k.date] = (byDay[k.date]||0)+1; });
+  const past = Object.keys(byDay).filter(d=>d!==today).sort().reverse().slice(0,30);
+  document.getElementById('histList').innerHTML = past.length
+    ? past.map(d=>`<div class="hist-row">
+        <div><div class="hist-date">${fmtLabel(d)}</div><div class="hist-sub">${d}</div></div>
         <span class="hist-badge">${byDay[d]} kick${byDay[d]!==1?'s':''}</span>
-      </div>`).join('');
-  }
+      </div>`).join('')
+    : '<div class="empty">No history yet</div>';
 }
 
+// ── Record / Undo ─────────────────────────────────────────────
 function recordKick(e) {
   const btn = document.getElementById('kickBtn');
-
-  // ripple effect
-  const r = document.createElement('div');
-  r.className = 'ripple';
+  // ripple
+  const r = document.createElement('div'); r.className='ripple';
   const rect = btn.getBoundingClientRect();
-  r.style.left = ((e.clientX || rect.left + rect.width/2) - rect.left) + 'px';
-  r.style.top  = ((e.clientY || rect.top + rect.height/2) - rect.top)  + 'px';
-  btn.appendChild(r);
-  setTimeout(() => r.remove(), 700);
-
+  r.style.left = ((e.clientX||rect.left+rect.width/2)-rect.left)+'px';
+  r.style.top  = ((e.clientY||rect.top +rect.height/2)-rect.top )+'px';
+  btn.appendChild(r); setTimeout(()=>r.remove(),700);
   // pulse ring
-  btn.classList.remove('pop');
-  void btn.offsetWidth;
-  btn.classList.add('pop');
-
-  // floating +1
-  const tag = document.createElement('div');
-  tag.className = 'float-tag';
-  tag.textContent = '+1';
-  tag.style.left = (rect.left + rect.width/2 - 20) + 'px';
-  tag.style.top  = (rect.top  + 30) + 'px';
-  document.body.appendChild(tag);
-  setTimeout(() => tag.remove(), 950);
-
+  btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
+  // float +1
+  const tag = document.createElement('div'); tag.className='float-tag'; tag.textContent='+1';
+  tag.style.left=(rect.left+rect.width/2-20)+'px';
+  tag.style.top =(rect.top+30)+'px';
+  document.body.appendChild(tag); setTimeout(()=>tag.remove(),950);
   // vibrate
   if (navigator.vibrate) navigator.vibrate(50);
-
   // save
   const data = load();
-  data.kicks.push({ ts: Date.now(), date: todayStr() });
-  save(data);
+  data.kicks.push({ts:Date.now(), date:todayStr()});
+  persist(data);
   render();
+  _debouncedSync();
 }
 
 function undoLast() {
   const data = load();
   const today = todayStr();
-  // find last today kick
-  for (let i = data.kicks.length - 1; i >= 0; i--) {
-    if (data.kicks[i].date === today) {
-      data.kicks.splice(i, 1);
-      save(data);
-      render();
-      return;
+  for (let i=data.kicks.length-1; i>=0; i--) {
+    if (data.kicks[i].date===today) {
+      data.kicks.splice(i,1); persist(data); render(); _debouncedSync(); return;
     }
   }
 }
-
-// date label
-document.getElementById('pageDate').textContent = new Date().toLocaleDateString('en-MY', {
-  weekday:'long', day:'numeric', month:'long', year:'numeric'
-});
-
-render();
 </script>
 </body>
 </html>
