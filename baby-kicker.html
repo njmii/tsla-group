@@ -48,6 +48,8 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;t
 .page-header{padding:20px 20px 0;}
 .hdr-top{display:flex;justify-content:space-between;align-items:center;}
 .page-title{font-size:1.4rem;font-weight:900;color:var(--primary);transition:color .3s;}
+.nav-back{color:var(--primary);font-weight:800;font-size:1.1rem;text-decoration:none;transition:opacity .15s,color .3s;}
+.nav-back:hover{opacity:.7;}
 .user-chip{display:flex;align-items:center;gap:6px;background:var(--pale);
   border-radius:10px;padding:6px 10px;transition:background .3s;}
 .user-name{font-size:.78rem;font-weight:700;color:var(--primary);max-width:90px;
@@ -190,29 +192,13 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;t
 
 <div class="page-header">
   <div class="hdr-top">
-    <div class="page-title" id="pageTitle">🤰 Baby Kicker</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <a class="nav-back" href="recruit.html">←</a>
+      <div class="page-title" id="pageTitle">🤰 Baby Kicker</div>
+    </div>
     <div id="authChip"></div>
   </div>
   <div class="page-date" id="pageDate"></div>
-</div>
-
-<div class="btn-zone">
-  <button class="kick-btn" id="kickBtn" onclick="recordKick(event)">KICK</button>
-  <div class="count-wrap">
-    <div class="count-num" id="countNum">0</div>
-    <div class="count-label" id="countLabel">kicks today <span class="sync-dot" id="syncDot"></span></div>
-  </div>
-  <button class="undo-btn" id="undoBtn" onclick="undoLast()" style="display:none">↩ Undo last</button>
-
-  <div class="wa-wrap">
-    <button class="wa-btn" onclick="sendToHusband()">📲 Update Husband</button>
-    <div class="wa-num-row" id="waNumRow"></div>
-    <div class="wa-num-edit" id="waNumEdit">
-      <input id="waNumField" type="tel" placeholder="60123456789"
-        onkeydown='if(event.key==="Enter")saveWaNum()'>
-      <button onclick="saveWaNum()">Save</button>
-    </div>
-  </div>
 </div>
 
 <div class="section">
@@ -251,6 +237,25 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;t
       </div>
     </div>
     <button class="sett-save" onclick="saveSettings()">💾 Save Settings</button>
+  </div>
+</div>
+
+<div class="btn-zone">
+  <button class="kick-btn" id="kickBtn" onclick="recordKick(event)">KICK</button>
+  <div class="count-wrap">
+    <div class="count-num" id="countNum">0</div>
+    <div class="count-label" id="countLabel">kicks today <span class="sync-dot" id="syncDot"></span></div>
+  </div>
+  <button class="undo-btn" id="undoBtn" onclick="undoLast()" style="display:none">↩ Undo last</button>
+
+  <div class="wa-wrap">
+    <button class="wa-btn" onclick="sendToHusband()">📲 Update Husband</button>
+    <div class="wa-num-row" id="waNumRow"></div>
+    <div class="wa-num-edit" id="waNumEdit">
+      <input id="waNumField" type="tel" placeholder="60123456789"
+        onkeydown='if(event.key==="Enter")saveWaNum()'>
+      <button onclick="saveWaNum()">Save</button>
+    </div>
   </div>
 </div>
 
