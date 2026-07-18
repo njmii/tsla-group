@@ -76,29 +76,29 @@ input:focus{outline:none;border-color:#ff7a00;}
   </div>
 
   <div class="card">
-    <h3>Komitmen Bulanan</h3>
+    <h3>Hutang Tertunggak (Baki Keseluruhan)</h3>
     <div class="row">
-      <label class="label">Pinjaman Rumah (RM)</label>
+      <label class="label">Baki Pinjaman Rumah (RM)</label>
       <input type="number" id="homeLoan" placeholder="0" min="0">
     </div>
     <div class="row">
-      <label class="label">Pinjaman Kereta (RM)</label>
+      <label class="label">Baki Pinjaman Kereta (RM)</label>
       <input type="number" id="carLoan" placeholder="0" min="0">
     </div>
     <div class="row">
-      <label class="label">PTPTN (RM)</label>
+      <label class="label">Baki PTPTN (RM)</label>
       <input type="number" id="ptptn" placeholder="0" min="0">
     </div>
     <div class="row">
-      <label class="label">Kad Kredit (RM)</label>
+      <label class="label">Baki Kad Kredit (RM)</label>
       <input type="number" id="creditCard" placeholder="0" min="0">
     </div>
     <div class="row">
-      <label class="label">Pinjaman Peribadi (RM)</label>
+      <label class="label">Baki Pinjaman Peribadi (RM)</label>
       <input type="number" id="personalLoan" placeholder="0" min="0">
     </div>
     <div class="row">
-      <label class="label">Lain-lain Komitmen (RM)</label>
+      <label class="label">Lain-lain Hutang (RM)</label>
       <input type="number" id="otherDebt" placeholder="0" min="0">
     </div>
   </div>
@@ -157,11 +157,11 @@ function calculate() {
   if (!income && !living) { alert('Sila isi sekurang-kurangnya pendapatan dan perbelanjaan hidup.'); return; }
 
   const totalExp        = living + school + otherExp;
-  const totalCommitment = homeLoan + carLoan + ptptn + creditCard + personalLoan + otherDebt;
-  const totalMonthly    = totalExp + totalCommitment;
-  const shortfall       = Math.max(0, totalMonthly - spouse);
+  const totalDebts      = homeLoan + carLoan + ptptn + creditCard + personalLoan + otherDebt;
   const totalSavings    = savings + epf;
-  const months          = shortfall > 0 ? Math.floor(totalSavings / shortfall) : 9999;
+  const netSavings      = totalSavings - totalDebts;
+  const shortfall       = Math.max(0, totalExp - spouse);
+  const months          = shortfall > 0 ? Math.max(0, Math.floor(netSavings / shortfall)) : netSavings > 0 ? 9999 : 0;
   const years           = Math.floor(months / 12);
   const remMonths       = months % 12;
 
@@ -196,12 +196,12 @@ function calculate() {
 
   // Breakdown
   const rows = [
-    { label: 'Jumlah perbelanjaan hidup', val: fmt(totalExp) },
-    { label: 'Jumlah komitmen bulanan', val: fmt(totalCommitment), sub: true },
-    { label: 'Jumlah perlu sebulan', val: fmt(totalMonthly), bold: true },
+    { label: 'Jumlah perbelanjaan hidup sebulan', val: fmt(totalExp) },
     { label: 'Tolak pendapatan pasangan', val: '− ' + fmt(spouse) },
     { label: 'Kekurangan (shortfall) sebulan', val: fmt(shortfall), bold: true, orange: true },
     { label: 'Jumlah simpanan + KWSP', val: fmt(totalSavings) },
+    { label: 'Tolak jumlah hutang tertunggak', val: '− ' + fmt(totalDebts), sub: true },
+    { label: 'Baki simpanan bersih', val: fmt(netSavings), bold: true },
     { label: 'Tempoh bertahan', val: months >= 9999 ? '∞' : months + ' bulan', bold: true, orange: true },
   ];
 
@@ -211,16 +211,16 @@ function calculate() {
       <span style="${r.orange ? 'color:#ff7a00' : ''}">${r.val}</span>
     </div>`).join('');
 
-  // Commitment sub-breakdown
-  const commitRows = [
-    ['Pinjaman Rumah', homeLoan], ['Pinjaman Kereta', carLoan], ['PTPTN', ptptn],
-    ['Kad Kredit', creditCard], ['Pinjaman Peribadi', personalLoan], ['Lain-lain', otherDebt]
+  // Debt sub-breakdown
+  const debtRows = [
+    ['Baki Pinjaman Rumah', homeLoan], ['Baki Pinjaman Kereta', carLoan], ['Baki PTPTN', ptptn],
+    ['Baki Kad Kredit', creditCard], ['Baki Pinjaman Peribadi', personalLoan], ['Lain-lain Hutang', otherDebt]
   ].filter(r => r[1] > 0);
 
-  if (commitRows.length) {
+  if (debtRows.length) {
     document.getElementById('breakdown').innerHTML +=
-      '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #f2f2f2"><div style="font-size:.78rem;font-weight:700;color:#aaa;margin-bottom:6px">PECAHAN KOMITMEN</div>' +
-      commitRows.map(([l, v]) => `<div class="info-row"><span>${l}</span><span>${fmt(v)}</span></div>`).join('') +
+      '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #f2f2f2"><div style="font-size:.78rem;font-weight:700;color:#aaa;margin-bottom:6px">PECAHAN HUTANG TERTUNGGAK</div>' +
+      debtRows.map(([l, v]) => `<div class="info-row"><span>${l}</span><span>${fmt(v)}</span></div>`).join('') +
       '</div>';
   }
 
