@@ -497,12 +497,28 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 
 <div class="footer">© 2026 TSLA Group · Budget Tracker</div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 const SK          = 'tsla_budget2_local';
 const ACCTS_KEY   = 'tsla_accts';
 const CUR_USR_KEY = 'tsla_cur_user';
 let currentSK     = SK;
 let currentUser   = null;
+
+/* ── Firebase ── */
+let db;
+try {
+  const _app = firebase.apps.length
+    ? firebase.app()
+    : firebase.initializeApp({
+        apiKey:      'AIzaSyAyLIIH1zmeoBqH1DuT3wbSxmQlRcDJ_P4',
+        authDomain:  'tsla-group.firebaseapp.com',
+        databaseURL: 'https://tsla-group-default-rtdb.asia-southeast1.firebasedatabase.app',
+        projectId:   'tsla-group',
+      });
+  db = firebase.database(_app);
+} catch(e) { console.warn('Firebase init failed:', e); }
 
 let data = {
   salary: 0,
@@ -1138,6 +1154,9 @@ function removeExp(str, id) {
 /* ── storage ── */
 function save() {
   localStorage.setItem(currentSK, JSON.stringify(data));
+  if (currentUser && db) {
+    db.ref('budget/data/' + currentUser).set({ json: JSON.stringify(data) }).catch(() => {});
+  }
 }
 
 function load() {
@@ -1254,27 +1273,65 @@ function showLoginModal() {
   setTimeout(() => document.getElementById('loginUser').focus(), 100);
 }
 function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
-function doLogin() {
-  const user = document.getElementById('loginUser').value.trim().toLowerCase();
-  const pin  = document.getElementById('loginPin').value.trim();
-  const accts = getAccts();
-  if (!accts[user]) { document.getElementById('loginErr').textContent = 'Account not found.'; return; }
-  if (accts[user].pin !== pin) {
-    document.getElementById('loginErr').textContent = 'Wrong PIN. Try again.';
-    document.getElementById('loginPin').value = '';
-    document.getElementById('loginPin').focus();
-    return;
+async function doLogin() {
+  const user  = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pin   = document.getElementById('loginPin').value.trim();
+  const errEl = document.getElementById('loginErr');
+  if (!user || !pin) return;
+  errEl.textContent = 'Checking…';
+  try {
+    const snap = await db.ref('budget/accounts/' + user).once('value');
+    if (!snap.exists()) { errEl.textContent = 'Account not found.'; return; }
+    if (snap.val().pin !== pin) {
+      errEl.textContent = 'Wrong PIN. Try again.';
+      document.getElementById('loginPin').value = '';
+      document.getElementById('loginPin').focus();
+      return;
+    }
+    const dataSnap = await db.ref('budget/data/' + user).once('value');
+    const raw = dataSnap.val();
+    let fbData = null;
+    if (raw && raw.json) { try { fbData = JSON.parse(raw.json); } catch(e) {} }
+    loginAs(user, fbData);
+  } catch(e) {
+    // Offline fallback — verify against local cache
+    const accts = getAccts();
+    if (!accts[user]) { errEl.textContent = 'Account not found (offline).'; return; }
+    if (accts[user].pin !== pin) { errEl.textContent = 'Wrong PIN.'; return; }
+    loginAs(user, null);
   }
-  loginAs(user);
 }
-function loginAs(user) {
+function loginAs(user, fbData) {
   currentUser = user;
   currentSK   = 'tsla_bdata_' + user;
   localStorage.setItem(CUR_USR_KEY, user);
+  // Cache account locally for offline fallback
+  const accts = getAccts();
+  if (!accts[user] && fbData !== undefined) {
+    // We can't store PIN here (we don't have it), but at least mark account as known
+    accts[user] = accts[user] || { created: new Date().toISOString() };
+    saveAccts(accts);
+  }
   closeLoginModal();
   hideAcctScreen();
-  data = { salary:0, commitments:[], expenses:{}, payments:{}, periodFrom:'', periodTo:'' };
-  load();
+  if (fbData) {
+    data = { salary:0, commitments:[], expenses:{}, payments:{}, periodFrom:'', periodTo:'', ...fbData };
+    if (!Array.isArray(data.commitments)) data.commitments = Object.values(data.commitments || {});
+    if (!data.expenses)   data.expenses   = {};
+    if (!data.payments)   data.payments   = {};
+    if (!data.periodFrom) data.periodFrom = '';
+    if (!data.periodTo)   data.periodTo   = '';
+    localStorage.setItem(currentSK, JSON.stringify(data));
+  } else {
+    data = { salary:0, commitments:[], expenses:{}, payments:{}, periodFrom:'', periodTo:'' };
+    load();
+  }
+  document.getElementById('salaryInput').value     = data.salary || '';
+  document.getElementById('periodFromInput').value = data.periodFrom || '';
+  document.getElementById('periodToInput').value   = data.periodTo   || '';
+  renderCommits();
+  recalcSetup();
+  renderCommitmentsTracker();
   renderCalendar();
   updateAcctNav();
 }
@@ -1289,18 +1346,32 @@ function showRegModal() {
   setTimeout(() => document.getElementById('regUser').focus(), 100);
 }
 function closeRegModal() { document.getElementById('regModal').style.display = 'none'; }
-function doRegister() {
-  const user = document.getElementById('regUser').value.trim().toLowerCase();
-  const pin  = document.getElementById('regPin').value.trim();
-  const pin2 = document.getElementById('regPin2').value.trim();
-  if (!user || user.length < 2) { document.getElementById('regErr').textContent = 'Username must be at least 2 characters.'; return; }
-  if (!/^\d{4,6}$/.test(pin)) { document.getElementById('regErr').textContent = 'PIN must be 4–6 digits.'; return; }
-  if (pin !== pin2) { document.getElementById('regErr').textContent = 'PINs do not match.'; return; }
-  const accts = getAccts();
-  if (accts[user]) { document.getElementById('regErr').textContent = 'Username already taken.'; return; }
-  accts[user] = { pin, created: new Date().toISOString() };
-  saveAccts(accts);
-  loginAs(user);
+async function doRegister() {
+  const user  = document.getElementById('regUser').value.trim().toLowerCase();
+  const pin   = document.getElementById('regPin').value.trim();
+  const pin2  = document.getElementById('regPin2').value.trim();
+  const errEl = document.getElementById('regErr');
+  if (!user || user.length < 2) { errEl.textContent = 'Username must be at least 2 characters.'; return; }
+  if (!/^\d{4,6}$/.test(pin))   { errEl.textContent = 'PIN must be 4–6 digits.'; return; }
+  if (pin !== pin2)              { errEl.textContent = 'PINs do not match.'; return; }
+  errEl.textContent = 'Creating account…';
+  try {
+    const snap = await db.ref('budget/accounts/' + user).once('value');
+    if (snap.exists()) { errEl.textContent = 'Username already taken.'; return; }
+    const created = new Date().toISOString();
+    await db.ref('budget/accounts/' + user).set({ pin, created });
+    const accts = getAccts();
+    accts[user] = { pin, created };
+    saveAccts(accts);
+    loginAs(user, null);
+  } catch(e) {
+    // Offline: register locally only
+    const accts = getAccts();
+    if (accts[user]) { errEl.textContent = 'Username already taken.'; return; }
+    accts[user] = { pin, created: new Date().toISOString() };
+    saveAccts(accts);
+    loginAs(user, null);
+  }
 }
 
 /* ── account menu ── */
@@ -1343,15 +1414,13 @@ function triggerImport() {
 function initAccount() {
   const saved = localStorage.getItem(CUR_USR_KEY);
   if (saved) {
-    const accts = getAccts();
-    if (accts[saved]) {
-      currentUser = saved;
-      currentSK   = 'tsla_bdata_' + saved;
-      hideAcctScreen();
-      updateAcctNav();
-      return;
-    }
-    localStorage.removeItem(CUR_USR_KEY);
+    currentUser = saved;
+    currentSK   = 'tsla_bdata_' + saved;
+    hideAcctScreen();
+    updateAcctNav();
+    // Silently sync latest data from Firebase in the background
+    setTimeout(() => _bgSync(saved), 800);
+    return;
   }
   // Legacy local data exists — stay in local mode silently
   if (localStorage.getItem(SK)) {
@@ -1361,6 +1430,30 @@ function initAccount() {
   }
   // Fresh user — prompt
   showAcctScreen();
+}
+
+async function _bgSync(user) {
+  if (!db) return;
+  try {
+    const snap = await db.ref('budget/data/' + user).once('value');
+    const raw  = snap.val();
+    if (!raw || !raw.json) return;
+    const fbData = JSON.parse(raw.json);
+    // Only apply if Firebase has more data (salary > 0 or expenses)
+    if (!fbData.salary && !Object.keys(fbData.expenses || {}).length) return;
+    data = { salary:0, commitments:[], expenses:{}, payments:{}, periodFrom:'', periodTo:'', ...fbData };
+    if (!Array.isArray(data.commitments)) data.commitments = Object.values(data.commitments || {});
+    if (!data.expenses)   data.expenses   = {};
+    if (!data.payments)   data.payments   = {};
+    localStorage.setItem(currentSK, JSON.stringify(data));
+    document.getElementById('salaryInput').value     = data.salary || '';
+    document.getElementById('periodFromInput').value = data.periodFrom || '';
+    document.getElementById('periodToInput').value   = data.periodTo   || '';
+    renderCommits();
+    recalcSetup();
+    renderCommitmentsTracker();
+    renderCalendar();
+  } catch(e) {}
 }
 </script>
 </body>
