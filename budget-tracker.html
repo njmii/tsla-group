@@ -276,7 +276,7 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
     <img class="nav-logo" src="assets/tslalogo.png" alt="TSLA Group"/>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="pwa-btn" id="pwaRefreshBtn" onclick="refreshPWA()" title="Check for updates">↻ Update</button>
-      <button class="acct-nav-btn" id="acctNavBtn" onclick="toggleAcctMenu()" style="display:none">👤 <span id="acctNavName"></span></button>
+      <button class="acct-nav-btn" id="acctNavBtn" onclick="toggleAcctMenu()">👤 <span id="acctNavName">Log In</span></button>
       <a class="nav-back" href="index.html">← Back</a>
     </div>
   </div>
@@ -460,12 +460,21 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 
 <!-- ACCOUNT MENU DROPDOWN -->
 <div id="acctMenu" style="display:none;position:fixed;top:55px;right:16px;z-index:1000;background:white;border-radius:16px;padding:10px;box-shadow:0 4px 24px rgba(0,0,0,.12);min-width:190px">
-  <div style="font-size:.72rem;color:#aaa;font-weight:700;padding:4px 10px 4px">Logged in as</div>
-  <div id="acctMenuName" style="font-weight:900;font-size:.92rem;padding:0 10px 10px"></div>
-  <button class="acct-menu-item" onclick="exportData();closeAcctMenu()">Export Data</button>
-  <button class="acct-menu-item" onclick="triggerImport()">Import Data</button>
-  <div style="border-top:1px solid #f0f0f0;margin:6px 0"></div>
-  <button class="acct-menu-item" style="color:#e53935" onclick="doLogout()">Log Out</button>
+  <!-- Guest state -->
+  <div id="acctMenuGuest" style="display:none">
+    <div style="font-size:.78rem;color:#aaa;font-weight:700;padding:4px 10px 10px">Not logged in</div>
+    <button class="acct-menu-item" onclick="closeAcctMenu();showLoginModal()">Log In</button>
+    <button class="acct-menu-item" onclick="closeAcctMenu();showRegModal()">Register</button>
+  </div>
+  <!-- Logged-in state -->
+  <div id="acctMenuLoggedIn" style="display:none">
+    <div style="font-size:.72rem;color:#aaa;font-weight:700;padding:4px 10px 4px">Logged in as</div>
+    <div id="acctMenuName" style="font-weight:900;font-size:.92rem;padding:0 10px 10px"></div>
+    <button class="acct-menu-item" onclick="exportData();closeAcctMenu()">Export Data</button>
+    <button class="acct-menu-item" onclick="triggerImport()">Import Data</button>
+    <div style="border-top:1px solid #f0f0f0;margin:6px 0"></div>
+    <button class="acct-menu-item" style="color:#e53935" onclick="doLogout()">Log Out</button>
+  </div>
 </div>
 
 <div class="footer">© 2026 TSLA Group · Budget Tracker</div>
@@ -1279,13 +1288,18 @@ function doLogout() {
   showAcctScreen();
 }
 function updateAcctNav() {
-  const btn = document.getElementById('acctNavBtn');
+  const btn  = document.getElementById('acctNavBtn');
+  const name = document.getElementById('acctNavName');
+  btn.style.display = '';
   if (currentUser) {
-    btn.style.display = '';
-    document.getElementById('acctNavName').textContent   = currentUser;
-    document.getElementById('acctMenuName').textContent  = currentUser;
+    name.textContent = currentUser;
+    document.getElementById('acctMenuName').textContent = currentUser;
+    document.getElementById('acctMenuLoggedIn').style.display = '';
+    document.getElementById('acctMenuGuest').style.display    = 'none';
   } else {
-    btn.style.display = 'none';
+    name.textContent = 'Log In';
+    document.getElementById('acctMenuLoggedIn').style.display = 'none';
+    document.getElementById('acctMenuGuest').style.display    = '';
   }
 }
 
