@@ -54,6 +54,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mh-title{flex:1;min-width:0}
 .mh-name{font-weight:900;font-size:1.05rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mh-code{font-size:.72rem;color:var(--sub);margin-top:2px}
+.change-user-btn{margin-top:5px;padding:4px 10px;font-size:.72rem;font-weight:700;color:var(--orange);background:rgba(255,122,0,.08);border:1.5px solid rgba(255,122,0,.25);border-radius:8px;cursor:pointer;display:inline-block}
+.change-user-btn:active{opacity:.7}
 .icon-btn{width:36px;height:36px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.95rem;color:var(--text);flex-shrink:0;box-shadow:var(--shadow)}
 .icon-btn:active{opacity:.7}
 .year-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
@@ -190,10 +192,10 @@ tr.fy-row td{font-weight:900;border-top:2.5px solid var(--border);border-bottom:
     <div class="mh-title">
       <div class="mh-name" id="mhName">—</div>
       <div class="mh-code" id="mhCode">—</div>
+      <button class="change-user-btn" onclick="switchAgent()">↩ Tukar Ejen</button>
     </div>
     <button class="icon-btn" onclick="showSettings()" title="Target ACE">⚙️</button>
     <button class="icon-btn" onclick="showAdmin()" title="Admin">👑</button>
-    <button class="icon-btn" onclick="switchAgent()" title="Tukar ejen">↩</button>
   </div>
   <div class="year-row">
     <button class="yr-btn" onclick="changeYear(-1)">‹</button>
