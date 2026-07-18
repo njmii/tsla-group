@@ -42,6 +42,12 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .salary-row:focus-within{border-color:#ff7a00}
 .salary-pre{padding:0 12px;font-weight:800;color:#aaa;font-size:.85rem;background:#f7f8fa;align-self:stretch;display:flex;align-items:center;border-right:2px solid #eee}
 .salary-input{flex:1;padding:13px 14px;border:none;font-size:1.1rem;font-weight:900;color:#111;font-variant-numeric:tabular-nums;background:transparent;outline:none;font-family:inherit}
+.salary-mask-row{cursor:pointer;user-select:none}
+.salary-mask-row:hover{border-color:#ccc}
+.salary-mask-val{flex:1;padding:13px 14px;font-size:1.1rem;font-weight:900;letter-spacing:.18em;color:#ccc}
+.salary-mask-hint{padding:0 14px;font-size:.72rem;font-weight:700;color:#ccc;white-space:nowrap}
+.salary-hide-link{font-size:.72rem;font-weight:700;color:#aaa;cursor:pointer;padding:2px 4px}
+.salary-hide-link:hover{color:#ff7a00}
 
 .commit-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
 .commit-row{display:flex;gap:8px;align-items:center;animation:rowIn .2s ease}
@@ -339,9 +345,21 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
       <!-- Salary -->
       <div>
         <div class="field-lbl">Monthly Take-Home Salary</div>
-        <div class="salary-row">
+        <!-- Masked display — shown by default -->
+        <div class="salary-row salary-mask-row" id="salaryMaskRow" onclick="revealSalary()" title="Tap to show salary">
           <span class="salary-pre">RM</span>
-          <input class="salary-input" id="salaryInput" type="number" min="0" placeholder="0.00" oninput="recalcSetup()"/>
+          <span class="salary-mask-val">••••••</span>
+          <span class="salary-mask-hint">Tap to show</span>
+        </div>
+        <!-- Actual input — hidden until tapped -->
+        <div style="display:none" id="salaryInputWrap">
+          <div class="salary-row">
+            <span class="salary-pre">RM</span>
+            <input class="salary-input" id="salaryInput" type="number" min="0" placeholder="0.00" oninput="recalcSetup()"/>
+          </div>
+          <div style="text-align:right;margin-top:5px">
+            <span class="salary-hide-link" onclick="hideSalary()">Hide</span>
+          </div>
         </div>
       </div>
       <!-- Right: commitments -->
@@ -581,6 +599,18 @@ function toggleSetup() {
   const arrow = document.getElementById('setupArrow');
   const isOpen = body.classList.toggle('open');
   arrow.classList.toggle('open', isOpen);
+  if (!isOpen) hideSalary(); // re-mask when panel closes
+}
+
+function revealSalary() {
+  document.getElementById('salaryMaskRow').style.display  = 'none';
+  document.getElementById('salaryInputWrap').style.display = '';
+  document.getElementById('salaryInput').focus();
+}
+
+function hideSalary() {
+  document.getElementById('salaryMaskRow').style.display   = '';
+  document.getElementById('salaryInputWrap').style.display = 'none';
 }
 
 function addCommit(name='', amount='') {
