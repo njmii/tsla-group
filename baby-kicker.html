@@ -16,7 +16,7 @@
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
 body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .3s;}
 
-/* ── login gate ─────────────────── */
+/* ── login gate (optional modal) ── */
 #loginGate{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
   z-index:9999;align-items:center;justify-content:center;}
 .lg-card{background:white;border-radius:26px;padding:30px 24px;width:310px;
@@ -34,9 +34,15 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;t
   font-weight:700;background:white;color:#888;cursor:pointer;font-size:.88rem;}
 .lg-go{flex:2;padding:13px;border:none;border-radius:12px;font-weight:900;
   background:var(--btn-grad);color:white;cursor:pointer;font-size:.95rem;}
+.lg-skip{margin-top:12px;background:none;border:none;color:var(--sub);
+  font-size:.8rem;cursor:pointer;width:100%;padding:6px;}
+/* login chip in header */
+.login-chip{background:var(--pale);border:none;border-radius:10px;padding:7px 12px;
+  font-size:.78rem;font-weight:700;color:var(--primary);cursor:pointer;transition:.15s;}
+.login-chip:active{opacity:.7;}
 
 /* ── app ─────────────────────────── */
-#app{display:none;}
+#app{display:block;}
 
 /* ── header ─────────────────────── */
 .page-header{padding:20px 20px 0;}
@@ -175,6 +181,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;t
     <button class="lg-reg" onclick="_lgRegister()">Daftar</button>
     <button class="lg-go"  onclick="_lgLogin()">Masuk →</button>
   </div>
+  <button class="lg-skip" onclick="closeLoginModal()">Guna tanpa akaun</button>
 </div>
 </div>
 
@@ -184,10 +191,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;t
 <div class="page-header">
   <div class="hdr-top">
     <div class="page-title" id="pageTitle">🤰 Baby Kicker</div>
-    <div class="user-chip">
-      <span class="user-name" id="userLabel"></span>
-      <button class="logout-btn" onclick="doLogout()">Keluar</button>
-    </div>
+    <div id="authChip"></div>
   </div>
   <div class="page-date" id="pageDate"></div>
 </div>
@@ -250,7 +254,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;t
   </div>
 </div>
 
-<div class="footer">Synced to Firebase ☁️</div>
+<div class="footer" id="footerTxt">Saved locally 💾</div>
 
 </div><!-- /app -->
 
@@ -356,27 +360,51 @@ function _fbLoad(user) {
 
 // ── Auth ──────────────────────────────────────────────────────
 (function init() {
-  const user = localStorage.getItem('tsla_cur_user');
-  if (user) { showApp(user); setTimeout(() => _fbLoad(user), 800); }
-  else {
-    document.getElementById('loginGate').style.display = 'flex';
-    setTimeout(() => document.getElementById('lgUser').focus(), 100);
-  }
-})();
-
-function showApp(user) {
-  document.getElementById('loginGate').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('userLabel').textContent = '👤 ' + user;
   document.getElementById('pageDate').textContent = new Date().toLocaleDateString('en-MY',
     {weekday:'long', day:'numeric', month:'long', year:'numeric'});
   _loadSettings();
   render();
   _updateWaNumRow();
+  _updateAuthChip();
+  const user = localStorage.getItem('tsla_cur_user');
+  if (user) setTimeout(() => _fbLoad(user), 800);
+})();
+
+function _updateAuthChip() {
+  const user = localStorage.getItem('tsla_cur_user');
+  const el   = document.getElementById('authChip');
+  if (!el) return;
+  if (user) {
+    el.innerHTML = `<div class="user-chip">
+      <span class="user-name">👤 ${user}</span>
+      <button class="logout-btn" onclick="doLogout()">Keluar</button>
+    </div>`;
+  } else {
+    el.innerHTML = `<button class="login-chip" onclick="showLoginModal()">☁️ Login</button>`;
+  }
+  _updateFooter();
+}
+function _updateFooter() {
+  const el = document.getElementById('footerTxt');
+  if (!el) return;
+  el.textContent = localStorage.getItem('tsla_cur_user')
+    ? 'Synced to Firebase ☁️'
+    : 'Saved locally 💾 — login to sync';
+}
+function showLoginModal() {
+  document.getElementById('loginGate').style.display = 'flex';
+  document.getElementById('lgUser').value  = '';
+  document.getElementById('lgPin').value   = '';
+  document.getElementById('lgErr').textContent = '';
+  setTimeout(() => document.getElementById('lgUser').focus(), 100);
+}
+function closeLoginModal() {
+  document.getElementById('loginGate').style.display = 'none';
 }
 function _unlock(user) {
   localStorage.setItem('tsla_cur_user', user);
-  showApp(user);
+  closeLoginModal();
+  _updateAuthChip();
   _fbLoad(user);
 }
 function _lgLogin() {
@@ -408,7 +436,10 @@ function _lgRegister() {
     _unlock(user);
   }).catch(() => { document.getElementById('lgErr').textContent='Tiada sambungan. Cuba lagi.'; });
 }
-function doLogout() { localStorage.removeItem('tsla_cur_user'); location.reload(); }
+function doLogout() {
+  localStorage.removeItem('tsla_cur_user');
+  _updateAuthChip();
+}
 
 // ── Settings ─────────────���────────────────────────��───────────
 function _loadSettings() {
