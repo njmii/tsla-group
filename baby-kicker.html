@@ -115,6 +115,23 @@ body{background:#fff5f7;color:#2d1b2e;min-height:100vh;overflow-x:hidden;}
 
 .empty{text-align:center;color:#e0b0c0;font-size:.88rem;padding:18px 0;}
 .footer{text-align:center;color:#e0b0c0;font-size:.75rem;padding:16px 20px 40px;}
+
+/* WA button */
+.wa-wrap{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;}
+.wa-btn{background:#25D366;color:white;border:none;border-radius:16px;
+  padding:15px 32px;font-weight:900;font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 18px rgba(37,211,102,.35);
+  transition:transform .1s,box-shadow .1s;-webkit-tap-highlight-color:transparent;}
+.wa-btn:active{transform:scale(.95);box-shadow:0 2px 8px rgba(37,211,102,.2);}
+.wa-num-row{font-size:.75rem;color:#c9a8be;font-weight:600;display:flex;align-items:center;gap:5px;}
+.wa-num-row a{color:#ff6b9d;font-weight:700;cursor:pointer;text-decoration:none;}
+.wa-num-edit{display:none;align-items:center;gap:6px;margin-top:2px;}
+.wa-num-edit input{padding:9px 12px;border:2px solid #fce4ec;border-radius:10px;
+  font-size:.88rem;outline:none;width:155px;font-weight:600;}
+.wa-num-edit input:focus{border-color:#25D366;}
+.wa-num-edit button{padding:9px 14px;background:#25D366;color:white;border:none;
+  border-radius:10px;font-weight:700;cursor:pointer;font-size:.85rem;}
 </style>
 </head>
 <body>
@@ -160,6 +177,16 @@ body{background:#fff5f7;color:#2d1b2e;min-height:100vh;overflow-x:hidden;}
     <div class="count-label">kicks today <span class="sync-dot" id="syncDot"></span></div>
   </div>
   <button class="undo-btn" id="undoBtn" onclick="undoLast()" style="display:none">↩ Undo last</button>
+
+  <div class="wa-wrap">
+    <button class="wa-btn" onclick="sendToHusband()">📲 Update Husband</button>
+    <div class="wa-num-row" id="waNumRow"></div>
+    <div class="wa-num-edit" id="waNumEdit">
+      <input id="waNumField" type="tel" placeholder="60123456789"
+        onkeydown='if(event.key==="Enter")saveWaNum()'>
+      <button onclick="saveWaNum()">Save</button>
+    </div>
+  </div>
 </div>
 
 <div class="section">
@@ -268,6 +295,7 @@ function showApp(user) {
   document.getElementById('pageDate').textContent = new Date().toLocaleDateString('en-MY',
     {weekday:'long', day:'numeric', month:'long', year:'numeric'});
   render();
+  _updateWaNumRow();
 }
 function _unlock(user) {
   localStorage.setItem('tsla_cur_user', user);
@@ -415,6 +443,62 @@ function recordKick(e) {
   persist(data);
   render();
   _debouncedSync();
+}
+
+// ── WhatsApp ──────────────────────────────────────────────────
+function _updateWaNumRow() {
+  const num = localStorage.getItem('tsla_bk_husband_wa') || '';
+  const row = document.getElementById('waNumRow');
+  if (!row) return;
+  row.innerHTML = num
+    ? `Sending to: <b style="color:#2d1b2e">${num}</b> &nbsp;<a onclick="_toggleWaEdit()">Tukar</a>`
+    : `<a onclick="_toggleWaEdit()">Set nombor suami ›</a>`;
+}
+function _toggleWaEdit() {
+  const el = document.getElementById('waNumEdit');
+  const open = el.style.display === 'flex';
+  el.style.display = open ? 'none' : 'flex';
+  if (!open) {
+    document.getElementById('waNumField').value = localStorage.getItem('tsla_bk_husband_wa') || '';
+    setTimeout(() => document.getElementById('waNumField').focus(), 60);
+  }
+}
+function saveWaNum() {
+  const raw = document.getElementById('waNumField').value.trim().replace(/\D/g,'');
+  raw ? localStorage.setItem('tsla_bk_husband_wa', raw)
+      : localStorage.removeItem('tsla_bk_husband_wa');
+  document.getElementById('waNumEdit').style.display = 'none';
+  _updateWaNumRow();
+}
+function _fmtWaMsg() {
+  const data = load();
+  const today = todayStr();
+  const kicks = data.kicks.filter(k => k.date === today);
+  const dateStr = new Date().toLocaleDateString('en-MY',
+    {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  let msg = `🤰 *Baby Kick Update*\n📅 ${dateStr}\n\n`;
+  if (!kicks.length) {
+    msg += 'Belum ada tendangan hari ini.';
+  } else {
+    msg += `👣 *${kicks.length} tendangan hari ini*\n\n`;
+    // group by hour for readability
+    const byH = {};
+    kicks.forEach(k => {
+      const lbl = fmtTime(k.ts).replace(/:00 /,' ');
+      const h = new Date(k.ts).getHours();
+      (byH[h] = byH[h]||[]).push(fmtTime(k.ts));
+    });
+    msg += Object.values(byH).flat().join(' · ');
+    msg += `\n\n⏰ *Tendangan terakhir: ${fmtTime(kicks[kicks.length-1].ts)}*`;
+  }
+  msg += '\n\n_Dihantar dari Baby Kicker 💕_';
+  return msg;
+}
+function sendToHusband() {
+  const num = localStorage.getItem('tsla_bk_husband_wa') || '';
+  const txt = encodeURIComponent(_fmtWaMsg());
+  const url = num ? `https://wa.me/${num}?text=${txt}` : `https://wa.me/?text=${txt}`;
+  window.open(url, '_blank');
 }
 
 function undoLast() {
