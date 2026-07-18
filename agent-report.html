@@ -216,6 +216,34 @@ td.right{text-align:right;font-weight:700;}
 /* Month picker */
 .month-picker-sel{border:2px solid #eee;border-radius:12px;padding:6px 10px;font-size:.8rem;font-weight:700;color:#111;background:white;cursor:pointer;outline:none;}
 .month-picker-sel:focus{border-color:#ff7a00;}
+
+/* ── Second Payment Monitor tab ─────────────────── */
+.lb-tab-sp.active{background:#7c3aed!important;color:white;}
+.sp-header-card{background:linear-gradient(135deg,#6d28d9,#a855f7);border-radius:20px;padding:20px 22px;margin-bottom:16px;color:white;}
+.sp-header-title{font-weight:900;font-size:1.1rem;margin-bottom:3px;}
+.sp-header-sub{font-size:.82rem;opacity:.85;}
+.sp-summary-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.sp-sum-chip{border-radius:10px;padding:5px 13px;font-size:.78rem;font-weight:800;background:rgba(255,255,255,.22);color:white;}
+.sp-all-clear{text-align:center;padding:32px 20px;color:#aaa;font-size:.9rem;font-weight:600;}
+.sp-agent-card{background:white;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:12px;overflow:hidden;}
+.sp-agent-hdr{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;transition:opacity .15s;}
+.sp-agent-hdr:hover{opacity:.85;}
+.sp-agent-name-line{font-weight:900;font-size:.97rem;}
+.sp-agent-subline{font-size:.74rem;color:#888;margin-top:2px;}
+.sp-badges{display:flex;gap:6px;align-items:center;flex-shrink:0;flex-wrap:wrap;}
+.sp-count-badge{border-radius:10px;padding:4px 10px;font-size:.74rem;font-weight:800;}
+.sp-client-list{padding:0 16px 14px;}
+.sp-group-lbl{font-size:.66rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid #f0f0f0;}
+.sp-group-lbl:first-child{margin-top:4px;}
+.sp-client-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:14px;margin-bottom:6px;border-left:3px solid transparent;}
+.sp-client-row:last-child{margin-bottom:0;}
+.sp-client-info{flex:1;min-width:0;}
+.sp-client-name{font-weight:700;font-size:.88rem;}
+.sp-client-meta{font-size:.71rem;color:#888;margin-top:2px;}
+.sp-client-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;}
+.sp-client-right{text-align:right;flex-shrink:0;}
+.sp-contrib{font-weight:800;font-size:.84rem;color:#333;}
+.sp-due{font-size:.7rem;color:#aaa;margin-top:2px;}
 </style>
 </head>
 <body>
@@ -245,9 +273,11 @@ td.right{text-align:right;font-weight:700;}
     <div class="lb-tab-row">
       <button id="tabLb" class="lb-tab active" onclick="switchLbTab('lb')">📊 PR13 &amp; CE</button>
       <button id="tabContest" class="lb-tab" onclick="switchLbTab('contest')">🏆 Road to Bali</button>
+      <button id="tabSP" class="lb-tab lb-tab-sp" onclick="switchLbTab('sp')">💳 Second Payment</button>
     </div>
     <div id="leaderboardList"><div class="loading">Loading data…</div></div>
     <div id="contestList" style="display:none"></div>
+    <div id="spList" style="display:none"></div>
   </div>
 
   <!-- Agent detail -->
@@ -585,7 +615,7 @@ function calcYTD(agent) {
 function renderLeaderboard(data) {
   document.getElementById('updatedBadge').textContent = 'Data: ' + data.updated;
   document.getElementById('projBadge').textContent = 'PR13 Projection: ' + projLabel();
-  if (window._lastData) renderContest(window._lastData);
+  if (window._lastData) { renderContest(window._lastData); renderSecondPayment(window._lastData); }
 
   // Filter out removed agents
   const EXCLUDED_AGENTS = new Set(['A15741']);
@@ -1219,10 +1249,12 @@ function showLeaderboard() {
 
 /* ── Leaderboard tab switch ──────────────────────────── */
 function switchLbTab(tab) {
-  document.getElementById('leaderboardList').style.display = tab === 'lb' ? '' : 'none';
-  document.getElementById('contestList').style.display     = tab === 'contest' ? '' : 'none';
+  document.getElementById('leaderboardList').style.display = tab === 'lb'      ? '' : 'none';
+  document.getElementById('contestList').style.display     = tab === 'contest'  ? '' : 'none';
+  document.getElementById('spList').style.display         = tab === 'sp'       ? '' : 'none';
   document.getElementById('tabLb').classList.toggle('active', tab === 'lb');
   document.getElementById('tabContest').classList.toggle('active', tab === 'contest');
+  document.getElementById('tabSP').classList.toggle('active', tab === 'sp');
 }
 
 /* ── Contest: Road to Bali ───────────────────────────── */
@@ -1280,6 +1312,121 @@ function renderContest(data) {
           <div class="contest-ace-val">${hasData ? 'RM ' + ace.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : 'RM 0'}</div>
           <div class="contest-ace-lbl">NEW ACE</div>
           <div class="contest-cases">${cases} case${cases !== 1 ? 's' : ''}</div>
+        </div>
+      </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+/* ── Second Payment Monitor ──────────────────────────── */
+function _spCohortClients(clients) {
+  // Policies issued exactly 3 calendar months before the projection month
+  const targetKey = PROJ_YEAR * 12 + PROJ_MONTH - 3;
+  return clients.filter(c => {
+    if (!c.issueDate || c.status === 'Freelook Cancellation') return false;
+    const d = new Date(c.issueDate);
+    return d.getFullYear() * 12 + d.getMonth() === targetKey;
+  }).map(c => {
+    const isBA  = c.payMethod === 'Biro Angkasa';
+    const isOut = c.status === 'Lapsed' || c.status === 'Contract Surrendered';
+    return { ...c, _isBA: isBA, _risk: isOut ? 'danger' : isBA ? 'safe' : 'watch' };
+  });
+}
+
+function renderSecondPayment(data) {
+  const el = document.getElementById('spList');
+  if (!el) return;
+
+  const cohortDate  = new Date(PROJ_YEAR, PROJ_MONTH - 3, 1);
+  const cohortLabel = cohortDate.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+  const EXCLUDED    = new Set(['A15741']);
+
+  const entries = data.agents
+    .filter(ag => !EXCLUDED.has(ag.code))
+    .map(ag => {
+      const cohort  = _spCohortClients(ag.clients);
+      const danger  = cohort.filter(c => c._risk === 'danger');
+      const watch   = cohort.filter(c => c._risk === 'watch');
+      const safe    = cohort.filter(c => c._risk === 'safe');
+      const agRisk  = danger.length ? 'danger' : watch.length ? 'watch' : cohort.length ? 'safe' : null;
+      return { ag, cohort, danger, watch, safe, agRisk };
+    })
+    .filter(e => e.agRisk !== null);
+
+  const rOrd = { danger: 0, watch: 1, safe: 2 };
+  entries.sort((a, b) => rOrd[a.agRisk] - rOrd[b.agRisk]);
+
+  const totC = entries.reduce((s, e) => s + e.cohort.length, 0);
+  const totD = entries.reduce((s, e) => s + e.danger.length, 0);
+  const totW = entries.reduce((s, e) => s + e.watch.length, 0);
+  const totS = entries.reduce((s, e) => s + e.safe.length, 0);
+
+  let html = `
+    <div class="sp-header-card">
+      <div class="sp-header-title">💳 Second Payment Monitor</div>
+      <div class="sp-header-sub">Cohort: policies issued in ${cohortLabel} · now 3 months old</div>
+      <div class="sp-summary-strip">
+        <div class="sp-sum-chip">${totC} policies · ${entries.length} agent${entries.length !== 1 ? 's' : ''}</div>
+        ${totD ? `<div class="sp-sum-chip" style="background:rgba(229,57,53,.35)">🔴 ${totD} lapsed</div>` : ''}
+        ${totW ? `<div class="sp-sum-chip" style="background:rgba(255,193,7,.3)">🟡 ${totW} needs update</div>` : ''}
+        ${totS ? `<div class="sp-sum-chip" style="background:rgba(10,155,67,.3)">✅ ${totS} safe</div>` : ''}
+      </div>
+    </div>`;
+
+  if (!totC) {
+    html += `<div class="sp-all-clear">No policies found for ${cohortLabel}</div>`;
+    el.innerHTML = html; return;
+  }
+
+  const rowHtml = c => {
+    const rowBg  = c._risk === 'danger' ? 'rgba(229,57,53,.05)' : c._risk === 'watch' ? 'rgba(255,193,7,.09)' : 'rgba(10,155,67,.05)';
+    const rowBdr = c._risk === 'danger' ? '#e53935' : c._risk === 'watch' ? '#f9a825' : '#0a9b43';
+    const contrib = c.contribution ? 'RM ' + c.contribution.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) + '/mo' : '—';
+    return `
+      <div class="sp-client-row" style="background:${rowBg};border-left-color:${rowBdr}">
+        <div class="sp-client-info">
+          <div class="sp-client-name">${c.name || '—'}</div>
+          <div class="sp-client-meta">${c.certNo || ''} · Issued ${c.issueDate || '—'} · Due ${c.dueDate || '—'}</div>
+          <div class="sp-client-tags">
+            <span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.68rem">${c.status}</span>
+            <span class="badge ${c._isBA ? 'badge-green' : 'badge-amber'}" style="font-size:.68rem">${c.payMethod || c.payMode || '—'}</span>
+            ${c._risk === 'watch' ? '<span style="font-size:.66rem;font-weight:800;color:#c77700;background:rgba(255,193,7,.18);padding:2px 8px;border-radius:8px">Tukar ke Biro Angkasa</span>' : ''}
+          </div>
+        </div>
+        <div class="sp-client-right">
+          <div class="sp-contrib">${contrib}</div>
+          <div class="sp-due">${c.plan || ''}</div>
+        </div>
+      </div>`;
+  };
+
+  entries.forEach(({ ag, cohort, danger, watch, safe, agRisk }) => {
+    const accentColor = agRisk === 'danger' ? '#e53935' : agRisk === 'watch' ? '#f9a825' : '#0a9b43';
+    const headerBg    = agRisk === 'danger' ? 'rgba(229,57,53,.06)' : agRisk === 'watch' ? 'rgba(255,193,7,.09)' : 'rgba(10,155,67,.05)';
+    const riskIcon    = agRisk === 'danger' ? '🔴' : agRisk === 'watch' ? '🟡' : '✅';
+    const shortName   = SHORT_NAMES[ag.code] || ag.name.split(' ')[0];
+    const bodyId      = `sp-body-${ag.code}`;
+    const arrowId     = `sp-arr-${ag.code}`;
+    html += `
+      <div class="sp-agent-card" style="border-top:3px solid ${accentColor}">
+        <div class="sp-agent-hdr" style="background:${headerBg}"
+          onclick="var b=document.getElementById('${bodyId}'),a=document.getElementById('${arrowId}');b.classList.toggle('hidden');a.textContent=b.classList.contains('hidden')?'▼':'▲'">
+          <div style="flex:1;min-width:0">
+            <div class="sp-agent-name-line">${riskIcon} ${shortName}</div>
+            <div class="sp-agent-subline">${ag.code} · ${ag.name}</div>
+          </div>
+          <div class="sp-badges">
+            ${danger.length ? `<span class="sp-count-badge" style="background:#ffebee;color:#e53935">${danger.length} lapsed</span>` : ''}
+            ${watch.length  ? `<span class="sp-count-badge" style="background:#fff8e1;color:#c77700">${watch.length} perlu tukar</span>` : ''}
+            ${safe.length   ? `<span class="sp-count-badge" style="background:#e6f9ee;color:#0a9b43">${safe.length} selamat</span>` : ''}
+            <span id="${arrowId}" style="color:${accentColor};font-size:.9rem;margin-left:2px">▲</span>
+          </div>
+        </div>
+        <div class="sp-client-list" id="${bodyId}">
+          ${danger.length ? `<div class="sp-group-lbl" style="color:#e53935">🔴 Lapsed / Contract Surrendered — immediate action needed</div>${danger.map(rowHtml).join('')}` : ''}
+          ${watch.length  ? `<div class="sp-group-lbl" style="color:#c77700">🟡 In Force — not on Biro Angkasa — update payment method</div>${watch.map(rowHtml).join('')}` : ''}
+          ${safe.length   ? `<div class="sp-group-lbl" style="color:#0a9b43">✅ In Force — Biro Angkasa — no action needed</div>${safe.map(rowHtml).join('')}` : ''}
         </div>
       </div>`;
   });
