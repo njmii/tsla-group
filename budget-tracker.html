@@ -476,6 +476,19 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
   </div>
 </div>
 
+<!-- MERGE MODAL -->
+<div id="mergeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;align-items:center;justify-content:center">
+  <div class="acct-modal-card">
+    <div style="font-size:1.8rem;text-align:center;margin-bottom:8px">📂</div>
+    <div class="acct-modal-title" style="text-align:center">Local Data Found</div>
+    <div id="mergeDesc" style="font-size:.82rem;color:#888;text-align:center;margin-bottom:20px;line-height:1.6"></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="acct-modal-btn-ok" style="flex:none;width:100%;padding:13px" onclick="doMergeYes()">Merge into Account</button>
+      <button class="acct-modal-btn-cancel" style="flex:none;width:100%;padding:13px" onclick="doMergeNo()">Ignore Local Data</button>
+    </div>
+  </div>
+</div>
+
 <!-- ACCOUNT MENU DROPDOWN -->
 <div id="acctMenu" style="display:none;position:fixed;top:55px;right:16px;z-index:1000;background:white;border-radius:16px;padding:10px;box-shadow:0 4px 24px rgba(0,0,0,.12);min-width:190px">
   <!-- Guest state -->
@@ -505,6 +518,8 @@ const ACCTS_KEY   = 'tsla_accts';
 const CUR_USR_KEY = 'tsla_cur_user';
 let currentSK     = SK;
 let currentUser   = null;
+let _pendingUser  = null;
+let _pendingFb    = null;
 
 /* ── Firebase ── */
 let db;
@@ -1292,13 +1307,13 @@ async function doLogin() {
     const raw = dataSnap.val();
     let fbData = null;
     if (raw && raw.json) { try { fbData = JSON.parse(raw.json); } catch(e) {} }
-    loginAs(user, fbData);
+    _maybeOfferMerge(user, fbData, closeLoginModal);
   } catch(e) {
     // Offline fallback — verify against local cache
     const accts = getAccts();
     if (!accts[user]) { errEl.textContent = 'Account not found (offline).'; return; }
     if (accts[user].pin !== pin) { errEl.textContent = 'Wrong PIN.'; return; }
-    loginAs(user, null);
+    _maybeOfferMerge(user, null, closeLoginModal);
   }
 }
 function loginAs(user, fbData) {
@@ -1363,14 +1378,14 @@ async function doRegister() {
     const accts = getAccts();
     accts[user] = { pin, created };
     saveAccts(accts);
-    loginAs(user, null);
+    _maybeOfferMerge(user, null, closeRegModal);
   } catch(e) {
     // Offline: register locally only
     const accts = getAccts();
     if (accts[user]) { errEl.textContent = 'Username already taken.'; return; }
     accts[user] = { pin, created: new Date().toISOString() };
     saveAccts(accts);
-    loginAs(user, null);
+    _maybeOfferMerge(user, null, closeRegModal);
   }
 }
 
@@ -1408,6 +1423,64 @@ function updateAcctNav() {
 function triggerImport() {
   document.getElementById('importInput').click();
   closeAcctMenu();
+}
+
+/* ── local-data merge offer ── */
+function _hasLocalData() {
+  const raw = localStorage.getItem(SK);
+  if (!raw) return false;
+  try {
+    const d = JSON.parse(raw);
+    return d.salary > 0 || (d.commitments||[]).length > 0 || Object.keys(d.expenses||{}).length > 0;
+  } catch(e) { return false; }
+}
+function _maybeOfferMerge(user, fbData, closeFn) {
+  if (!_hasLocalData()) { if (closeFn) closeFn(); loginAs(user, fbData); return; }
+  if (closeFn) closeFn();
+  _pendingUser = user;
+  _pendingFb   = fbData;
+  const fbHasData = fbData && (fbData.salary > 0 || Object.keys(fbData.expenses||{}).length > 0 || (fbData.commitments||[]).length > 0);
+  document.getElementById('mergeDesc').textContent = fbHasData
+    ? 'You have data saved locally on this device and data in your account. Merge both together?'
+    : 'You have data saved locally on this device. Copy it to your account so it\'s available everywhere?';
+  document.getElementById('mergeModal').style.display = 'flex';
+}
+function doMergeYes() {
+  document.getElementById('mergeModal').style.display = 'none';
+  let localData = null;
+  try { localData = JSON.parse(localStorage.getItem(SK)); } catch(e) {}
+  loginAs(_pendingUser, _mergeData(localData, _pendingFb));
+  _pendingUser = null; _pendingFb = null;
+}
+function doMergeNo() {
+  document.getElementById('mergeModal').style.display = 'none';
+  loginAs(_pendingUser, _pendingFb);
+  _pendingUser = null; _pendingFb = null;
+}
+function _mergeData(local, fb) {
+  if (!local) return fb;
+  const fbHasData = fb && (fb.salary > 0 || Object.keys(fb.expenses||{}).length > 0 || (fb.commitments||[]).length > 0);
+  if (!fbHasData) return { ...local };
+  const merged = { ...(fb||{}) };
+  if ((local.salary||0) > (merged.salary||0)) merged.salary = local.salary;
+  const cmap = {};
+  (fb.commitments||[]).forEach(c => { cmap[c.id] = c; });
+  (local.commitments||[]).forEach(c => { cmap[c.id] = c; });
+  merged.commitments = Object.values(cmap);
+  merged.expenses = { ...(fb.expenses||{}) };
+  for (const [date, items] of Object.entries(local.expenses||{})) {
+    if (!merged.expenses[date]) { merged.expenses[date] = items; continue; }
+    const seen = new Set(merged.expenses[date].map(e => e.id));
+    for (const item of items) if (!seen.has(item.id)) merged.expenses[date].push(item);
+  }
+  merged.payments = { ...(fb.payments||{}) };
+  for (const [mo, cmts] of Object.entries(local.payments||{})) {
+    if (!merged.payments[mo]) { merged.payments[mo] = cmts; continue; }
+    for (const [cid, amt] of Object.entries(cmts)) merged.payments[mo][cid] = Math.max(merged.payments[mo][cid]||0, amt);
+  }
+  if (local.periodFrom) merged.periodFrom = local.periodFrom;
+  if (local.periodTo)   merged.periodTo   = local.periodTo;
+  return merged;
 }
 
 /* ── init account ── */
