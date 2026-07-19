@@ -32,10 +32,10 @@ body{background:#fdf9f2;color:#111;min-height:100vh}
 .cu{background:#f0fff4;color:#0a9b43}.cd{background:#fff0f0;color:#c0392b}.cf{background:#f5f5f5;color:#999}
 .ph-time{font-size:.7rem;color:#c8b88a;margin-top:8px;font-style:italic}
 
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid #f5e9c8}
-.chip{flex:1;min-width:60px;background:#fdf9f2;border:1.5px solid #f0e0b0;border-radius:16px;padding:9px 12px;text-align:center}
-.chip-lbl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#c8b88a;margin-bottom:3px}
-.chip-val{font-size:.88rem;font-weight:900;color:#111;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;margin-top:18px;padding-top:18px;border-top:1px solid #f5e9c8}
+.chip{flex:1;min-width:0;background:#fdf9f2;border:1.5px solid #f0e0b0;border-radius:14px;padding:8px 5px;text-align:center}
+.chip-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#c8b88a;margin-bottom:3px}
+.chip-val{font-size:.74rem;font-weight:900;color:#111;font-variant-numeric:tabular-nums;white-space:nowrap}
 
 /* ── CHART ── */
 .chart-card{background:white;border-radius:28px;padding:22px 20px;margin-bottom:14px;box-shadow:0 4px 20px rgba(0,0,0,.05)}
@@ -51,19 +51,27 @@ canvas#gc{display:block;width:100%;height:100%}
 
 /* ── MERCHANTS ── */
 .merch-card{background:white;border-radius:28px;padding:22px 20px;box-shadow:0 4px 20px rgba(0,0,0,.05)}
-.merch-head{font-weight:900;font-size:.9rem;margin-bottom:3px}
-.merch-sub{font-size:.76rem;color:#999;margin-bottom:16px}
-.merch-hdr{display:grid;grid-template-columns:1fr 80px 80px 56px;gap:6px;padding-bottom:8px;border-bottom:1.5px solid #f5f0e8}
-.merch-hdr span{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#ccc;text-align:right}
-.merch-hdr span:first-child{text-align:left}
-.merch-row{display:grid;grid-template-columns:1fr 80px 80px 56px;gap:6px;align-items:center;padding:11px 0;border-bottom:1px solid #f9f6ef}
-.merch-row:last-child{border:none}
+.merch-head-row{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.merch-head{font-weight:900;font-size:.9rem}
+.merch-live{display:inline-flex;align-items:center;gap:4px;background:#f0fff4;border:1.5px solid #b7f5ce;border-radius:12px;padding:2px 7px;font-size:.62rem;font-weight:800;color:#0a9b43}
+.merch-live-dot{width:5px;height:5px;border-radius:50%;background:#0a9b43;animation:pdot 2s ease-in-out infinite}
+.merch-sub{font-size:.74rem;color:#999;margin-bottom:16px}
 .mn{font-weight:800;font-size:.88rem}
-.mt{font-size:.68rem;color:#aaa;margin-top:1px}
-.mbuy{font-size:.85rem;font-weight:800;color:#0a9b43;text-align:right;font-variant-numeric:tabular-nums}
-.msell{font-size:.85rem;font-weight:800;color:#c0392b;text-align:right;font-variant-numeric:tabular-nums}
-.mspread{font-size:.72rem;font-weight:800;background:#f9f6ef;border-radius:8px;padding:3px 7px;text-align:center;color:#888}
-.merch-disc{font-size:.68rem;color:#ccc;margin-top:14px;line-height:1.6}
+.mt{font-size:.67rem;color:#aaa;margin-top:1px}
+.merch-item{padding:13px 0;border-bottom:1px solid #f5f0e8}
+.merch-item:last-child{border-bottom:none}
+.merch-item.merch-best{background:rgba(200,150,42,.05);margin:0 -20px;padding:13px 20px;border-radius:18px;border-color:transparent}
+.merch-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.mspread-badge{background:#f5f0e8;border-radius:8px;padding:3px 9px;font-size:.7rem;font-weight:800;color:#888;white-space:nowrap;flex-shrink:0}
+.merch-best .mspread-badge{background:rgba(200,150,42,.18);color:#c8962a}
+.merch-item-prices{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;text-align:center}
+.merch-pcol-lbl{font-size:.57rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#ccc;margin-bottom:4px}
+.merch-pcol-val{font-size:.88rem;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.merch-pcol-sub{font-size:.59rem;color:#bbb;margin-top:2px;line-height:1.4}
+.mbuy{color:#0a9b43}
+.msell{color:#c0392b}
+.mspread-val{color:#c8962a}
+.merch-disc{font-size:.67rem;color:#ccc;margin-top:14px;line-height:1.6}
 
 /* ── FOOTER ── */
 .footer{text-align:center;padding:32px 20px;color:#c8b88a;font-size:.76rem}
@@ -122,16 +130,13 @@ canvas#gc{display:block;width:100%;height:100%}
 
   <!-- MERCHANTS -->
   <div class="merch-card">
-    <div class="merch-head">Perbandingan Peniaga Emas</div>
-    <div class="merch-sub">Harga anggaran berdasarkan spot semasa · per gram (999)</div>
-    <div class="merch-hdr">
-      <span>Peniaga</span>
-      <span>Beli</span>
-      <span>Jual</span>
-      <span>Spread</span>
+    <div class="merch-head-row">
+      <div class="merch-head">Perbandingan Peniaga Emas</div>
+      <div class="merch-live"><div class="merch-live-dot"></div>LIVE</div>
     </div>
+    <div class="merch-sub">Anggaran harga per 100g (999) · dikira dari harga spot semasa</div>
     <div id="mrows"></div>
-    <p class="merch-disc">* Beli = peniaga beli daripada anda. Jual = anda beli daripada peniaga. Spread dan harga adalah anggaran — semak terus dengan peniaga untuk harga terkini. Harga jongkong dan syiling mungkin berbeza daripada harga spot.</p>
+    <p class="merch-disc">* Anda Jual = peniaga beli daripada anda (harga lebih tinggi = lebih baik). Anda Beli = anda beli daripada peniaga (harga lebih rendah = lebih baik). Spread adalah anggaran berdasarkan nisbah tipikal — semak terus dengan peniaga untuk harga tepat.</p>
   </div>
 
 </div>
@@ -141,21 +146,28 @@ canvas#gc{display:block;width:100%;height:100%}
 const OZ = 31.1035;
 const LS  = 'tsla_gold_hist_v2';
 
+// buy = nisbah harga peniaga beli dari anda / spot
+// sell = nisbah harga peniaga jual kepada anda / spot
+// Berdasarkan data pasaran Malaysia (anggaran tipikal)
 const MERCHANTS = [
-  { name:'Public Gold',   note:'App & laman web',           buy:0.9880, sell:1.0100 },
-  { name:'Mega Ikhlas',   note:'Peniaga emas dalam talian', buy:0.9845, sell:1.0130 },
-  { name:'Poh Kong',      note:'Kedai fizikal · jongkong',  buy:0.9770, sell:1.0200 },
-  { name:'Tomei',         note:'Kedai fizikal · jongkong',  buy:0.9755, sell:1.0220 },
-  { name:'Maybank Gold',  note:'Akaun Pelaburan Emas',      buy:0.9940, sell:1.0070 },
-  { name:'CIMB Gold',     note:'Akaun Pelaburan Emas',      buy:0.9930, sell:1.0080 },
+  { name:'UOB Gold',     note:'United Overseas Bank · digital',  buy:0.9952, sell:1.0048 },
+  { name:'PBB Gold',     note:'Public Bank · emas digital',      buy:0.9960, sell:1.0357 },
+  { name:'RHB Gold',     note:'RHB Bank · akaun pelaburan',      buy:0.9751, sell:1.0318 },
+  { name:'MIGA-i',       note:'Mega Ikhlas · akaun emas Islam',  buy:0.9889, sell:1.0486 },
+  { name:'BIGA-i',       note:'Bank Islam · akaun emas Islam',   buy:1.0005, sell:1.0485 },
+  { name:'Muamalat',     note:'Bank Muamalat · emas digital',    buy:0.9979, sell:1.0731 },
+  { name:'Public Gold',  note:'PG · emas fizikal & digital',     buy:1.0027, sell:1.1019 },
+  { name:'e-GIA',        note:'Emas digital dalam talian',       buy:0.9474, sell:1.0623 },
 ];
 
 let spot = 529;
 let curDays = 7;
 
 // ── fmt helpers ──────────────────────────────────────────────────
-const fmtRM = n => 'RM ' + n.toFixed(2);
+const fmtRM  = n => 'RM ' + n.toFixed(2);
 const fmtRMK = n => n >= 1000 ? 'RM ' + (n/1000).toFixed(2) + 'k' : fmtRM(n);
+const fmtChip = n => n >= 1000 ? 'RM ' + (n/1000).toFixed(1) + 'k' : 'RM ' + Math.round(n);
+const fmt100  = n => 'RM ' + Math.round(n).toLocaleString('en-MY');
 
 // ── Live price fetch ─────────────────────────────────────────────
 async function fetchPrice() {
@@ -184,11 +196,11 @@ async function fetchPrice() {
 function renderHero(g, chgG, pct, tsj) {
   document.getElementById('pv').textContent   = g.toFixed(2);
   document.getElementById('p100').textContent = '100g = RM ' + (g*100).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
-  document.getElementById('c1').textContent   = fmtRM(g);
-  document.getElementById('c5').textContent   = fmtRM(g*5);
-  document.getElementById('c10').textContent  = fmtRM(g*10);
-  document.getElementById('c50').textContent  = fmtRMK(g*50);
-  document.getElementById('c100').textContent = fmtRMK(g*100);
+  document.getElementById('c1').textContent   = fmtChip(g);
+  document.getElementById('c5').textContent   = fmtChip(g*5);
+  document.getElementById('c10').textContent  = fmtChip(g*10);
+  document.getElementById('c50').textContent  = fmtChip(g*50);
+  document.getElementById('c100').textContent = fmtChip(g*100);
 
   const el = document.getElementById('pchg');
   const tx = document.getElementById('pchgtxt');
@@ -373,14 +385,34 @@ function drawChart(days) {
 
 // ── Merchants ────────────────────────────────────────────────────
 function renderMerchants() {
-  document.getElementById('mrows').innerHTML = MERCHANTS.map(m => {
-    const b = spot*m.buy, s = spot*m.sell;
-    const sp = ((m.sell-m.buy)*100).toFixed(1);
-    return `<div class="merch-row">
-      <div><div class="mn">${m.name}</div><div class="mt">${m.note}</div></div>
-      <div class="mbuy">${fmtRM(b)}</div>
-      <div class="msell">${fmtRM(s)}</div>
-      <div class="mspread">${sp}%</div>
+  const sorted = [...MERCHANTS].sort((a,b)=>(a.sell-a.buy)-(b.sell-b.buy));
+  document.getElementById('mrows').innerHTML = sorted.map((m,i)=>{
+    const bg=spot*m.buy, sg=spot*m.sell;
+    const b100=bg*100, s100=sg*100, sp100=s100-b100;
+    const spPct=((m.sell-m.buy)*100).toFixed(1);
+    const best=i===0;
+    return `<div class="merch-item${best?' merch-best':''}">
+      <div class="merch-item-top">
+        <div><div class="mn">${best?'🏆 ':''}${m.name}</div><div class="mt">${m.note}</div></div>
+        <div class="mspread-badge">${spPct}%</div>
+      </div>
+      <div class="merch-item-prices">
+        <div>
+          <div class="merch-pcol-lbl">Anda Jual</div>
+          <div class="merch-pcol-val mbuy">${fmt100(b100)}</div>
+          <div class="merch-pcol-sub">per 100g<br>RM ${bg.toFixed(2)}/g</div>
+        </div>
+        <div>
+          <div class="merch-pcol-lbl">Anda Beli</div>
+          <div class="merch-pcol-val msell">${fmt100(s100)}</div>
+          <div class="merch-pcol-sub">per 100g<br>RM ${sg.toFixed(2)}/g</div>
+        </div>
+        <div>
+          <div class="merch-pcol-lbl">Spread 100g</div>
+          <div class="merch-pcol-val mspread-val">${fmt100(sp100)}</div>
+          <div class="merch-pcol-sub">per 100g<br>${spPct}% beza</div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
