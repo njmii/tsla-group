@@ -116,6 +116,33 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .state-chip strong{color:#ff7a00;font-weight:900;font-variant-numeric:tabular-nums}
 @keyframes dot-pulse{0%{r:6;opacity:.65}100%{r:20;opacity:0}}
 
+/* ── PRODUCT SHOWCASE ── */
+.product-band{background:#f7f8fa;border-top:1px solid #eee;border-bottom:1px solid #eee;padding:80px 20px}
+.product-grid{max-width:1200px;margin:48px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.product-card{background:white;border-radius:28px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.06);transition:.3s}
+.product-card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,.12)}
+.product-header{padding:36px 28px 28px;display:flex;flex-direction:column;align-items:flex-start;position:relative;overflow:hidden}
+.product-header::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;right:-60px;bottom:-80px;opacity:.12}
+.product-header-baby{background:linear-gradient(135deg,#fce4ec,#f8bbd0)}
+.product-header-baby::after{background:#e91e63}
+.product-header-budget{background:linear-gradient(135deg,#e8f5e9,#c8e6c9)}
+.product-header-budget::after{background:#2e7d32}
+.product-app-icon{font-size:3.2rem;margin-bottom:14px;line-height:1}
+.product-app-name{font-size:1.4rem;font-weight:900;letter-spacing:-.02em;margin-bottom:4px}
+.product-app-name-baby{color:#880e4f}
+.product-app-name-budget{color:#1b5e20}
+.product-app-tagline{font-size:.83rem;opacity:.7;font-weight:600;line-height:1.5}
+.product-body{padding:24px 28px 28px}
+.product-desc{color:#555;font-size:.9rem;line-height:1.7;margin-bottom:18px}
+.product-features{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.product-feat{background:#f7f8fa;border-radius:20px;padding:5px 13px;font-size:.75rem;font-weight:700;color:#444}
+.product-cta{display:inline-flex;align-items:center;gap:7px;background:#111;color:white;border-radius:40px;padding:12px 22px;font-weight:800;font-size:.88rem;text-decoration:none;transition:.2s}
+.product-cta:hover{background:#ff7a00;transform:translateX(3px)}
+.product-cta-baby{background:#880e4f}
+.product-cta-baby:hover{background:#c2185b}
+.product-cta-budget{background:#1b5e20}
+.product-cta-budget:hover{background:#2e7d32}
+
 /* ── FOOTER ── */
 .footer{padding:40px 20px;text-align:center;color:#888;font-size:.82rem;border-top:1px solid #eee}
 .footer strong{color:#ff7a00}
@@ -362,6 +389,54 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
       <div class="card-title">Real mentorship</div>
       <p class="card-body">Not a number in a database. Your leader sits with you, shares leads, builds your digital pipeline, and celebrates every milestone — from first case to unit manager.</p>
       <span class="card-tag">Team Culture</span>
+    </div>
+  </div>
+</div>
+
+<!-- DIGITAL TOOLS -->
+<div class="product-band">
+  <div style="max-width:1200px;margin:auto">
+    <div class="reveal"><p class="eyebrow">Built By Our Team</p></div>
+    <div class="reveal reveal-d1"><h2 class="section-title">We don't just<br>sell takaful.</h2></div>
+    <p class="section-body reveal reveal-d2">TSLA builds free digital tools for everyday Malaysians — from tracking your baby's movements to managing your personal finances. These tools are open to everyone, no sign-up needed.</p>
+    <div class="product-grid">
+
+      <div class="product-card reveal reveal-d2">
+        <div class="product-header product-header-baby">
+          <div class="product-app-icon">👶</div>
+          <div class="product-app-name product-app-name-baby">Baby Kicker</div>
+          <div class="product-app-tagline">Contraction &amp; kick counter<br>for expecting mothers</div>
+        </div>
+        <div class="product-body">
+          <p class="product-desc">Track baby kicks and time contractions with a single tap. Built with care for mothers in their third trimester — whether at home or on the way to the hospital.</p>
+          <div class="product-features">
+            <span class="product-feat">⏱ Contraction timer</span>
+            <span class="product-feat">👣 Kick counter</span>
+            <span class="product-feat">☁️ Optional cloud sync</span>
+            <span class="product-feat">📱 Works offline</span>
+          </div>
+          <a class="product-cta product-cta-baby" href="baby-kicker.html" target="_blank">Try Baby Kicker →</a>
+        </div>
+      </div>
+
+      <div class="product-card reveal reveal-d3">
+        <div class="product-header product-header-budget">
+          <div class="product-app-icon">💰</div>
+          <div class="product-app-name product-app-name-budget">Budget Tracker</div>
+          <div class="product-app-tagline">Personal finance tracker<br>with cloud backup</div>
+        </div>
+        <div class="product-body">
+          <p class="product-desc">Log your income and expenses, set monthly budgets, and see exactly where your money goes. Your data syncs across devices — or stays local if you prefer privacy.</p>
+          <div class="product-features">
+            <span class="product-feat">📊 Monthly overview</span>
+            <span class="product-feat">🏦 Multi-account</span>
+            <span class="product-feat">☁️ Firebase sync</span>
+            <span class="product-feat">🔒 PIN protected</span>
+          </div>
+          <a class="product-cta product-cta-budget" href="budget-tracker.html" target="_blank">Try Budget Tracker →</a>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
