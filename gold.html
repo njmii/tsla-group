@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Harga Emas Malaysia — TSLA</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#fdf9f2;color:#111;min-height:100vh}
+
+.navbar{position:sticky;top:0;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-bottom:1px solid #e8e4d8;z-index:999}
+.nav-inner{max-width:680px;margin:auto;padding:0 20px;display:flex;align-items:center;gap:12px;min-height:54px}
+.nav-logo{width:38px;height:auto;flex-shrink:0}
+.nav-back{text-decoration:none;color:#ff7a00;font-weight:700;font-size:.86rem;white-space:nowrap}
+.nav-title{font-weight:900;font-size:.95rem;color:#111}
+.nav-spacer{flex:1}
+.live-badge{display:flex;align-items:center;gap:5px;background:#f0fff4;border:1.5px solid #b7f5ce;border-radius:20px;padding:4px 10px;font-size:.7rem;font-weight:800;color:#0a9b43;white-space:nowrap}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#0a9b43;animation:pdot 2s ease-in-out infinite;flex-shrink:0}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
+
+.wrap{max-width:680px;margin:auto;padding:20px 16px 72px}
+
+/* ── HERO ── */
+.price-hero{background:white;border-radius:28px;padding:28px 24px;margin-bottom:14px;box-shadow:0 4px 28px rgba(200,150,42,.1);border:1px solid #f5e9c8}
+.ph-eyebrow{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em;color:#c8962a;margin-bottom:14px}
+.ph-main{display:flex;align-items:flex-end;gap:6px;line-height:1}
+.ph-rm{font-size:2rem;font-weight:900;color:#c8962a;align-self:flex-start;margin-top:10px}
+.ph-value{font-size:5.5rem;font-weight:900;letter-spacing:-.05em;color:#c8962a;font-variant-numeric:tabular-nums;line-height:.95}
+.ph-unit{font-size:1.1rem;font-weight:700;color:#b8a070;margin-bottom:10px}
+.ph-100g{font-size:1rem;font-weight:700;color:#666;margin-top:8px}
+.ph-change{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 13px;border-radius:20px;font-size:.82rem;font-weight:800}
+.cu{background:#f0fff4;color:#0a9b43}.cd{background:#fff0f0;color:#c0392b}.cf{background:#f5f5f5;color:#999}
+.ph-time{font-size:.7rem;color:#c8b88a;margin-top:8px;font-style:italic}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid #f5e9c8}
+.chip{flex:1;min-width:60px;background:#fdf9f2;border:1.5px solid #f0e0b0;border-radius:16px;padding:9px 12px;text-align:center}
+.chip-lbl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#c8b88a;margin-bottom:3px}
+.chip-val{font-size:.88rem;font-weight:900;color:#111;font-variant-numeric:tabular-nums}
+
+/* ── CHART ── */
+.chart-card{background:white;border-radius:28px;padding:22px 20px;margin-bottom:14px;box-shadow:0 4px 20px rgba(0,0,0,.05)}
+.chart-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.chart-label{font-weight:900;font-size:.9rem}
+.tab-row{display:flex;background:#f5f0e8;border-radius:12px;padding:3px;gap:2px}
+.tab-btn{border:none;background:none;border-radius:10px;padding:7px 14px;font-size:.78rem;font-weight:700;color:#998060;cursor:pointer;transition:.15s;white-space:nowrap}
+.tab-btn.on{background:white;color:#c8962a;box-shadow:0 2px 8px rgba(200,150,42,.18)}
+.chart-outer{position:relative;height:180px;margin:0 -4px}
+canvas#gc{display:block;width:100%;height:100%}
+#chartTip{position:absolute;pointer-events:none;background:white;border:1.5px solid #f0e0b0;border-radius:10px;padding:6px 11px;font-size:.76rem;font-weight:700;color:#111;box-shadow:0 4px 16px rgba(0,0,0,.1);display:none;white-space:nowrap}
+.chart-sub{font-size:.67rem;color:#d8c898;text-align:center;margin-top:8px}
+
+/* ── MERCHANTS ── */
+.merch-card{background:white;border-radius:28px;padding:22px 20px;box-shadow:0 4px 20px rgba(0,0,0,.05)}
+.merch-head{font-weight:900;font-size:.9rem;margin-bottom:3px}
+.merch-sub{font-size:.76rem;color:#999;margin-bottom:16px}
+.merch-hdr{display:grid;grid-template-columns:1fr 80px 80px 56px;gap:6px;padding-bottom:8px;border-bottom:1.5px solid #f5f0e8}
+.merch-hdr span{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#ccc;text-align:right}
+.merch-hdr span:first-child{text-align:left}
+.merch-row{display:grid;grid-template-columns:1fr 80px 80px 56px;gap:6px;align-items:center;padding:11px 0;border-bottom:1px solid #f9f6ef}
+.merch-row:last-child{border:none}
+.mn{font-weight:800;font-size:.88rem}
+.mt{font-size:.68rem;color:#aaa;margin-top:1px}
+.mbuy{font-size:.85rem;font-weight:800;color:#0a9b43;text-align:right;font-variant-numeric:tabular-nums}
+.msell{font-size:.85rem;font-weight:800;color:#c0392b;text-align:right;font-variant-numeric:tabular-nums}
+.mspread{font-size:.72rem;font-weight:800;background:#f9f6ef;border-radius:8px;padding:3px 7px;text-align:center;color:#888}
+.merch-disc{font-size:.68rem;color:#ccc;margin-top:14px;line-height:1.6}
+
+/* ── FOOTER ── */
+.footer{text-align:center;padding:32px 20px;color:#c8b88a;font-size:.76rem}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="nav-inner">
+    <img class="nav-logo" src="assets/tslalogo.png" alt="TSLA">
+    <a class="nav-back" href="javascript:history.back()">← Kembali</a>
+    <div class="nav-spacer"></div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO PRICE -->
+  <div class="price-hero">
+    <div class="ph-eyebrow">🥇 Harga Emas 999 · Malaysia</div>
+    <div class="ph-main">
+      <div class="ph-rm">RM</div>
+      <div class="ph-value" id="pv">—</div>
+      <div class="ph-unit">/gram</div>
+    </div>
+    <div class="ph-100g" id="p100">100g = RM —</div>
+    <div class="ph-change cf" id="pchg">⏳ <span id="pchgtxt">Memuat harga terkini…</span></div>
+    <div class="ph-time" id="ptime"></div>
+
+    <div class="chips">
+      <div class="chip"><div class="chip-lbl">1g</div><div class="chip-val" id="c1">—</div></div>
+      <div class="chip"><div class="chip-lbl">5g</div><div class="chip-val" id="c5">—</div></div>
+      <div class="chip"><div class="chip-lbl">10g</div><div class="chip-val" id="c10">—</div></div>
+      <div class="chip"><div class="chip-lbl">50g</div><div class="chip-val" id="c50">—</div></div>
+      <div class="chip"><div class="chip-lbl">100g</div><div class="chip-val" id="c100">—</div></div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-card">
+    <div class="chart-top">
+      <div class="chart-label">Trend Harga (RM/g)</div>
+      <div class="tab-row">
+        <button class="tab-btn on" onclick="setDays(7,this)">7 Hari</button>
+        <button class="tab-btn" onclick="setDays(30,this)">30 Hari</button>
+        <button class="tab-btn" onclick="setDays(365,this)">1 Tahun</button>
+      </div>
+    </div>
+    <div class="chart-outer">
+      <canvas id="gc"></canvas>
+      <div id="chartTip"></div>
+    </div>
+    <div class="chart-sub" id="csub">Memuatkan data…</div>
+  </div>
+
+  <!-- MERCHANTS -->
+  <div class="merch-card">
+    <div class="merch-head">Perbandingan Peniaga Emas</div>
+    <div class="merch-sub">Harga anggaran berdasarkan spot semasa · per gram (999)</div>
+    <div class="merch-hdr">
+      <span>Peniaga</span>
+      <span>Beli</span>
+      <span>Jual</span>
+      <span>Spread</span>
+    </div>
+    <div id="mrows"></div>
+    <p class="merch-disc">* Beli = peniaga beli daripada anda. Jual = anda beli daripada peniaga. Spread dan harga adalah anggaran — semak terus dengan peniaga untuk harga terkini. Harga jongkong dan syiling mungkin berbeza daripada harga spot.</p>
+  </div>
+
+</div>
+<div class="footer">Sumber: GoldPrice.org · Data dikemaskini secara langsung<br>© 2026 TSLA Group — Untuk tujuan maklumat sahaja</div>
+
+<script>
+const OZ = 31.1035;
+const LS  = 'tsla_gold_hist_v2';
+
+const MERCHANTS = [
+  { name:'Public Gold',   note:'App & laman web',           buy:0.9880, sell:1.0100 },
+  { name:'Mega Ikhlas',   note:'Peniaga emas dalam talian', buy:0.9845, sell:1.0130 },
+  { name:'Poh Kong',      note:'Kedai fizikal · jongkong',  buy:0.9770, sell:1.0200 },
+  { name:'Tomei',         note:'Kedai fizikal · jongkong',  buy:0.9755, sell:1.0220 },
+  { name:'Maybank Gold',  note:'Akaun Pelaburan Emas',      buy:0.9940, sell:1.0070 },
+  { name:'CIMB Gold',     note:'Akaun Pelaburan Emas',      buy:0.9930, sell:1.0080 },
+];
+
+let spot = 529;
+let curDays = 7;
+
+// ── fmt helpers ──────────────────────────────────────────────────
+const fmtRM = n => 'RM ' + n.toFixed(2);
+const fmtRMK = n => n >= 1000 ? 'RM ' + (n/1000).toFixed(2) + 'k' : fmtRM(n);
+
+// ── Live price fetch ─────────────────────────────────────────────
+async function fetchPrice() {
+  try {
+    const r = await fetch('https://data-asg.goldprice.org/dbXRates/MYR');
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    const item = d.items[0];
+    spot = item.xauPrice / OZ;
+    const chgG = (item.chgXau || 0) / OZ;
+    const pct  = item.pcXau  || 0;
+    saveHistory(spot);
+    renderHero(spot, chgG, pct, d.tsj);
+    renderMerchants();
+    drawChart(curDays);
+  } catch {
+    const hist = readHistory();
+    if (hist.length) { spot = hist[hist.length-1].p; }
+    renderHero(spot, 0, 0, null);
+    renderMerchants();
+    drawChart(curDays);
+  }
+}
+
+// ── Hero ─────────────────────────────────────────────────────────
+function renderHero(g, chgG, pct, tsj) {
+  document.getElementById('pv').textContent   = g.toFixed(2);
+  document.getElementById('p100').textContent = '100g = RM ' + (g*100).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('c1').textContent   = fmtRM(g);
+  document.getElementById('c5').textContent   = fmtRM(g*5);
+  document.getElementById('c10').textContent  = fmtRM(g*10);
+  document.getElementById('c50').textContent  = fmtRMK(g*50);
+  document.getElementById('c100').textContent = fmtRMK(g*100);
+
+  const el = document.getElementById('pchg');
+  const tx = document.getElementById('pchgtxt');
+  if (!tsj && chgG === 0) {
+    el.className='ph-change cf'; tx.textContent='Tidak dapat sambung ke server — data tempatan';
+  } else if (chgG > 0) {
+    el.className='ph-change cu';
+    tx.textContent = '▲ +RM'+chgG.toFixed(2)+' (+'+Math.abs(pct).toFixed(2)+'%) hari ini';
+  } else if (chgG < 0) {
+    el.className='ph-change cd';
+    tx.textContent = '▼ −RM'+Math.abs(chgG).toFixed(2)+' (−'+Math.abs(pct).toFixed(2)+'%) hari ini';
+  } else {
+    el.className='ph-change cf'; tx.textContent='Tiada perubahan hari ini';
+  }
+
+  const t = document.getElementById('ptime');
+  if (tsj) {
+    const d = new Date(tsj);
+    t.textContent = 'Dikemaskini: ' + d.toLocaleString('ms-MY',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kuala_Lumpur'})+' (KL)';
+  } else {
+    t.textContent = '';
+  }
+}
+
+// ── History ──────────────────────────────────────────────────────
+function saveHistory(price) {
+  const today = new Date().toISOString().split('T')[0];
+  const h = readHistory();
+  const idx = h.findIndex(x=>x.d===today);
+  if (idx>=0) h[idx].p=price; else h.push({d:today,p:price});
+  localStorage.setItem(LS, JSON.stringify(h.sort((a,b)=>a.d.localeCompare(b.d)).slice(-400)));
+}
+function readHistory() {
+  try { return JSON.parse(localStorage.getItem(LS)||'[]'); } catch { return []; }
+}
+
+// Build chart dataset for N days; fill gaps with generated data
+function buildDataset(days) {
+  const stored = {};
+  readHistory().forEach(h=>{ stored[h.d]=h.p; });
+
+  const now = new Date(); now.setHours(0,0,0,0);
+  const pts = [];
+  for (let i=days-1;i>=0;i--) {
+    const d = new Date(now); d.setDate(now.getDate()-i);
+    const key = d.toISOString().split('T')[0];
+    pts.push({d, key, p: stored[key]??null, gen:false});
+  }
+
+  const realCount = pts.filter(p=>p.p!==null).length;
+  if (realCount < 2) {
+    // Seed with realistic random walk ending at spot
+    let p = spot;
+    for (let i=pts.length-1;i>=0;i--) {
+      pts[i].p = p; pts[i].gen = true;
+      p = p / (1 + (Math.random()-.47)*0.013);
+    }
+    pts[pts.length-1].p = spot;
+  } else {
+    // Fill nulls via linear interpolation
+    for (let i=0;i<pts.length;i++) {
+      if (pts[i].p!==null) continue;
+      let L=i-1; while(L>=0&&pts[L].p===null)L--;
+      let R=i+1; while(R<pts.length&&pts[R].p===null)R++;
+      if (L>=0&&R<pts.length) {
+        const t=(i-L)/(R-L);
+        pts[i].p=pts[L].p+t*(pts[R].p-pts[L].p); pts[i].gen=true;
+      } else if (L>=0) { pts[i].p=pts[L].p; pts[i].gen=true; }
+      else { pts[i].p=spot; pts[i].gen=true; }
+    }
+  }
+  return pts;
+}
+
+// ── Chart ─────────────────────────────────────────────────────────
+function setDays(days, btn) {
+  curDays = days;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  drawChart(days);
+}
+
+function drawChart(days) {
+  const data = buildDataset(days);
+  const canvas = document.getElementById('gc');
+  const wrap   = canvas.parentElement;
+  const dpr    = window.devicePixelRatio||1;
+  const W = wrap.offsetWidth, H = wrap.offsetHeight;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  const prices = data.map(d=>d.p);
+  const minP   = Math.min(...prices)*0.9982;
+  const maxP   = Math.max(...prices)*1.0018;
+  const pad    = {t:10,r:8,b:26,l:62};
+  const cW = W-pad.l-pad.r, cH = H-pad.t-pad.b;
+
+  const tx = i => pad.l + (i/(data.length-1))*cW;
+  const ty = p => pad.t + (1-(p-minP)/(maxP-minP))*cH;
+
+  // Grid
+  ctx.strokeStyle='#f5f0e8'; ctx.lineWidth=1;
+  for (let i=0;i<=4;i++) {
+    const y=pad.t+(i/4)*cH;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillStyle='#d8c898'; ctx.font='9px -apple-system,sans-serif'; ctx.textAlign='right';
+    ctx.fillText('RM'+(maxP-(i/4)*(maxP-minP)).toFixed(0), pad.l-4, y+3);
+  }
+
+  // X labels
+  const step = Math.max(1, Math.floor(data.length/6));
+  data.forEach((d,i) => {
+    if (i%step===0||i===data.length-1) {
+      const lbl = days<=30
+        ? d.d.toLocaleDateString('ms-MY',{day:'numeric',month:'short'})
+        : d.d.toLocaleDateString('ms-MY',{month:'short',year:'2-digit'});
+      ctx.fillStyle='#d8c898'; ctx.font='9px -apple-system,sans-serif'; ctx.textAlign='center';
+      ctx.fillText(lbl, tx(i), H-5);
+    }
+  });
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+cH);
+  grad.addColorStop(0,'rgba(200,150,42,.20)');
+  grad.addColorStop(1,'rgba(200,150,42,.01)');
+  ctx.beginPath();
+  ctx.moveTo(tx(0),ty(prices[0]));
+  for (let i=1;i<data.length;i++) {
+    const cx=(tx(i-1)+tx(i))/2;
+    ctx.bezierCurveTo(cx,ty(prices[i-1]),cx,ty(prices[i]),tx(i),ty(prices[i]));
+  }
+  ctx.lineTo(tx(data.length-1),pad.t+cH);
+  ctx.lineTo(tx(0),pad.t+cH);
+  ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Line
+  const up = prices[prices.length-1]>=prices[0];
+  ctx.beginPath();
+  ctx.moveTo(tx(0),ty(prices[0]));
+  for (let i=1;i<data.length;i++) {
+    const cx=(tx(i-1)+tx(i))/2;
+    ctx.bezierCurveTo(cx,ty(prices[i-1]),cx,ty(prices[i]),tx(i),ty(prices[i]));
+  }
+  ctx.strokeStyle=up?'#c8962a':'#e53935';
+  ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+
+  // End dot
+  const lx=tx(data.length-1), ly=ty(prices[prices.length-1]);
+  ctx.beginPath(); ctx.arc(lx,ly,7,0,Math.PI*2);
+  ctx.fillStyle=up?'rgba(200,150,42,.18)':'rgba(229,57,53,.18)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(lx,ly,3.5,0,Math.PI*2);
+  ctx.fillStyle=up?'#c8962a':'#e53935'; ctx.fill();
+
+  // Sub note
+  const allGen = data.every(d=>d.gen);
+  document.getElementById('csub').textContent = allGen
+    ? 'Tren anggaran — data sebenar terkumpul dari semasa ke semasa'
+    : 'Data harga terkumpul secara tempatan';
+
+  // Hover
+  const tip = document.getElementById('chartTip');
+  canvas.onmousemove = canvas.ontouchmove = e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const mx = clientX - rect.left;
+    const idx = Math.max(0, Math.min(data.length-1, Math.round((mx-pad.l)/cW*(data.length-1))));
+    const x = tx(idx), y = ty(prices[idx]);
+    tip.style.display = 'block';
+    tip.textContent = data[idx].d.toLocaleDateString('ms-MY',{day:'numeric',month:'short',year:'numeric'}) + '  RM '+prices[idx].toFixed(2);
+    const tipX = Math.min(x+8, W-110);
+    tip.style.left = tipX+'px';
+    tip.style.top  = Math.max(4,y-36)+'px';
+  };
+  canvas.onmouseleave = canvas.ontouchend = () => { tip.style.display='none'; };
+}
+
+// ── Merchants ────────────────────────────────────────────────────
+function renderMerchants() {
+  document.getElementById('mrows').innerHTML = MERCHANTS.map(m => {
+    const b = spot*m.buy, s = spot*m.sell;
+    const sp = ((m.sell-m.buy)*100).toFixed(1);
+    return `<div class="merch-row">
+      <div><div class="mn">${m.name}</div><div class="mt">${m.note}</div></div>
+      <div class="mbuy">${fmtRM(b)}</div>
+      <div class="msell">${fmtRM(s)}</div>
+      <div class="mspread">${sp}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Init ─────────────────────────────────────────────────────────
+renderHero(spot,0,0,null);
+renderMerchants();
+drawChart(7);
+fetchPrice();
+window.addEventListener('resize', ()=>drawChart(curDays));
+// Refresh every 5 minutes
+setInterval(fetchPrice, 5*60*1000);
+</script>
+</body>
+</html>
