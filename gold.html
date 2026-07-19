@@ -134,9 +134,9 @@ canvas#gc{display:block;width:100%;height:100%}
       <div class="merch-head">Perbandingan Peniaga Emas</div>
       <div class="merch-live"><div class="merch-live-dot"></div>LIVE</div>
     </div>
-    <div class="merch-sub">Anggaran harga per 100g (999) · dikira dari harga spot semasa</div>
+    <div class="merch-sub">Harga per gram (999) · Kerugian = komisyen spread jika beli & jual semula</div>
     <div id="mrows"></div>
-    <p class="merch-disc">* Anda Jual = peniaga beli daripada anda (harga lebih tinggi = lebih baik). Anda Beli = anda beli daripada peniaga (harga lebih rendah = lebih baik). Spread adalah anggaran berdasarkan nisbah tipikal — semak terus dengan peniaga untuk harga tepat.</p>
+    <p class="merch-disc">* Rugi/gram = berapa ringgit anda rugi setiap gram akibat spread komisyen peniaga — jika anda beli dan terus jual semula. Harga adalah anggaran berdasarkan nisbah tipikal. Semak terus dengan peniaga untuk harga tepat.</p>
   </div>
 
 </div>
@@ -387,10 +387,11 @@ function drawChart(days) {
 function renderMerchants() {
   const sorted = [...MERCHANTS].sort((a,b)=>(a.sell-a.buy)-(b.sell-b.buy));
   document.getElementById('mrows').innerHTML = sorted.map((m,i)=>{
-    const bg=spot*m.buy, sg=spot*m.sell;
-    const b100=bg*100, s100=sg*100, sp100=s100-b100;
-    const spPct=((m.sell-m.buy)*100).toFixed(1);
-    const best=i===0;
+    const bg   = spot * m.buy;          // merchant buys from you (per gram)
+    const sg   = spot * m.sell;         // merchant sells to you (per gram)
+    const loss = sg - bg;               // RM you lose per gram to spread
+    const spPct = ((m.sell-m.buy)*100).toFixed(1);
+    const best = i===0;
     return `<div class="merch-item${best?' merch-best':''}">
       <div class="merch-item-top">
         <div><div class="mn">${best?'🏆 ':''}${m.name}</div><div class="mt">${m.note}</div></div>
@@ -399,18 +400,18 @@ function renderMerchants() {
       <div class="merch-item-prices">
         <div>
           <div class="merch-pcol-lbl">Anda Jual</div>
-          <div class="merch-pcol-val mbuy">${fmt100(b100)}</div>
-          <div class="merch-pcol-sub">per 100g<br>RM ${bg.toFixed(2)}/g</div>
+          <div class="merch-pcol-val mbuy">RM ${bg.toFixed(2)}</div>
+          <div class="merch-pcol-sub">peniaga beli<br>dari anda</div>
         </div>
         <div>
           <div class="merch-pcol-lbl">Anda Beli</div>
-          <div class="merch-pcol-val msell">${fmt100(s100)}</div>
-          <div class="merch-pcol-sub">per 100g<br>RM ${sg.toFixed(2)}/g</div>
+          <div class="merch-pcol-val msell">RM ${sg.toFixed(2)}</div>
+          <div class="merch-pcol-sub">peniaga jual<br>kepada anda</div>
         </div>
         <div>
-          <div class="merch-pcol-lbl">Spread 100g</div>
-          <div class="merch-pcol-val mspread-val">${fmt100(sp100)}</div>
-          <div class="merch-pcol-sub">per 100g<br>${spPct}% beza</div>
+          <div class="merch-pcol-lbl">💸 Rugi/gram</div>
+          <div class="merch-pcol-val mspread-val">RM ${loss.toFixed(2)}</div>
+          <div class="merch-pcol-sub">komisyen<br>setiap gram</div>
         </div>
       </div>
     </div>`;
