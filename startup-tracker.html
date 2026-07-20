@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Start-Up Tracker — TSLA Group</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f7f8fa;color:#111;min-height:100vh}
+
+/* Nav */
+.nav{background:white;border-bottom:1px solid #eee;padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.nav-brand{font-weight:900;font-size:1.05rem;color:#ff7a00;text-decoration:none}
+.nav-back{background:none;border:none;color:#ff7a00;font-weight:700;font-size:.9rem;cursor:pointer;padding:8px 0;display:flex;align-items:center;gap:4px}
+
+.container{max-width:900px;margin:0 auto;padding:20px}
+
+/* Upload view */
+.upload-wrap{display:flex;flex-direction:column;align-items:center;padding:48px 20px}
+.upload-icon{font-size:3.5rem;margin-bottom:16px}
+.upload-title{font-size:1.6rem;font-weight:900;color:#111;margin-bottom:8px;text-align:center}
+.upload-sub{color:#888;font-size:.9rem;text-align:center;max-width:400px;line-height:1.6;margin-bottom:32px}
+.drop-zone{border:2.5px dashed #ddd;border-radius:24px;padding:44px 24px;background:white;cursor:pointer;transition:.2s;max-width:440px;width:100%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.04)}
+.drop-zone:hover,.drop-zone.over{border-color:#ff7a00;background:rgba(255,122,0,.03)}
+.drop-icon{font-size:2.4rem;margin-bottom:12px}
+.drop-main{font-size:1rem;font-weight:700;color:#111;margin-bottom:5px}
+.drop-hint{font-size:.8rem;color:#aaa;margin-bottom:20px}
+.btn-pick{background:#ff7a00;color:white;border:none;border-radius:12px;padding:11px 26px;font-size:.9rem;font-weight:700;cursor:pointer;transition:.15s}
+.btn-pick:hover{background:#e56f00}
+
+/* Badge row */
+.badge-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:40px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.b-orange{background:rgba(255,122,0,.1);color:#ff7a00}
+.b-grey{background:#f0f0f0;color:#666;cursor:pointer;user-select:none}
+.b-grey:hover{background:#e8e8e8}
+
+/* Summary bar */
+.sum-bar{background:white;border-radius:18px;padding:16px 20px;box-shadow:0 2px 12px rgba(0,0,0,.04);display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.sum-item{text-align:center;flex:1;min-width:70px}
+.sum-n{font-size:1.3rem;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.sum-l{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-top:3px}
+
+/* Sort bar */
+.sort-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sort-lbl{font-size:.78rem;color:#888;font-weight:600}
+.sort-sel{border:2px solid #eee;border-radius:12px;padding:6px 10px;font-size:.8rem;font-weight:700;color:#111;background:white;cursor:pointer;outline:none}
+.sort-sel:focus{border-color:#ff7a00}
+
+/* Agent cards */
+.a-card{background:white;border-radius:24px;padding:20px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,.05);cursor:pointer;transition:.18s;border:2px solid transparent}
+.a-card:hover{border-color:rgba(255,122,0,.2);box-shadow:0 8px 30px rgba(0,0,0,.08);transform:translateY(-1px)}
+.a-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.a-left{flex:1;min-width:0}
+.a-name{font-weight:900;font-size:.98rem;color:#111;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a-meta{font-size:.73rem;color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a-right{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0}
+.mini-badge{padding:4px 9px;border-radius:20px;font-size:.72rem;font-weight:800;white-space:nowrap}
+.mb-g{background:#e8f5e9;color:#0a9b43}
+.mb-a{background:#fff3e0;color:#c77700}
+.mb-r{background:#ffebee;color:#d32f2f}
+
+/* Progress bar */
+.prog{margin-bottom:10px}
+.prog-hd{display:flex;justify-content:space-between;margin-bottom:4px}
+.prog-lbl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#777}
+.prog-val{font-size:.7rem;color:#aaa;font-variant-numeric:tabular-nums}
+.prog-track{height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s}
+.fill-g{background:#0a9b43}
+.fill-a{background:#c77700}
+.fill-r{background:#d32f2f}
+
+/* Chips */
+.a-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{padding:3px 10px;border-radius:10px;font-size:.7rem;font-weight:700}
+.ch-g{background:#e8f5e9;color:#0a9b43}
+.ch-r{background:#ffebee;color:#d32f2f}
+.ch-o{background:rgba(255,122,0,.1);color:#ff7a00}
+.ch-grey{background:#f0f0f0;color:#666}
+
+/* Detail header */
+.card{background:white;border-radius:24px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.05);margin-bottom:14px}
+.card-title{font-weight:900;font-size:.95rem;color:#111;margin-bottom:14px}
+.det-name{font-size:1.25rem;font-weight:900;color:#111;margin-bottom:10px}
+.det-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.dchip{padding:4px 11px;border-radius:20px;font-size:.75rem;font-weight:700}
+.dc-grey{background:#f0f0f0;color:#555}
+.dc-orange{background:rgba(255,122,0,.1);color:#ff7a00}
+.dc-green{background:#e8f5e9;color:#0a9b43}
+.det-remark{font-size:.8rem;color:#888;background:#f8f8f8;border-radius:10px;padding:8px 12px;margin-top:8px;line-height:1.5}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+.stat-card{background:white;border-radius:16px;padding:14px 10px;box-shadow:0 2px 12px rgba(0,0,0,.04);text-align:center}
+.stat-val{font-size:1.25rem;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.stat-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-top:5px}
+
+/* Monthly table */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:500px}
+thead tr{border-bottom:2px solid #f0f0f0}
+th{text-align:left;padding:8px 10px;font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#aaa;white-space:nowrap}
+td{padding:10px;border-bottom:1px solid #f8f8f8;font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+
+@media(max-width:480px){
+  .a-top{flex-direction:column}
+  .a-right{justify-content:flex-start}
+  .sum-bar{gap:10px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="index.html">TSLA Group</a>
+  <button class="nav-back" id="navBack" onclick="goBack()" style="display:none">‹ Kembali</button>
+</nav>
+
+<!-- Upload View -->
+<div id="viewUpload">
+  <div class="upload-wrap">
+    <div class="upload-icon">📊</div>
+    <h1 class="upload-title">Start-Up Elite Tracker</h1>
+    <p class="upload-sub">Import laporan Excel bulanan FWD Start-Up Elite Scheme untuk pantau prestasi ejen</p>
+    <div class="drop-zone" id="dropZone"
+         ondragover="onDragOver(event)" ondragleave="document.getElementById('dropZone').classList.remove('over')" ondrop="onDrop(event)"
+         onclick="document.getElementById('xlsxInput').click()">
+      <div class="drop-icon">📂</div>
+      <div class="drop-main" id="dropMain">Seret &amp; lepas fail Excel di sini</div>
+      <div class="drop-hint">FWD Start-Up Elite Scheme Validation .xlsx</div>
+      <button class="btn-pick" onclick="event.stopPropagation();document.getElementById('xlsxInput').click()">Pilih Fail</button>
+    </div>
+    <input type="file" id="xlsxInput" accept=".xlsx" style="display:none" onchange="handleFile(this.files[0])">
+  </div>
+</div>
+
+<!-- Leaderboard View -->
+<div id="viewLeaderboard" style="display:none">
+  <div class="container">
+    <div class="badge-row">
+      <span class="badge b-orange" id="titleBadge">📊 Start-Up Elite</span>
+      <label class="badge b-grey" title="Import semula Excel">
+        📤 Import Excel
+        <input type="file" id="xlsxInput2" accept=".xlsx" style="display:none" onchange="handleFile(this.files[0])">
+      </label>
+      <span class="badge b-grey" onclick="clearData()">× Buang Data</span>
+    </div>
+    <div class="sum-bar" id="sumBar"></div>
+    <div class="sort-bar">
+      <span class="sort-lbl">Susun mengikut:</span>
+      <select class="sort-sel" id="sortSel" onchange="renderLeaderboard()">
+        <option value="acePct">YTD ACE %</option>
+        <option value="nocPct">YTD NOC %</option>
+        <option value="ytdACE">YTD ACE (RM)</option>
+        <option value="payout">Jumlah Payout</option>
+        <option value="name">Nama</option>
+      </select>
+    </div>
+    <div id="agentCards"></div>
+  </div>
+</div>
+
+<!-- Detail View -->
+<div id="viewDetail" style="display:none">
+  <div class="container">
+    <div class="card" id="detHeader"></div>
+    <div class="stats-grid" id="detStats"></div>
+    <div class="card">
+      <div class="card-title">📅 Prestasi Bulanan</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Bulan</th>
+              <th>MTD ACE</th>
+              <th>Target ACE</th>
+              <th>MTD NOC</th>
+              <th>Target Kes</th>
+              <th>Keputusan</th>
+              <th>Payout</th>
+            </tr>
+          </thead>
+          <tbody id="detTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+const LS_KEY = 'tsla_startup_v1';
+let _data = null;
+let _curAgent = null;
+
+// ── Formatters ──────────────────────────────────────────────────────────────
+
+const fmtK = n => {
+  if (!n || n === 0) return 'RM 0';
+  if (n >= 1000) return 'RM ' + (n / 1000).toFixed(1) + 'k';
+  return 'RM ' + Math.round(n);
+};
+const norm = s => String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+
+function pcls(p) { return p >= 80 ? 'g' : p >= 50 ? 'a' : 'r'; }
+function fillCls(p) { return 'fill-' + pcls(p); }
+function mbCls(p)   { return 'mb-'   + pcls(p); }
+function chCls(ok)  { return ok ? 'ch-g' : 'ch-r'; }
+
+function colorForPct(p) {
+  return p >= 80 ? '#0a9b43' : p >= 50 ? '#c77700' : '#d32f2f';
+}
+
+// ── ZIP Parser ──────────────────────────────────────────────────────────────
+
+async function inflateRaw(ab) {
+  const ds = new DecompressionStream('deflate-raw');
+  const w = ds.writable.getWriter();
+  const r = ds.readable.getReader();
+  w.write(new Uint8Array(ab));
+  w.close();
+  const parts = [];
+  for (;;) {
+    const { done, value } = await r.read();
+    if (done) break;
+    parts.push(value);
+  }
+  const len = parts.reduce((s, c) => s + c.length, 0);
+  const out = new Uint8Array(len);
+  let p = 0;
+  for (const c of parts) { out.set(c, p); p += c.length; }
+  return out.buffer;
+}
+
+async function parseZip(ab) {
+  const dv = new DataView(ab), n = ab.byteLength;
+  let eocd = -1;
+  for (let i = n - 22; i >= Math.max(0, n - 65558); i--) {
+    if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('EOCD not found — pastikan fail adalah .xlsx yang sah');
+  const cdOff = dv.getUint32(eocd + 16, true);
+  const numE  = dv.getUint16(eocd + 8,  true);
+  const entries = {};
+  let pos = cdOff;
+  for (let i = 0; i < numE; i++) {
+    if (dv.getUint32(pos, true) !== 0x02014b50) break;
+    const fnl = dv.getUint16(pos + 28, true);
+    const exl = dv.getUint16(pos + 30, true);
+    const cml = dv.getUint16(pos + 32, true);
+    const off = dv.getUint32(pos + 42, true);
+    const fn  = new TextDecoder().decode(new Uint8Array(ab, pos + 46, fnl));
+    entries[fn] = off;
+    pos += 46 + fnl + exl + cml;
+  }
+  return entries;
+}
+
+async function readEntry(ab, entries, name) {
+  if (!(name in entries)) return null;
+  const dv = new DataView(ab), off = entries[name];
+  if (dv.getUint32(off, true) !== 0x04034b50) throw new Error('Bad local file header: ' + name);
+  const method = dv.getUint16(off + 8,  true);
+  const compSz = dv.getUint32(off + 18, true);
+  const fnl    = dv.getUint16(off + 26, true);
+  const exl    = dv.getUint16(off + 28, true);
+  const start  = off + 30 + fnl + exl;
+  const slice  = ab.slice(start, start + compSz);
+  let raw;
+  if      (method === 0) raw = slice;
+  else if (method === 8) raw = await inflateRaw(slice);
+  else throw new Error('Unsupported compression method: ' + method);
+  return new TextDecoder().decode(raw);
+}
+
+// ── XLSX Parser ─────────────────────────────────────────────────────────────
+
+function parseSharedStrings(xml) {
+  if (!xml) return [];
+  const doc = new DOMParser().parseFromString(xml, 'text/xml');
+  return [...doc.querySelectorAll('si')].map(si => {
+    let t = '';
+    for (const el of si.querySelectorAll('t')) t += el.textContent;
+    return t;
+  });
+}
+
+function parseSheet(xml, ss) {
+  const doc = new DOMParser().parseFromString(xml, 'text/xml');
+  return [...doc.querySelectorAll('row')].map(rowEl => {
+    const obj = {};
+    for (const c of rowEl.querySelectorAll('c')) {
+      const ref = c.getAttribute('r');
+      if (!ref) continue;
+      const col = ref.replace(/\d/g, '');
+      const t   = c.getAttribute('t');
+      const v   = c.querySelector('v');
+      if      (t === 's')         obj[col] = ss[parseInt(v?.textContent || '0')] || '';
+      else if (t === 'inlineStr') obj[col] = c.querySelector('is t')?.textContent || '';
+      else                        obj[col] = v?.textContent || '';
+    }
+    return obj;
+  });
+}
+
+async function parseXlsx(ab) {
+  const entries = await parseZip(ab);
+  const ss = parseSharedStrings(await readEntry(ab, entries, 'xl/sharedStrings.xml'));
+
+  const wbXml   = await readEntry(ab, entries, 'xl/workbook.xml');
+  const relsXml = await readEntry(ab, entries, 'xl/_rels/workbook.xml.rels');
+  if (!wbXml || !relsXml) throw new Error('workbook.xml tidak dijumpai');
+
+  const wb   = new DOMParser().parseFromString(wbXml,   'text/xml');
+  const rels = new DOMParser().parseFromString(relsXml, 'text/xml');
+
+  // Find sheet named "Summary" — r:id is namespaced, check localName
+  let rid = null;
+  for (const s of wb.querySelectorAll('sheet')) {
+    if (s.getAttribute('name') === 'Summary') {
+      for (const a of s.attributes) {
+        if (a.localName === 'id') { rid = a.value; break; }
+      }
+      break;
+    }
+  }
+  if (!rid) throw new Error('Sheet "Summary" tidak dijumpai dalam fail ini');
+
+  let target = null;
+  for (const r of rels.querySelectorAll('Relationship')) {
+    if (r.getAttribute('Id') === rid) { target = r.getAttribute('Target'); break; }
+  }
+  if (!target) throw new Error('Relationship untuk Summary tidak dijumpai');
+
+  const path = 'xl/' + target.replace(/^\.\.\//, '');
+  const sheetXml = await readEntry(ab, entries, path);
+  if (!sheetXml) throw new Error('Sheet XML tidak dijumpai di: ' + path);
+
+  return parseSheet(sheetXml, ss);
+}
+
+// ── Data Extraction ──────────────────────────────────────────────────────────
+
+function rowsToData(rows) {
+  // Locate header row by finding "Agent Code"
+  let hdrIdx = -1, hdr = null;
+  for (let i = 0; i < rows.length; i++) {
+    for (const v of Object.values(rows[i])) {
+      if (norm(v) === 'Agent Code') { hdrIdx = i; hdr = rows[i]; break; }
+    }
+    if (hdrIdx >= 0) break;
+  }
+  if (!hdr) throw new Error('Baris header ("Agent Code") tidak dijumpai. Pastikan ini adalah laporan FWD Start-Up Elite yang betul.');
+
+  // Build colMap from normalized header names (handles double spaces like "YTD  ACE")
+  const colMap = {};
+  for (const [col, val] of Object.entries(hdr)) {
+    const k = norm(val);
+    if (k) colMap[k] = col;
+  }
+
+  const get = (row, f) => norm(row[colMap[f]] ?? '');
+  const num = (row, f) => { const v = get(row, f); return v === '' ? 0 : parseFloat(v) || 0; };
+
+  // Extract report title from pre-header rows
+  let title = 'Start-Up Elite Scheme';
+  for (let i = 0; i < hdrIdx; i++) {
+    for (const v of Object.values(rows[i])) {
+      const n = norm(v).toLowerCase();
+      if (n.includes('start-up') || n.includes('startup') || n.includes('elite')) {
+        title = norm(v); break;
+      }
+    }
+  }
+
+  const agentMap = {};
+  for (let i = hdrIdx + 1; i < rows.length; i++) {
+    const row = rows[i];
+    const code = get(row, 'Agent Code');
+    if (!code || code === 'Total' || code === 'Grand Total' || code === 'Agent Code') continue;
+    const name = get(row, 'Full Name');
+    if (!name) continue;
+
+    if (!agentMap[code]) {
+      agentMap[code] = {
+        code, name,
+        agency: get(row, 'Agency Name'),
+        scheme: get(row, 'Scheme'),
+        status: get(row, 'Status'),
+        ytdACE: 0, ytdTargetACE: 0,
+        ytdCases: 0, ytdTargetCases: 0,
+        ytdNOC: 0,
+        ytdPayout: 0, totalPayout: 0,
+        ce: null, pr13: null,
+        training: '', remark: '',
+        months: [],
+      };
+    }
+
+    const a = agentMap[code];
+    // Overwrite with each row so final row (latest month) wins for YTD fields
+    a.ytdACE        = num(row, 'YTD ACE');
+    a.ytdTargetACE  = num(row, 'YTD Target ACE');
+    a.ytdCases      = num(row, 'YTD Cases');
+    a.ytdTargetCases = num(row, 'YTD Target Cases');
+    a.ytdNOC        = num(row, 'YTD NOC');
+    a.ytdPayout     = num(row, 'YTD Total Payout');
+    a.totalPayout   = num(row, 'Total Payout');
+    a.training      = get(row, 'Training Completion');
+    a.remark        = get(row, 'Remark');
+
+    const ceRaw = get(row, 'CE %');
+    if (ceRaw !== '') a.ce = parseFloat(ceRaw);
+    const prRaw = get(row, 'PR13');
+    if (prRaw !== '') a.pr13 = parseFloat(prRaw);
+
+    const catchPay = num(row, 'Catch-up Payout');
+    a.months.push({
+      month: num(row, 'Month'),
+      evalMonth: get(row, 'Evaluation Month'),
+      mtdACE: num(row, 'MTD ACE'),
+      mtdTarget: num(row, 'MTD Target ACE'),
+      mtdCases: num(row, 'MTD Cases'),
+      mtdTargetCases: num(row, 'MTD Target Cases'),
+      mtdNOC: num(row, 'MTD NOC'),
+      mtdResult: get(row, 'MTD Result'),
+      mtdPayout: num(row, 'Monthly Payout'),
+      catchResult: get(row, 'Catch-up Result'),
+      catchPayout: catchPay,
+    });
+  }
+
+  const agents = Object.values(agentMap)
+    .filter(a => a.name && (a.ytdTargetACE > 0 || a.ytdACE > 0));
+
+  return { title, updated: new Date().toISOString().split('T')[0], agents };
+}
+
+// ── File Handling ────────────────────────────────────────────────────────────
+
+async function handleFile(file) {
+  if (!file) return;
+  const dropMain = document.getElementById('dropMain');
+  if (dropMain) dropMain.textContent = '⏳ Memproses...';
+  try {
+    const rows = await parseXlsx(await file.arrayBuffer());
+    const data = rowsToData(rows);
+    if (!data.agents.length) throw new Error('Tiada data ejen dijumpai dalam fail ini.');
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    _data = data;
+    showLeaderboard();
+  } catch (err) {
+    alert('Import gagal:\n' + err.message);
+    console.error(err);
+    if (dropMain) dropMain.textContent = 'Seret & lepas fail Excel di sini';
+  } finally {
+    document.getElementById('xlsxInput').value = '';
+    const i2 = document.getElementById('xlsxInput2');
+    if (i2) i2.value = '';
+  }
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.add('over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('over');
+  handleFile(e.dataTransfer?.files[0]);
+}
+function clearData() {
+  if (!confirm('Buang data import?')) return;
+  localStorage.removeItem(LS_KEY);
+  _data = null;
+  showView('viewUpload');
+}
+
+// ── View Switching ────────────────────────────────────────────────────────────
+
+function showView(id) {
+  ['viewUpload', 'viewLeaderboard', 'viewDetail'].forEach(v =>
+    document.getElementById(v).style.display = v === id ? '' : 'none');
+  document.getElementById('navBack').style.display = id === 'viewDetail' ? '' : 'none';
+}
+
+function showLeaderboard() { showView('viewLeaderboard'); renderLeaderboard(); }
+function goBack() { showLeaderboard(); }
+
+function showDetail(code) {
+  _curAgent = _data?.agents.find(a => a.code === code);
+  if (!_curAgent) return;
+  showView('viewDetail');
+  renderDetail();
+  window.scrollTo(0, 0);
+}
+
+// ── Leaderboard ──────────────────────────────────────────────────────────────
+
+function renderLeaderboard() {
+  if (!_data) return;
+  const { title, agents } = _data;
+  document.getElementById('titleBadge').textContent = '📊 ' + title;
+
+  const totalACE    = agents.reduce((s, a) => s + a.ytdACE, 0);
+  const totalPayout = agents.reduce((s, a) => s + a.totalPayout, 0);
+  const qualified   = agents.filter(a => {
+    const last = a.months[a.months.length - 1];
+    return last?.mtdResult?.toLowerCase().includes('qualif');
+  }).length;
+
+  document.getElementById('sumBar').innerHTML =
+    `<div class="sum-item"><div class="sum-n">${agents.length}</div><div class="sum-l">Ejen</div></div>` +
+    `<div class="sum-item"><div class="sum-n" style="color:#0a9b43">${qualified}</div><div class="sum-l">Qualified</div></div>` +
+    `<div class="sum-item"><div class="sum-n" style="font-size:1rem">${fmtK(totalACE)}</div><div class="sum-l">YTD ACE</div></div>` +
+    `<div class="sum-item"><div class="sum-n" style="font-size:1rem;color:#ff7a00">${fmtK(totalPayout)}</div><div class="sum-l">Jumlah Payout</div></div>`;
+
+  const sortBy = document.getElementById('sortSel').value;
+  const acePctOf = a => a.ytdTargetACE ? a.ytdACE / a.ytdTargetACE * 100 : 0;
+  const nocPctOf = a => a.ytdTargetCases ? a.ytdNOC / a.ytdTargetCases * 100 : 0;
+
+  const sorted = [...agents].sort((a, b) => {
+    if (sortBy === 'acePct')  return acePctOf(b) - acePctOf(a);
+    if (sortBy === 'nocPct')  return nocPctOf(b) - nocPctOf(a);
+    if (sortBy === 'ytdACE')  return b.ytdACE - a.ytdACE;
+    if (sortBy === 'payout')  return b.totalPayout - a.totalPayout;
+    return a.name.localeCompare(b.name);
+  });
+
+  document.getElementById('agentCards').innerHTML = sorted.map(a => {
+    const acePct = Math.min(100, acePctOf(a));
+    const nocPct = Math.min(100, nocPctOf(a));
+    const last   = a.months[a.months.length - 1];
+    const isQual = last?.mtdResult?.toLowerCase().includes('qualif');
+    const hasRes = !!last?.mtdResult;
+
+    const ceTag  = a.ce   != null ? `<span class="mini-badge ${mbCls(a.ce * 100)}">CE ${(a.ce * 100).toFixed(1)}%</span>` : '';
+    const pr13Tag = a.pr13 != null ? `<span class="mini-badge ${mbCls(a.pr13 * 100)}">PR13 ${(a.pr13 * 100).toFixed(1)}%</span>` : '';
+
+    return `<div class="a-card" onclick="showDetail('${a.code.replace(/'/g, "\\'")}')">
+      <div class="a-top">
+        <div class="a-left">
+          <div class="a-name">${a.name}</div>
+          <div class="a-meta">${a.code}${a.agency ? ' · ' + a.agency : ''}${a.scheme ? ' · ' + a.scheme : ''}</div>
+        </div>
+        <div class="a-right">${ceTag}${pr13Tag}</div>
+      </div>
+      <div class="prog">
+        <div class="prog-hd">
+          <span class="prog-lbl">YTD ACE</span>
+          <span class="prog-val">${fmtK(a.ytdACE)} / ${fmtK(a.ytdTargetACE)} (${acePct.toFixed(1)}%)</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill ${fillCls(acePct)}" style="width:${acePct}%"></div></div>
+      </div>
+      <div class="prog">
+        <div class="prog-hd">
+          <span class="prog-lbl">YTD NOC</span>
+          <span class="prog-val">${a.ytdNOC} / ${a.ytdTargetCases} kes (${nocPct.toFixed(1)}%)</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill ${fillCls(nocPct)}" style="width:${nocPct}%"></div></div>
+      </div>
+      <div class="a-chips">
+        ${hasRes ? `<span class="chip ${chCls(isQual)}">${isQual ? '✓' : '✗'} ${last.mtdResult}</span>` : ''}
+        ${a.totalPayout > 0 ? `<span class="chip ch-o">💰 ${fmtK(a.totalPayout)}</span>` : ''}
+        ${a.training ? `<span class="chip ${chCls(a.training === 'MET')}">${a.training === 'MET' ? '✓' : '✗'} Training</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Detail ───────────────────────────────────────────────────────────────────
+
+function renderDetail() {
+  const a = _curAgent;
+  const acePct = a.ytdTargetACE  ? Math.min(100, a.ytdACE  / a.ytdTargetACE  * 100) : 0;
+  const nocPct = a.ytdTargetCases ? Math.min(100, a.ytdNOC / a.ytdTargetCases * 100) : 0;
+
+  document.getElementById('detHeader').innerHTML =
+    `<div class="det-name">${a.name}</div>
+     <div class="det-chips">
+       <span class="dchip dc-grey">${a.code}</span>
+       ${a.scheme ? `<span class="dchip dc-orange">${a.scheme}</span>` : ''}
+       ${a.status ? `<span class="dchip ${a.status === 'ACTIVE' ? 'dc-green' : 'dc-grey'}">${a.status}</span>` : ''}
+       ${a.agency ? `<span class="dchip dc-grey">${a.agency}</span>` : ''}
+     </div>
+     ${a.remark ? `<div class="det-remark">📝 ${a.remark}</div>` : ''}`;
+
+  const stat = (val, lbl, col) =>
+    `<div class="stat-card"><div class="stat-val"${col ? ` style="color:${col}"` : ''}>${val}</div><div class="stat-lbl">${lbl}</div></div>`;
+
+  document.getElementById('detStats').innerHTML = [
+    stat(fmtK(a.ytdACE),       'YTD ACE',      '#0a9b43'),
+    stat(fmtK(a.ytdTargetACE), 'Target ACE',    null),
+    stat(acePct.toFixed(1)+'%','ACE Capaian',   colorForPct(acePct)),
+    stat(String(a.ytdNOC),     'YTD NOC',       null),
+    stat(String(a.ytdTargetCases), 'Target Kes', null),
+    stat(nocPct.toFixed(1)+'%','NOC Capaian',   colorForPct(nocPct)),
+    stat(fmtK(a.totalPayout),  'Jumlah Payout', '#ff7a00'),
+    a.ce   != null ? stat((a.ce*100).toFixed(1)+'%',   'CE %',   colorForPct(a.ce*100))   : stat('—','CE %','#aaa'),
+    a.pr13 != null ? stat((a.pr13*100).toFixed(1)+'%', 'PR13 %', colorForPct(a.pr13*100)) : stat('—','PR13 %','#aaa'),
+  ].join('');
+
+  document.getElementById('detTbody').innerHTML = a.months.map(m => {
+    const isQ  = m.mtdResult.toLowerCase().includes('qualif');
+    const hasR = m.mtdResult !== '';
+    const payCell = m.mtdPayout > 0 ? fmtK(m.mtdPayout)
+      : m.catchPayout > 0 ? fmtK(m.catchPayout) + ' <span style="font-size:.65rem;color:#aaa">(catch-up)</span>'
+      : '—';
+    return `<tr>
+      <td><strong>${m.evalMonth || ('M' + m.month)}</strong></td>
+      <td>${fmtK(m.mtdACE)}</td>
+      <td>${fmtK(m.mtdTarget)}</td>
+      <td>${m.mtdNOC || '—'}</td>
+      <td>${m.mtdTargetCases || '—'}</td>
+      <td>${hasR ? `<span style="font-size:.75rem;font-weight:700;color:${isQ?'#0a9b43':'#d32f2f'}">${m.mtdResult}</span>` : '—'}</td>
+      <td>${payCell}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+(function init() {
+  const stored = localStorage.getItem(LS_KEY);
+  if (stored) {
+    try { _data = JSON.parse(stored); showLeaderboard(); }
+    catch { localStorage.removeItem(LS_KEY); }
+  }
+})();
+</script>
+</body>
+</html>
