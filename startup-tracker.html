@@ -113,6 +113,33 @@ tbody tr:last-child td{border-bottom:none}
   .a-right{justify-content:flex-start}
   .sum-bar{gap:10px}
 }
+
+/* Token modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center}
+.modal-box{background:white;border-radius:24px;padding:28px 24px;width:340px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-icon{font-size:1.8rem;margin-bottom:6px}
+.modal-title{font-weight:900;font-size:1.05rem;margin-bottom:4px}
+.modal-sub{color:#888;font-size:.8rem;margin-bottom:18px;line-height:1.5}
+.modal-inp{width:100%;padding:12px;border:2px solid #eee;border-radius:12px;font-size:.88rem;font-family:monospace;outline:none;box-sizing:border-box;color:#111}
+.modal-inp:focus{border-color:#ff7a00}
+.modal-err{color:#d32f2f;font-size:.78rem;min-height:18px;margin:6px 0}
+.modal-btns{display:flex;gap:8px;margin-top:4px}
+.mbtn-primary{flex:2;padding:12px;border:none;border-radius:12px;font-weight:900;background:#ff7a00;color:white;cursor:pointer;font-size:.9rem}
+.mbtn-primary:hover{background:#e56f00}
+.mbtn-sec{flex:1;padding:12px;border:2px solid #eee;border-radius:12px;font-weight:700;background:white;color:#555;cursor:pointer;font-size:.88rem}
+.mbtn-sec:hover{background:#f8f8f8}
+.mbtn-del{flex:1;padding:12px;border:2px solid #ffebee;border-radius:12px;font-weight:700;background:white;color:#d32f2f;cursor:pointer;font-size:.88rem}
+.mbtn-del:hover{background:#ffebee}
+
+/* Push status */
+.push-status{font-size:.78rem;font-weight:700;padding:5px 12px;border-radius:10px;display:none;align-items:center;gap:5px}
+.ps-pushing{background:#fff3e0;color:#c77700}
+.ps-ok{background:#e8f5e9;color:#0a9b43}
+.ps-err{background:#ffebee;color:#d32f2f}
+.b-token{background:#f3e8ff;color:#7c3aed;cursor:pointer;user-select:none;border:1.5px solid rgba(124,58,237,.2)}
+.b-token:hover{background:#ede9fe}
+.b-token-set{background:#e8f5e9;color:#0a9b43;cursor:pointer;border:1.5px solid rgba(10,155,67,.2)}
+.b-token-set:hover{background:#d1fae5}
 </style>
 </head>
 <body>
@@ -150,8 +177,10 @@ tbody tr:last-child td{border-bottom:none}
         📤 Import Excel
         <input type="file" id="xlsxInput2" accept=".xlsx" style="display:none" onchange="handleFile(this.files[0])">
       </label>
+      <span class="badge b-token" id="tokenBtn" onclick="showTokenModal()" title="Set GitHub token untuk auto-push">🔑 Set Token</span>
       <span class="badge b-grey" id="clearBtn" onclick="clearData()" style="display:none" title="Buang data import, gunakan semula JSON">× Buang Import</span>
     </div>
+    <div class="push-status" id="pushStatus"></div>
     <div class="sum-bar" id="sumBar"></div>
     <div class="sort-bar">
       <span class="sort-lbl">Susun mengikut:</span>
@@ -190,6 +219,23 @@ tbody tr:last-child td{border-bottom:none}
           <tbody id="detTbody"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- GitHub Token Modal -->
+<div class="modal-overlay" id="tokenModal" onclick="if(event.target===this)closeTokenModal()">
+  <div class="modal-box">
+    <div class="modal-icon">🔑</div>
+    <div class="modal-title">GitHub Personal Access Token</div>
+    <div class="modal-sub">Token diperlukan untuk push data ke GitHub secara automatik selepas import Excel. Token disimpan dalam browser anda sahaja.<br><br>Buat token di <strong>github.com → Settings → Developer settings → Personal access tokens → Fine-grained</strong> dengan permission <strong>Contents: Read &amp; Write</strong> pada repo <em>njmii/tsla-group</em>.</div>
+    <input class="modal-inp" id="tokenInp" type="password" placeholder="github_pat_..." autocomplete="off"
+           onkeydown="if(event.key==='Enter')saveToken()">
+    <div class="modal-err" id="tokenErr"></div>
+    <div class="modal-btns">
+      <button class="mbtn-primary" onclick="saveToken()">Simpan Token</button>
+      <button class="mbtn-sec" onclick="closeTokenModal()">Batal</button>
+      <button class="mbtn-del" id="delTokenBtn" onclick="deleteToken()" style="display:none">Buang</button>
     </div>
   </div>
 </div>
@@ -463,6 +509,13 @@ async function handleFile(file) {
     _data = data;
     document.getElementById('clearBtn').style.display = '';
     showLeaderboard();
+    // Auto-push to GitHub if token is set
+    if (localStorage.getItem(GH_TOKEN_KEY)) {
+      pushToGitHub(data).catch(err => {
+        showPushStatus('err', '✗ Push gagal: ' + err.message);
+        console.error(err);
+      });
+    }
   } catch (err) {
     alert('Import gagal:\n' + err.message);
     console.error(err);
@@ -496,6 +549,116 @@ function startFetch() {
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(data => { _data = data; showLeaderboard(); })
     .catch(() => showView('viewUpload'));
+}
+
+// ── GitHub Token ──────────────────────────────────────────────────────────────
+
+const GH_TOKEN_KEY = 'tsla_gh_token';
+const GH_REPO      = 'njmii/tsla-group';
+const GH_FILE      = 'data/startup-data.json';
+
+function updateTokenBtn() {
+  const btn = document.getElementById('tokenBtn');
+  if (!btn) return;
+  const has = !!localStorage.getItem(GH_TOKEN_KEY);
+  btn.className = has ? 'badge b-token-set' : 'badge b-token';
+  btn.textContent = has ? '🔑 Token OK' : '🔑 Set Token';
+}
+
+function showTokenModal() {
+  const modal = document.getElementById('tokenModal');
+  const inp   = document.getElementById('tokenInp');
+  const del   = document.getElementById('delTokenBtn');
+  const err   = document.getElementById('tokenErr');
+  const existing = localStorage.getItem(GH_TOKEN_KEY) || '';
+  inp.value = existing ? '••••••••••••••••' : '';
+  del.style.display = existing ? '' : 'none';
+  err.textContent = '';
+  modal.style.display = 'flex';
+  if (!existing) setTimeout(() => inp.focus(), 100);
+}
+
+function closeTokenModal() {
+  document.getElementById('tokenModal').style.display = 'none';
+}
+
+function saveToken() {
+  const val = document.getElementById('tokenInp').value.trim();
+  const err = document.getElementById('tokenErr');
+  if (!val || val.startsWith('•')) {
+    err.textContent = 'Masukkan token baru.';
+    return;
+  }
+  if (!val.startsWith('github_pat_') && !val.startsWith('ghp_') && !val.startsWith('ghs_')) {
+    err.textContent = 'Format token tidak sah. Pastikan ia GitHub PAT.';
+    return;
+  }
+  localStorage.setItem(GH_TOKEN_KEY, val);
+  closeTokenModal();
+  updateTokenBtn();
+}
+
+function deleteToken() {
+  localStorage.removeItem(GH_TOKEN_KEY);
+  closeTokenModal();
+  updateTokenBtn();
+}
+
+// ── GitHub Push ───────────────────────────────────────────────────────────────
+
+function showPushStatus(type, msg) {
+  const el = document.getElementById('pushStatus');
+  if (!el) return;
+  el.className = 'push-status ps-' + type;
+  el.style.display = 'flex';
+  el.textContent = msg;
+  if (type === 'ok') setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+async function pushToGitHub(data) {
+  const token = localStorage.getItem(GH_TOKEN_KEY);
+  if (!token) return;
+
+  showPushStatus('pushing', '⏳ Menghantar ke GitHub...');
+
+  const jsonStr = JSON.stringify(data, null, 0);
+  // Encode UTF-8 → base64 correctly (handles Malay chars)
+  const bytes   = new TextEncoder().encode(jsonStr);
+  const b64     = btoa(String.fromCharCode(...bytes));
+
+  const headers = {
+    'Authorization': 'Bearer ' + token,
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
+  const apiUrl = `https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`;
+
+  // Get current SHA (needed to update existing file)
+  const getResp = await fetch(apiUrl, { headers });
+  if (!getResp.ok) {
+    const e = await getResp.json().catch(() => ({}));
+    throw new Error('Gagal dapatkan SHA: ' + (e.message || getResp.status));
+  }
+  const { sha } = await getResp.json();
+
+  // Push updated file
+  const putResp = await fetch(apiUrl, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify({
+      message: `Update startup data — ${data.title}`,
+      content: b64,
+      sha,
+    }),
+  });
+
+  if (!putResp.ok) {
+    const e = await putResp.json().catch(() => ({}));
+    throw new Error('Push gagal: ' + (e.message || putResp.status));
+  }
+
+  showPushStatus('ok', '✓ Live! Data dikemaskini untuk semua');
 }
 
 function toggleFilter() {
@@ -654,6 +817,7 @@ function renderDetail() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 (function init() {
+  updateTokenBtn();
   const stored = localStorage.getItem(LS_KEY);
   if (stored) {
     try {
