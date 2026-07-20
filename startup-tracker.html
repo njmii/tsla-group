@@ -690,6 +690,11 @@ function showDetail(code) {
 
 // ── Leaderboard ──────────────────────────────────────────────────────────────
 
+// Returns the most recent month entry that has actual data (mtdACE > 0 or a result)
+function lastCompletedMonth(a) {
+  return [...a.months].reverse().find(m => m.mtdACE > 0 || m.mtdResult !== '') || a.months[a.months.length - 1];
+}
+
 function renderLeaderboard() {
   if (!_data) return;
   const { title, agents: allAgents } = _data;
@@ -698,18 +703,20 @@ function renderLeaderboard() {
   // Apply "My Agents" filter
   const agents = _filterOn ? allAgents.filter(a => MY_AGENTS.has(a.code)) : allAgents;
 
-  const totalACE    = agents.reduce((s, a) => s + a.ytdACE, 0);
-  const totalPayout = agents.reduce((s, a) => s + a.totalPayout, 0);
-  const qualified   = agents.filter(a => {
-    const last = a.months[a.months.length - 1];
-    return last?.mtdResult?.toLowerCase().includes('qualif');
-  }).length;
+  const totalACE = agents.reduce((s, a) => s + a.ytdACE, 0);
+  const qualified = agents.filter(a => lastCompletedMonth(a)?.mtdResult?.toLowerCase().includes('qualif')).length;
+
+  // Current month payout total across all agents (MTD + catch-up from latest completed month)
+  const curMonthTotal = agents.reduce((s, a) => {
+    const m = lastCompletedMonth(a);
+    return s + (m?.mtdPayout || 0) + (m?.catchPayout || 0);
+  }, 0);
 
   document.getElementById('sumBar').innerHTML =
     `<div class="sum-item"><div class="sum-n">${agents.length}</div><div class="sum-l">Ejen</div></div>` +
     `<div class="sum-item"><div class="sum-n" style="color:#0a9b43">${qualified}</div><div class="sum-l">Qualified</div></div>` +
     `<div class="sum-item"><div class="sum-n" style="font-size:1rem">${fmtK(totalACE)}</div><div class="sum-l">YTD ACE</div></div>` +
-    `<div class="sum-item"><div class="sum-n" style="font-size:1rem;color:#ff7a00">${fmtK(totalPayout)}</div><div class="sum-l">Jumlah Payout</div></div>`;
+    `<div class="sum-item"><div class="sum-n" style="font-size:1rem;color:#ff7a00">${fmtK(curMonthTotal)}</div><div class="sum-l">Payout Bulan Ini</div></div>`;
 
   const sortBy = document.getElementById('sortSel').value;
   const acePctOf = a => a.ytdTargetACE ? a.ytdACE / a.ytdTargetACE * 100 : 0;
@@ -719,18 +726,30 @@ function renderLeaderboard() {
     if (sortBy === 'acePct')  return acePctOf(b) - acePctOf(a);
     if (sortBy === 'nocPct')  return nocPctOf(b) - nocPctOf(a);
     if (sortBy === 'ytdACE')  return b.ytdACE - a.ytdACE;
-    if (sortBy === 'payout')  return b.totalPayout - a.totalPayout;
+    if (sortBy === 'payout')  return (lastCompletedMonth(b)?.mtdPayout + lastCompletedMonth(b)?.catchPayout || 0) - (lastCompletedMonth(a)?.mtdPayout + lastCompletedMonth(a)?.catchPayout || 0);
     return a.name.localeCompare(b.name);
   });
 
   document.getElementById('agentCards').innerHTML = sorted.map(a => {
     const acePct = Math.min(100, acePctOf(a));
     const nocPct = Math.min(100, nocPctOf(a));
-    const last   = a.months[a.months.length - 1];
+
+    // Last completed month (with actual data)
+    const last = lastCompletedMonth(a);
     const isQual = last?.mtdResult?.toLowerCase().includes('qualif');
     const hasRes = !!last?.mtdResult;
 
-    const ceTag  = a.ce   != null ? `<span class="mini-badge ${mbCls(a.ce * 100)}">CE ${(a.ce * 100).toFixed(1)}%</span>` : '';
+    // Current month payout + whether it was MTD or catch-up qualified
+    let curPay = null;
+    if (last?.mtdPayout > 0)   curPay = { amt: last.mtdPayout,   src: 'MTD' };
+    else if (last?.catchPayout > 0) curPay = { amt: last.catchPayout, src: 'Catch-up' };
+
+    // Next month MTD target (the scheme month after the last completed one)
+    const lastNum = last?.month || 0;
+    const nextMth = a.months.find(m => m.month === lastNum + 1);
+    const nextTarget = nextMth?.mtdTarget || 0;
+
+    const ceTag   = a.ce   != null ? `<span class="mini-badge ${mbCls(a.ce * 100)}">CE ${(a.ce * 100).toFixed(1)}%</span>` : '';
     const pr13Tag = a.pr13 != null ? `<span class="mini-badge ${mbCls(a.pr13 * 100)}">PR13 ${(a.pr13 * 100).toFixed(1)}%</span>` : '';
 
     return `<div class="a-card" onclick="showDetail('${a.code.replace(/'/g, "\\'")}')">
@@ -757,7 +776,8 @@ function renderLeaderboard() {
       </div>
       <div class="a-chips">
         ${hasRes ? `<span class="chip ${chCls(isQual)}">${isQual ? '✓' : '✗'} ${last.mtdResult}</span>` : ''}
-        ${a.totalPayout > 0 ? `<span class="chip ch-o">💰 ${fmtK(a.totalPayout)}</span>` : ''}
+        ${curPay ? `<span class="chip ch-o">💰 ${fmtK(curPay.amt)} <span style="font-size:.62rem;opacity:.8">(${curPay.src})</span></span>` : ''}
+        ${nextTarget > 0 ? `<span class="chip ch-grey">→ Next: ${fmtK(nextTarget)}</span>` : ''}
         ${a.training ? `<span class="chip ${chCls(a.training === 'MET')}">${a.training === 'MET' ? '✓' : '✗'} Training</span>` : ''}
       </div>
     </div>`;
