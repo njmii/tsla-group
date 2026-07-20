@@ -706,17 +706,13 @@ function renderLeaderboard() {
   const totalACE = agents.reduce((s, a) => s + a.ytdACE, 0);
   const qualified = agents.filter(a => lastCompletedMonth(a)?.mtdResult?.toLowerCase().includes('qualif')).length;
 
-  // Current month payout total across all agents (MTD + catch-up from latest completed month)
-  const curMonthTotal = agents.reduce((s, a) => {
-    const m = lastCompletedMonth(a);
-    return s + (m?.mtdPayout || 0) + (m?.catchPayout || 0);
-  }, 0);
+  const totalPayout = agents.reduce((s, a) => s + a.totalPayout, 0);
 
   document.getElementById('sumBar').innerHTML =
     `<div class="sum-item"><div class="sum-n">${agents.length}</div><div class="sum-l">Ejen</div></div>` +
     `<div class="sum-item"><div class="sum-n" style="color:#0a9b43">${qualified}</div><div class="sum-l">Qualified</div></div>` +
     `<div class="sum-item"><div class="sum-n" style="font-size:1rem">${fmtK(totalACE)}</div><div class="sum-l">YTD ACE</div></div>` +
-    `<div class="sum-item"><div class="sum-n" style="font-size:1rem;color:#ff7a00">${fmtK(curMonthTotal)}</div><div class="sum-l">Payout Bulan Ini</div></div>`;
+    `<div class="sum-item"><div class="sum-n" style="font-size:1rem;color:#ff7a00">${fmtK(totalPayout)}</div><div class="sum-l">Total Payout</div></div>`;
 
   const sortBy = document.getElementById('sortSel').value;
   const acePctOf = a => a.ytdTargetACE ? a.ytdACE / a.ytdTargetACE * 100 : 0;
@@ -726,7 +722,7 @@ function renderLeaderboard() {
     if (sortBy === 'acePct')  return acePctOf(b) - acePctOf(a);
     if (sortBy === 'nocPct')  return nocPctOf(b) - nocPctOf(a);
     if (sortBy === 'ytdACE')  return b.ytdACE - a.ytdACE;
-    if (sortBy === 'payout')  return (lastCompletedMonth(b)?.mtdPayout + lastCompletedMonth(b)?.catchPayout || 0) - (lastCompletedMonth(a)?.mtdPayout + lastCompletedMonth(a)?.catchPayout || 0);
+    if (sortBy === 'payout')  return b.totalPayout - a.totalPayout;
     return a.name.localeCompare(b.name);
   });
 
