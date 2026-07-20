@@ -757,6 +757,7 @@ function renderLeaderboard() {
         <div class="a-left">
           <div class="a-name">${a.name}</div>
           <div class="a-meta">${a.code}${a.agency ? ' · ' + a.agency : ''}${a.scheme ? ' · ' + a.scheme : ''}</div>
+          ${a.remark ? `<div style="font-size:.72rem;color:#888;margin-top:3px;font-style:italic">📝 ${a.remark}</div>` : ''}
         </div>
         <div class="a-right">${ceTag}${pr13Tag}</div>
       </div>
@@ -777,6 +778,7 @@ function renderLeaderboard() {
       <div class="a-chips">
         ${hasRes ? `<span class="chip ${chCls(isQual)}">${isQual ? '✓' : '✗'} ${last.mtdResult}</span>` : ''}
         ${curPay ? `<span class="chip ch-o">💰 ${fmtK(curPay.amt)} <span style="font-size:.62rem;opacity:.8">(${curPay.src})</span></span>` : ''}
+        ${a.totalPayout > 0 ? `<span class="chip ch-grey">Total: ${fmtK(a.totalPayout)}</span>` : ''}
         ${nextTarget > 0 ? `<span class="chip ch-grey">→ Next: ${fmtK(nextTarget)}</span>` : ''}
         ${a.training ? `<span class="chip ${chCls(a.training === 'MET')}">${a.training === 'MET' ? '✓' : '✗'} Training</span>` : ''}
       </div>
