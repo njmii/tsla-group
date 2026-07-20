@@ -34,6 +34,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .b-orange{background:rgba(255,122,0,.1);color:#ff7a00}
 .b-grey{background:#f0f0f0;color:#666;cursor:pointer;user-select:none}
 .b-grey:hover{background:#e8e8e8}
+.b-filter{background:rgba(255,122,0,.12);color:#ff7a00;border:1.5px solid rgba(255,122,0,.3);cursor:pointer;user-select:none}
+.b-filter:hover{background:rgba(255,122,0,.2)}
+.b-all{background:#f0f0f0;color:#666;cursor:pointer;user-select:none}
+.b-all:hover{background:#e8e8e8}
 
 /* Summary bar */
 .sum-bar{background:white;border-radius:18px;padding:16px 20px;box-shadow:0 2px 12px rgba(0,0,0,.04);display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
@@ -123,7 +127,7 @@ tbody tr:last-child td{border-bottom:none}
   <div class="upload-wrap">
     <div class="upload-icon">📊</div>
     <h1 class="upload-title">Start-Up Elite Tracker</h1>
-    <p class="upload-sub">Import laporan Excel bulanan FWD Start-Up Elite Scheme untuk pantau prestasi ejen</p>
+    <p class="upload-sub">Data dimuatkan secara automatik. Import fail Excel baharu jika anda ingin kemaskini data bulan ini.</p>
     <div class="drop-zone" id="dropZone"
          ondragover="onDragOver(event)" ondragleave="document.getElementById('dropZone').classList.remove('over')" ondrop="onDrop(event)"
          onclick="document.getElementById('xlsxInput').click()">
@@ -141,11 +145,12 @@ tbody tr:last-child td{border-bottom:none}
   <div class="container">
     <div class="badge-row">
       <span class="badge b-orange" id="titleBadge">📊 Start-Up Elite</span>
-      <label class="badge b-grey" title="Import semula Excel">
+      <span class="badge b-filter" id="filterBtn" onclick="toggleFilter()" title="Toggle antara ejen saya / semua ejen">👥 Ejen Saya</span>
+      <label class="badge b-grey" title="Import Excel baru (admin)">
         📤 Import Excel
         <input type="file" id="xlsxInput2" accept=".xlsx" style="display:none" onchange="handleFile(this.files[0])">
       </label>
-      <span class="badge b-grey" onclick="clearData()">× Buang Data</span>
+      <span class="badge b-grey" id="clearBtn" onclick="clearData()" style="display:none" title="Buang data import, gunakan semula JSON">× Buang Import</span>
     </div>
     <div class="sum-bar" id="sumBar"></div>
     <div class="sort-bar">
@@ -193,8 +198,13 @@ tbody tr:last-child td{border-bottom:none}
 'use strict';
 
 const LS_KEY = 'tsla_startup_v1';
+
+// My agents — auto-filtered by default
+const MY_AGENTS = new Set(['A15756','A15781','A16553','A15475','A15068','A14690']);
+
 let _data = null;
 let _curAgent = null;
+let _filterOn = true;
 
 // ── Formatters ──────────────────────────────────────────────────────────────
 
@@ -451,6 +461,7 @@ async function handleFile(file) {
     if (!data.agents.length) throw new Error('Tiada data ejen dijumpai dalam fail ini.');
     localStorage.setItem(LS_KEY, JSON.stringify(data));
     _data = data;
+    document.getElementById('clearBtn').style.display = '';
     showLeaderboard();
   } catch (err) {
     alert('Import gagal:\n' + err.message);
@@ -473,10 +484,26 @@ function onDrop(e) {
   handleFile(e.dataTransfer?.files[0]);
 }
 function clearData() {
-  if (!confirm('Buang data import?')) return;
+  if (!confirm('Buang data import? Data JSON akan dimuatkan semula.')) return;
   localStorage.removeItem(LS_KEY);
   _data = null;
-  showView('viewUpload');
+  document.getElementById('clearBtn').style.display = 'none';
+  startFetch();
+}
+
+function startFetch() {
+  fetch('data/startup-data.json')
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(data => { _data = data; showLeaderboard(); })
+    .catch(() => showView('viewUpload'));
+}
+
+function toggleFilter() {
+  _filterOn = !_filterOn;
+  const btn = document.getElementById('filterBtn');
+  btn.className = _filterOn ? 'badge b-filter' : 'badge b-all';
+  btn.textContent = _filterOn ? '👥 Ejen Saya' : '🌐 Semua Ejen';
+  renderLeaderboard();
 }
 
 // ── View Switching ────────────────────────────────────────────────────────────
@@ -502,8 +529,11 @@ function showDetail(code) {
 
 function renderLeaderboard() {
   if (!_data) return;
-  const { title, agents } = _data;
+  const { title, agents: allAgents } = _data;
   document.getElementById('titleBadge').textContent = '📊 ' + title;
+
+  // Apply "My Agents" filter
+  const agents = _filterOn ? allAgents.filter(a => MY_AGENTS.has(a.code)) : allAgents;
 
   const totalACE    = agents.reduce((s, a) => s + a.ytdACE, 0);
   const totalPayout = agents.reduce((s, a) => s + a.totalPayout, 0);
@@ -626,9 +656,14 @@ function renderDetail() {
 (function init() {
   const stored = localStorage.getItem(LS_KEY);
   if (stored) {
-    try { _data = JSON.parse(stored); showLeaderboard(); }
-    catch { localStorage.removeItem(LS_KEY); }
+    try {
+      _data = JSON.parse(stored);
+      document.getElementById('clearBtn').style.display = '';
+      showLeaderboard();
+      return;
+    } catch { localStorage.removeItem(LS_KEY); }
   }
+  startFetch();
 })();
 </script>
 </body>
