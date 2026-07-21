@@ -265,6 +265,7 @@ function pcls(p) { return p >= 80 ? 'g' : p >= 50 ? 'a' : 'r'; }
 function fillCls(p) { return 'fill-' + pcls(p); }
 function mbCls(p)   { return 'mb-'   + pcls(p); }
 function chCls(ok)  { return ok ? 'ch-g' : 'ch-r'; }
+function isQualified(r) { const s = (r || '').toLowerCase(); return s.includes('qualif') && !s.includes('not'); }
 
 function colorForPct(p) {
   return p >= 80 ? '#0a9b43' : p >= 50 ? '#c77700' : '#d32f2f';
@@ -704,7 +705,7 @@ function renderLeaderboard() {
   const agents = _filterOn ? allAgents.filter(a => MY_AGENTS.has(a.code)) : allAgents;
 
   const totalACE = agents.reduce((s, a) => s + a.ytdACE, 0);
-  const qualified = agents.filter(a => lastCompletedMonth(a)?.mtdResult?.toLowerCase().includes('qualif')).length;
+  const qualified = agents.filter(a => isQualified(lastCompletedMonth(a)?.mtdResult) || isQualified(lastCompletedMonth(a)?.catchResult)).length;
 
   const totalPayout = agents.reduce((s, a) => s + a.totalPayout, 0);
 
@@ -732,18 +733,22 @@ function renderLeaderboard() {
 
     // Last completed month (with actual data)
     const last = lastCompletedMonth(a);
-    const isQual = last?.mtdResult?.toLowerCase().includes('qualif');
-    const hasRes = !!last?.mtdResult;
+    // Overall result: qualified if MTD or catch-up qualified
+    const isQual = isQualified(last?.mtdResult) || isQualified(last?.catchResult);
+    const displayResult = isQualified(last?.catchResult) && !isQualified(last?.mtdResult)
+      ? (last.mtdResult ? last.mtdResult + ' / Catch-up Qualified' : 'Catch-up Qualified')
+      : last?.mtdResult;
+    const hasRes = !!(last?.mtdResult || last?.catchResult);
 
     // Current month payout + whether it was MTD or catch-up qualified
     let curPay = null;
-    if (last?.mtdPayout > 0)   curPay = { amt: last.mtdPayout,   src: 'MTD' };
+    if (last?.mtdPayout > 0)        curPay = { amt: last.mtdPayout,   src: 'MTD' };
     else if (last?.catchPayout > 0) curPay = { amt: last.catchPayout, src: 'Catch-up' };
 
-    // Next month MTD target (the scheme month after the last completed one)
+    // Next month MTD target: prefer next scheme month's row, fall back to current target
     const lastNum = last?.month || 0;
     const nextMth = a.months.find(m => m.month === lastNum + 1);
-    const nextTarget = nextMth?.mtdTarget || 0;
+    const nextTarget = nextMth?.mtdTarget || last?.mtdTarget || 0;
 
     const ceTag   = a.ce   != null ? `<span class="mini-badge ${mbCls(a.ce * 100)}">CE ${(a.ce * 100).toFixed(1)}%</span>` : '';
     const pr13Tag = a.pr13 != null ? `<span class="mini-badge ${mbCls(a.pr13 * 100)}">PR13 ${(a.pr13 * 100).toFixed(1)}%</span>` : '';
@@ -772,7 +777,7 @@ function renderLeaderboard() {
         <div class="prog-track"><div class="prog-fill ${fillCls(nocPct)}" style="width:${nocPct}%"></div></div>
       </div>
       <div class="a-chips">
-        ${hasRes ? `<span class="chip ${chCls(isQual)}">${isQual ? '✓' : '✗'} ${last.mtdResult}</span>` : ''}
+        ${hasRes ? `<span class="chip ${chCls(isQual)}">${isQual ? '✓' : '✗'} ${displayResult}</span>` : ''}
         ${curPay ? `<span class="chip ch-o">💰 ${fmtK(curPay.amt)} <span style="font-size:.62rem;opacity:.8">(${curPay.src})</span></span>` : ''}
         ${a.totalPayout > 0 ? `<span class="chip ch-grey">Total: ${fmtK(a.totalPayout)}</span>` : ''}
         ${nextTarget > 0 ? `<span class="chip ch-grey">→ Next: ${fmtK(nextTarget)}</span>` : ''}
@@ -815,7 +820,7 @@ function renderDetail() {
   ].join('');
 
   document.getElementById('detTbody').innerHTML = a.months.map(m => {
-    const isQ  = m.mtdResult.toLowerCase().includes('qualif');
+    const isQ  = isQualified(m.mtdResult) || isQualified(m.catchResult);
     const hasR = m.mtdResult !== '';
     const payCell = m.mtdPayout > 0 ? fmtK(m.mtdPayout)
       : m.catchPayout > 0 ? fmtK(m.catchPayout) + ' <span style="font-size:.65rem;color:#aaa">(catch-up)</span>'
