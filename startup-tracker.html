@@ -707,7 +707,7 @@ function renderLeaderboard() {
   const totalACE = agents.reduce((s, a) => s + a.ytdACE, 0);
   const qualified = agents.filter(a => isQualified(lastCompletedMonth(a)?.mtdResult) || isQualified(lastCompletedMonth(a)?.catchResult)).length;
 
-  const totalPayout = agents.reduce((s, a) => s + a.totalPayout, 0);
+  const totalPayout = agents.reduce((s, a) => s + a.ytdPayout, 0);
 
   document.getElementById('sumBar').innerHTML =
     `<div class="sum-item"><div class="sum-n">${agents.length}</div><div class="sum-l">Ejen</div></div>` +
@@ -723,7 +723,7 @@ function renderLeaderboard() {
     if (sortBy === 'acePct')  return acePctOf(b) - acePctOf(a);
     if (sortBy === 'nocPct')  return nocPctOf(b) - nocPctOf(a);
     if (sortBy === 'ytdACE')  return b.ytdACE - a.ytdACE;
-    if (sortBy === 'payout')  return b.totalPayout - a.totalPayout;
+    if (sortBy === 'payout')  return b.ytdPayout - a.ytdPayout;
     return a.name.localeCompare(b.name);
   });
 
@@ -740,15 +740,14 @@ function renderLeaderboard() {
       : last?.mtdResult;
     const hasRes = !!(last?.mtdResult || last?.catchResult);
 
-    // Current month payout + whether it was MTD or catch-up qualified
-    let curPay = null;
-    if (last?.mtdPayout > 0)        curPay = { amt: last.mtdPayout,   src: 'MTD' };
-    else if (last?.catchPayout > 0) curPay = { amt: last.catchPayout, src: 'Catch-up' };
+    // This month's total payout (MTD + catch-up combined) = "Total Payout" column
+    const monthPayout = a.totalPayout || 0;
 
-    // Next month MTD target: prefer next scheme month's row, fall back to current target
+    // Next month MTD target + NOC target: prefer next scheme month's row, fall back to current
     const lastNum = last?.month || 0;
     const nextMth = a.months.find(m => m.month === lastNum + 1);
-    const nextTarget = nextMth?.mtdTarget || last?.mtdTarget || 0;
+    const nextAce = nextMth?.mtdTarget || last?.mtdTarget || 0;
+    const nextNoc = nextMth?.mtdTargetCases || last?.mtdTargetCases || 0;
 
     const ceTag   = a.ce   != null ? `<span class="mini-badge ${mbCls(a.ce * 100)}">CE ${(a.ce * 100).toFixed(1)}%</span>` : '';
     const pr13Tag = a.pr13 != null ? `<span class="mini-badge ${mbCls(a.pr13 * 100)}">PR13 ${(a.pr13 * 100).toFixed(1)}%</span>` : '';
@@ -778,9 +777,9 @@ function renderLeaderboard() {
       </div>
       <div class="a-chips">
         ${hasRes ? `<span class="chip ${chCls(isQual)}">${isQual ? '✓' : '✗'} ${displayResult}</span>` : ''}
-        ${curPay ? `<span class="chip ch-o">💰 ${fmtK(curPay.amt)} <span style="font-size:.62rem;opacity:.8">(${curPay.src})</span></span>` : ''}
-        ${a.totalPayout > 0 ? `<span class="chip ch-grey">Total: ${fmtK(a.totalPayout)}</span>` : ''}
-        ${nextTarget > 0 ? `<span class="chip ch-grey">→ Next: ${fmtK(nextTarget)}</span>` : ''}
+        ${monthPayout > 0 ? `<span class="chip ch-o">💰 ${fmtK(monthPayout)}</span>` : ''}
+        ${a.ytdPayout > 0 ? `<span class="chip ch-grey">YTD: ${fmtK(a.ytdPayout)}</span>` : ''}
+        ${nextAce > 0 ? `<span class="chip ch-grey">→ Next: ${fmtK(nextAce)}${nextNoc > 0 ? ' · ' + nextNoc + ' kes' : ''}</span>` : ''}
         ${a.training ? `<span class="chip ${chCls(a.training === 'MET')}">${a.training === 'MET' ? '✓' : '✗'} Training</span>` : ''}
       </div>
     </div>`;
