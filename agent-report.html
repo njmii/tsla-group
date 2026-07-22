@@ -484,7 +484,18 @@ function classifyCE(c) {
 
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
 
-  // dueDate rules come first — determines if premium was collected this cycle
+  // Prediction mode (future month): due dates in the data are stale (July snapshot),
+  // so the due-date shortcut would wrongly flag all clients as 0%.
+  // Use status-based classification instead — same approach as PR13.
+  if (_isPrediction()) {
+    if (c.status === 'Contract Surrendered') return { cls: '0', reason: 'Contract Surrendered' };
+    if (c.payMethod === 'Biro Angkasa')      return { cls: '100', reason: 'Biro Angkasa' };
+    const eff = pointInTimeStatus(c);
+    if (eff !== 'In Force') return { cls: '0', reason: eff || 'Not In Force' };
+    return { cls: '100', reason: 'In Force (predicted)', watch: _watchFlag(c) };
+  }
+
+  // Historical / current month: due-date rules — determines if premium was collected this cycle
   if (c.dueDate) {
     const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
     if (dueKey === TODAY_KEY) return { cls: '100', reason: 'Due this month', watch: true };
