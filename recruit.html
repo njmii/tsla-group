@@ -207,7 +207,7 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 <!-- NAV -->
 <div class="navbar">
   <div class="nav-content">
-    <img class="nav-logo" src="assets/tslalogo.png" alt="TSLA Group"/>
+    <img class="nav-logo" src="assets/tslalogo.png" alt="TSLA Group" style="cursor:pointer" onclick="openAdminGate()" title="Admin"/>
     <a class="nav-cta" onclick="goTo(3);return false;" href="#join">Jom Join ↗</a>
   </div>
 </div>
@@ -628,6 +628,48 @@ if (ctaForm) {
     spawnSparkles(r.left + r.width/2, r.top + r.height/2);
   });
 }
+/* ── ADMIN GATE ── */
+function openAdminGate() {
+  const m = document.getElementById('adminModal');
+  m.style.display = 'flex';
+  document.getElementById('adminPin').value = '';
+  document.getElementById('adminErr').textContent = '';
+  setTimeout(() => document.getElementById('adminPin').focus(), 100);
+}
+function closeAdminModal() {
+  document.getElementById('adminModal').style.display = 'none';
+}
+function onAdminPin(val) { if (val.length === 4) submitAdmin(); }
+function submitAdmin() {
+  const pin = document.getElementById('adminPin').value;
+  if (pin === '1111') {
+    closeAdminModal();
+    window.location.href = 'index.html';
+  } else {
+    document.getElementById('adminErr').textContent = 'PIN salah. Cuba lagi.';
+    document.getElementById('adminPin').value = '';
+    document.getElementById('adminPin').focus();
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('adminModal').style.display === 'flex') closeAdminModal();
+});
 </script>
+
+<!-- ADMIN PIN MODAL -->
+<div id="adminModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:24px;padding:32px 24px;width:300px;max-width:90vw;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.25)">
+    <div style="font-size:2rem;margin-bottom:6px">🔒</div>
+    <div style="font-weight:900;font-size:1.1rem;margin-bottom:4px">Admin Access</div>
+    <div style="color:#888;font-size:.82rem;margin-bottom:20px">Masukkan PIN 4 digit</div>
+    <input id="adminPin" type="tel" maxlength="4" placeholder="••••"
+      oninput="onAdminPin(this.value)"
+      style="width:100%;padding:14px;border:2px solid #eee;border-radius:14px;font-size:1.4rem;text-align:center;letter-spacing:.3em;outline:none;box-sizing:border-box;font-weight:700;transition:border-color .2s"
+      onfocus="this.style.borderColor='#ff7a00'" onblur="this.style.borderColor='#eee'">
+    <div id="adminErr" style="color:#e53935;font-size:.8rem;min-height:20px;margin-top:8px"></div>
+    <button onclick="submitAdmin()" style="width:100%;padding:13px;background:#ff7a00;color:white;border:none;border-radius:14px;font-weight:800;font-size:.95rem;cursor:pointer;margin-top:4px">Masuk</button>
+    <button onclick="closeAdminModal()" style="width:100%;padding:11px;background:none;color:#aaa;border:none;font-size:.85rem;cursor:pointer;margin-top:8px">Batal</button>
+  </div>
+</div>
 </body>
 </html>
