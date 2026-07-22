@@ -40,8 +40,8 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 .slide-arrow-right{right:12px}
 @media(max-width:700px){.slide-arrow{display:none}}
 
-/* ── HERO SLIDE ── */
-.slide-hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:40px 20px 72px;background:white}
+/* ── HERO (top section of slide 1) ── */
+.hero-section{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:56px 20px 40px;background:white;position:relative;min-height:90svh}
 #heroCanvas{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.6}
 .hero-eyebrow{font-size:.75rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#ff7a00;margin-bottom:20px;opacity:0;animation:fadeUp .7s .2s forwards;position:relative;z-index:1}
 .hero-logo{width:min(160px,44vw);margin-bottom:20px;opacity:0;animation:fadeUp .7s .1s forwards;position:relative;z-index:1}
@@ -54,22 +54,32 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 .hero-sub{margin-top:20px;font-size:clamp(.9rem,2.2vw,1.1rem);color:#666;max-width:480px;opacity:0;animation:fadeUp .7s 1s forwards;line-height:1.7;position:relative;z-index:1}
 .hero-sub strong{color:#111}
 .hero-actions{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;opacity:0;animation:fadeUp .7s 1.15s forwards;position:relative;z-index:1}
-.hero-quick{display:flex;gap:16px;margin-top:28px;flex-wrap:wrap;justify-content:center;opacity:0;animation:fadeUp .7s 1.3s forwards;position:relative;z-index:1}
+.hero-apps{margin-top:24px;opacity:0;animation:fadeUp .7s 1.3s forwards;position:relative;z-index:1}
+.hero-apps-divider{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.hero-apps-divider::before,.hero-apps-divider::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.12)}
+.hero-apps-divider span{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(0,0,0,.32);white-space:nowrap}
+.hero-apps-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn-app{background:rgba(255,122,0,.09);color:#ff7a00;border:1.5px solid rgba(255,122,0,.3);border-radius:40px;padding:10px 20px;font-weight:700;font-size:.85rem;cursor:pointer;transition:.2s;text-decoration:none;display:inline-block}
+.btn-app:hover{background:rgba(255,122,0,.16);border-color:#ff7a00;transform:translateY(-2px)}
+.hero-quick{display:flex;gap:16px;margin-top:28px;flex-wrap:wrap;justify-content:center;opacity:0;animation:fadeUp .7s 1.48s forwards;position:relative;z-index:1}
 .hero-q{text-align:center;background:white;border-radius:20px;padding:14px 22px;box-shadow:0 4px 20px rgba(0,0,0,.06)}
 .hero-q-val{font-size:1.85rem;font-weight:900;color:#ff7a00;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .hero-q-lbl{font-size:.68rem;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
-.swipe-hint{position:relative;z-index:1;margin-top:24px;font-size:.7rem;font-weight:700;color:#bbb;letter-spacing:.12em;text-transform:uppercase;opacity:0;animation:fadeUp .6s 1.7s forwards}
+.swipe-hint{position:relative;z-index:1;margin-top:20px;font-size:.68rem;font-weight:700;color:#bbb;letter-spacing:.12em;text-transform:uppercase;opacity:0;animation:fadeUp .6s 1.85s forwards}
+
+/* ── SECTION DIVIDER within slide 1 ── */
+.section-divide{border:none;border-top:1px solid #eee;margin:0}
+
+/* ── SECTION LABELS ── */
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#ff7a00;margin-bottom:12px}
+.section-title{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1;letter-spacing:-.03em;text-wrap:balance}
+.section-body{color:#666;font-size:.95rem;line-height:1.75;margin-top:14px}
 
 /* ── BUTTONS ── */
 .btn-primary{background:#ff7a00;color:#fff;border:none;border-radius:40px;padding:14px 32px;font-weight:800;font-size:.95rem;cursor:pointer;transition:.25s;text-decoration:none;display:inline-block;position:relative}
 .btn-primary:hover{background:#ff9a2e;transform:translateY(-2px);box-shadow:0 12px 40px rgba(255,122,0,.35)}
 .btn-sec{background:white;color:#111;border:1px solid #eee;border-radius:40px;padding:13px 28px;font-weight:700;font-size:.95rem;cursor:pointer;transition:.25s;text-decoration:none;display:inline-block}
 .btn-sec:hover{border-color:#ff7a00;color:#ff7a00}
-
-/* ── SECTION LABELS ── */
-.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#ff7a00;margin-bottom:12px}
-.section-title{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1;letter-spacing:-.03em;text-wrap:balance}
-.section-body{color:#666;font-size:.95rem;line-height:1.75;margin-top:14px}
 
 /* ── CARDS ── */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:18px;margin-top:32px}
@@ -97,8 +107,10 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 .step-body{color:#666;font-size:.83rem;line-height:1.65}
 
 /* ── LEADERS ── */
-.leaders-grid{display:flex;justify-content:center;align-items:center;gap:48px;flex-wrap:wrap;margin:32px 0}
-.leader-logo{height:120px;width:auto;max-width:200px;object-fit:contain;display:block}
+.leaders-grid{display:flex;justify-content:center;align-items:center;gap:36px;flex-wrap:wrap;margin:32px 0}
+.leader-logo{width:auto;object-fit:contain;display:block}
+.leader-logo-htp{height:72px;max-width:140px}
+.leader-logo-lg{height:120px;max-width:200px}
 
 /* ── BALI ── */
 .bali-inner{display:flex;gap:36px;align-items:center;flex-wrap:wrap;margin-top:24px;padding:32px;background:linear-gradient(135deg,#fff4eb,#fffaf6);border-radius:28px;border:1px solid #ffe0c4}
@@ -133,8 +145,6 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 .reveal-d2{transition-delay:.2s}
 .reveal-d3{transition-delay:.3s}
 .reveal-d4{transition-delay:.4s}
-
-/* ── REVEAL EXTRAS ── */
 .reveal.visible .eyebrow{animation:eyebrow-in .6s cubic-bezier(.4,0,.2,1) both}
 @keyframes eyebrow-in{from{clip-path:inset(0 100% 0 0);opacity:0}to{clip-path:inset(0 0% 0 0);opacity:1}}
 
@@ -159,7 +169,7 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 .hero-q{transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s}
 .hero-q:hover{transform:translateY(-8px) scale(1.05);box-shadow:0 20px 50px rgba(255,122,0,.18)}
 
-/* 3D perspective containers */
+/* 3D perspective */
 .cards,.steps,.hero-quick{perspective:1200px}
 .card,.step,.hero-q{will-change:transform}
 
@@ -184,7 +194,7 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 .stat-box.reveal.visible{transform:none}
 
 @media(prefers-reduced-motion:reduce){
-  .hero-h1 .line span,.hero-eyebrow,.hero-sub,.hero-actions,.hero-quick,.hero-logo,.swipe-hint{animation:none;opacity:1;transform:none}
+  .hero-h1 .line span,.hero-eyebrow,.hero-sub,.hero-actions,.hero-apps,.hero-quick,.hero-logo,.swipe-hint{animation:none;opacity:1;transform:none}
   .reveal{opacity:1;transform:none;transition:none}
   .bali-card,.btn-primary::after,.step-n{animation:none}
 }
@@ -198,7 +208,7 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 <div class="navbar">
   <div class="nav-content">
     <img class="nav-logo" src="assets/tslalogo.png" alt="TSLA Group"/>
-    <a class="nav-cta" onclick="goTo(5);return false;" href="#join">Jom Join ↗</a>
+    <a class="nav-cta" onclick="goTo(3);return false;" href="#join">Jom Join ↗</a>
   </div>
 </div>
 
@@ -212,40 +222,51 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 <!-- ══════════════════════════ SLIDES ══════════════════════════ -->
 <div id="slides">
 
-  <!-- 0 · HERO -->
-  <div class="slide slide-hero" id="slide-0">
-    <canvas id="heroCanvas"></canvas>
-    <div class="hero-eyebrow">TSLA Group · Wealth · Takaful · Trust Fund</div>
-    <img class="hero-logo" src="assets/tslalogo.png" alt="TSLA Group"/>
-    <h1 class="hero-h1">
-      <span class="line"><span>Earn</span></span>
-      <span class="line"><span>Unlimited.</span></span>
-      <span class="line"><span>Live Big.</span></span>
-    </h1>
-    <p class="hero-sub">Join a team of high-earning financial consultants in <strong>Wealth &amp; Estate Management, Takaful, and Trust Fund</strong> — building real income, real freedom, with trips and a community that pushes you forward.</p>
-    <div class="hero-actions">
-      <a class="btn-primary" onclick="goTo(5);return false;" href="#join">Start Your Journey →</a>
-      <a class="btn-sec" onclick="goTo(1);return false;" href="#why">Learn More</a>
-    </div>
-    <div class="hero-quick">
-      <div class="hero-q">
-        <div class="hero-q-val" id="hq1">RM0</div>
-        <div class="hero-q-lbl">Max Monthly Commission</div>
-      </div>
-      <div class="hero-q">
-        <div class="hero-q-val" id="hq2">0</div>
-        <div class="hero-q-lbl">Families Protected</div>
-      </div>
-      <div class="hero-q">
-        <div class="hero-q-val" id="hq3">0</div>
-        <div class="hero-q-lbl">Incentive Trips</div>
-      </div>
-    </div>
-    <div class="swipe-hint">swipe to explore →</div>
-  </div>
+  <!-- ── SLIDE 1: HERO + WHAT WE DO + WHY TSLA ── -->
+  <div class="slide" id="slide-0">
 
-  <!-- 1 · WHAT WE DO -->
-  <div class="slide" id="slide-1">
+    <!-- Hero -->
+    <div class="hero-section">
+      <canvas id="heroCanvas"></canvas>
+      <div class="hero-eyebrow">TSLA Group · Wealth · Takaful · Trust Fund</div>
+      <img class="hero-logo" src="assets/tslalogo.png" alt="TSLA Group"/>
+      <h1 class="hero-h1">
+        <span class="line"><span>Earn</span></span>
+        <span class="line"><span>Unlimited.</span></span>
+        <span class="line"><span>Live Big.</span></span>
+      </h1>
+      <p class="hero-sub">Join a team of high-earning financial consultants in <strong>Wealth &amp; Estate Management, Takaful, and Trust Fund</strong> — building real income, real freedom, with trips and a community that pushes you forward.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" onclick="goTo(3);return false;" href="#join">Start Your Journey →</a>
+        <a class="btn-sec" onclick="goTo(1);return false;" href="#leaders">Meet the Leaders</a>
+      </div>
+      <div class="hero-apps">
+        <div class="hero-apps-divider"><span>Our Apps</span></div>
+        <div class="hero-apps-row">
+          <a class="btn-app" href="baby-kicker.html" target="_blank">👶 Baby Kicker</a>
+          <a class="btn-app" href="budget-tracker.html" target="_blank">💰 Budget Tracker</a>
+          <a class="btn-app" href="gold.html" target="_blank">🥇 Harga Emas</a>
+        </div>
+      </div>
+      <div class="hero-quick">
+        <div class="hero-q">
+          <div class="hero-q-val" id="hq1">RM0</div>
+          <div class="hero-q-lbl">Max Monthly Commission</div>
+        </div>
+        <div class="hero-q">
+          <div class="hero-q-val" id="hq2">0</div>
+          <div class="hero-q-lbl">Families Protected</div>
+        </div>
+        <div class="hero-q">
+          <div class="hero-q-val" id="hq3">0</div>
+          <div class="hero-q-lbl">Incentive Trips</div>
+        </div>
+      </div>
+      <div class="swipe-hint">swipe to explore →</div>
+    </div>
+
+    <!-- What We Do -->
+    <hr class="section-divide"/>
     <div class="slide-inner">
       <div class="reveal"><p class="eyebrow">What We Do</p></div>
       <div class="reveal reveal-d1"><h2 class="section-title">Three pillars.<br>One team.</h2></div>
@@ -270,10 +291,9 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 2 · WHY TSLA + STATS -->
-  <div class="slide" id="slide-2">
+    <!-- Why TSLA + Stats -->
+    <hr class="section-divide"/>
     <div class="slide-inner" id="why">
       <div class="reveal"><p class="eyebrow">Why TSLA</p></div>
       <div class="reveal reveal-d1"><h2 class="section-title">Three reasons<br>people never leave.</h2></div>
@@ -317,10 +337,46 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 3 · THE PATH -->
-  <div class="slide" id="slide-3">
+  </div><!-- /slide-0 -->
+
+  <!-- ── SLIDE 2: OUR LEADERS + BALI ── -->
+  <div class="slide" id="slide-1">
+    <div class="slide-inner" id="leaders">
+      <div class="reveal"><p class="eyebrow">Our Leaders</p></div>
+      <div class="reveal reveal-d1"><h2 class="section-title">Three agencies.<br>One family.</h2></div>
+      <p class="section-body reveal reveal-d2">Setiap agensi dipimpin oleh pemimpin berpengalaman — dengan identiti tersendiri, budaya yang kuat, dan rekod prestasi yang terbukti.</p>
+      <div class="leaders-grid">
+        <img src="assets/logo-htp.png"     alt="htp."    class="leader-logo leader-logo-htp reveal reveal-d1">
+        <img src="assets/logo-ssg.png"     alt="SSG"     class="leader-logo leader-logo-lg  reveal reveal-d2">
+        <img src="assets/logo-reezora.png" alt="ReeZora" class="leader-logo leader-logo-lg  reveal reveal-d3">
+      </div>
+
+      <div class="bali-inner">
+        <div class="bali-text">
+          <p class="eyebrow reveal">Current Contest</p>
+          <div class="reveal reveal-d1"><h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.8rem)">Road to<br><span style="color:#ff7a00">Bali 2026.</span></h2></div>
+          <p class="section-body reveal reveal-d2" style="max-width:380px">Q3 2026 — Jul to Sep. Highest new ACE earns a fully-paid Bali trip. <strong>Will your name be at the top?</strong></p>
+          <a class="btn-primary reveal reveal-d3" onclick="goTo(3);return false;" href="#join" style="margin-top:18px;display:inline-block">Compete This Quarter →</a>
+        </div>
+        <div class="reveal" style="display:flex;justify-content:center">
+          <div class="bali-card">
+            <div style="font-size:3rem;margin-bottom:10px">🏝</div>
+            <div style="font-size:1.25rem;font-weight:900;letter-spacing:-.02em">Bali, Indonesia</div>
+            <div style="color:#888;font-size:.78rem;margin-top:4px">Fully paid · Jul–Sep 2026 · Top performer</div>
+            <div class="bali-ace">
+              <div class="bali-ace-lbl">Ranked by New ACE</div>
+              <div class="bali-ace-val">RM <span id="baliCounter">0</span></div>
+              <div style="font-size:.67rem;color:#aaa;margin-top:2px">current leader's ACE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /slide-1 -->
+
+  <!-- ── SLIDE 3: THE PATH ── -->
+  <div class="slide" id="slide-2">
     <div class="slide-inner">
       <div class="reveal"><p class="eyebrow">The Path</p></div>
       <div class="reveal reveal-d1"><h2 class="section-title">From zero<br>to unit manager.</h2></div>
@@ -348,45 +404,10 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
         </div>
       </div>
     </div>
-  </div>
+  </div><!-- /slide-2 -->
 
-  <!-- 4 · LEADERS + BALI -->
-  <div class="slide" id="slide-4">
-    <div class="slide-inner">
-      <div class="reveal"><p class="eyebrow">Our Leaders</p></div>
-      <div class="reveal reveal-d1"><h2 class="section-title">Three agencies.<br>One family.</h2></div>
-      <p class="section-body reveal reveal-d2">Setiap agensi dipimpin oleh pemimpin berpengalaman — dengan identiti tersendiri, budaya yang kuat, dan rekod prestasi yang terbukti.</p>
-      <div class="leaders-grid">
-        <img src="assets/logo-htp.png" alt="htp." class="leader-logo reveal reveal-d1">
-        <img src="assets/logo-ssg.png" alt="SSG" class="leader-logo reveal reveal-d2">
-        <img src="assets/logo-reezora.png" alt="ReeZora" class="leader-logo reveal reveal-d3">
-      </div>
-
-      <div class="bali-inner">
-        <div class="bali-text">
-          <p class="eyebrow reveal">Current Contest</p>
-          <div class="reveal reveal-d1"><h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.8rem)">Road to<br><span style="color:#ff7a00">Bali 2026.</span></h2></div>
-          <p class="section-body reveal reveal-d2" style="max-width:380px">Q3 2026 — Jul to Sep. Highest new ACE earns a fully-paid Bali trip. <strong>Will your name be at the top?</strong></p>
-          <a class="btn-primary reveal reveal-d3" onclick="goTo(5);return false;" href="#join" style="margin-top:18px;display:inline-block">Compete This Quarter →</a>
-        </div>
-        <div class="reveal" style="display:flex;justify-content:center">
-          <div class="bali-card">
-            <div style="font-size:3rem;margin-bottom:10px">🏝</div>
-            <div style="font-size:1.25rem;font-weight:900;letter-spacing:-.02em">Bali, Indonesia</div>
-            <div style="color:#888;font-size:.78rem;margin-top:4px">Fully paid · Jul–Sep 2026 · Top performer</div>
-            <div class="bali-ace">
-              <div class="bali-ace-lbl">Ranked by New ACE</div>
-              <div class="bali-ace-val">RM <span id="baliCounter">0</span></div>
-              <div style="font-size:.67rem;color:#aaa;margin-top:2px">current leader's ACE</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 5 · JOIN -->
-  <div class="slide" id="slide-5">
+  <!-- ── SLIDE 4: JOIN ── -->
+  <div class="slide" id="slide-3">
     <div class="slide-inner">
       <div class="cta-wrap" id="join">
         <p class="eyebrow reveal" style="display:block">Take the leap</p>
@@ -410,14 +431,14 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
         <span style="margin-top:4px;display:block">A <strong>Kaiser Group</strong> company</span>
       </div>
     </div>
-  </div>
+  </div><!-- /slide-3 -->
 
 </div><!-- #slides -->
 
 <script>
 /* ── SLIDE ENGINE ── */
 const slidesEl = document.getElementById('slides');
-const SLIDE_COUNT = 6;
+const SLIDE_COUNT = 4;
 
 const navEl = document.getElementById('slideNav');
 for (let i = 0; i < SLIDE_COUNT; i++) {
@@ -442,7 +463,6 @@ function updateDots() {
 }
 slidesEl.addEventListener('scroll', updateDots, { passive: true });
 
-/* Keyboard navigation */
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight' || e.key === 'ArrowDown') shiftSlide(1);
   if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   shiftSlide(-1);
