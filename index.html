@@ -324,10 +324,13 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 /* ── GROUP PRODUCTION ── */
 (function(){
   // Agency membership — update here when team changes
+  // HTP: Fauzan > Adam
+  // SSG: Fadhlan > Fauzan > Adam  (Fadhlan recruited Fauzan who recruited Adam)
+  // ReeZora: Roza > Muaz
   const GROUPS = [
-    { id:'htp',  logo:'assets/logo-htp.png',  alt:'htp.',    members:['A15781','A15741'] },
-    { id:'ssg',  logo:'assets/logo-ssg.png',  alt:'SSG',     members:['A15756','A13290','A16553'] },
-    { id:'rz',   logo:'assets/logo-reezora.png',alt:'ReeZora',members:['A14252','A15475'] },
+    { id:'htp',  logo:'assets/logo-htp.png',    alt:'htp.',    members:['A15781','A16553'] },
+    { id:'ssg',  logo:'assets/logo-ssg.png',    alt:'SSG',     members:['A15756','A15781','A16553'] },
+    { id:'rz',   logo:'assets/logo-reezora.png',alt:'ReeZora', members:['A14252','A15475'] },
   ];
 
   function fmtAce(v) {
