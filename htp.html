@@ -8,57 +8,91 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f8fa;color:#111;min-height:100vh}
 
-/* ── NAV ── */
+/* NAV */
 .navbar{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid #eee;position:sticky;top:0;z-index:100}
 .nav-inner{max-width:680px;margin:auto;padding:10px 20px;display:flex;align-items:center;gap:12px}
 .back-btn{display:flex;align-items:center;gap:6px;text-decoration:none;color:#ff7a00;font-weight:700;font-size:.9rem}
-.back-btn svg{flex-shrink:0}
 .nav-title{font-weight:900;font-size:.95rem;color:#111}
 
-/* ── PAGE ── */
-.page{max-width:680px;margin:0 auto;padding:24px 16px 48px}
-.section-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#aaa;margin:24px 0 10px}
+/* PAGE */
+.page{max-width:680px;margin:0 auto;padding:20px 16px 48px}
+.sec-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#aaa;margin:22px 0 9px}
 
-/* ── HERO CARD ── */
-.hero-card{background:white;border-radius:24px;padding:32px 24px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:8px}
-.group-logo{height:52px;width:auto;max-width:160px;object-fit:contain;display:block;margin:0 auto 20px}
-.group-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#aaa;margin-bottom:6px}
-.ace-total{font-size:2.4rem;font-weight:900;color:#ff7a00;letter-spacing:-.04em}
-.ace-sub{font-size:.78rem;color:#aaa;margin-top:4px}
-.stat-row{display:flex;justify-content:center;gap:28px;margin-top:20px;padding-top:20px;border-top:1px solid #f0f0f0}
-.stat-val{font-size:1.15rem;font-weight:900;color:#111}
-.stat-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#aaa;margin-top:2px}
+/* HERO */
+.hero-card{background:white;border-radius:24px;padding:28px 24px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:8px}
+.group-logo{height:36px;width:auto;max-width:120px;object-fit:contain;display:block;margin:0 auto 18px}
+.grp-lbl{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#aaa;margin-bottom:5px}
+.ace-hero{font-size:2.2rem;font-weight:900;color:#ff7a00;letter-spacing:-.04em}
+.ace-sub{font-size:.76rem;color:#aaa;margin-top:3px}
+.stat-row{display:flex;justify-content:center;gap:24px;margin-top:18px;padding-top:18px;border-top:1px solid #f0f0f0}
+.stat-val{font-size:1.1rem;font-weight:900;color:#111}
+.stat-lbl{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#aaa;margin-top:2px}
 
-/* ── CHART ── */
-.viz-root{background:white;border-radius:20px;padding:20px 20px 14px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:8px;position:relative}
-.chart-title{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#52514e;margin-bottom:16px}
+/* FAMILIES CARD */
+.fam-card{background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:1.5px solid #c8e6c9;border-radius:20px;padding:18px 20px;display:flex;align-items:center;gap:16px;margin-bottom:8px}
+.fam-icon{font-size:2rem;flex-shrink:0}
+.fam-count{font-size:1.8rem;font-weight:900;color:#1b5e20;letter-spacing:-.03em;line-height:1}
+.fam-desc{font-size:.75rem;color:#388e3c;font-weight:600;margin-top:3px}
+.fam-right{margin-left:auto;text-align:right;flex-shrink:0}
+.fam-prem{font-size:1.05rem;font-weight:900;color:#2e7d32;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.fam-prem-lbl{font-size:.63rem;color:#66bb6a;text-transform:uppercase;letter-spacing:.07em;margin-top:2px;font-weight:700}
+
+/* PRODUCTION CHART */
+.chart-card{background:white;border-radius:20px;padding:18px 16px 14px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:8px}
+.tab-row{display:flex;gap:6px;margin-bottom:16px}
+.tab-btn{flex:1;padding:7px 0;border:1.5px solid #eee;border-radius:10px;font-size:.78rem;font-weight:700;background:white;color:#aaa;cursor:pointer;transition:.15s}
+.tab-btn.active{border-color:#ff7a00;background:#fff5ed;color:#ff7a00}
+
+/* Column chart */
+.col-chart-area{display:flex;flex-direction:column;gap:0}
+.col-chart{display:flex;align-items:flex-end;gap:4px;height:130px;padding:0 2px}
+.col-wrap{flex:1;display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;gap:0}
+.col-fill{width:88%;background:#ff7a00;border-radius:3px 3px 0 0;height:0;transition:height .6s cubic-bezier(.4,0,.2,1);min-height:3px}
+.col-fill.empty{background:#f0efec;min-height:3px}
+.col-wrap:hover .col-fill:not(.empty){opacity:.82}
+.col-wrap.sel .col-fill:not(.empty){background:#cc6200;box-shadow:0 0 0 2px rgba(255,122,0,.25)}
+.col-lbl{font-size:.58rem;color:#898781;margin-top:5px;text-align:center;white-space:nowrap}
+.col-wrap.sel .col-lbl{color:#ff7a00;font-weight:700}
+
+/* x-axis baseline */
+.col-baseline{height:1px;background:#e1e0d9;margin:0 2px}
+
+/* Selected detail */
+.col-detail{margin-top:10px;padding:10px 12px;background:#f7f8fa;border-radius:12px;font-size:.8rem;color:#52514e;min-height:36px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.col-detail-hint{color:#bbb;font-size:.76rem}
+.col-detail-period{font-weight:800;color:#111}
+.col-detail-ace{font-weight:800;color:#ff7a00;font-variant-numeric:tabular-nums}
+.col-detail-count{color:#898781}
+
+/* Horizontal bar chart */
+.viz-root{background:white;border-radius:20px;padding:18px 16px 14px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:8px}
 .bar-row{display:flex;align-items:center;gap:10px;padding:5px 0;cursor:default}
 .bar-row+.bar-row{margin-top:4px}
-.bar-lbl{width:72px;font-size:.78rem;font-weight:700;color:#52514e;text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bar-track{flex:1;background:#f0efec;border-radius:4px;height:20px;overflow:hidden;position:relative}
-.bar-fill{height:100%;background:#ff7a00;width:0;border-radius:0 4px 4px 0;transition:width .65s cubic-bezier(.4,0,.2,1)}
+.bar-lbl{width:70px;font-size:.77rem;font-weight:700;color:#52514e;text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;background:#f0efec;border-radius:4px;height:18px;overflow:hidden}
+.bar-fill{height:100%;background:#ff7a00;width:0;transition:width .65s cubic-bezier(.4,0,.2,1)}
 .bar-hover .bar-fill{opacity:.82}
-.bar-val{width:130px;font-size:.76rem;font-weight:700;color:#52514e;flex-shrink:0;white-space:nowrap}
-.chart-foot{display:flex;justify-content:space-between;padding:10px 0 0;margin-top:6px;border-top:1px solid #f0efec}
-.chart-foot-tick{font-size:.65rem;color:#898781;font-variant-numeric:tabular-nums}
+.bar-val{width:130px;font-size:.74rem;font-weight:700;color:#52514e;flex-shrink:0;white-space:nowrap}
+.hbar-foot{display:flex;justify-content:space-between;padding:8px 0 0;margin-top:4px;border-top:1px solid #f0efec}
+.hbar-tick{font-size:.63rem;color:#898781;font-variant-numeric:tabular-nums}
 
-/* ── TOOLTIP ── */
-.chart-tip{position:fixed;background:#1a1a19;color:#fff;border-radius:10px;padding:10px 14px;pointer-events:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.25);min-width:160px}
-.tip-name{font-size:.72rem;color:#c3c2b7;margin-bottom:4px}
-.tip-val{font-size:.95rem;font-weight:900;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.tip-pct{font-size:.7rem;color:#c3c2b7;margin-top:3px}
-
-/* ── AGENT CARDS ── */
-.agent-card{background:white;border-radius:18px;padding:16px 18px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:10px;display:flex;align-items:center;gap:14px}
-.agent-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#ff7a00,#ffb347);display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:1rem;flex-shrink:0}
-.agent-name{font-weight:800;font-size:.92rem;line-height:1.3}
-.agent-meta{font-size:.72rem;color:#aaa;margin-top:2px}
+/* Agent cards */
+.agent-card{background:white;border-radius:18px;padding:15px 18px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:10px;display:flex;align-items:center;gap:14px}
+.agent-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff7a00,#ffb347);display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:.95rem;flex-shrink:0}
+.agent-name{font-weight:800;font-size:.9rem;line-height:1.3}
+.agent-meta{font-size:.7rem;color:#aaa;margin-top:2px}
 .agent-ace{margin-left:auto;text-align:right;flex-shrink:0}
-.agent-ace-val{font-weight:900;color:#ff7a00;font-size:.95rem;font-variant-numeric:tabular-nums}
-.agent-ace-lbl{font-size:.65rem;color:#aaa;margin-top:1px}
+.agent-ace-val{font-weight:900;color:#ff7a00;font-size:.92rem;font-variant-numeric:tabular-nums}
+.agent-ace-lbl{font-size:.63rem;color:#aaa;margin-top:1px}
 
-.loading{text-align:center;color:#aaa;padding:40px;font-size:.9rem}
-.updated{font-size:.65rem;color:#ccc;text-align:center;margin-top:16px}
+/* Tooltip */
+.chart-tip{position:fixed;background:#1a1a19;color:#fff;border-radius:10px;padding:9px 13px;pointer-events:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);min-width:150px}
+.tip-lbl{font-size:.7rem;color:#c3c2b7;margin-bottom:3px}
+.tip-val{font-size:.9rem;font-weight:900;font-variant-numeric:tabular-nums}
+.tip-sub{font-size:.68rem;color:#c3c2b7;margin-top:2px}
+
+.loading{text-align:center;color:#aaa;padding:36px;font-size:.88rem}
+.updated{font-size:.63rem;color:#ccc;text-align:center;margin-top:14px}
 </style>
 </head>
 <body>
@@ -78,132 +112,224 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- HERO -->
   <div class="hero-card">
     <img src="assets/logo-htp.png" alt="HTP" class="group-logo">
-    <div class="group-label">Total ACE Production</div>
-    <div class="ace-total" id="aceTotal">—</div>
-    <div class="ace-sub" id="aceSub">Loading…</div>
+    <div class="grp-lbl">Total ACE Production</div>
+    <div class="ace-hero" id="aceHero">—</div>
+    <div class="ace-sub">Combined group ACE</div>
     <div class="stat-row">
-      <div class="stat"><div class="stat-val" id="statAgents">—</div><div class="stat-lbl">Agents</div></div>
-      <div class="stat"><div class="stat-val" id="statClients">—</div><div class="stat-lbl">Clients</div></div>
-      <div class="stat"><div class="stat-val" id="statInforce">—</div><div class="stat-lbl">In Force</div></div>
+      <div class="stat"><div class="stat-val" id="sAgents">—</div><div class="stat-lbl">Agents</div></div>
+      <div class="stat"><div class="stat-val" id="sClients">—</div><div class="stat-lbl">Clients</div></div>
+      <div class="stat"><div class="stat-val" id="sInforce">—</div><div class="stat-lbl">Active</div></div>
     </div>
   </div>
 
-  <!-- CHART -->
-  <div class="section-lbl">ACE Production</div>
-  <div class="viz-root" id="chartWrap" style="display:none">
-    <div id="chartBars"></div>
-    <div class="chart-foot" id="chartFoot"></div>
+  <!-- FAMILIES PROTECTED -->
+  <div class="fam-card">
+    <div class="fam-icon">🛡️</div>
+    <div>
+      <div class="fam-count" id="famCount">—</div>
+      <div class="fam-desc">families under protection</div>
+    </div>
+    <div class="fam-right">
+      <div class="fam-prem" id="famPrem">—</div>
+      <div class="fam-prem-lbl">monthly premiums</div>
+    </div>
   </div>
-  <div class="chart-tip" id="chartTip" style="display:none"></div>
+
+  <!-- PRODUCTION CHART -->
+  <div class="sec-lbl">Production</div>
+  <div class="chart-card" id="prodCard" style="display:none">
+    <div class="tab-row">
+      <button class="tab-btn active" id="tabMonth" onclick="setMode('month')">📅 Monthly</button>
+      <button class="tab-btn" id="tabYear" onclick="setMode('year')">📆 Yearly</button>
+    </div>
+    <div class="col-chart-area">
+      <div class="col-chart" id="colChart"></div>
+      <div class="col-baseline"></div>
+    </div>
+    <div class="col-detail" id="colDetail">
+      <span class="col-detail-hint">Tap a bar to see details</span>
+    </div>
+  </div>
+
+  <!-- ACE BY AGENT -->
+  <div class="sec-lbl">ACE by Agent</div>
+  <div class="viz-root" id="agentChartWrap" style="display:none">
+    <div id="agentChartBars"></div>
+    <div class="hbar-foot" id="agentChartFoot"></div>
+  </div>
 
   <!-- AGENTS -->
-  <div class="section-lbl">Our Agents</div>
+  <div class="sec-lbl">Our Agents</div>
   <div id="agentList"><div class="loading">Loading…</div></div>
   <div class="updated" id="updated"></div>
 
 </div>
 
-<script>
-// HTP: Fauzan (A15781) > Adam (A16553)
-const MEMBERS = ['A15781', 'A16553'];
+<!-- TOOLTIP -->
+<div class="chart-tip" id="chartTip" style="display:none"></div>
 
+<script>
+const MEMBERS = ['A15781', 'A16553'];
+let _allClients = [];
+let _chartMode = 'month';
+
+/* ── FORMATTERS ── */
 function fmtRM(v) {
-  return 'RM ' + v.toLocaleString('en-MY', {minimumFractionDigits:2, maximumFractionDigits:2});
+  return 'RM ' + v.toLocaleString('en-MY', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 function fmtRMshort(v) {
-  if (v >= 1000) return 'RM ' + (v/1000).toFixed(0) + 'K';
-  return 'RM ' + Math.round(v);
+  if (v >= 1e6) return 'RM ' + (v/1e6).toFixed(1) + 'M';
+  if (v >= 1e3) return 'RM ' + (v/1e3).toFixed(0) + 'K';
+  return 'RM ' + Math.round(v);
 }
-function initials(name) {
-  return name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-}
-function shortFirst(name) {
-  return name.split(' ')[0];
-}
+function initials(n) { return n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+function shortFirst(n) { return n.split(' ')[0]; }
 
 /* ── TOOLTIP ── */
 const tip = document.getElementById('chartTip');
-function showTip(e, name, ace, total) {
-  const pct = total > 0 ? (ace / total * 100).toFixed(1) : '0.0';
-  const n = document.createElement('div'); n.className = 'tip-name'; n.textContent = name;
-  const v = document.createElement('div'); v.className = 'tip-val'; v.textContent = fmtRM(ace);
-  const p = document.createElement('div'); p.className = 'tip-pct'; p.textContent = pct + '% of group total';
+function showTip(e, lbl, ace, sub) {
   tip.innerHTML = '';
-  tip.appendChild(n); tip.appendChild(v); tip.appendChild(p);
-  tip.style.display = 'block';
-  moveTip(e);
+  const l = document.createElement('div'); l.className='tip-lbl'; l.textContent=lbl; tip.appendChild(l);
+  const v = document.createElement('div'); v.className='tip-val'; v.textContent=fmtRM(ace); tip.appendChild(v);
+  if (sub) { const s=document.createElement('div'); s.className='tip-sub'; s.textContent=sub; tip.appendChild(s); }
+  tip.style.display='block'; moveTip(e);
 }
-function hideTip() { tip.style.display = 'none'; }
+function hideTip() { tip.style.display='none'; }
 function moveTip(e) {
-  if (tip.style.display === 'none') return;
-  const x = e.clientX + 16, y = e.clientY - 14;
-  tip.style.left = Math.min(x, window.innerWidth  - tip.offsetWidth  - 12) + 'px';
-  tip.style.top  = Math.min(y, window.innerHeight - tip.offsetHeight - 12) + 'px';
+  if (tip.style.display==='none') return;
+  tip.style.left = Math.min(e.clientX+14, window.innerWidth -tip.offsetWidth -10)+'px';
+  tip.style.top  = Math.min(e.clientY-12, window.innerHeight-tip.offsetHeight-10)+'px';
 }
 document.addEventListener('mousemove', moveTip);
 
-/* ── CHART RENDER ── */
-function renderChart(rows, total) {
-  const wrap = document.getElementById('chartWrap');
-  const barsEl = document.getElementById('chartBars');
-  const footEl = document.getElementById('chartFoot');
+/* ── COLUMN CHART ── */
+function getColData(clients, mode) {
+  const map = {};
+  if (mode === 'month') {
+    const now = new Date();
+    for (let i=11; i>=0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+      const lbl = d.toLocaleString('en-MY',{month:'short'});
+      const full = d.toLocaleString('en-MY',{month:'long',year:'numeric'});
+      map[key] = {label:lbl, full, ace:0, count:0};
+    }
+  } else {
+    clients.forEach(c => {
+      if (!c.issueDate) return;
+      const y = new Date(c.issueDate).getFullYear();
+      if (!map[y]) map[y] = {label:String(y), full:'Year '+y, ace:0, count:0};
+    });
+  }
+  clients.forEach(c => {
+    if (!c.issueDate) return;
+    const d = new Date(c.issueDate);
+    const key = mode==='month'
+      ? d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')
+      : d.getFullYear();
+    if (map[key]) { map[key].ace += c.ace||0; map[key].count++; }
+  });
+  return Object.values(map);
+}
+
+function renderColChart(clients, mode) {
+  const data = getColData(clients, mode);
+  const maxAce = Math.max(...data.map(d=>d.ace), 1);
+  const chart = document.getElementById('colChart');
+  const detail = document.getElementById('colDetail');
+  detail.innerHTML = '<span class="col-detail-hint">Tap a bar to see details</span>';
+  chart.innerHTML = '';
+
+  data.forEach(item => {
+    const pct = item.ace > 0 ? Math.max(item.ace/maxAce*100, 3) : 0;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'col-wrap';
+
+    const fill = document.createElement('div');
+    fill.className = 'col-fill' + (item.ace===0 ? ' empty' : '');
+    fill.style.height = '0%';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'col-lbl';
+    lbl.textContent = item.label;
+
+    wrap.appendChild(fill);
+    wrap.appendChild(lbl);
+    chart.appendChild(wrap);
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fill.style.height = (item.ace===0 ? 2 : pct) + '%';
+    }));
+
+    wrap.addEventListener('click', () => {
+      chart.querySelectorAll('.col-wrap').forEach(w => w.classList.remove('sel'));
+      wrap.classList.add('sel');
+      detail.innerHTML = '';
+      const period = document.createElement('span');
+      period.className = 'col-detail-period';
+      period.textContent = item.full;
+      const ace = document.createElement('span');
+      ace.className = 'col-detail-ace';
+      ace.textContent = fmtRM(item.ace);
+      const cnt = document.createElement('span');
+      cnt.className = 'col-detail-count';
+      cnt.textContent = '· ' + item.count + (item.count===1 ? ' policy' : ' policies');
+      detail.appendChild(period);
+      detail.appendChild(document.createTextNode(' '));
+      detail.appendChild(ace);
+      detail.appendChild(document.createTextNode(' '));
+      detail.appendChild(cnt);
+    });
+
+    if (item.ace > 0) {
+      wrap.addEventListener('mouseenter', e => showTip(e, item.full, item.ace, item.count+' policies'));
+      wrap.addEventListener('mouseleave', hideTip);
+    }
+  });
+
+  document.getElementById('prodCard').style.display = 'block';
+}
+
+function setMode(mode) {
+  _chartMode = mode;
+  document.getElementById('tabMonth').classList.toggle('active', mode==='month');
+  document.getElementById('tabYear').classList.toggle('active', mode==='year');
+  renderColChart(_allClients, mode);
+}
+
+/* ── AGENT BAR CHART ── */
+function renderAgentChart(rows, total) {
+  const wrap = document.getElementById('agentChartWrap');
+  const barsEl = document.getElementById('agentChartBars');
+  const footEl = document.getElementById('agentChartFoot');
   if (!rows.length) return;
-
-  const maxAce = Math.max(...rows.map(r => r.ace));
-
-  // Build tick marks: 4 evenly spaced ticks
-  const rawStep = maxAce / 4;
-  const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
-  const step = Math.ceil(rawStep / mag) * mag;
+  const maxAce = Math.max(...rows.map(r=>r.ace));
+  const rawStep = maxAce/4;
+  const mag = Math.pow(10, Math.floor(Math.log10(rawStep||1)));
+  const step = Math.ceil(rawStep/mag)*mag;
   const ticks = [];
-  for (let t = 0; t <= maxAce * 1.05; t += step) ticks.push(t);
+  for (let t=0; t<=maxAce*1.05; t+=step) ticks.push(t);
 
   barsEl.innerHTML = '';
   rows.forEach(ag => {
-    const pct = maxAce > 0 ? (ag.ace / maxAce * 100) : 0;
-
-    const row = document.createElement('div');
-    row.className = 'bar-row';
-
-    const lbl = document.createElement('div');
-    lbl.className = 'bar-lbl';
-    lbl.textContent = shortFirst(ag.name);
-
-    const track = document.createElement('div');
-    track.className = 'bar-track';
-
-    const fill = document.createElement('div');
-    fill.className = 'bar-fill';
-
-    const val = document.createElement('div');
-    val.className = 'bar-val';
-    val.textContent = fmtRM(ag.ace);
-
-    track.appendChild(fill);
-    row.appendChild(lbl);
-    row.appendChild(track);
-    row.appendChild(val);
-    barsEl.appendChild(row);
-
-    // Animate bar in
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => { fill.style.width = pct.toFixed(2) + '%'; });
-    });
-
-    // Hover events
-    row.addEventListener('mouseenter', e => { row.classList.add('bar-hover'); showTip(e, ag.name, ag.ace, total); });
+    const pct = maxAce>0 ? (ag.ace/maxAce*100) : 0;
+    const row = document.createElement('div'); row.className='bar-row';
+    const lbl = document.createElement('div'); lbl.className='bar-lbl'; lbl.textContent=shortFirst(ag.name);
+    const track = document.createElement('div'); track.className='bar-track';
+    const fill = document.createElement('div'); fill.className='bar-fill';
+    const val = document.createElement('div'); val.className='bar-val'; val.textContent=fmtRM(ag.ace);
+    track.appendChild(fill); row.appendChild(lbl); row.appendChild(track); row.appendChild(val); barsEl.appendChild(row);
+    requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width=pct.toFixed(1)+'%'; }));
+    row.addEventListener('mouseenter', e => { row.classList.add('bar-hover'); showTip(e, ag.name, ag.ace, (ag.ace/total*100).toFixed(1)+'% of group'); });
     row.addEventListener('mouseleave', () => { row.classList.remove('bar-hover'); hideTip(); });
   });
 
-  // Foot ticks (x-axis labels)
   footEl.innerHTML = '';
   ticks.forEach(t => {
-    const span = document.createElement('span');
-    span.className = 'chart-foot-tick';
-    span.textContent = t === 0 ? '0' : fmtRMshort(t);
-    footEl.appendChild(span);
+    const s = document.createElement('span'); s.className='hbar-tick';
+    s.textContent = t===0 ? '0' : fmtRMshort(t); footEl.appendChild(s);
   });
-
   wrap.style.display = 'block';
 }
 
@@ -214,63 +340,63 @@ fetch('data/pr-data.json')
     const byCode = {};
     data.agents.forEach(a => { byCode[a.code] = a; });
 
-    let totalAce = 0, totalClients = 0, totalInforce = 0;
-    const rows = [];
+    let totalAce=0, totalClients=0, totalInforce=0, monthlyPrem=0;
+    const agentRows = [];
 
     MEMBERS.forEach(code => {
       const ag = byCode[code];
       if (!ag) return;
-      const ace = (ag.clients || []).reduce((s, c) => s + (c.ace || 0), 0);
-      const inforce = (ag.clients || []).filter(c => c.status === 'In Force').length;
+      const clients = ag.clients || [];
+      const ace = clients.reduce((s,c) => s+(c.ace||0), 0);
+      const inforce = clients.filter(c => c.status==='In Force');
       totalAce += ace;
-      totalClients += (ag.clients || []).length;
-      totalInforce += inforce;
-      rows.push({ code, name: ag.name, ace, clients: (ag.clients || []).length, inforce });
+      totalClients += clients.length;
+      totalInforce += inforce.length;
+      monthlyPrem += inforce.reduce((s,c) => s+(c.contribution||0), 0); // all monthly payers
+      _allClients = _allClients.concat(clients);
+      agentRows.push({code, name:ag.name, ace, clients:clients.length, inforce:inforce.length});
     });
 
-    rows.sort((a, b) => b.ace - a.ace);
+    agentRows.sort((a,b) => b.ace-a.ace);
 
-    // Hero stats
-    document.getElementById('aceTotal').textContent = fmtRM(totalAce);
-    document.getElementById('aceSub').textContent   = 'Combined group ACE';
-    document.getElementById('statAgents').textContent  = rows.length;
-    document.getElementById('statClients').textContent = totalClients;
-    document.getElementById('statInforce').textContent = totalInforce;
-    if (data.updated) document.getElementById('updated').textContent = 'Data as of ' + data.updated;
+    // Hero
+    document.getElementById('aceHero').textContent   = fmtRM(totalAce);
+    document.getElementById('sAgents').textContent   = agentRows.length;
+    document.getElementById('sClients').textContent  = totalClients;
+    document.getElementById('sInforce').textContent  = totalInforce;
 
-    // Chart
-    renderChart(rows, totalAce);
+    // Families
+    document.getElementById('famCount').textContent  = totalInforce;
+    document.getElementById('famPrem').textContent   = fmtRM(monthlyPrem);
+
+    if (data.updated) document.getElementById('updated').textContent = 'Data as of '+data.updated;
+
+    // Charts
+    renderColChart(_allClients, 'month');
+    renderAgentChart(agentRows, totalAce);
 
     // Agent cards
     const list = document.getElementById('agentList');
     list.innerHTML = '';
-    rows.forEach(ag => {
-      const card = document.createElement('div');
-      card.className = 'agent-card';
-
-      const av = document.createElement('div');
-      av.className = 'agent-avatar';
-      av.textContent = initials(ag.name);
-
+    agentRows.forEach(ag => {
+      const card = document.createElement('div'); card.className='agent-card';
+      const av = document.createElement('div'); av.className='agent-av'; av.textContent=initials(ag.name);
       const info = document.createElement('div');
-      const nm = document.createElement('div'); nm.className = 'agent-name'; nm.textContent = ag.name;
-      const mt = document.createElement('div'); mt.className = 'agent-meta';
-      mt.textContent = ag.code + ' · ' + ag.clients + ' clients · ' + ag.inforce + ' in force';
+      const nm = document.createElement('div'); nm.className='agent-name'; nm.textContent=ag.name;
+      const mt = document.createElement('div'); mt.className='agent-meta';
+      mt.textContent = ag.code+' · '+ag.clients+' clients · '+ag.inforce+' active';
       info.appendChild(nm); info.appendChild(mt);
-
-      const aceDiv = document.createElement('div');
-      aceDiv.className = 'agent-ace';
-      const av2 = document.createElement('div'); av2.className = 'agent-ace-val'; av2.textContent = fmtRM(ag.ace);
-      const al = document.createElement('div'); al.className = 'agent-ace-lbl'; al.textContent = 'ACE';
+      const aceDiv = document.createElement('div'); aceDiv.className='agent-ace';
+      const av2 = document.createElement('div'); av2.className='agent-ace-val'; av2.textContent=fmtRM(ag.ace);
+      const al = document.createElement('div'); al.className='agent-ace-lbl'; al.textContent='ACE';
       aceDiv.appendChild(av2); aceDiv.appendChild(al);
-
       card.appendChild(av); card.appendChild(info); card.appendChild(aceDiv);
       list.appendChild(card);
     });
   })
   .catch(() => {
-    document.getElementById('aceSub').textContent = 'Data tidak tersedia';
-    document.getElementById('agentList').innerHTML = '';
+    document.getElementById('aceHero').textContent = '—';
+    document.getElementById('agentList').innerHTML = '<div class="loading">Data tidak tersedia</div>';
   });
 </script>
 </body>
