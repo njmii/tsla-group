@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTP Agency</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f8fa;color:#111;min-height:100vh}
+.navbar{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid #eee;position:sticky;top:0;z-index:100}
+.nav-inner{max-width:680px;margin:auto;padding:10px 20px;display:flex;align-items:center;gap:12px}
+.back-btn{display:flex;align-items:center;gap:6px;text-decoration:none;color:#ff7a00;font-weight:700;font-size:.9rem}
+.back-btn svg{flex-shrink:0}
+.nav-title{font-weight:900;font-size:.95rem;color:#111}
+.page{max-width:680px;margin:0 auto;padding:24px 16px 48px}
+.hero-card{background:white;border-radius:24px;padding:32px 24px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:20px}
+.group-logo{height:90px;width:auto;max-width:200px;object-fit:contain;display:block;margin:0 auto 20px}
+.group-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#aaa;margin-bottom:6px}
+.ace-total{font-size:2.4rem;font-weight:900;color:#ff7a00;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.ace-sub{font-size:.78rem;color:#aaa;margin-top:4px}
+.stat-row{display:flex;justify-content:center;gap:28px;margin-top:20px;padding-top:20px;border-top:1px solid #f0f0f0}
+.stat{text-align:center}
+.stat-val{font-size:1.15rem;font-weight:900;color:#111}
+.stat-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#aaa;margin-top:2px}
+.section-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#aaa;margin:24px 0 12px}
+.agent-card{background:white;border-radius:18px;padding:16px 18px;box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:10px;display:flex;align-items:center;gap:14px}
+.agent-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#ff7a00,#ffb347);display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:1rem;flex-shrink:0}
+.agent-name{font-weight:800;font-size:.92rem;line-height:1.3}
+.agent-code{font-size:.72rem;color:#aaa}
+.agent-ace{margin-left:auto;text-align:right;flex-shrink:0}
+.agent-ace-val{font-weight:900;color:#ff7a00;font-size:.95rem;font-variant-numeric:tabular-nums}
+.agent-ace-lbl{font-size:.65rem;color:#aaa;margin-top:1px}
+.loading{text-align:center;color:#aaa;padding:40px;font-size:.9rem}
+.updated{font-size:.65rem;color:#ccc;text-align:center;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="navbar">
+  <div class="nav-inner">
+    <a class="back-btn" href="index.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Kembali
+    </a>
+    <span class="nav-title">HTP Agency</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="hero-card">
+    <img src="assets/logo-htp.png" alt="HTP" class="group-logo">
+    <div class="group-label">Total ACE Production</div>
+    <div class="ace-total" id="aceTotal">—</div>
+    <div class="ace-sub" id="aceSub">Loading…</div>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-val" id="statAgents">—</div><div class="stat-lbl">Agents</div></div>
+      <div class="stat"><div class="stat-val" id="statClients">—</div><div class="stat-lbl">Clients</div></div>
+      <div class="stat"><div class="stat-val" id="statInforce">—</div><div class="stat-lbl">In Force</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Our Agents</div>
+  <div id="agentList"><div class="loading">Loading…</div></div>
+  <div class="updated" id="updated"></div>
+</div>
+
+<script>
+// HTP: Fauzan (A15781) + Adam (A16553)
+const MEMBERS = ['A15781', 'A16553'];
+const NAMES = { A15781: 'Fauzan', A16553: 'Adam' };
+
+function fmtAce(v) {
+  return 'RM ' + v.toLocaleString('en-MY', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function initials(name) {
+  return name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+}
+
+fetch('data/pr-data.json')
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(data => {
+    const byCode = {};
+    data.agents.forEach(a => { byCode[a.code] = a; });
+
+    let totalAce = 0, totalClients = 0, totalInforce = 0;
+    const agentRows = [];
+
+    MEMBERS.forEach(code => {
+      const ag = byCode[code];
+      if (!ag) return;
+      const ace = (ag.clients || []).reduce((s, c) => s + (c.ace || 0), 0);
+      const inforce = (ag.clients || []).filter(c => c.status === 'In Force').length;
+      totalAce += ace;
+      totalClients += (ag.clients || []).length;
+      totalInforce += inforce;
+      agentRows.push({ code, name: ag.name, ace, clients: (ag.clients || []).length, inforce });
+    });
+
+    agentRows.sort((a, b) => b.ace - a.ace);
+
+    document.getElementById('aceTotal').textContent = fmtAce(totalAce);
+    document.getElementById('aceSub').textContent = 'Combined group ACE';
+    document.getElementById('statAgents').textContent = agentRows.length;
+    document.getElementById('statClients').textContent = totalClients;
+    document.getElementById('statInforce').textContent = totalInforce;
+    if (data.updated) document.getElementById('updated').textContent = 'Data as of ' + data.updated;
+
+    const list = document.getElementById('agentList');
+    list.innerHTML = agentRows.map(ag => {
+      const shortName = NAMES[ag.code] || ag.name.split(' ')[0];
+      return `<div class="agent-card">
+        <div class="agent-avatar">${initials(ag.name)}</div>
+        <div>
+          <div class="agent-name">${ag.name}</div>
+          <div class="agent-code">${ag.code} · ${ag.clients} clients · ${ag.inforce} in force</div>
+        </div>
+        <div class="agent-ace">
+          <div class="agent-ace-val">${fmtAce(ag.ace)}</div>
+          <div class="agent-ace-lbl">ACE</div>
+        </div>
+      </div>`;
+    }).join('');
+  })
+  .catch(() => {
+    document.getElementById('aceSub').textContent = 'Data tidak tersedia';
+    document.getElementById('agentList').innerHTML = '';
+  });
+</script>
+</body>
+</html>
