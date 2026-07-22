@@ -614,7 +614,7 @@ function calcYTD(agent) {
 /* ── Render leaderboard ───────────────────────────────── */
 function renderLeaderboard(data) {
   document.getElementById('updatedBadge').textContent = 'Data: ' + data.updated;
-  document.getElementById('projBadge').textContent = 'PR13 Projection: ' + projLabel();
+  document.getElementById('projBadge').textContent = (_isPrediction() ? '🔮 Prediction: ' : 'PR13 Projection: ') + projLabel();
   if (window._lastData) { renderContest(window._lastData); renderSecondPayment(window._lastData); }
 
   // Filter out removed agents
@@ -998,7 +998,7 @@ function renderAuditTable() {
   const hasRate = rate !== null;
 
   const banner = document.getElementById('predictionBanner');
-  if (banner) banner.style.display = 'none';
+  if (banner) banner.style.display = _isPrediction() ? 'block' : 'none';
 
   const clsHTML = (cls, watch) => {
     if (cls === '100')  return `<span class="cls-badge cls-100">${watch ? '⚠️ ' : ''}100%</span>`;
@@ -1438,10 +1438,19 @@ function renderSecondPayment(data) {
 function buildMonthPicker() {
   const sel = document.getElementById('monthPicker');
   if (!sel) return;
-  const base = new Date(); base.setDate(1); base.setHours(0,0,0,0);
+  const now = new Date(); now.setDate(1); now.setHours(0,0,0,0);
   sel.innerHTML = '';
+  // 3 future prediction months
+  for (let i = 3; i >= 1; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const opt = document.createElement('option');
+    opt.value = `${d.getFullYear()}-${d.getMonth()}`;
+    opt.textContent = '🔮 ' + d.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+    sel.appendChild(opt);
+  }
+  // current month + 12 past months
   for (let i = 0; i <= 12; i++) {
-    const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const opt = document.createElement('option');
     opt.value = `${d.getFullYear()}-${d.getMonth()}`;
     opt.textContent = d.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
