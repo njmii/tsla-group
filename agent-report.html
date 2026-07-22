@@ -462,6 +462,9 @@ function classifyPR13(c) {
   if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
   const eff = pointInTimeStatus(c);
   if (eff === 'In Force') {
+    // Credit card uncertain in prediction — agent confirms manually via checkbox
+    if (_isPrediction() && (c.payMethod || '').toLowerCase().includes('credit'))
+      return { cls: '0', reason: 'Credit Card (unconfirmed)' };
     return { cls: '100', reason: 'In Force', watch: _watchFlag(c) };
   }
   if (eff === 'Contract Surrendered') {
@@ -492,6 +495,9 @@ function classifyCE(c) {
     if (c.payMethod === 'Biro Angkasa')      return { cls: '100', reason: 'Biro Angkasa' };
     const eff = pointInTimeStatus(c);
     if (eff !== 'In Force') return { cls: '0', reason: eff || 'Not In Force' };
+    // Credit card uncertain in prediction — agent confirms manually via checkbox
+    if ((c.payMethod || '').toLowerCase().includes('credit'))
+      return { cls: '0', reason: 'Credit Card (unconfirmed)' };
     return { cls: '100', reason: 'In Force (predicted)', watch: _watchFlag(c) };
   }
 
