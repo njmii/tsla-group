@@ -160,7 +160,7 @@ const MERCHANTS = [
   { name:'e-GIA',        note:'Emas digital dalam talian',       buy:0.9474, sell:1.0623 },
 ];
 
-let spot = 529;
+let spot = null;
 let curDays = 7;
 
 // ── fmt helpers ──────────────────────────────────────────────────
@@ -171,6 +171,7 @@ const fmt100  = n => 'RM ' + Math.round(n).toLocaleString('en-MY');
 
 // ── Live price fetch ─────────────────────────────────────────────
 async function fetchPrice() {
+  // Primary: GoldPrice.org (gives change % and timestamp)
   try {
     const r = await fetch('https://data-asg.goldprice.org/dbXRates/MYR');
     if (!r.ok) throw new Error(r.status);
@@ -183,17 +184,48 @@ async function fetchPrice() {
     renderHero(spot, chgG, pct, d.tsj);
     renderMerchants();
     drawChart(curDays);
-  } catch {
-    const hist = readHistory();
-    if (hist.length) { spot = hist[hist.length-1].p; }
-    renderHero(spot, 0, 0, null);
+    return;
+  } catch {}
+
+  // Fallback: free CORS-friendly currency API (jsDelivr CDN, XAU/MYR)
+  try {
+    const r2 = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json');
+    if (!r2.ok) throw new Error(r2.status);
+    const d2 = await r2.json();
+    spot = d2.xau.myr / OZ;
+    saveHistory(spot);
+    renderHero(spot, 0, 0, new Date().toISOString());
     renderMerchants();
     drawChart(curDays);
+    return;
+  } catch {}
+
+  // Both APIs failed — use localStorage cache or show error
+  const hist = readHistory();
+  if (hist.length) {
+    spot = hist[hist.length-1].p;
+    renderHero(spot, 0, 0, null);
+  } else {
+    spot = null;
+    renderHero(null, 0, 0, null);
   }
+  renderMerchants();
+  drawChart(curDays);
 }
 
 // ── Hero ─────────────────────────────────────────────────────────
 function renderHero(g, chgG, pct, tsj) {
+  if (g === null) {
+    document.getElementById('pv').textContent   = '—';
+    document.getElementById('p100').textContent = '';
+    ['c1','c5','c10','c50','c100'].forEach(id => document.getElementById(id).textContent = '—');
+    const el = document.getElementById('pchg');
+    el.className = 'ph-change cf';
+    document.getElementById('pchgtxt').textContent = 'Gagal muatkan harga — semak sambungan internet';
+    const t = document.getElementById('ptime');
+    t.innerHTML = '<button onclick="fetchPrice()" style="background:none;border:1px solid #c8b88a;border-radius:8px;padding:3px 10px;font-size:.7rem;color:#c8962a;cursor:pointer">🔄 Cuba semula</button>';
+    return;
+  }
   document.getElementById('pv').textContent   = g.toFixed(2);
   document.getElementById('p100').textContent = '100g = RM ' + (g*100).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('c1').textContent   = fmtChip(g);
@@ -252,6 +284,7 @@ function buildDataset(days) {
 
   const realCount = pts.filter(p=>p.p!==null).length;
   if (realCount < 2) {
+    if (spot === null) return pts; // no data at all — return empty
     // Seed with realistic random walk ending at spot
     let p = spot;
     for (let i=pts.length-1;i>=0;i--) {
@@ -285,6 +318,10 @@ function setDays(days, btn) {
 
 function drawChart(days) {
   const data = buildDataset(days);
+  if (!data || data.every(d=>d.p===null)) {
+    document.getElementById('csub').textContent = 'Data carta tidak tersedia';
+    return;
+  }
   const canvas = document.getElementById('gc');
   const wrap   = canvas.parentElement;
   const dpr    = window.devicePixelRatio||1;
@@ -385,6 +422,10 @@ function drawChart(days) {
 
 // ── Merchants ────────────────────────────────────────────────────
 function renderMerchants() {
+  if (spot === null) {
+    document.getElementById('mrows').innerHTML = '<div style="text-align:center;color:#ccc;padding:24px 0;font-size:.82rem">Harga spot tidak tersedia</div>';
+    return;
+  }
   const sorted = [...MERCHANTS].sort((a,b)=>(a.sell-a.buy)-(b.sell-b.buy));
   document.getElementById('mrows').innerHTML = sorted.map((m,i)=>{
     const bg   = spot * m.buy;          // merchant buys from you (per gram)
@@ -419,8 +460,7 @@ function renderMerchants() {
 }
 
 // ── Init ─────────────────────────────────────────────────────────
-renderHero(spot,0,0,null);
-renderMerchants();
+renderMerchants(); // shows "Harga spot tidak tersedia" placeholder
 drawChart(7);
 fetchPrice();
 window.addEventListener('resize', ()=>drawChart(curDays));
