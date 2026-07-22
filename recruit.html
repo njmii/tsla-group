@@ -156,13 +156,9 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
 .product-cta-gold:hover{background:#a87620}
 
 /* ── LEADERS SECTION ── */
-.leaders-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-top:48px}
-.leader-card{background:white;border-radius:28px;padding:28px 24px;box-shadow:0 4px 20px rgba(0,0,0,.05);text-align:center;transition:.25s}
-.leader-card:hover{transform:translateY(-5px);box-shadow:0 12px 40px rgba(0,0,0,.1)}
-.leader-logo-wrap{width:140px;height:140px;border-radius:20px;margin:0 auto 20px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.leader-logo-wrap-light{background:white;box-shadow:0 2px 12px rgba(0,0,0,.08)}
-.leader-logo-wrap-dark{background:#111}
-.leader-logo{width:100%;height:100%;object-fit:contain}
+.leaders-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:40px;margin-top:48px}
+.leader-item{text-align:center}
+.leader-logo{height:100px;width:auto;max-width:180px;object-fit:contain;display:block;margin:0 auto 18px}
 .leader-team{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#ff7a00;margin-bottom:4px}
 .leader-abbr{font-size:1.6rem;font-weight:900;letter-spacing:-.02em;margin-bottom:2px}
 .leader-name{font-size:.88rem;color:#888;font-weight:600}
@@ -548,26 +544,20 @@ body{background:#f7f8fa;color:#111;font-family:-apple-system,BlinkMacSystemFont,
   <div class="reveal reveal-d1"><h2 class="section-title">Three agencies.<br>One family.</h2></div>
   <p class="section-body reveal reveal-d2">Setiap agensi dipimpin oleh pemimpin berpengalaman — dengan identiti tersendiri, budaya yang kuat, dan rekod prestasi yang terbukti.</p>
   <div class="leaders-grid">
-    <div class="leader-card reveal reveal-d1">
-      <div class="leader-logo-wrap leader-logo-wrap-light">
-        <img src="assets/logo-htp.jpg" alt="htp." class="leader-logo">
-      </div>
+    <div class="leader-item reveal reveal-d1">
+      <img src="assets/logo-htp.png" alt="htp." class="leader-logo">
       <div class="leader-team">Hold to Providence</div>
       <div class="leader-abbr">htp.</div>
       <div class="leader-name">Fauzan</div>
     </div>
-    <div class="leader-card reveal reveal-d2">
-      <div class="leader-logo-wrap leader-logo-wrap-light">
-        <img src="assets/logo-ssg.png" alt="SSG" class="leader-logo">
-      </div>
+    <div class="leader-item reveal reveal-d2">
+      <img src="assets/logo-ssg.png" alt="SSG" class="leader-logo">
       <div class="leader-team">Silent Successors Group</div>
       <div class="leader-abbr">SSG</div>
       <div class="leader-name">Fadhlan</div>
     </div>
-    <div class="leader-card reveal reveal-d3">
-      <div class="leader-logo-wrap leader-logo-wrap-light">
-        <img src="assets/logo-reezora.png" alt="ReeZora" class="leader-logo">
-      </div>
+    <div class="leader-item reveal reveal-d3">
+      <img src="assets/logo-reezora.png" alt="ReeZora" class="leader-logo">
       <div class="leader-team">ReeZora Legacy</div>
       <div class="leader-abbr">ReeZora</div>
       <div class="leader-name">Roza</div>
