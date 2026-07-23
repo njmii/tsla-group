@@ -245,32 +245,6 @@ td.right{text-align:right;font-weight:700;}
 .sp-contrib{font-weight:800;font-size:.84rem;color:#333;}
 .sp-due{font-size:.7rem;color:#aaa;margin-top:2px;}
 
-/* ── Bonus Scheme tab ──────────────────────────── */
-.lb-tab-bonus.active{background:#d97706!important;color:white;}
-.bonus-header-card{background:linear-gradient(135deg,#b45309,#f59e0b);border-radius:20px;padding:20px 22px;margin-bottom:16px;color:white;}
-.bonus-header-title{font-weight:900;font-size:1.1rem;margin-bottom:3px;}
-.bonus-header-sub{font-size:.82rem;opacity:.85;margin-top:2px;}
-.bonus-header-rule{font-size:.78rem;opacity:.75;margin-top:8px;background:rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;line-height:1.5;}
-.bonus-total-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
-.bonus-sum-chip{border-radius:10px;padding:5px 13px;font-size:.78rem;font-weight:800;background:rgba(255,255,255,.22);color:white;}
-.bonus-agent-card{background:white;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:12px;overflow:hidden;}
-.bonus-agent-hdr{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;transition:opacity .15s;}
-.bonus-agent-hdr:hover{opacity:.85;}
-.bonus-agent-name{font-weight:900;font-size:.97rem;}
-.bonus-agent-code{font-size:.74rem;color:#888;margin-top:2px;}
-.bonus-right{text-align:right;flex-shrink:0;}
-.bonus-amount{font-size:1.25rem;font-weight:900;color:#b45309;}
-.bonus-ann{font-size:.72rem;color:#aaa;margin-top:1px;}
-.bonus-bar-wrap{height:4px;background:#f5f5f5;border-radius:4px;margin-top:8px;}
-.bonus-bar{height:4px;border-radius:4px;background:linear-gradient(90deg,#b45309,#f59e0b);transition:width .4s;}
-.bonus-policy-list{padding:0 16px 14px;}
-.bonus-policy-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:#fffbf0;border-left:3px solid #f59e0b;margin-bottom:5px;}
-.bonus-policy-row:last-child{margin-bottom:0;}
-.bonus-pol-name{font-weight:700;font-size:.83rem;flex:1;min-width:0;}
-.bonus-pol-meta{font-size:.68rem;color:#888;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.bonus-pol-val{text-align:right;flex-shrink:0;}
-.bonus-pol-amt{font-weight:800;font-size:.84rem;color:#b45309;}
-.bonus-pol-ann{font-size:.67rem;color:#aaa;}
 </style>
 </head>
 <body>
@@ -301,12 +275,10 @@ td.right{text-align:right;font-weight:700;}
       <button id="tabLb" class="lb-tab active" onclick="switchLbTab('lb')">📊 PR13 &amp; CE</button>
       <button id="tabContest" class="lb-tab" onclick="switchLbTab('contest')">🏆 Road to Bali</button>
       <button id="tabSP" class="lb-tab lb-tab-sp" onclick="switchLbTab('sp')">💳 Second Payment</button>
-      <button id="tabBonus" class="lb-tab lb-tab-bonus" onclick="switchLbTab('bonus')">💰 Bonus Scheme</button>
     </div>
     <div id="leaderboardList"><div class="loading">Loading data…</div></div>
     <div id="contestList" style="display:none"></div>
     <div id="spList" style="display:none"></div>
-    <div id="bonusList" style="display:none"></div>
   </div>
 
   <!-- Agent detail -->
@@ -661,7 +633,7 @@ function calcYTD(agent) {
 function renderLeaderboard(data) {
   document.getElementById('updatedBadge').textContent = 'Data: ' + data.updated;
   document.getElementById('projBadge').textContent = (_isPrediction() ? '🔮 Prediction: ' : 'PR13 Projection: ') + projLabel();
-  if (window._lastData) { renderContest(window._lastData); renderSecondPayment(window._lastData); renderBonus(window._lastData); }
+  if (window._lastData) { renderContest(window._lastData); renderSecondPayment(window._lastData); }
 
   // Filter out removed agents
   const EXCLUDED_AGENTS = new Set(['A15741']);
@@ -1298,11 +1270,9 @@ function switchLbTab(tab) {
   document.getElementById('leaderboardList').style.display = tab === 'lb'      ? '' : 'none';
   document.getElementById('contestList').style.display     = tab === 'contest' ? '' : 'none';
   document.getElementById('spList').style.display          = tab === 'sp'      ? '' : 'none';
-  document.getElementById('bonusList').style.display       = tab === 'bonus'   ? '' : 'none';
   document.getElementById('tabLb').classList.toggle('active', tab === 'lb');
   document.getElementById('tabContest').classList.toggle('active', tab === 'contest');
   document.getElementById('tabSP').classList.toggle('active', tab === 'sp');
-  document.getElementById('tabBonus').classList.toggle('active', tab === 'bonus');
 }
 
 /* ── Contest: Road to Bali ───────────────────────────── */
@@ -1478,114 +1448,6 @@ function renderSecondPayment(data) {
           ${danger.length ? `<div class="sp-group-lbl" style="color:#e53935">🔴 Lapsed / Contract Surrendered — immediate action needed</div>${danger.map(rowHtml).join('')}` : ''}
           ${watch.length  ? `<div class="sp-group-lbl" style="color:#c77700">🟡 In Force — not on Biro Angkasa — update payment method</div>${watch.map(rowHtml).join('')}` : ''}
           ${safe.length   ? `<div class="sp-group-lbl" style="color:#0a9b43">✅ In Force — Biro Angkasa — no action needed</div>${safe.map(rowHtml).join('')}` : ''}
-        </div>
-      </div>`;
-  });
-
-  el.innerHTML = html;
-}
-
-/* ── Bonus Scheme ────────────────────────────────────── */
-function calcBonus(agent) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  let totalBonus = 0, totalAnn = 0;
-  const policies = [];
-  for (const c of agent.clients) {
-    if (!c.issueDate) continue;
-    if (c.status === 'Freelook Cancellation') continue;
-    const ace = getACE(c);
-    const issueDate = new Date(c.issueDate); issueDate.setHours(0,0,0,0);
-    let endDate;
-    if (c.status === 'In Force') {
-      endDate = today;
-    } else if (c.statusUpdatedDate) {
-      endDate = new Date(c.statusUpdatedDate); endDate.setHours(0,0,0,0);
-    } else {
-      endDate = today;
-    }
-    const months = Math.max(0,
-      (endDate.getFullYear() - issueDate.getFullYear()) * 12 +
-      (endDate.getMonth() - issueDate.getMonth())
-    );
-    const ann = Math.floor(months / 12);
-    if (ann > 0) {
-      const bonus = ann * 0.03 * ace;
-      totalBonus += bonus;
-      totalAnn   += ann;
-      policies.push({ c, ace, ann, bonus });
-    }
-  }
-  policies.sort((a, b) => b.bonus - a.bonus);
-  return { totalBonus, totalAnn, policies };
-}
-
-function renderBonus(data) {
-  const el = document.getElementById('bonusList');
-  if (!el) return;
-
-  const EXCLUDED = new Set(['A15741']);
-  const entries = data.agents
-    .filter(ag => !EXCLUDED.has(ag.code))
-    .map(ag => ({ ag, ...calcBonus(ag) }));
-
-  entries.sort((a, b) => b.totalBonus - a.totalBonus);
-  const maxBonus = entries.length && entries[0].totalBonus > 0 ? entries[0].totalBonus : 1;
-
-  const totalAllBonus = entries.reduce((s, e) => s + e.totalBonus, 0);
-  const totalAllAnn   = entries.reduce((s, e) => s + e.totalAnn, 0);
-
-  const fmt = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const rankEmoji = ['🥇','🥈','🥉'];
-
-  let html = `
-    <div class="bonus-header-card">
-      <div class="bonus-header-title">💰 Anniversary Bonus Scheme</div>
-      <div class="bonus-header-sub">Accumulated bonus based on enforced ACE × completed policy years</div>
-      <div class="bonus-header-rule">📐 Formula: for every completed 12 months a policy remains enforced, the agent earns <strong>3% × annual ACE</strong> for that policy</div>
-      <div class="bonus-total-strip">
-        <div class="bonus-sum-chip">Total accumulated: ${fmt(totalAllBonus)}</div>
-        <div class="bonus-sum-chip">${totalAllAnn} anniversary payment${totalAllAnn !== 1 ? 's' : ''}</div>
-      </div>
-    </div>`;
-
-  entries.forEach(({ ag, totalBonus, totalAnn, policies }, i) => {
-    const rank     = i < 3 ? rankEmoji[i] : `#${i + 1}`;
-    const barW     = maxBonus > 0 ? Math.round(totalBonus / maxBonus * 100) : 0;
-    const shortName = SHORT_NAMES[ag.code] || ag.name.split(' ')[0];
-    const bodyId   = `bonus-body-${ag.code}`;
-    const arrowId  = `bonus-arr-${ag.code}`;
-    const hasBonus = totalBonus > 0;
-
-    const policyRows = policies.map(({ c, ace, ann, bonus }) => `
-      <div class="bonus-policy-row">
-        <div style="flex:1;min-width:0">
-          <div class="bonus-pol-name">${c.name || '—'}</div>
-          <div class="bonus-pol-meta">${c.certNo || ''} · Issued ${c.issueDate || '—'} · ${ann} yr${ann !== 1 ? 's' : ''} completed · ACE ${fmt(ace)}</div>
-        </div>
-        <div class="bonus-pol-val">
-          <div class="bonus-pol-amt">${fmt(bonus)}</div>
-          <div class="bonus-pol-ann">${ann} × 3%</div>
-        </div>
-      </div>`).join('');
-
-    html += `
-      <div class="bonus-agent-card">
-        <div class="bonus-agent-hdr"
-          onclick="var b=document.getElementById('${bodyId}'),a=document.getElementById('${arrowId}');b.classList.toggle('hidden');a.textContent=b.classList.contains('hidden')?'▼':'▲'">
-          <div style="font-size:1.2rem;flex-shrink:0">${rank}</div>
-          <div style="flex:1;min-width:0">
-            <div class="bonus-agent-name">${shortName}</div>
-            <div class="bonus-agent-code">${ag.code} · ${ag.name}</div>
-            <div class="bonus-bar-wrap"><div class="bonus-bar" style="width:${barW}%"></div></div>
-          </div>
-          <div class="bonus-right">
-            <div class="bonus-amount">${hasBonus ? fmt(totalBonus) : 'RM 0.00'}</div>
-            <div class="bonus-ann">${totalAnn} anniversary payment${totalAnn !== 1 ? 's' : ''}</div>
-            <span id="${arrowId}" style="font-size:.85rem;color:#aaa">▲</span>
-          </div>
-        </div>
-        <div class="bonus-policy-list" id="${bodyId}">
-          ${hasBonus ? policyRows : '<div style="color:#aaa;font-size:.82rem;padding:8px 0">No completed 12-month anniversaries yet</div>'}
         </div>
       </div>`;
   });

@@ -195,6 +195,7 @@ tbody tr:last-child td{border-bottom:none}
         <option value="acePct">YTD ACE %</option>
         <option value="nocPct">YTD NOC %</option>
         <option value="ytdACE">YTD ACE (RM)</option>
+        <option value="bonus">Bonus 3% (RM)</option>
         <option value="payout">Jumlah Payout</option>
         <option value="name">Nama</option>
       </select>
@@ -717,12 +718,14 @@ function renderLeaderboard() {
   const qualified = agents.filter(a => isQualified(lastCompletedMonth(a)?.mtdResult) || isQualified(lastCompletedMonth(a)?.catchResult)).length;
 
   const totalPayout = agents.reduce((s, a) => s + a.ytdPayout, 0);
+  const totalBonus  = agents.reduce((s, a) => s + a.ytdACE * 0.03, 0);
 
   document.getElementById('sumBar').innerHTML =
     `<div class="sum-item"><div class="sum-n">${agents.length}</div><div class="sum-l">Ejen</div></div>` +
     `<div class="sum-item"><div class="sum-n" style="color:#0a9b43">${qualified}</div><div class="sum-l">Qualified</div></div>` +
     `<div class="sum-item"><div class="sum-n" style="font-size:1rem">${fmtK(totalACE)}</div><div class="sum-l">YTD ACE</div></div>` +
-    `<div class="sum-item"><div class="sum-n" style="font-size:1rem;color:#ff7a00">${fmtK(totalPayout)}</div><div class="sum-l">Total Payout</div></div>`;
+    `<div class="sum-item"><div class="sum-n" style="font-size:1rem;color:#ff7a00">${fmtK(totalPayout)}</div><div class="sum-l">Total Payout</div></div>` +
+    `<div class="sum-item"><div class="sum-n" style="font-size:1rem;color:#b45309">${fmtK(totalBonus)}</div><div class="sum-l">Bonus 3%</div></div>`;
 
   const sortBy = document.getElementById('sortSel').value;
   const acePctOf = a => a.ytdTargetACE ? a.ytdACE / a.ytdTargetACE * 100 : 0;
@@ -732,6 +735,7 @@ function renderLeaderboard() {
     if (sortBy === 'acePct')  return acePctOf(b) - acePctOf(a);
     if (sortBy === 'nocPct')  return nocPctOf(b) - nocPctOf(a);
     if (sortBy === 'ytdACE')  return b.ytdACE - a.ytdACE;
+    if (sortBy === 'bonus')   return b.ytdACE - a.ytdACE;
     if (sortBy === 'payout')  return b.ytdPayout - a.ytdPayout;
     return a.name.localeCompare(b.name);
   });
@@ -788,6 +792,7 @@ function renderLeaderboard() {
         ${hasRes ? `<span class="chip ${chCls(isQual)}">${isQual ? '✓' : '✗'} ${displayResult}</span>` : ''}
         ${monthPayout > 0 ? `<span class="chip ch-o">💰 ${fmtK(monthPayout)}</span>` : ''}
         ${a.ytdPayout > 0 ? `<span class="chip ch-grey">YTD: ${fmtK(a.ytdPayout)}</span>` : ''}
+        ${a.ytdACE > 0 ? `<span class="chip" style="background:#fffbf0;color:#b45309">🎁 Bonus: ${fmtK(a.ytdACE * 0.03)}</span>` : ''}
         ${nextAce > 0 ? `<span class="chip ch-grey">→ Next: ${fmtK(nextAce)}${nextNoc > 0 ? ' · ' + nextNoc + ' kes' : ''}</span>` : ''}
         ${a.training ? `<span class="chip ${chCls(a.training === 'MET')}">${a.training === 'MET' ? '✓' : '✗'} Training</span>` : ''}
       </div>
@@ -822,7 +827,8 @@ function renderDetail() {
     stat(String(a.ytdNOC),     'YTD NOC',       null),
     stat(String(a.ytdTargetCases), 'Target Kes', null),
     stat(nocPct.toFixed(1)+'%','NOC Capaian',   colorForPct(nocPct)),
-    stat(fmtK(a.totalPayout),  'Jumlah Payout', '#ff7a00'),
+    stat(fmtK(a.totalPayout),      'Jumlah Payout', '#ff7a00'),
+    stat(fmtK(a.ytdACE * 0.03),   'Bonus 3%',      '#b45309'),
     a.ce   != null ? stat((a.ce*100).toFixed(1)+'%',   'CE %',   colorForPct(a.ce*100))   : stat('—','CE %','#aaa'),
     a.pr13 != null ? stat((a.pr13*100).toFixed(1)+'%', 'PR13 %', colorForPct(a.pr13*100)) : stat('—','PR13 %','#aaa'),
   ].join('');
