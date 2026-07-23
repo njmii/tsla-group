@@ -1276,60 +1276,110 @@ function switchLbTab(tab) {
 }
 
 /* ── Contest: Road to Bali ───────────────────────────── */
-const CONTEST_START = '2026-07-01';
-const CONTEST_END   = '2026-09-30';
+const CONTEST_START  = '2026-07-01';
+const CONTEST_END    = '2026-09-30';
+const CONTEST_TARGET = 50000;
 
 function renderContest(data) {
   const el = document.getElementById('contestList');
   if (!el) return;
 
+  // Deduplicate certNos globally so the same policy is never counted twice
+  // (prevents overlap between live JSON and imported Excel data)
+  const seenCerts = new Set();
   const entries = data.agents.map(ag => {
-    const clients = ag.clients.filter(c =>
-      c.issueDate && c.issueDate >= CONTEST_START && c.issueDate <= CONTEST_END
-      && c.status !== 'Freelook Cancellation'
-    );
+    const clients = ag.clients.filter(c => {
+      if (!c.issueDate || c.issueDate < CONTEST_START || c.issueDate > CONTEST_END) return false;
+      if (c.status === 'Freelook Cancellation') return false;
+      if (c.certNo && seenCerts.has(c.certNo)) return false;
+      if (c.certNo) seenCerts.add(c.certNo);
+      return true;
+    });
     const ace   = clients.reduce((s, c) => s + getACE(c), 0);
     const cases = clients.length;
     return { ag, ace, cases };
-  }).filter(e => e.cases > 0 || true);
+  });
 
+  // Rank highest ACE first (closest to target)
   entries.sort((a, b) => b.ace - a.ace);
-  const maxAce = entries.length ? entries[0].ace : 1;
 
-  const rankEmoji = ['🥇','🥈','🥉'];
-  const now   = new Date();
+  const now  = new Date();
   const start = new Date(CONTEST_START);
   const end   = new Date(CONTEST_END + 'T23:59:59');
   const totalDays   = Math.round((end - start) / 86400000);
   const elapsedDays = Math.min(Math.max(Math.round((now - start) / 86400000), 0), totalDays);
+  const daysLeft    = Math.max(0, Math.round((end - now) / 86400000));
+  const monthsLeft  = Math.max(1 / 30, daysLeft / 30.44);
   const pctElapsed  = Math.round(elapsedDays / totalDays * 100);
+
+  const teamACE   = entries.reduce((s, e) => s + e.ace, 0);
+  const teamCases = entries.reduce((s, e) => s + e.cases, 0);
+  const teamShort = Math.max(0, CONTEST_TARGET - teamACE);
+  const teamPct   = Math.min(100, teamACE / CONTEST_TARGET * 100);
+  const teamAvg   = teamShort > 0 ? teamShort / monthsLeft : 0;
+
+  const fmt  = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtK = v => v >= 1000 ? 'RM ' + (v / 1000).toFixed(1) + 'k' : fmt(v);
 
   let html = `
     <div class="contest-header-card">
       <div class="contest-header-title">🏆 Road to Bali</div>
-      <div class="contest-header-sub">Ranked by New ACE — highest wins</div>
-      <div class="contest-header-period">📅 1 Jul – 30 Sep 2026 &nbsp;·&nbsp; ${elapsedDays} / ${totalDays} days elapsed (${pctElapsed}%)</div>
-      <div style="margin-top:10px;background:rgba(255,255,255,.25);border-radius:6px;height:6px">
-        <div style="width:${pctElapsed}%;height:6px;border-radius:6px;background:white;transition:width .4s"></div>
+      <div class="contest-header-sub">Target kolektif pasukan: RM 50,000 ACE · Jul–Sep 2026</div>
+      <div class="contest-header-period">📅 ${elapsedDays}/${totalDays} hari berlalu (${pctElapsed}%) · ${daysLeft} hari tersisa · ~${monthsLeft.toFixed(1)} bulan</div>
+      <!-- Time progress -->
+      <div style="margin:8px 0 4px;font-size:.67rem;opacity:.7">Masa berlalu</div>
+      <div style="background:rgba(255,255,255,.25);border-radius:6px;height:5px;margin-bottom:14px">
+        <div style="width:${pctElapsed}%;height:5px;border-radius:6px;background:white;transition:width .4s"></div>
+      </div>
+      <!-- Team ACE progress toward 50k -->
+      <div style="font-size:.67rem;opacity:.7;margin-bottom:4px">Jumlah ACE pasukan — ${fmt(teamACE)} / ${fmt(CONTEST_TARGET)} (${teamPct.toFixed(1)}%)</div>
+      <div style="background:rgba(255,255,255,.25);border-radius:8px;height:12px;overflow:hidden;margin-bottom:14px">
+        <div style="width:${teamPct}%;height:12px;border-radius:8px;background:white;transition:width .5s"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="background:rgba(255,255,255,.2);border-radius:10px;padding:7px 13px;font-size:.78rem;font-weight:800">${teamCases} kes · ${entries.filter(e=>e.cases>0).length} ejen</div>
+        ${teamShort > 0
+          ? `<div style="background:rgba(255,255,255,.2);border-radius:10px;padding:7px 13px;font-size:.78rem;font-weight:800">Kekurangan: ${fmt(teamShort)}</div>
+             <div style="background:rgba(255,255,255,.2);border-radius:10px;padding:7px 13px;font-size:.78rem;font-weight:800">~${fmtK(teamAvg)}/bulan diperlukan</div>`
+          : `<div style="background:rgba(255,255,255,.2);border-radius:10px;padding:7px 13px;font-size:.78rem;font-weight:800">🎉 Target dicapai!</div>`}
       </div>
     </div>`;
 
+  const rankEmoji = ['🥇','🥈','🥉'];
   entries.forEach(({ ag, ace, cases }, i) => {
-    const rank = i < 3 ? rankEmoji[i] : `#${i + 1}`;
-    const barW = maxAce > 0 ? Math.round(ace / maxAce * 100) : 0;
-    const hasData = cases > 0;
+    const rank      = i < 3 ? rankEmoji[i] : `#${i + 1}`;
+    const pct       = Math.min(100, ace / CONTEST_TARGET * 100);
+    const shortage  = Math.max(0, CONTEST_TARGET - ace);
+    const avgNeeded = shortage > 0 ? shortage / monthsLeft : 0;
+    const barColor  = pct >= 80 ? '#0a9b43' : pct >= 40 ? '#c77700' : '#e53935';
+    const shortName = SHORT_NAMES[ag.code] || ag.name.split(' ')[0];
+
     html += `
-      <div class="contest-card">
-        <div class="contest-rank">${rank}</div>
-        <div class="contest-info">
-          <div class="contest-name">${ag.name}</div>
-          <div class="contest-code">${ag.code}</div>
-          <div class="contest-bar-wrap"><div class="contest-bar" style="width:${barW}%"></div></div>
-        </div>
-        <div class="contest-ace">
-          <div class="contest-ace-val">${hasData ? 'RM ' + ace.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : 'RM 0'}</div>
-          <div class="contest-ace-lbl">NEW ACE</div>
-          <div class="contest-cases">${cases} case${cases !== 1 ? 's' : ''}</div>
+      <div class="contest-card" style="align-items:flex-start">
+        <div class="contest-rank" style="margin-top:2px">${rank}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px">
+            <div class="contest-name">${shortName}</div>
+            <div style="font-weight:900;font-size:1rem;color:${barColor};flex-shrink:0">${fmt(ace)}</div>
+          </div>
+          <div class="contest-code" style="margin-bottom:8px">${ag.code} · ${ag.name}</div>
+          <!-- Shortfall bar: filled = achieved, empty = remaining -->
+          <div style="margin-bottom:6px">
+            <div style="height:10px;background:#f0f0f0;border-radius:6px;overflow:hidden;position:relative">
+              <div style="width:${pct}%;height:10px;border-radius:6px;background:${barColor};transition:width .4s"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:.64rem;color:#aaa;margin-top:2px">
+              <span style="font-weight:700;color:${barColor}">${pct.toFixed(1)}% dari RM 50k</span>
+              <span>${cases} kes</span>
+            </div>
+          </div>
+          <!-- Shortage chips -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${shortage > 0
+              ? `<span style="font-size:.67rem;font-weight:800;background:rgba(229,57,53,.07);color:#c0392b;border-radius:8px;padding:2px 8px">Kekurangan: ${fmtK(shortage)}</span>
+                 <span style="font-size:.67rem;font-weight:700;background:#f5f5f5;color:#666;border-radius:8px;padding:2px 8px">~${fmtK(avgNeeded)}/bulan</span>`
+              : `<span style="font-size:.67rem;font-weight:800;background:#e8f5e9;color:#0a9b43;border-radius:8px;padding:2px 8px">✓ Target dicapai</span>`}
+          </div>
         </div>
       </div>`;
   });
