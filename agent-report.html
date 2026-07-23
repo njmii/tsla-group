@@ -1369,16 +1369,20 @@ function renderContest(data) {
 
 /* ── Second Payment Monitor ──────────────────────────── */
 function _spCohortClients(clients) {
-  // Policies issued exactly 3 calendar months before the projection month
-  const targetKey = PROJ_YEAR * 12 + PROJ_MONTH - 3;
+  // Policies between 0 and 3 months old (inclusive) — drop after 3 months
+  const projKey = PROJ_YEAR * 12 + PROJ_MONTH;
+  const minKey  = projKey - 3;
   return clients.filter(c => {
     if (!c.issueDate || c.status === 'Freelook Cancellation') return false;
     const d = new Date(c.issueDate);
-    return d.getFullYear() * 12 + d.getMonth() === targetKey;
+    const k = d.getFullYear() * 12 + d.getMonth();
+    return k >= minKey && k <= projKey;
   }).map(c => {
-    const isBA  = c.payMethod === 'Biro Angkasa';
-    const isOut = c.status === 'Lapsed' || c.status === 'Contract Surrendered';
-    return { ...c, _isBA: isBA, _risk: isOut ? 'danger' : isBA ? 'safe' : 'watch' };
+    const isBA      = c.payMethod === 'Biro Angkasa';
+    const isOut     = c.status === 'Lapsed' || c.status === 'Contract Surrendered';
+    const issuedKey = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
+    const ageMonths = projKey - issuedKey;
+    return { ...c, _isBA: isBA, _risk: isOut ? 'danger' : isBA ? 'safe' : 'watch', _ageMonths: ageMonths };
   });
 }
 
@@ -1386,9 +1390,7 @@ function renderSecondPayment(data) {
   const el = document.getElementById('spList');
   if (!el) return;
 
-  const cohortDate  = new Date(PROJ_YEAR, PROJ_MONTH - 3, 1);
-  const cohortLabel = cohortDate.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
-  const EXCLUDED    = new Set(['A15741']);
+  const EXCLUDED = new Set(['A15741']);
 
   const entries = data.agents
     .filter(ag => !EXCLUDED.has(ag.code))
@@ -1413,7 +1415,7 @@ function renderSecondPayment(data) {
   let html = `
     <div class="sp-header-card">
       <div class="sp-header-title">💳 Second Payment Monitor</div>
-      <div class="sp-header-sub">Cohort: policies issued in ${cohortLabel} · now 3 months old</div>
+      <div class="sp-header-sub">Policies issued in the last 3 months · removed once past 3 months old</div>
       <div class="sp-summary-strip">
         <div class="sp-sum-chip">${totC} policies · ${entries.length} agent${entries.length !== 1 ? 's' : ''}</div>
         ${totD ? `<div class="sp-sum-chip" style="background:rgba(229,57,53,.35)">🔴 ${totD} lapsed</div>` : ''}
@@ -1423,19 +1425,20 @@ function renderSecondPayment(data) {
     </div>`;
 
   if (!totC) {
-    html += `<div class="sp-all-clear">No policies found for ${cohortLabel}</div>`;
+    html += `<div class="sp-all-clear">No policies within the last 3 months</div>`;
     el.innerHTML = html; return;
   }
 
   const rowHtml = c => {
-    const rowBg  = c._risk === 'danger' ? 'rgba(229,57,53,.05)' : c._risk === 'watch' ? 'rgba(255,193,7,.09)' : 'rgba(10,155,67,.05)';
-    const rowBdr = c._risk === 'danger' ? '#e53935' : c._risk === 'watch' ? '#f9a825' : '#0a9b43';
+    const rowBg   = c._risk === 'danger' ? 'rgba(229,57,53,.05)' : c._risk === 'watch' ? 'rgba(255,193,7,.09)' : 'rgba(10,155,67,.05)';
+    const rowBdr  = c._risk === 'danger' ? '#e53935' : c._risk === 'watch' ? '#f9a825' : '#0a9b43';
     const contrib = c.contribution ? 'RM ' + c.contribution.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) + '/mo' : '—';
+    const ageLabel = c._ageMonths === 0 ? 'Bulan ini' : `${c._ageMonths} bulan`;
     return `
       <div class="sp-client-row" style="background:${rowBg};border-left-color:${rowBdr}">
         <div class="sp-client-info">
           <div class="sp-client-name">${c.name || '—'}</div>
-          <div class="sp-client-meta">${c.certNo || ''} · Issued ${c.issueDate || '—'} · Due ${c.dueDate || '—'}</div>
+          <div class="sp-client-meta">${c.certNo || ''} · Issued ${c.issueDate || '—'} · Due ${c.dueDate || '—'} · <strong>${ageLabel}</strong></div>
           <div class="sp-client-tags">
             <span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.68rem">${c.status}</span>
             <span class="badge ${c._isBA ? 'badge-green' : 'badge-amber'}" style="font-size:.68rem">${c.payMethod || c.payMode || '—'}</span>
