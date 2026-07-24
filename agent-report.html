@@ -1436,7 +1436,7 @@ function renderManualPayment(data) {
   if (!el) return;
 
   const EXCLUDED  = new Set(['A15741']);
-  const transMin  = TODAY_KEY - 3;
+  const transMin  = TODAY_KEY - 2;
 
   // Overdue pool: non-BA, dueKey <= TODAY_KEY, not Freelook
   _mpEntries = data.agents
@@ -1455,11 +1455,10 @@ function renderManualPayment(data) {
       return { ag, clients };
     });
 
-  // BA transition pool: Biro Angkasa, due date in past 3 months, not Freelook
-  // Month 1 (3 months ago) = closing — paid at inception
-  // Month 2 (2 months ago) = card removed → JomPay manual needed
-  // Month 3 (1 month ago)  = verify Angkasa deducted
-  // Month 4+ (this month)  = BA should be active — just double-check
+  // BA transition pool: Biro Angkasa, due date in past 2 months, not Freelook
+  // Month 1 (2 months ago) = card removed → JomPay manual needed
+  // Month 2 (1 month ago)  = verify Angkasa deducted
+  // Month 3 (this month)   = BA should be active — just double-check
   _mpBaTrans = data.agents
     .filter(ag => !EXCLUDED.has(ag.code))
     .map(ag => {
@@ -1522,11 +1521,10 @@ function _renderMpCards() {
 
   // BA transition row — label shows which month of the 3-month process they're in
   const baRowHtml = c => {
-    // monthsAgo: 3=closing month, 2=JomPay month, 1=verify Angkasa month, 0=should be active
-    const stage = c._monthsAgo === 3 ? { pill: '1️⃣', label: 'Bulan 1 — closing (selesai)',              bg: 'rgba(120,120,120,.04)', bdr: '#bbb' }
-                : c._monthsAgo === 2 ? { pill: '2️⃣', label: 'Bulan 2 — bayar JomPay jika kad dibuang', bg: 'rgba(255,152,0,.07)',   bdr: '#f9a825' }
-                : c._monthsAgo === 1 ? { pill: '3️⃣', label: 'Bulan 3 — sahkan Angkasa berjaya potong', bg: 'rgba(255,193,7,.07)',   bdr: '#c77700' }
-                :                      { pill: '✅',  label: 'Bulan 4+ — Angkasa aktif, semak semula',  bg: 'rgba(10,155,67,.04)',   bdr: '#0a9b43' };
+    // monthsAgo: 2=JomPay month, 1=verify Angkasa month, 0=should be active
+    const stage = c._monthsAgo === 2 ? { pill: '1️⃣', label: 'Bulan 1 — bayar JomPay jika kad dibuang', bg: 'rgba(255,152,0,.07)',   bdr: '#f9a825' }
+                : c._monthsAgo === 1 ? { pill: '2️⃣', label: 'Bulan 2 — sahkan Angkasa berjaya potong', bg: 'rgba(255,193,7,.07)',   bdr: '#c77700' }
+                :                      { pill: '✅',  label: 'Bulan 3 — Angkasa aktif, semak semula',   bg: 'rgba(10,155,67,.04)',   bdr: '#0a9b43' };
     const statusColor  = c.status === 'In Force' ? 'badge-green' : 'badge-red';
     const contrib      = c.contribution ? fmt(c.contribution) + '/mo' : '—';
     const commission   = c.contribution ? fmtComm(c.contribution) : '—';
@@ -1593,10 +1591,10 @@ function _renderMpCards() {
   // ── BA Transition section ──
   if (baFiltered.length > 0) {
     html += `<div style="background:linear-gradient(135deg,#1565c0,#1e88e5);color:white;border-radius:18px;padding:16px 20px;margin-bottom:12px">
-      <div style="font-weight:900;font-size:1rem;margin-bottom:4px">🏦 Transisi Biro Angkasa — 3 Bulan Terakhir</div>
+      <div style="font-weight:900;font-size:1rem;margin-bottom:4px">🏦 Transisi Biro Angkasa — 2 Bulan Terakhir</div>
       <div style="font-size:.75rem;opacity:.9;line-height:1.6">
-        ${totalBaTrans} kes Biro Angkasa dalam tetingkap 3 bulan transisi<br>
-        <span style="opacity:.8">1️⃣ Closing · 2️⃣ Bayar JomPay · 3️⃣ Sahkan potongan · ✅ Aktif</span>
+        ${totalBaTrans} kes Biro Angkasa dalam tetingkap 2 bulan transisi<br>
+        <span style="opacity:.8">1️⃣ Bayar JomPay · 2️⃣ Sahkan potongan · ✅ Aktif</span>
       </div>
     </div>`;
 
