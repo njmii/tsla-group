@@ -1388,6 +1388,17 @@ let _mpFilter  = 'all'; // 'all' | 'inforce' | 'lapsed'
 let _mpEntries = [];    // overdue: non-BA, dueKey <= TODAY_KEY
 let _mpBaTrans = [];    // BA transition: Biro Angkasa clients, dueKey in [TODAY_KEY-3, TODAY_KEY]
 
+function _mpPaidSet() {
+  try { return new Set(JSON.parse(localStorage.getItem('tsla_mp_paid') || '[]')); }
+  catch(e) { return new Set(); }
+}
+function _mpTogglePaid(certNo) {
+  const s = _mpPaidSet();
+  if (s.has(certNo)) s.delete(certNo); else s.add(certNo);
+  localStorage.setItem('tsla_mp_paid', JSON.stringify([...s]));
+  _renderMpCards();
+}
+
 function renderManualPayment(data) {
   const el = document.getElementById('mpList');
   if (!el) return;
@@ -1447,7 +1458,9 @@ function _renderMpCards() {
   const el = document.getElementById('mpList');
   if (!el) return;
 
-  const fmt = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt     = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtComm = v => 'RM ' + (Math.round(v * 0.32 * 100) / 100).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const paid    = _mpPaidSet();
 
   // BA transition section (past 3 months, Biro Angkasa only)
   const baFiltered = _mpBaTrans
@@ -1482,11 +1495,14 @@ function _renderMpCards() {
                 : c._monthsAgo === 2 ? { pill: '2️⃣', label: 'Bulan 2 — bayar JomPay jika kad dibuang', bg: 'rgba(255,152,0,.07)',   bdr: '#f9a825' }
                 : c._monthsAgo === 1 ? { pill: '3️⃣', label: 'Bulan 3 — sahkan Angkasa berjaya potong', bg: 'rgba(255,193,7,.07)',   bdr: '#c77700' }
                 :                      { pill: '✅',  label: 'Bulan 4+ — Angkasa aktif, semak semula',  bg: 'rgba(10,155,67,.04)',   bdr: '#0a9b43' };
-    const statusColor = c.status === 'In Force' ? 'badge-green' : 'badge-red';
-    const contrib = c.contribution ? fmt(c.contribution) + '/mo' : '—';
-    return `<div class="sp-client-row" style="background:${stage.bg};border-left-color:${stage.bdr}">
+    const statusColor  = c.status === 'In Force' ? 'badge-green' : 'badge-red';
+    const contrib      = c.contribution ? fmt(c.contribution) + '/mo' : '—';
+    const commission   = c.contribution ? fmtComm(c.contribution) : '—';
+    const isPaid       = paid.has(c.certNo);
+    const safeCert     = (c.certNo || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<div class="sp-client-row" style="background:${stage.bg};border-left-color:${stage.bdr}${isPaid ? ';opacity:.4' : ''}">
         <div class="sp-client-info">
-          <div class="sp-client-name">${c.name || '—'}</div>
+          <div class="sp-client-name" style="${isPaid ? 'text-decoration:line-through;color:#aaa' : ''}">${c.name || '—'}${isPaid ? ' <span style="font-size:.65rem;font-weight:800;color:#0a9b43;background:rgba(10,155,67,.12);padding:1px 7px;border-radius:6px">✓ Paid</span>' : ''}</div>
           <div class="sp-client-meta">${c.certNo || ''} · Due ${c.dueDate || '—'} · ${c.plan || ''}</div>
           <div class="sp-client-tags">
             <span class="badge ${statusColor}" style="font-size:.68rem">${c.status}</span>
@@ -1494,7 +1510,14 @@ function _renderMpCards() {
             <span style="font-size:.66rem;font-weight:800;color:${stage.bdr};background:${stage.bg};padding:2px 8px;border-radius:8px;border:1px solid ${stage.bdr}20">${stage.pill} ${stage.label}</span>
           </div>
         </div>
-        <div class="sp-client-right"><div class="sp-contrib">${contrib}</div></div>
+        <div class="sp-client-right">
+          <div class="sp-contrib">${contrib}</div>
+          <div style="font-size:.72rem;color:#e53935;font-weight:800;margin-top:2px">💸 ${commission}</div>
+          <label style="display:flex;align-items:center;gap:4px;margin-top:7px;cursor:pointer;font-size:.72rem;font-weight:700;white-space:nowrap">
+            <input type="checkbox" ${isPaid ? 'checked' : ''} onchange="_mpTogglePaid('${safeCert}')" style="cursor:pointer;width:14px;height:14px;accent-color:#0a9b43">
+            <span style="color:${isPaid ? '#0a9b43' : '#888'}">${isPaid ? 'Terbayar' : 'Tandakan'}</span>
+          </label>
+        </div>
       </div>`;
   };
 
@@ -1507,11 +1530,14 @@ function _renderMpCards() {
     const label = c._monthsOverdue === 0 ? 'Bulan ini — belum bayar'
                 : c._monthsOverdue === 1 ? '1 bulan overdue'
                 : `${c._monthsOverdue} bulan overdue`;
-    const contrib     = c.contribution ? fmt(c.contribution) + '/mo' : '—';
-    const statusColor = c.status === 'In Force' ? 'badge-green' : 'badge-red';
-    return `<div class="sp-client-row" style="background:${urgency.bg};border-left-color:${urgency.bdr}">
+    const contrib      = c.contribution ? fmt(c.contribution) + '/mo' : '—';
+    const commission   = c.contribution ? fmtComm(c.contribution) : '—';
+    const statusColor  = c.status === 'In Force' ? 'badge-green' : 'badge-red';
+    const isPaid       = paid.has(c.certNo);
+    const safeCert     = (c.certNo || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<div class="sp-client-row" style="background:${urgency.bg};border-left-color:${urgency.bdr}${isPaid ? ';opacity:.4' : ''}">
         <div class="sp-client-info">
-          <div class="sp-client-name">${c.name || '—'}</div>
+          <div class="sp-client-name" style="${isPaid ? 'text-decoration:line-through;color:#aaa' : ''}">${c.name || '—'}${isPaid ? ' <span style="font-size:.65rem;font-weight:800;color:#0a9b43;background:rgba(10,155,67,.12);padding:1px 7px;border-radius:6px">✓ Paid</span>' : ''}</div>
           <div class="sp-client-meta">${c.certNo || ''} · Due ${c.dueDate || '—'} · ${c.plan || ''}</div>
           <div class="sp-client-tags">
             <span class="badge ${statusColor}" style="font-size:.68rem">${c.status}</span>
@@ -1519,7 +1545,14 @@ function _renderMpCards() {
             <span style="font-size:.66rem;font-weight:800;color:${urgency.bdr};background:${urgency.bg};padding:2px 8px;border-radius:8px">${urgency.pill} ${label}</span>
           </div>
         </div>
-        <div class="sp-client-right"><div class="sp-contrib">${contrib}</div></div>
+        <div class="sp-client-right">
+          <div class="sp-contrib">${contrib}</div>
+          <div style="font-size:.72rem;color:#e53935;font-weight:800;margin-top:2px">💸 ${commission}</div>
+          <label style="display:flex;align-items:center;gap:4px;margin-top:7px;cursor:pointer;font-size:.72rem;font-weight:700;white-space:nowrap">
+            <input type="checkbox" ${isPaid ? 'checked' : ''} onchange="_mpTogglePaid('${safeCert}')" style="cursor:pointer;width:14px;height:14px;accent-color:#0a9b43">
+            <span style="color:${isPaid ? '#0a9b43' : '#888'}">${isPaid ? 'Terbayar' : 'Tandakan'}</span>
+          </label>
+        </div>
       </div>`;
   };
 
