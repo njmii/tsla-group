@@ -1399,6 +1399,38 @@ function _mpTogglePaid(certNo) {
   _renderMpCards();
 }
 
+function _mpShareWA(agCode, section) {
+  let entry, clients;
+  const now = new Date(PROJ_YEAR, PROJ_MONTH, 1);
+  const monthLabel = now.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+
+  if (section === 'ba') {
+    entry = _mpBaTrans.find(e => e.ag.code === agCode);
+    if (!entry || !entry.clients.length) return;
+    clients = entry.clients;
+  } else {
+    entry = _mpEntries.find(e => e.ag.code === agCode);
+    if (!entry) return;
+    clients = entry.clients.filter(c => {
+      if (_mpFilter === 'inforce') return c.status === 'In Force';
+      if (_mpFilter === 'lapsed')  return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
+      return true;
+    });
+    if (!clients.length) return;
+  }
+
+  const shortName = SHORT_NAMES[agCode] || entry.ag.name.split(' ')[0];
+  const header = section === 'ba'
+    ? `🏦 BA Transisi — ${shortName}\n${monthLabel}\n`
+    : `💸 Manual Payment — ${shortName}\n${monthLabel}\n`;
+
+  const lines = clients.map((c, i) =>
+    `${i + 1}. ${c.name || '—'}\n   ${c.certNo || ''} | Due: ${c.dueDate || '—'}`
+  );
+
+  window.open('https://wa.me/?text=' + encodeURIComponent(header + '\n' + lines.join('\n')), '_blank');
+}
+
 function renderManualPayment(data) {
   const el = document.getElementById('mpList');
   if (!el) return;
@@ -1590,6 +1622,7 @@ function _renderMpCards() {
           <div class="sp-badges">
             ${needJomPay ? `<span class="sp-count-badge" style="background:rgba(255,152,0,.15);color:#e65100">2️⃣ JomPay ${needJomPay}</span>` : ''}
             ${needVerify ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.15);color:#b45309">3️⃣ Semak ${needVerify}</span>`  : ''}
+            <button onclick="event.stopPropagation();_mpShareWA('${ag.code}','ba')" style="border:none;border-radius:10px;padding:4px 10px;font-size:.72rem;font-weight:800;cursor:pointer;background:rgba(37,211,102,.15);color:#128c7e">📤 WA</button>
             <span id="${arrowId}" style="color:#1e88e5;font-size:.9rem;margin-left:2px">▲</span>
           </div>
         </div>
@@ -1645,6 +1678,7 @@ function _renderMpCards() {
           ${moderate  ? `<span class="sp-count-badge" style="background:rgba(255,152,0,.12);color:#e65100">🟠 ${moderate}</span>`  : ''}
           ${mild      ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.15);color:#b45309">🟡 ${mild}</span>`      : ''}
           ${thisMonth ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.10);color:#b45309">⏳ ${thisMonth}</span>` : ''}
+          <button onclick="event.stopPropagation();_mpShareWA('${ag.code}','overdue')" style="border:none;border-radius:10px;padding:4px 10px;font-size:.72rem;font-weight:800;cursor:pointer;background:rgba(37,211,102,.15);color:#128c7e">📤 WA</button>
           <span id="${arrowId}" style="color:#e53935;font-size:.9rem;margin-left:2px">▲</span>
         </div>
       </div>
