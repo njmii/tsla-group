@@ -1534,7 +1534,7 @@ function renderManualPayment(data) {
         if (c.status === 'Freelook Cancellation') return false;
         if ((c.payMethod || '') === 'Biro Angkasa') return false;
         const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
-        return dueKey < TODAY_KEY;
+        return dueKey <= TODAY_KEY;
       }).map(c => {
         const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
         return { ...c, _monthsOverdue: TODAY_KEY - dueKey };
@@ -1579,8 +1579,11 @@ function _renderMpCards() {
   const rowHtml = c => {
     const urgency = c._monthsOverdue >= 3 ? { bg: 'rgba(229,57,53,.06)', bdr: '#e53935', pill: '🔴' }
                   : c._monthsOverdue === 2 ? { bg: 'rgba(255,152,0,.06)',  bdr: '#f9a825', pill: '🟠' }
-                  :                          { bg: 'rgba(255,193,7,.06)',   bdr: '#c77700', pill: '🟡' };
-    const overdueLabel = c._monthsOverdue === 1 ? '1 bulan overdue' : `${c._monthsOverdue} bulan overdue`;
+                  : c._monthsOverdue === 1 ? { bg: 'rgba(255,193,7,.06)',  bdr: '#c77700', pill: '🟡' }
+                  :                          { bg: 'rgba(255,193,7,.04)',  bdr: '#c77700', pill: '⏳' };
+    const overdueLabel = c._monthsOverdue === 0 ? 'Bulan ini — belum bayar'
+                       : c._monthsOverdue === 1 ? '1 bulan overdue'
+                       : `${c._monthsOverdue} bulan overdue`;
     const contrib = c.contribution ? fmt(c.contribution) + '/mo' : '—';
     const statusColor = c.status === 'In Force' ? 'badge-green' : 'badge-red';
     return `<div class="sp-client-row" style="background:${urgency.bg};border-left-color:${urgency.bdr}">
@@ -1622,6 +1625,7 @@ function _renderMpCards() {
     const critical  = clients.filter(c => c._monthsOverdue >= 3).length;
     const moderate  = clients.filter(c => c._monthsOverdue === 2).length;
     const mild      = clients.filter(c => c._monthsOverdue === 1).length;
+    const thisMonth = clients.filter(c => c._monthsOverdue === 0).length;
 
     html += `<div class="sp-agent-card">
       <div class="sp-agent-header" onclick="
@@ -1638,7 +1642,8 @@ function _renderMpCards() {
         <div class="sp-badges">
           ${critical ? `<span class="sp-count-badge" style="background:rgba(229,57,53,.12);color:#c62828">🔴 ${critical}</span>` : ''}
           ${moderate ? `<span class="sp-count-badge" style="background:rgba(255,152,0,.12);color:#e65100">🟠 ${moderate}</span>` : ''}
-          ${mild     ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.15);color:#b45309">🟡 ${mild}</span>`    : ''}
+          ${mild      ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.15);color:#b45309">🟡 ${mild}</span>`     : ''}
+          ${thisMonth ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.10);color:#b45309">⏳ ${thisMonth}</span>` : ''}
           <span id="${arrowId}" style="color:#e53935;font-size:.9rem;margin-left:2px">▲</span>
         </div>
       </div>
