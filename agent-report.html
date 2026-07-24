@@ -1479,7 +1479,10 @@ function _mpDoShare() {
 
   const now = new Date(PROJ_YEAR, PROJ_MONTH, 1);
   const monthLabel = now.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
-  const lines = [`💸 Manual Payment — ${monthLabel}`];
+  const fmtRM  = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const comm   = c => Math.round((c.contribution || 0) * 0.32 * 100) / 100;
+  const lines  = [`💸 Manual Payment — ${monthLabel}`];
+  let grandTotal = 0;
 
   const baCodes = selected.filter(el => el.dataset.section === 'ba').map(el => el.dataset.code);
   if (baCodes.length) {
@@ -1487,8 +1490,14 @@ function _mpDoShare() {
     baCodes.forEach(code => {
       const entry = _mpBaTrans.find(e => e.ag.code === code);
       if (!entry) return;
-      lines.push(`\n[${SHORT_NAMES[code] || entry.ag.name.split(' ')[0]}]`);
-      entry.clients.forEach((c, i) => lines.push(`${i + 1}. ${c.name || '—'}\n   ${c.certNo || ''} | Issued: ${c.issueDate || '—'}`));
+      const name      = SHORT_NAMES[code] || entry.ag.name.split(' ')[0];
+      const agComm    = entry.clients.reduce((s, c) => s + comm(c), 0);
+      grandTotal += agComm;
+      lines.push(`\n[${name}] — 💸 ${fmtRM(agComm)}`);
+      entry.clients.forEach((c, i) => {
+        const overdueLabel = c._monthsOverdue === null ? '' : c._monthsOverdue <= 0 ? ' | Bulan ini' : ` | ${c._monthsOverdue} bln overdue`;
+        lines.push(`${i + 1}. ${c.name || '—'}\n   ${c.certNo || ''} | Due: ${c.dueDate || '—'}${overdueLabel} | 💸 ${fmtRM(comm(c))}`);
+      });
     });
   }
 
@@ -1503,10 +1512,19 @@ function _mpDoShare() {
         if (_mpFilter === 'lapsed')  return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
         return true;
       });
-      lines.push(`\n[${SHORT_NAMES[code] || entry.ag.name.split(' ')[0]}]`);
-      clients.forEach((c, i) => lines.push(`${i + 1}. ${c.name || '—'}\n   ${c.certNo || ''} | Due: ${c.dueDate || '—'}`));
+      const name   = SHORT_NAMES[code] || entry.ag.name.split(' ')[0];
+      const agComm = clients.reduce((s, c) => s + comm(c), 0);
+      grandTotal += agComm;
+      lines.push(`\n[${name}] — 💸 ${fmtRM(agComm)}`);
+      clients.forEach((c, i) => {
+        const overdueLabel = c._monthsOverdue === 0 ? ' | Bulan ini' : ` | ${c._monthsOverdue} bln overdue`;
+        lines.push(`${i + 1}. ${c.name || '—'}\n   ${c.certNo || ''} | Due: ${c.dueDate || '—'}${overdueLabel} | 💸 ${fmtRM(comm(c))}`);
+      });
     });
   }
+
+  lines.push(`\n━━━━━━━━━━━━━━`);
+  lines.push(`Jumlah komisyen tertinggal: 💸 ${fmtRM(grandTotal)}`);
 
   modal.remove();
   window.open('https://wa.me/?text=' + encodeURIComponent(lines.join('\n')), '_blank');
