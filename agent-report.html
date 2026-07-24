@@ -1586,8 +1586,9 @@ function renderManualPayment(data) {
         return issueKey >= TODAY_KEY - 2 && issueKey <= TODAY_KEY;
       }).map(c => {
         const issueKey = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
-        return { ...c, _monthsSinceIssue: TODAY_KEY - issueKey };
-      }).sort((a, b) => b._monthsSinceIssue - a._monthsSinceIssue); // month 2 before month 1
+        const dueKey   = c.dueDate ? new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth() : null;
+        return { ...c, _monthsSinceIssue: TODAY_KEY - issueKey, _monthsOverdue: dueKey !== null ? TODAY_KEY - dueKey : null };
+      }).sort((a, b) => b._monthsSinceIssue - a._monthsSinceIssue);
       return { ag, clients };
     });
 
@@ -1648,10 +1649,11 @@ function _renderMpCards() {
     return `<div class="sp-client-row" style="background:${stage.bg};border-left-color:${stage.bdr}${isPaid ? ';opacity:.4' : ''}">
         <div class="sp-client-info">
           <div class="sp-client-name" style="${isPaid ? 'text-decoration:line-through;color:#aaa' : ''}">${c.name || '—'}${isPaid ? ' <span style="font-size:.65rem;font-weight:800;color:#0a9b43;background:rgba(10,155,67,.12);padding:1px 7px;border-radius:6px">✓ Paid</span>' : ''}</div>
-          <div class="sp-client-meta">${c.certNo || ''} · Issued ${c.issueDate || '—'} · ${c.plan || ''}</div>
+          <div class="sp-client-meta">${c.certNo || ''} · Due ${c.dueDate || '—'} · ${c.plan || ''}</div>
           <div class="sp-client-tags">
             <span class="badge ${statusColor}" style="font-size:.68rem">${c.status}</span>
             <span class="badge badge-green" style="font-size:.68rem">Biro Angkasa</span>
+            ${c._monthsOverdue !== null ? `<span style="font-size:.66rem;font-weight:800;color:${c._monthsOverdue <= 0 ? '#0a9b43' : c._monthsOverdue === 1 ? '#c77700' : '#e53935'};background:${c._monthsOverdue <= 0 ? 'rgba(10,155,67,.08)' : c._monthsOverdue === 1 ? 'rgba(255,193,7,.12)' : 'rgba(229,57,53,.08)'};padding:2px 8px;border-radius:8px">${c._monthsOverdue <= 0 ? 'Bulan ini' : c._monthsOverdue === 1 ? '1 bulan overdue' : `${c._monthsOverdue} bulan overdue`}</span>` : ''}
             <span style="font-size:.66rem;font-weight:800;color:${stage.bdr};background:${stage.bg};padding:2px 8px;border-radius:8px;border:1px solid ${stage.bdr}20">${stage.pill} ${stage.label}</span>
           </div>
         </div>
