@@ -1424,9 +1424,12 @@ function _mpShareWA(agCode, section) {
     ? `🏦 BA Transisi — ${shortName}\n${monthLabel}\n`
     : `💸 Manual Payment — ${shortName}\n${monthLabel}\n`;
 
-  const lines = clients.map((c, i) =>
-    `${i + 1}. ${c.name || '—'}\n   ${c.certNo || ''} | Due: ${c.dueDate || '—'}`
-  );
+  const lines = clients.map((c, i) => {
+    const dateLabel = section === 'ba'
+      ? `Issued: ${c.issueDate || '—'}`
+      : `Due: ${c.dueDate || '—'}`;
+    return `${i + 1}. ${c.name || '—'}\n   ${c.certNo || ''} | ${dateLabel}`;
+  });
 
   window.open('https://wa.me/?text=' + encodeURIComponent(header + '\n' + lines.join('\n')), '_blank');
 }
@@ -1435,8 +1438,7 @@ function renderManualPayment(data) {
   const el = document.getElementById('mpList');
   if (!el) return;
 
-  const EXCLUDED  = new Set(['A15741']);
-  const transMin  = TODAY_KEY - 2;
+  const EXCLUDED = new Set(['A15741']);
 
   // Overdue pool: non-BA, dueKey <= TODAY_KEY, not Freelook
   _mpEntries = data.agents
@@ -1455,24 +1457,24 @@ function renderManualPayment(data) {
       return { ag, clients };
     });
 
-  // BA transition pool: Biro Angkasa, due date in past 2 months, not Freelook
-  // Month 1 (2 months ago) = card removed → JomPay manual needed
-  // Month 2 (1 month ago)  = verify Angkasa deducted
-  // Month 3 (this month)   = BA should be active — just double-check
+  // BA transition pool: Biro Angkasa clients in their first 2 months since issue date.
+  // BA deduction is not yet active in months 1–2 → agent must collect manually.
+  // Month 1 (issued this month)  = closing — first payment at inception
+  // Month 2 (issued last month)  = second payment — BA not yet active, pay manually
+  // Month 3+ (issued 2+ months ago) = BA active, no manual needed → excluded
   _mpBaTrans = data.agents
     .filter(ag => !EXCLUDED.has(ag.code))
     .map(ag => {
       const clients = ag.clients.filter(c => {
-        if (!c.dueDate) return false;
+        if (!c.issueDate) return false;
         if (c.status === 'Freelook Cancellation') return false;
         if ((c.payMethod || '') !== 'Biro Angkasa') return false;
-        const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
-        return dueKey >= transMin && dueKey <= TODAY_KEY;
+        const issueKey = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
+        return issueKey >= TODAY_KEY - 1 && issueKey <= TODAY_KEY;
       }).map(c => {
-        const dueKey   = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
-        const monthsAgo = TODAY_KEY - dueKey; // 0=this month, 1=last, 2=two ago, 3=three ago
-        return { ...c, _monthsAgo: monthsAgo };
-      }).sort((a, b) => b._monthsAgo - a._monthsAgo); // oldest first
+        const issueKey = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
+        return { ...c, _monthsSinceIssue: TODAY_KEY - issueKey };
+      }).sort((a, b) => b._monthsSinceIssue - a._monthsSinceIssue); // month 2 before month 1
       return { ag, clients };
     });
 
@@ -1519,12 +1521,12 @@ function _renderMpCards() {
   const totalOverdue = filtered.reduce((s, e) => s + e.clients.length, 0);
   const totalBaTrans = baFiltered.reduce((s, e) => s + e.clients.length, 0);
 
-  // BA transition row — label shows which month of the 3-month process they're in
+  // BA transition row — based on months since issue date (BA not active in first 2 months)
   const baRowHtml = c => {
-    // monthsAgo: 2=JomPay month, 1=verify Angkasa month, 0=should be active
-    const stage = c._monthsAgo === 2 ? { pill: '1️⃣', label: 'Bulan 1 — bayar JomPay jika kad dibuang', bg: 'rgba(255,152,0,.07)',   bdr: '#f9a825' }
-                : c._monthsAgo === 1 ? { pill: '2️⃣', label: 'Bulan 2 — sahkan Angkasa berjaya potong', bg: 'rgba(255,193,7,.07)',   bdr: '#c77700' }
-                :                      { pill: '✅',  label: 'Bulan 3 — Angkasa aktif, semak semula',   bg: 'rgba(10,155,67,.04)',   bdr: '#0a9b43' };
+    // _monthsSinceIssue: 0=issued this month (closing), 1=issued last month (second manual payment)
+    const stage = c._monthsSinceIssue === 0
+                ? { pill: '1️⃣', label: 'Bulan 1 — closing (bayar sekarang)',          bg: 'rgba(255,152,0,.07)', bdr: '#f9a825' }
+                : { pill: '2️⃣', label: 'Bulan 2 — bayar manual (BA belum aktif)',     bg: 'rgba(255,193,7,.07)', bdr: '#c77700' };
     const statusColor  = c.status === 'In Force' ? 'badge-green' : 'badge-red';
     const contrib      = c.contribution ? fmt(c.contribution) + '/mo' : '—';
     const commission   = c.contribution ? fmtComm(c.contribution) : '—';
@@ -1533,7 +1535,7 @@ function _renderMpCards() {
     return `<div class="sp-client-row" style="background:${stage.bg};border-left-color:${stage.bdr}${isPaid ? ';opacity:.4' : ''}">
         <div class="sp-client-info">
           <div class="sp-client-name" style="${isPaid ? 'text-decoration:line-through;color:#aaa' : ''}">${c.name || '—'}${isPaid ? ' <span style="font-size:.65rem;font-weight:800;color:#0a9b43;background:rgba(10,155,67,.12);padding:1px 7px;border-radius:6px">✓ Paid</span>' : ''}</div>
-          <div class="sp-client-meta">${c.certNo || ''} · Due ${c.dueDate || '—'} · ${c.plan || ''}</div>
+          <div class="sp-client-meta">${c.certNo || ''} · Issued ${c.issueDate || '—'} · ${c.plan || ''}</div>
           <div class="sp-client-tags">
             <span class="badge ${statusColor}" style="font-size:.68rem">${c.status}</span>
             <span class="badge badge-green" style="font-size:.68rem">Biro Angkasa</span>
@@ -1591,19 +1593,19 @@ function _renderMpCards() {
   // ── BA Transition section ──
   if (baFiltered.length > 0) {
     html += `<div style="background:linear-gradient(135deg,#1565c0,#1e88e5);color:white;border-radius:18px;padding:16px 20px;margin-bottom:12px">
-      <div style="font-weight:900;font-size:1rem;margin-bottom:4px">🏦 Transisi Biro Angkasa — 2 Bulan Terakhir</div>
+      <div style="font-weight:900;font-size:1rem;margin-bottom:4px">🏦 Transisi Biro Angkasa — 2 Bulan Pertama</div>
       <div style="font-size:.75rem;opacity:.9;line-height:1.6">
-        ${totalBaTrans} kes Biro Angkasa dalam tetingkap 2 bulan transisi<br>
-        <span style="opacity:.8">1️⃣ Bayar JomPay · 2️⃣ Sahkan potongan · ✅ Aktif</span>
+        ${totalBaTrans} kes BA dalam 2 bulan pertama polisi — BA belum aktif, bayar manual<br>
+        <span style="opacity:.8">1️⃣ Closing (bulan issue) · 2️⃣ Bayar manual (bulan kedua)</span>
       </div>
     </div>`;
 
     baFiltered.forEach(({ ag, clients }) => {
-      const arrowId   = 'mp-ba-arr-' + ag.code;
-      const bodyId    = 'mp-ba-body-' + ag.code;
-      const shortName = SHORT_NAMES[ag.code] || ag.name.split(' ')[0];
-      const needJomPay = clients.filter(c => c._monthsAgo === 2).length;
-      const needVerify = clients.filter(c => c._monthsAgo === 1).length;
+      const arrowId    = 'mp-ba-arr-' + ag.code;
+      const bodyId     = 'mp-ba-body-' + ag.code;
+      const shortName  = SHORT_NAMES[ag.code] || ag.name.split(' ')[0];
+      const needSecond = clients.filter(c => c._monthsSinceIssue === 1).length;
+      const needClose  = clients.filter(c => c._monthsSinceIssue === 0).length;
 
       html += `<div class="sp-agent-card">
         <div class="sp-agent-header" onclick="
@@ -1615,11 +1617,11 @@ function _renderMpCards() {
         ">
           <div>
             <div class="sp-agent-name">${shortName}</div>
-            <div class="sp-agent-subline">${ag.code} · ${clients.length} kes BA transisi</div>
+            <div class="sp-agent-subline">${ag.code} · ${clients.length} kes BA (manual)</div>
           </div>
           <div class="sp-badges">
-            ${needJomPay ? `<span class="sp-count-badge" style="background:rgba(255,152,0,.15);color:#e65100">2️⃣ JomPay ${needJomPay}</span>` : ''}
-            ${needVerify ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.15);color:#b45309">3️⃣ Semak ${needVerify}</span>`  : ''}
+            ${needClose  ? `<span class="sp-count-badge" style="background:rgba(255,152,0,.15);color:#e65100">1️⃣ Closing ${needClose}</span>`  : ''}
+            ${needSecond ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.15);color:#b45309">2️⃣ Manual ${needSecond}</span>` : ''}
             <button onclick="event.stopPropagation();_mpShareWA('${ag.code}','ba')" style="border:none;border-radius:10px;padding:4px 10px;font-size:.72rem;font-weight:800;cursor:pointer;background:rgba(37,211,102,.15);color:#128c7e">📤 WA</button>
             <span id="${arrowId}" style="color:#1e88e5;font-size:.9rem;margin-left:2px">▲</span>
           </div>
