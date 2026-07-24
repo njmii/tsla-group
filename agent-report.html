@@ -1574,7 +1574,7 @@ function renderManualPayment(data) {
         if (c.status === 'Freelook Cancellation') return false;
         if ((c.payMethod || '') !== 'Biro Angkasa') return false;
         const issueKey = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
-        return issueKey >= TODAY_KEY - 1 && issueKey <= TODAY_KEY;
+        return issueKey >= TODAY_KEY - 2 && issueKey <= TODAY_KEY;
       }).map(c => {
         const issueKey = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
         return { ...c, _monthsSinceIssue: TODAY_KEY - issueKey };
@@ -1627,10 +1627,10 @@ function _renderMpCards() {
 
   // BA transition row — based on months since issue date (BA not active in first 2 months)
   const baRowHtml = c => {
-    // _monthsSinceIssue: 0=issued this month (closing), 1=issued last month (second manual payment)
-    const stage = c._monthsSinceIssue === 0
-                ? { pill: '1️⃣', label: 'Bulan 1 — closing (bayar sekarang)',          bg: 'rgba(255,152,0,.07)', bdr: '#f9a825' }
-                : { pill: '2️⃣', label: 'Bulan 2 — bayar manual (BA belum aktif)',     bg: 'rgba(255,193,7,.07)', bdr: '#c77700' };
+    // _monthsSinceIssue: 0=closing, 1=JomPay (month 2), 2=verify BA (month 3)
+    const stage = c._monthsSinceIssue === 0 ? { pill: '1️⃣', label: 'Bulan 1 — closing (bayar sekarang)',     bg: 'rgba(255,152,0,.07)', bdr: '#f9a825' }
+                : c._monthsSinceIssue === 1 ? { pill: '2️⃣', label: 'Bulan 2 — bayar JomPay (BA belum aktif)', bg: 'rgba(255,193,7,.07)', bdr: '#c77700' }
+                :                             { pill: '3️⃣', label: 'Bulan 3 — sahkan potongan Angkasa',       bg: 'rgba(229,57,53,.05)', bdr: '#e53935' };
     const statusColor  = c.status === 'In Force' ? 'badge-green' : 'badge-red';
     const contrib      = c.contribution ? fmt(c.contribution) + '/mo' : '—';
     const commission   = c.contribution ? fmtComm(c.contribution) : '—';
@@ -1699,10 +1699,10 @@ function _renderMpCards() {
   // ── BA Transition section ──
   if (baFiltered.length > 0) {
     html += `<div style="background:linear-gradient(135deg,#1565c0,#1e88e5);color:white;border-radius:18px;padding:16px 20px;margin-bottom:12px">
-      <div style="font-weight:900;font-size:1rem;margin-bottom:4px">🏦 Transisi Biro Angkasa — 2 Bulan Pertama</div>
+      <div style="font-weight:900;font-size:1rem;margin-bottom:4px">🏦 Transisi Biro Angkasa — 3 Bulan</div>
       <div style="font-size:.75rem;opacity:.9;line-height:1.6">
-        ${totalBaTrans} kes BA dalam 2 bulan pertama polisi — BA belum aktif, bayar manual<br>
-        <span style="opacity:.8">1️⃣ Closing (bulan issue) · 2️⃣ Bayar manual (bulan kedua)</span>
+        ${totalBaTrans} kes BA dalam tetingkap 3 bulan transisi<br>
+        <span style="opacity:.8">1️⃣ Closing · 2️⃣ Bayar JomPay · 3️⃣ Sahkan potongan Angkasa</span>
       </div>
     </div>`;
 
@@ -1710,8 +1710,9 @@ function _renderMpCards() {
       const arrowId    = 'mp-ba-arr-' + ag.code;
       const bodyId     = 'mp-ba-body-' + ag.code;
       const shortName  = SHORT_NAMES[ag.code] || ag.name.split(' ')[0];
-      const needSecond = clients.filter(c => c._monthsSinceIssue === 1).length;
       const needClose  = clients.filter(c => c._monthsSinceIssue === 0).length;
+      const needJomPay = clients.filter(c => c._monthsSinceIssue === 1).length;
+      const needVerify = clients.filter(c => c._monthsSinceIssue === 2).length;
 
       html += `<div class="sp-agent-card">
         <div class="sp-agent-header" onclick="
@@ -1726,8 +1727,9 @@ function _renderMpCards() {
             <div class="sp-agent-subline">${ag.code} · ${clients.length} kes BA (manual)</div>
           </div>
           <div class="sp-badges">
-            ${needClose  ? `<span class="sp-count-badge" style="background:rgba(255,152,0,.15);color:#e65100">1️⃣ Closing ${needClose}</span>`  : ''}
-            ${needSecond ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.15);color:#b45309">2️⃣ Manual ${needSecond}</span>` : ''}
+            ${needClose  ? `<span class="sp-count-badge" style="background:rgba(255,152,0,.15);color:#e65100">1️⃣ ${needClose}</span>`  : ''}
+            ${needJomPay ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.15);color:#b45309">2️⃣ ${needJomPay}</span>` : ''}
+            ${needVerify ? `<span class="sp-count-badge" style="background:rgba(229,57,53,.12);color:#c62828">3️⃣ ${needVerify}</span>` : ''}
             <button onclick="event.stopPropagation();_mpShareWA('${ag.code}','ba')" style="border:none;border-radius:10px;padding:4px 10px;font-size:.72rem;font-weight:800;cursor:pointer;background:rgba(37,211,102,.15);color:#128c7e">📤 WA</button>
             <span id="${arrowId}" style="color:#1e88e5;font-size:.9rem;margin-left:2px">▲</span>
           </div>
