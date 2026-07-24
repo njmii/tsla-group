@@ -1516,53 +1516,79 @@ function renderSecondPayment(data) {
 }
 
 /* ── Manual Payment Overdue ──────────────────────────── */
+let _mpFilter = 'all'; // 'all' | 'inforce' | 'lapsed'
+let _mpEntries = [];   // full unfiltered dataset
+
 function renderManualPayment(data) {
   const el = document.getElementById('mpList');
   if (!el) return;
 
   const EXCLUDED = new Set(['A15741']);
 
-  // Collect overdue non-Biro-Angkasa clients per agent
-  const entries = data.agents
+  // Build full dataset: non-BA, past due, excluding only Freelook Cancellation
+  _mpEntries = data.agents
     .filter(ag => !EXCLUDED.has(ag.code))
     .map(ag => {
       const clients = ag.clients.filter(c => {
         if (!c.dueDate) return false;
-        if (c.status === 'Freelook Cancellation' || c.status === 'Contract Surrendered') return false;
+        if (c.status === 'Freelook Cancellation') return false;
         if ((c.payMethod || '') === 'Biro Angkasa') return false;
         const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
-        return dueKey < TODAY_KEY; // past due
+        return dueKey < TODAY_KEY;
       }).map(c => {
         const dueKey = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
-        const monthsOverdue = TODAY_KEY - dueKey;
-        return { ...c, _monthsOverdue: monthsOverdue };
-      }).sort((a, b) => b._monthsOverdue - a._monthsOverdue); // oldest overdue first
+        return { ...c, _monthsOverdue: TODAY_KEY - dueKey };
+      });
       return { ag, clients };
-    })
-    .filter(e => e.clients.length > 0)
+    });
+
+  _mpFilter = 'all';
+  _renderMpCards();
+}
+
+function _setMpFilter(f) {
+  _mpFilter = f;
+  _renderMpCards();
+}
+
+function _renderMpCards() {
+  const el = document.getElementById('mpList');
+  if (!el) return;
+
+  const fmt = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // Apply status filter
+  const filtered = _mpEntries.map(({ ag, clients }) => {
+    const c2 = clients.filter(c => {
+      if (_mpFilter === 'inforce')  return c.status === 'In Force';
+      if (_mpFilter === 'lapsed')   return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
+      return true;
+    }).sort((a, b) => b._monthsOverdue - a._monthsOverdue);
+    return { ag, clients: c2 };
+  }).filter(e => e.clients.length > 0)
     .sort((a, b) => b.clients.length - a.clients.length);
 
-  if (entries.length === 0) {
-    el.innerHTML = '<div style="text-align:center;padding:40px;color:#aaa;font-size:.9rem">Tiada kes overdue 🎉</div>';
-    return;
-  }
+  const totalClients = filtered.reduce((s, e) => s + e.clients.length, 0);
 
-  const totalClients = entries.reduce((s, e) => s + e.clients.length, 0);
-  const fmt = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const chipStyle = (key) => {
+    const active = _mpFilter === key;
+    return `style="border:none;border-radius:20px;padding:7px 16px;font-size:.78rem;font-weight:800;cursor:pointer;transition:.15s;${
+      active ? 'background:#e53935;color:white;' : 'background:#f0f0f0;color:#555;'}"`;
+  };
 
   const rowHtml = c => {
     const urgency = c._monthsOverdue >= 3 ? { bg: 'rgba(229,57,53,.06)', bdr: '#e53935', pill: '🔴' }
                   : c._monthsOverdue === 2 ? { bg: 'rgba(255,152,0,.06)',  bdr: '#f9a825', pill: '🟠' }
                   :                          { bg: 'rgba(255,193,7,.06)',   bdr: '#c77700', pill: '🟡' };
-    const overdueLabel = c._monthsOverdue === 1 ? '1 bulan overdue'
-                       : `${c._monthsOverdue} bulan overdue`;
+    const overdueLabel = c._monthsOverdue === 1 ? '1 bulan overdue' : `${c._monthsOverdue} bulan overdue`;
     const contrib = c.contribution ? fmt(c.contribution) + '/mo' : '—';
+    const statusColor = c.status === 'In Force' ? 'badge-green' : 'badge-red';
     return `<div class="sp-client-row" style="background:${urgency.bg};border-left-color:${urgency.bdr}">
         <div class="sp-client-info">
           <div class="sp-client-name">${c.name || '—'}</div>
           <div class="sp-client-meta">${c.certNo || ''} · Due ${c.dueDate || '—'} · ${c.plan || ''}</div>
           <div class="sp-client-tags">
-            <span class="badge ${c.status === 'In Force' ? 'badge-green' : 'badge-red'}" style="font-size:.68rem">${c.status}</span>
+            <span class="badge ${statusColor}" style="font-size:.68rem">${c.status}</span>
             <span class="badge badge-amber" style="font-size:.68rem">${c.payMethod || c.payMode || '—'}</span>
             <span style="font-size:.66rem;font-weight:800;color:${urgency.bdr};background:${urgency.bg};padding:2px 8px;border-radius:8px">${urgency.pill} ${overdueLabel}</span>
           </div>
@@ -1573,18 +1599,29 @@ function renderManualPayment(data) {
       </div>`;
   };
 
-  let html = `<div style="background:linear-gradient(135deg,#b71c1c,#e53935);color:white;border-radius:18px;padding:16px 20px;margin-bottom:16px">
+  let html = `<div style="background:linear-gradient(135deg,#b71c1c,#e53935);color:white;border-radius:18px;padding:16px 20px;margin-bottom:12px">
     <div style="font-weight:900;font-size:1rem;margin-bottom:2px">💸 Manual Payment Overdue</div>
-    <div style="font-size:.78rem;opacity:.85">Kes bukan Biro Angkasa dengan tarikh bayaran lepas — ${totalClients} klien perlu tindakan</div>
+    <div style="font-size:.78rem;opacity:.85">Kes bukan Biro Angkasa dengan tarikh bayaran lepas — ${totalClients} klien ditunjuk</div>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <button onclick="_setMpFilter('all')"     ${chipStyle('all')}>Semua</button>
+    <button onclick="_setMpFilter('inforce')" ${chipStyle('inforce')}>In Force sahaja</button>
+    <button onclick="_setMpFilter('lapsed')"  ${chipStyle('lapsed')}>Lapsed / Surrendered</button>
   </div>`;
 
-  entries.forEach(({ ag, clients }) => {
-    const arrowId = 'mp-arr-' + ag.code;
-    const bodyId  = 'mp-body-' + ag.code;
+  if (filtered.length === 0) {
+    html += '<div style="text-align:center;padding:30px;color:#aaa;font-size:.9rem">Tiada kes dalam kategori ini 🎉</div>';
+    el.innerHTML = html;
+    return;
+  }
+
+  filtered.forEach(({ ag, clients }) => {
+    const arrowId   = 'mp-arr-' + ag.code;
+    const bodyId    = 'mp-body-' + ag.code;
     const shortName = SHORT_NAMES[ag.code] || ag.name.split(' ')[0];
-    const critical = clients.filter(c => c._monthsOverdue >= 3).length;
-    const moderate = clients.filter(c => c._monthsOverdue === 2).length;
-    const mild     = clients.filter(c => c._monthsOverdue === 1).length;
+    const critical  = clients.filter(c => c._monthsOverdue >= 3).length;
+    const moderate  = clients.filter(c => c._monthsOverdue === 2).length;
+    const mild      = clients.filter(c => c._monthsOverdue === 1).length;
 
     html += `<div class="sp-agent-card">
       <div class="sp-agent-header" onclick="
@@ -1596,7 +1633,7 @@ function renderManualPayment(data) {
       ">
         <div>
           <div class="sp-agent-name">${shortName}</div>
-          <div class="sp-agent-subline">${ag.code} · ${clients.length} overdue</div>
+          <div class="sp-agent-subline">${ag.code} · ${clients.length} kes</div>
         </div>
         <div class="sp-badges">
           ${critical ? `<span class="sp-count-badge" style="background:rgba(229,57,53,.12);color:#c62828">🔴 ${critical}</span>` : ''}
