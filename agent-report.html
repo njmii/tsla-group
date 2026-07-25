@@ -528,14 +528,15 @@ function getAtRisk(clients) {
 }
 
 /* ── Compute PR13 for one agent ───────────────────────── */
-function calcPR13(agent) {
+/* ── Shared accumulation loop used by calcPR13 and calcCE ─ */
+function _calcMetric(agent, classifyFn) {
   let eligACE = 0, collACE = 0, zeroACE = 0, exclACE = 0;
   let watchCount = 0, eligCount = 0, exclCount = 0, naCount = 0;
   const rows = [];
 
   for (const c of agent.clients) {
     const ace = getACE(c);
-    const { cls, reason, watch } = classifyPR13(c);
+    const { cls, reason, watch } = classifyFn(c);
 
     if (cls === 'na' || cls === 'excl') {
       exclACE += ace;
@@ -554,8 +555,13 @@ function calcPR13(agent) {
     rows.push({ ...c, _ace: ace, _cls: cls, _reason: reason, _watch: watch || false });
   }
 
-  const pr13 = eligACE > 0 ? Math.round(collACE / eligACE * 10000) / 100 : null;
-  return { pr13, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount, rows };
+  const rate = eligACE > 0 ? Math.round(collACE / eligACE * 10000) / 100 : null;
+  return { rate, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount, rows };
+}
+
+function calcPR13(agent) {
+  const r = _calcMetric(agent, classifyPR13);
+  return { ...r, pr13: r.rate };
 }
 
 /* ── Compute GROUP PR13 for a leader (direct + downlines) ─ */
@@ -570,39 +576,12 @@ function calcGroupPR13(ag, allAgents) {
       })
     ]
   };
-  const r = calcPR13(combined);
-  return r.pr13;
+  return calcPR13(combined).pr13;
 }
 
-/* ── Compute CE for one agent ─────────────────────────── */
 function calcCE(agent) {
-  let eligACE = 0, collACE = 0, zeroACE = 0, exclACE = 0;
-  let watchCount = 0, eligCount = 0, exclCount = 0, naCount = 0;
-  const rows = [];
-
-  for (const c of agent.clients) {
-    const ace = getACE(c);
-    const { cls, reason, watch } = classifyCE(c);
-
-    if (cls === 'na' || cls === 'excl') {
-      exclACE += ace;
-      if (cls === 'excl') exclCount++;
-      else naCount++;
-    } else if (cls === '100') {
-      eligACE  += ace;
-      collACE  += ace;
-      eligCount++;
-      if (watch) watchCount++;
-    } else {
-      eligACE += ace;
-      zeroACE += ace;
-      eligCount++;
-    }
-    rows.push({ ...c, _ace: ace, _cls: cls, _reason: reason, _watch: watch || false });
-  }
-
-  const ce = eligACE > 0 ? Math.round(collACE / eligACE * 10000) / 100 : null;
-  return { ce, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount, rows };
+  const r = _calcMetric(agent, classifyCE);
+  return { ...r, ce: r.rate };
 }
 
 /* ── Compute YTD ACE (Jan 1 – today) for one agent ───── */
