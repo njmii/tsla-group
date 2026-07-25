@@ -1510,11 +1510,7 @@ function _mpDoShare() {
     odCodes.forEach(code => {
       const entry = _mpEntries.find(e => e.ag.code === code);
       if (!entry) return;
-      const clients = entry.clients.filter(c => {
-        if (_mpFilter === 'inforce') return c.status === 'In Force';
-        if (_mpFilter === 'lapsed')  return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
-        return true;
-      });
+      const clients = entry.clients.filter(_mpMatchFilter);
       pushAgSection(clients, code, entry.ag.name);
     });
   }
@@ -1825,10 +1821,11 @@ const _GH_OWNER = 'njmii', _GH_REPO = 'tsla-group', _GH_PATH = 'data/pr-data.jso
 const _GH_KEY   = 'tsla_gh_pat';
 
 function showTokenModal() {
-  document.getElementById('tokenInput').value = localStorage.getItem(_GH_KEY) || '';
+  const inp = document.getElementById('tokenInput');
+  inp.value = localStorage.getItem(_GH_KEY) || '';
   document.getElementById('tokenErr').textContent = '';
   document.getElementById('tokenModal').style.display = 'flex';
-  setTimeout(() => document.getElementById('tokenInput').focus(), 100);
+  setTimeout(() => inp.focus(), 100);
 }
 function closeTokenModal() { document.getElementById('tokenModal').style.display = 'none'; }
 function saveToken() {
