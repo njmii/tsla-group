@@ -676,7 +676,7 @@ function renderLeaderboard(data) {
             </div>
             <div style="text-align:right;flex-shrink:0">
               <div style="font-size:.75rem;font-weight:800;color:${c._urgent ? '#e53935' : '#c77700'}">${c._monthsOverdue} mth overdue</div>
-              <div style="font-size:.7rem;color:#aaa">RM ${c._totalOwed.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})} owed</div>
+              <div style="font-size:.7rem;color:#aaa">RM ${RA(c._totalOwed)} owed</div>
             </div>
           </div>`).join('');
         return `<div style="margin-top:10px">
@@ -689,7 +689,7 @@ function renderLeaderboard(data) {
     const bannerText = urgentTotal > 0
       ? `${urgentTotal} urgent follow-up${urgentTotal > 1 ? 's' : ''}${normalTotal > 0 ? ` · ${normalTotal} reminder${normalTotal > 1 ? 's' : ''}` : ''}`
       : `${normalTotal} follow-up reminder${normalTotal > 1 ? 's' : ''}`;
-    const bannerSub = `Credit card overdue — ${agentsWithAtRisk} agent${agentsWithAtRisk > 1 ? 's' : ''} · RM ${grandOwed.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})} total outstanding. Tap to view.`;
+    const bannerSub = `Credit card overdue — ${agentsWithAtRisk} agent${agentsWithAtRisk > 1 ? 's' : ''} · RM ${RA(grandOwed)} total outstanding. Tap to view.`;
 
     html += `
       <div class="global-alert" onclick="this.querySelector('.global-alert-detail').classList.toggle('hidden');this.querySelector('.ga-arrow').style.transform=this.querySelector('.global-alert-detail').classList.contains('hidden')?'':'rotate(180deg)'" style="cursor:pointer;user-select:none">
@@ -841,7 +841,7 @@ function showAgent(code) {
     const blockSub = [
       urgentClients.length ? `${urgentClients.length} urgent (1–2 months)` : '',
       normalClients.length ? `${normalClients.length} reminder${normalClients.length > 1 ? 's' : ''} (3+ months)` : '',
-      `RM ${grandTotal.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2})} total outstanding`
+      `RM ${RA(grandTotal)} total outstanding`
     ].filter(Boolean).join(' · ');
     const blockColor = urgentClients.length ? '#e53935' : '#c77700';
 
@@ -857,8 +857,8 @@ function showAgent(code) {
           </div>
         </div>
         <div class="followup-right">
-          <div class="followup-contrib">RM ${c.contribution ? c.contribution.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}/mo · <strong style="color:${c._urgent ? '#e53935' : '#c77700'}">${c._monthsOverdue} month${c._monthsOverdue > 1 ? 's' : ''} overdue</strong></div>
-          <div class="followup-due">Due: ${c.dueDate} · Total outstanding: <strong style="color:${c._urgent ? '#e53935' : '#c77700'}">RM ${c._totalOwed.toLocaleString('en-MY', {minimumFractionDigits:2,maximumFractionDigits:2})}</strong></div>
+          <div class="followup-contrib">RM ${c.contribution ? RA(c.contribution) : '—'}/mo · <strong style="color:${c._urgent ? '#e53935' : '#c77700'}">${c._monthsOverdue} month${c._monthsOverdue > 1 ? 's' : ''} overdue</strong></div>
+          <div class="followup-due">Due: ${c.dueDate} · Total outstanding: <strong style="color:${c._urgent ? '#e53935' : '#c77700'}">RM ${RA(c._totalOwed)}</strong></div>
         </div>
       </div>`;
 
@@ -1314,8 +1314,7 @@ function renderContest(data) {
   const teamPct   = Math.min(100, teamACE / CONTEST_TARGET * 100);
   const teamAvg   = teamShort > 0 ? teamShort / monthsLeft : 0;
 
-  const fmt  = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const fmtK = v => v >= 1000 ? 'RM ' + (v / 1000).toFixed(1) + 'k' : fmt(v);
+  const fmtK = v => v >= 1000 ? 'RM ' + (v / 1000).toFixed(1) + 'k' : _fmtRM(v);
 
   let html = `
     <div class="contest-header-card">
@@ -1328,14 +1327,14 @@ function renderContest(data) {
         <div style="width:${pctElapsed}%;height:5px;border-radius:6px;background:white;transition:width .4s"></div>
       </div>
       <!-- Team ACE progress toward 50k -->
-      <div style="font-size:.67rem;opacity:.7;margin-bottom:4px">Jumlah ACE pasukan — ${fmt(teamACE)} / ${fmt(CONTEST_TARGET)} (${teamPct.toFixed(1)}%)</div>
+      <div style="font-size:.67rem;opacity:.7;margin-bottom:4px">Jumlah ACE pasukan — ${_fmtRM(teamACE)} / ${_fmtRM(CONTEST_TARGET)} (${teamPct.toFixed(1)}%)</div>
       <div style="background:rgba(255,255,255,.25);border-radius:8px;height:12px;overflow:hidden;margin-bottom:14px">
         <div style="width:${teamPct}%;height:12px;border-radius:8px;background:white;transition:width .5s"></div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <div style="background:rgba(255,255,255,.2);border-radius:10px;padding:7px 13px;font-size:.78rem;font-weight:800">${teamCases} kes · ${entries.filter(e=>e.cases>0).length} ejen</div>
         ${teamShort > 0
-          ? `<div style="background:rgba(255,255,255,.2);border-radius:10px;padding:7px 13px;font-size:.78rem;font-weight:800">Kekurangan: ${fmt(teamShort)}</div>
+          ? `<div style="background:rgba(255,255,255,.2);border-radius:10px;padding:7px 13px;font-size:.78rem;font-weight:800">Kekurangan: ${_fmtRM(teamShort)}</div>
              <div style="background:rgba(255,255,255,.2);border-radius:10px;padding:7px 13px;font-size:.78rem;font-weight:800">~${fmtK(teamAvg)}/bulan diperlukan</div>`
           : `<div style="background:rgba(255,255,255,.2);border-radius:10px;padding:7px 13px;font-size:.78rem;font-weight:800">🎉 Target dicapai!</div>`}
       </div>
@@ -1356,7 +1355,7 @@ function renderContest(data) {
         <div style="flex:1;min-width:0">
           <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px">
             <div class="contest-name">${shortName}</div>
-            <div style="font-weight:900;font-size:1rem;color:${barColor};flex-shrink:0">${fmt(ace)}</div>
+            <div style="font-weight:900;font-size:1rem;color:${barColor};flex-shrink:0">${_fmtRM(ace)}</div>
           </div>
           <div class="contest-code" style="margin-bottom:8px">${ag.code} · ${ag.name}</div>
           <!-- Shortfall bar: filled = achieved, empty = remaining -->
@@ -1484,9 +1483,7 @@ function _mpDoShare() {
   const selected = [...modal.querySelectorAll('[data-code]:checked')];
   if (!selected.length) { alert('Pilih sekurang-kurangnya satu agen.'); return; }
 
-  const now = new Date(PROJ_YEAR, PROJ_MONTH, 1);
-  const monthLabel = now.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
-  const lines = [`💸 Manual Payment — ${monthLabel}`];
+  const lines = [`💸 Manual Payment — ${projLabel()}`];
   let grandTotal = 0;
 
   const pushAgSection = (list, code, agName) => {
@@ -1532,8 +1529,7 @@ function _mpDoShare() {
 
 function _mpShareWA(agCode, section) {
   let entry, clients;
-  const now = new Date(PROJ_YEAR, PROJ_MONTH, 1);
-  const monthLabel = now.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+  const monthLabel = projLabel();
 
   if (section === 'ba') {
     entry = _mpBaTrans.find(e => e.ag.code === agCode);
