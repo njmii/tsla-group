@@ -1383,13 +1383,52 @@ function _fmtOverdueLabel(mo) {
   if (mo == null) return '';
   return mo <= 0 ? ' | Bulan ini' : ` | ${mo} bln overdue`;
 }
+function _mpMatchFilter(c) {
+  if (_mpFilter === 'inforce') return c.status === 'In Force';
+  if (_mpFilter === 'lapsed')  return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
+  return true;
+}
+function _spToggle(bodyId, arrowId) {
+  const b = document.getElementById(bodyId);
+  const a = document.getElementById(arrowId);
+  const open = b.style.display !== 'none';
+  b.style.display = open ? 'none' : '';
+  a.textContent = open ? '▼' : '▲';
+}
+function _spClientName(c, isPaid) {
+  return `<div class="sp-client-name" style="${isPaid ? 'text-decoration:line-through;color:#aaa' : ''}">${c.name || '—'}${isPaid ? ' <span style="font-size:.65rem;font-weight:800;color:#0a9b43;background:rgba(10,155,67,.12);padding:1px 7px;border-radius:6px">✓ Paid</span>' : ''}</div>`;
+}
+function _spClientMeta(c) {
+  return `<div class="sp-client-meta">${c.certNo || ''} · Due ${c.dueDate || '—'} · ${c.plan || ''}</div>`;
+}
+function _spClientRight(c, isPaid, safeCert) {
+  const contrib    = c.contribution ? _fmtRM(c.contribution) + '/mo' : '—';
+  const commission = c.contribution ? _fmtRM(_mpComm(c)) : '—';
+  return `<div class="sp-client-right">
+          <div class="sp-contrib">${contrib}</div>
+          <div style="font-size:.72rem;color:#e53935;font-weight:800;margin-top:2px">💸 ${commission}</div>
+          <label style="display:flex;align-items:center;gap:4px;margin-top:7px;cursor:pointer;font-size:.72rem;font-weight:700;white-space:nowrap">
+            <input type="checkbox" ${isPaid ? 'checked' : ''} onchange="_mpTogglePaid('${safeCert}')" style="cursor:pointer;width:14px;height:14px;accent-color:#0a9b43">
+            <span style="color:${isPaid ? '#0a9b43' : '#888'}">${isPaid ? 'Terbayar' : 'Tandakan'}</span>
+          </label>
+        </div>`;
+}
+function _sharePickerRow(a, accentColor) {
+  return `<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;cursor:pointer">
+        <input type="checkbox" data-code="${a.code}" data-section="${a.section}" checked style="width:18px;height:18px;accent-color:${accentColor};cursor:pointer;flex-shrink:0">
+        <span style="font-weight:700;flex:1">${a.name}</span>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:.74rem;color:#888">${a.count} kes</div>
+          <div style="font-size:.72rem;font-weight:800;color:#e53935">💸 ${_fmtRM(a.commission)}</div>
+        </div>
+      </label>`;
+}
 
 function _mpShowSharePicker() {
   const existing = document.getElementById('mpShareModal');
   if (existing) existing.remove();
 
   const _commTotal = list => list.reduce((s, c) => s + _mpComm(c), 0);
-  const _fmtComm   = _fmtRM;
 
   // Collect available agents from both pools (apply current filter for overdue)
   const baAgents = _mpBaTrans
@@ -1398,9 +1437,7 @@ function _mpShowSharePicker() {
 
   const odAgents = _mpEntries.map(({ ag, clients }) => {
     const fc = clients.filter(c => {
-      if (_mpFilter === 'inforce') return c.status === 'In Force';
-      if (_mpFilter === 'lapsed')  return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
-      return true;
+      return _mpMatchFilter(c);
     });
     return { code: ag.code, name: SHORT_NAMES[ag.code] || ag.name.split(' ')[0], section: 'overdue', count: fc.length, commission: _commTotal(fc) };
   }).filter(e => e.count > 0);
@@ -1410,29 +1447,11 @@ function _mpShowSharePicker() {
   let rows = '';
   if (baAgents.length) {
     rows += `<div style="font-size:.72rem;font-weight:800;color:#1e88e5;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 6px">🏦 BA Transisi</div>`;
-    baAgents.forEach(a => {
-      rows += `<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;cursor:pointer">
-        <input type="checkbox" data-code="${a.code}" data-section="ba" checked style="width:18px;height:18px;accent-color:#1e88e5;cursor:pointer;flex-shrink:0">
-        <span style="font-weight:700;flex:1">${a.name}</span>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-size:.74rem;color:#888">${a.count} kes</div>
-          <div style="font-size:.72rem;font-weight:800;color:#e53935">💸 ${_fmtComm(a.commission)}</div>
-        </div>
-      </label>`;
-    });
+    baAgents.forEach(a => { rows += _sharePickerRow(a, '#1e88e5'); });
   }
   if (odAgents.length) {
     rows += `<div style="font-size:.72rem;font-weight:800;color:#e53935;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 6px">💸 Overdue</div>`;
-    odAgents.forEach(a => {
-      rows += `<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;cursor:pointer">
-        <input type="checkbox" data-code="${a.code}" data-section="overdue" checked style="width:18px;height:18px;accent-color:#e53935;cursor:pointer;flex-shrink:0">
-        <span style="font-weight:700;flex:1">${a.name}</span>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-size:.74rem;color:#888">${a.count} kes</div>
-          <div style="font-size:.72rem;font-weight:800;color:#e53935">💸 ${_fmtComm(a.commission)}</div>
-        </div>
-      </label>`;
-    });
+    odAgents.forEach(a => { rows += _sharePickerRow(a, '#e53935'); });
   }
 
   const modal = document.createElement('div');
@@ -1518,9 +1537,7 @@ function _mpShareWA(agCode, section) {
     entry = _mpEntries.find(e => e.ag.code === agCode);
     if (!entry) return;
     clients = entry.clients.filter(c => {
-      if (_mpFilter === 'inforce') return c.status === 'In Force';
-      if (_mpFilter === 'lapsed')  return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
-      return true;
+      return _mpMatchFilter(c);
     });
     if (!clients.length) return;
   }
@@ -1615,9 +1632,7 @@ function _renderMpCards() {
 
   const filtered = _mpEntries.map(({ ag, clients }) => {
     const c2 = clients.filter(c => {
-      if (_mpFilter === 'inforce') return c.status === 'In Force';
-      if (_mpFilter === 'lapsed')  return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
-      return true;
+      return _mpMatchFilter(c);
     }).sort((a, b) => b._monthsOverdue - a._monthsOverdue);
     return { ag, clients: c2 };
   }).filter(e => e.clients.length > 0)
@@ -1633,14 +1648,12 @@ function _renderMpCards() {
                 : c._monthsSinceIssue === 1 ? { pill: '2️⃣', label: 'Bulan 2 — bayar JomPay (BA belum aktif)', bg: 'rgba(255,193,7,.07)', bdr: '#c77700' }
                 :                             { pill: '3️⃣', label: 'Bulan 3 — sahkan potongan Angkasa',       bg: 'rgba(229,57,53,.05)', bdr: '#e53935' };
     const statusColor  = c.status === 'In Force' ? 'badge-green' : 'badge-red';
-    const contrib      = c.contribution ? _fmtRM(c.contribution) + '/mo' : '—';
-    const commission   = c.contribution ? _fmtRM(_mpComm(c)) : '—';
     const isPaid       = paid.has(c.certNo);
     const safeCert     = (c.certNo || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return `<div class="sp-client-row" style="background:${stage.bg};border-left-color:${stage.bdr}${isPaid ? ';opacity:.4' : ''}">
         <div class="sp-client-info">
-          <div class="sp-client-name" style="${isPaid ? 'text-decoration:line-through;color:#aaa' : ''}">${c.name || '—'}${isPaid ? ' <span style="font-size:.65rem;font-weight:800;color:#0a9b43;background:rgba(10,155,67,.12);padding:1px 7px;border-radius:6px">✓ Paid</span>' : ''}</div>
-          <div class="sp-client-meta">${c.certNo || ''} · Due ${c.dueDate || '—'} · ${c.plan || ''}</div>
+          ${_spClientName(c, isPaid)}
+          ${_spClientMeta(c)}
           <div class="sp-client-tags">
             <span class="badge ${statusColor}" style="font-size:.68rem">${c.status}</span>
             <span class="badge badge-green" style="font-size:.68rem">Biro Angkasa</span>
@@ -1648,14 +1661,7 @@ function _renderMpCards() {
             <span style="font-size:.66rem;font-weight:800;color:${stage.bdr};background:${stage.bg};padding:2px 8px;border-radius:8px;border:1px solid ${stage.bdr}20">${stage.pill} ${stage.label}</span>
           </div>
         </div>
-        <div class="sp-client-right">
-          <div class="sp-contrib">${contrib}</div>
-          <div style="font-size:.72rem;color:#e53935;font-weight:800;margin-top:2px">💸 ${commission}</div>
-          <label style="display:flex;align-items:center;gap:4px;margin-top:7px;cursor:pointer;font-size:.72rem;font-weight:700;white-space:nowrap">
-            <input type="checkbox" ${isPaid ? 'checked' : ''} onchange="_mpTogglePaid('${safeCert}')" style="cursor:pointer;width:14px;height:14px;accent-color:#0a9b43">
-            <span style="color:${isPaid ? '#0a9b43' : '#888'}">${isPaid ? 'Terbayar' : 'Tandakan'}</span>
-          </label>
-        </div>
+        ${_spClientRight(c, isPaid, safeCert)}
       </div>`;
   };
 
@@ -1668,29 +1674,20 @@ function _renderMpCards() {
     const label = c._monthsOverdue === 0 ? 'Bulan ini — belum bayar'
                 : c._monthsOverdue === 1 ? '1 bulan overdue'
                 : `${c._monthsOverdue} bulan overdue`;
-    const contrib      = c.contribution ? _fmtRM(c.contribution) + '/mo' : '—';
-    const commission   = c.contribution ? _fmtRM(_mpComm(c)) : '—';
     const statusColor  = c.status === 'In Force' ? 'badge-green' : 'badge-red';
     const isPaid       = paid.has(c.certNo);
     const safeCert     = (c.certNo || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return `<div class="sp-client-row" style="background:${urgency.bg};border-left-color:${urgency.bdr}${isPaid ? ';opacity:.4' : ''}">
         <div class="sp-client-info">
-          <div class="sp-client-name" style="${isPaid ? 'text-decoration:line-through;color:#aaa' : ''}">${c.name || '—'}${isPaid ? ' <span style="font-size:.65rem;font-weight:800;color:#0a9b43;background:rgba(10,155,67,.12);padding:1px 7px;border-radius:6px">✓ Paid</span>' : ''}</div>
-          <div class="sp-client-meta">${c.certNo || ''} · Due ${c.dueDate || '—'} · ${c.plan || ''}</div>
+          ${_spClientName(c, isPaid)}
+          ${_spClientMeta(c)}
           <div class="sp-client-tags">
             <span class="badge ${statusColor}" style="font-size:.68rem">${c.status}</span>
             <span class="badge badge-amber" style="font-size:.68rem">${c.payMethod || c.payMode || '—'}</span>
             <span style="font-size:.66rem;font-weight:800;color:${urgency.bdr};background:${urgency.bg};padding:2px 8px;border-radius:8px">${urgency.pill} ${label}</span>
           </div>
         </div>
-        <div class="sp-client-right">
-          <div class="sp-contrib">${contrib}</div>
-          <div style="font-size:.72rem;color:#e53935;font-weight:800;margin-top:2px">💸 ${commission}</div>
-          <label style="display:flex;align-items:center;gap:4px;margin-top:7px;cursor:pointer;font-size:.72rem;font-weight:700;white-space:nowrap">
-            <input type="checkbox" ${isPaid ? 'checked' : ''} onchange="_mpTogglePaid('${safeCert}')" style="cursor:pointer;width:14px;height:14px;accent-color:#0a9b43">
-            <span style="color:${isPaid ? '#0a9b43' : '#888'}">${isPaid ? 'Terbayar' : 'Tandakan'}</span>
-          </label>
-        </div>
+        ${_spClientRight(c, isPaid, safeCert)}
       </div>`;
   };
 
@@ -1717,13 +1714,7 @@ function _renderMpCards() {
       const needVerify = clients.filter(c => c._monthsSinceIssue === 2).length;
 
       html += `<div class="sp-agent-card">
-        <div class="sp-agent-header" onclick="
-          const b=document.getElementById('${bodyId}');
-          const a=document.getElementById('${arrowId}');
-          const open=b.style.display!=='none';
-          b.style.display=open?'none':'';
-          a.textContent=open?'▼':'▲';
-        ">
+        <div class="sp-agent-header" onclick="_spToggle('${bodyId}','${arrowId}')">`
           <div>
             <div class="sp-agent-name">${shortName}</div>
             <div class="sp-agent-subline">${ag.code} · ${clients.length} kes BA (manual)</div>
@@ -1772,13 +1763,7 @@ function _renderMpCards() {
     const thisMonth = clients.filter(c => c._monthsOverdue === 0).length;
 
     html += `<div class="sp-agent-card">
-      <div class="sp-agent-header" onclick="
-        const b=document.getElementById('${bodyId}');
-        const a=document.getElementById('${arrowId}');
-        const open=b.style.display!=='none';
-        b.style.display=open?'none':'';
-        a.textContent=open?'▼':'▲';
-      ">
+      <div class="sp-agent-header" onclick="_spToggle('${bodyId}','${arrowId}')">`
         <div>
           <div class="sp-agent-name">${shortName}</div>
           <div class="sp-agent-subline">${ag.code} · ${clients.length} kes</div>
