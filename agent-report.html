@@ -1399,12 +1399,19 @@ function _mpTogglePaid(certNo) {
   _renderMpCards();
 }
 
+function _mpComm(c) { return Math.round((c.contribution || 0) * 0.32 * 100) / 100; }
+function _fmtRM(v)  { return 'RM ' + RA(v); }
+function _fmtOverdueLabel(mo) {
+  if (mo == null) return '';
+  return mo <= 0 ? ' | Bulan ini' : ` | ${mo} bln overdue`;
+}
+
 function _mpShowSharePicker() {
   const existing = document.getElementById('mpShareModal');
   if (existing) existing.remove();
 
-  const _commTotal = list => list.reduce((s, c) => s + Math.round((c.contribution || 0) * 0.32 * 100) / 100, 0);
-  const _fmtComm   = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const _commTotal = list => list.reduce((s, c) => s + _mpComm(c), 0);
+  const _fmtComm   = _fmtRM;
 
   // Collect available agents from both pools (apply current filter for overdue)
   const baAgents = _mpBaTrans
@@ -1479,25 +1486,26 @@ function _mpDoShare() {
 
   const now = new Date(PROJ_YEAR, PROJ_MONTH, 1);
   const monthLabel = now.toLocaleString('en-MY', { month: 'long', year: 'numeric' });
-  const fmtRM  = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const comm   = c => Math.round((c.contribution || 0) * 0.32 * 100) / 100;
-  const lines  = [`💸 Manual Payment — ${monthLabel}`];
+  const lines = [`💸 Manual Payment — ${monthLabel}`];
   let grandTotal = 0;
+
+  const pushAgSection = (list, code, agName) => {
+    const name   = SHORT_NAMES[code] || agName;
+    const agComm = list.reduce((s, c) => s + _mpComm(c), 0);
+    grandTotal  += agComm;
+    lines.push(`\n[${name}] — 💸 ${_fmtRM(agComm)}`);
+    list.forEach((c, i) => {
+      const cv = _mpComm(c);
+      lines.push(`${i + 1}. ${c.name || '—'}\n   ${c.certNo || ''} | Due: ${c.dueDate || '—'}${_fmtOverdueLabel(c._monthsOverdue)} | 💸 ${_fmtRM(cv)}`);
+    });
+  };
 
   const baCodes = selected.filter(el => el.dataset.section === 'ba').map(el => el.dataset.code);
   if (baCodes.length) {
     lines.push('\n🏦 Transisi Biro Angkasa:');
     baCodes.forEach(code => {
       const entry = _mpBaTrans.find(e => e.ag.code === code);
-      if (!entry) return;
-      const name      = SHORT_NAMES[code] || entry.ag.name.split(' ')[0];
-      const agComm    = entry.clients.reduce((s, c) => s + comm(c), 0);
-      grandTotal += agComm;
-      lines.push(`\n[${name}] — 💸 ${fmtRM(agComm)}`);
-      entry.clients.forEach((c, i) => {
-        const overdueLabel = c._monthsOverdue === null ? '' : c._monthsOverdue <= 0 ? ' | Bulan ini' : ` | ${c._monthsOverdue} bln overdue`;
-        lines.push(`${i + 1}. ${c.name || '—'}\n   ${c.certNo || ''} | Due: ${c.dueDate || '—'}${overdueLabel} | 💸 ${fmtRM(comm(c))}`);
-      });
+      if (entry) pushAgSection(entry.clients, code, entry.ag.name);
     });
   }
 
@@ -1512,19 +1520,11 @@ function _mpDoShare() {
         if (_mpFilter === 'lapsed')  return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
         return true;
       });
-      const name   = SHORT_NAMES[code] || entry.ag.name.split(' ')[0];
-      const agComm = clients.reduce((s, c) => s + comm(c), 0);
-      grandTotal += agComm;
-      lines.push(`\n[${name}] — 💸 ${fmtRM(agComm)}`);
-      clients.forEach((c, i) => {
-        const overdueLabel = c._monthsOverdue === 0 ? ' | Bulan ini' : ` | ${c._monthsOverdue} bln overdue`;
-        lines.push(`${i + 1}. ${c.name || '—'}\n   ${c.certNo || ''} | Due: ${c.dueDate || '—'}${overdueLabel} | 💸 ${fmtRM(comm(c))}`);
-      });
+      pushAgSection(clients, code, entry.ag.name);
     });
   }
 
-  lines.push(`\n━━━━━━━━━━━━━━`);
-  lines.push(`Jumlah komisyen tertinggal: 💸 ${fmtRM(grandTotal)}`);
+  lines.push(`\n━━━━━━━━━━━━━━\nJumlah komisyen tertinggal: 💸 ${_fmtRM(grandTotal)}`);
 
   modal.remove();
   window.open('https://wa.me/?text=' + encodeURIComponent(lines.join('\n')), '_blank');
@@ -1623,8 +1623,6 @@ function _renderMpCards() {
   const el = document.getElementById('mpList');
   if (!el) return;
 
-  const fmt     = v => 'RM ' + v.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const fmtComm = v => 'RM ' + (Math.round(v * 0.32 * 100) / 100).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const paid    = _mpPaidSet();
 
   // BA transition section (past 3 months, Biro Angkasa only)
@@ -1660,8 +1658,8 @@ function _renderMpCards() {
                 : c._monthsSinceIssue === 1 ? { pill: '2️⃣', label: 'Bulan 2 — bayar JomPay (BA belum aktif)', bg: 'rgba(255,193,7,.07)', bdr: '#c77700' }
                 :                             { pill: '3️⃣', label: 'Bulan 3 — sahkan potongan Angkasa',       bg: 'rgba(229,57,53,.05)', bdr: '#e53935' };
     const statusColor  = c.status === 'In Force' ? 'badge-green' : 'badge-red';
-    const contrib      = c.contribution ? fmt(c.contribution) + '/mo' : '—';
-    const commission   = c.contribution ? fmtComm(c.contribution) : '—';
+    const contrib      = c.contribution ? _fmtRM(c.contribution) + '/mo' : '—';
+    const commission   = c.contribution ? _fmtRM(_mpComm(c)) : '—';
     const isPaid       = paid.has(c.certNo);
     const safeCert     = (c.certNo || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return `<div class="sp-client-row" style="background:${stage.bg};border-left-color:${stage.bdr}${isPaid ? ';opacity:.4' : ''}">
@@ -1695,8 +1693,8 @@ function _renderMpCards() {
     const label = c._monthsOverdue === 0 ? 'Bulan ini — belum bayar'
                 : c._monthsOverdue === 1 ? '1 bulan overdue'
                 : `${c._monthsOverdue} bulan overdue`;
-    const contrib      = c.contribution ? fmt(c.contribution) + '/mo' : '—';
-    const commission   = c.contribution ? fmtComm(c.contribution) : '—';
+    const contrib      = c.contribution ? _fmtRM(c.contribution) + '/mo' : '—';
+    const commission   = c.contribution ? _fmtRM(_mpComm(c)) : '—';
     const statusColor  = c.status === 'In Force' ? 'badge-green' : 'badge-red';
     const isPaid       = paid.has(c.certNo);
     const safeCert     = (c.certNo || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
