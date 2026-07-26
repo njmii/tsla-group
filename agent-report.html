@@ -1965,7 +1965,7 @@ function _bscPtsColor(pts) {
 
 function _bscChecklistHtml(r, isKpi2a) {
   if (!r || r.eligACE === 0) {
-    if (!isKpi2a) return `<div style="color:#0a9b43;font-size:.78rem;background:rgba(10,155,67,.06);border-radius:8px;padding:8px 12px;margin-top:4px">✓ Tiada klien dalam pool 2nd year — <strong>full marks (150 pts)</strong> applied.</div>`;
+    if (!isKpi2a) return `<div style="color:#e53935;font-size:.78rem;background:rgba(229,57,53,.05);border-radius:8px;padding:8px 12px;margin-top:4px">Tiada klien dalam pool 2nd year — <strong>0 pts</strong> (tiada cohort untuk bulan ini).</div>`;
     return `<div style="color:#bbb;font-size:.78rem;padding:6px 0">Tiada klien dalam pool PR13 untuk bulan yang dipilih.</div>`;
   }
   const eligible = r.rows.filter(c => c._cls !== 'na');
@@ -2033,8 +2033,8 @@ function renderBscEstimator() {
     const pr13  = r2a.eligACE > 0 ? r2a.rate : null;
     const pr25  = r2b.eligACE > 0 ? r2b.rate : null;
     const k2a   = pr13 !== null ? _bscKpi2aPts(pr13) : 0;
-    // No eligible 2b clients = full marks (150 pts) — agent can't be penalised for an empty cohort
-    const k2b   = pr25 !== null ? _bscKpi2bPts(pr25) : 150;
+    // No eligible 2b clients = 0 pts (consistent with bsc-calculator.html: empty field → 0)
+    const k2b   = pr25 !== null ? _bscKpi2bPts(pr25) : 0;
     const hasBsc = pr13 !== null || pr25 !== null;
     // BSC = KPI1(150×20%) + KPI2a×25% + KPI2b×30% + KPI3(100×10%) + KPI4(100×15%)
     //     = 55 + k2a×0.25 + k2b×0.30
@@ -2094,7 +2094,7 @@ function renderBscEstimator() {
 
     const b = _bscBandInfo(bsc);
     const k2aHint = pr13 !== null ? `${pr13.toFixed(2)}% → <strong>${k2a} pts</strong>` : '<span style="color:#bbb">—</span>';
-    const k2bHint = pr25 !== null ? `${pr25.toFixed(2)}% → <strong>${k2b} pts</strong>` : '<span style="color:#0a9b43;font-weight:800">Full marks</span>';
+    const k2bHint = pr25 !== null ? `${pr25.toFixed(2)}% → <strong>${k2b} pts</strong>` : '<span style="color:#e53935;font-weight:800">No 2b cohort (0 pts)</span>';
     const k2aColor = _bscPtsColor(k2a), k2bColor = _bscPtsColor(k2b);
 
     return `
@@ -2122,7 +2122,7 @@ function renderBscEstimator() {
             <div style="font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:8px">BSC Breakdown</div>
             <div class="bsc-breakdown-row"><span>KPI 1 — CFF (150 pts × 20%)</span><span>+30.00</span></div>
             <div class="bsc-breakdown-row bsc-br-hi" style="color:${k2aColor}"><span>KPI 2a — PR13 (${k2a} pts × 25%)</span><span>+${(k2a*0.25).toFixed(2)}</span></div>
-            <div class="bsc-breakdown-row bsc-br-hi" style="color:${k2bColor}"><span>KPI 2b — 2nd Year (${k2b} pts × 30%)${pr25 === null ? ' <em style="font-weight:400;font-size:.67rem;color:#0a9b43">[full marks]</em>' : ''}</span><span>+${(k2b*0.30).toFixed(2)}</span></div>
+            <div class="bsc-breakdown-row bsc-br-hi" style="color:${k2bColor}"><span>KPI 2b — 2nd Year (${k2b} pts × 30%)${pr25 === null ? ' <em style="font-weight:400;font-size:.67rem;color:#e53935">[no cohort]</em>' : ''}</span><span>+${(k2b*0.30).toFixed(2)}</span></div>
             <div class="bsc-breakdown-row"><span>KPI 3 — Complaints (100 pts × 10%)</span><span>+10.00</span></div>
             <div class="bsc-breakdown-row"><span>KPI 4 — CPD Hours (100 pts × 15%)</span><span>+15.00</span></div>
             <div class="bsc-breakdown-row bsc-br-total" style="color:${b.color}"><span>BSC Score</span><span>${bsc.toFixed(2)}%</span></div>
@@ -2141,7 +2141,7 @@ function renderBscEstimator() {
           <div class="bsc-kpi-section">
             <div class="bsc-kpi-sec-hdr">
               <span>KPI 2b — 2nd Year Persistency</span>
-              ${pr25 !== null ? `<span class="bsc-kpi-sec-badge" style="color:${k2bColor};background:${k2bColor}1a">${pr25.toFixed(2)}% · ${k2b} pts</span>` : '<span style="color:#0a9b43;font-size:.74rem;font-weight:800;text-transform:none;background:rgba(10,155,67,.09);border-radius:7px;padding:2px 8px">✓ Full marks · 150 pts</span>'}
+              ${pr25 !== null ? `<span class="bsc-kpi-sec-badge" style="color:${k2bColor};background:${k2bColor}1a">${pr25.toFixed(2)}% · ${k2b} pts</span>` : '<span style="color:#e53935;font-size:.74rem;font-weight:800;text-transform:none;background:rgba(229,57,53,.08);border-radius:7px;padding:2px 8px">No cohort · 0 pts</span>'}
             </div>
             ${_bscChecklistHtml(r2b, false)}
           </div>
