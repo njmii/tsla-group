@@ -1964,7 +1964,10 @@ function _bscPtsColor(pts) {
 }
 
 function _bscChecklistHtml(r, isKpi2a) {
-  if (!r || r.eligACE === 0) return `<div style="color:#bbb;font-size:.78rem;padding:6px 0">Tiada klien dalam pool ini untuk bulan yang dipilih.</div>`;
+  if (!r || r.eligACE === 0) {
+    if (!isKpi2a) return `<div style="color:#0a9b43;font-size:.78rem;background:rgba(10,155,67,.06);border-radius:8px;padding:8px 12px;margin-top:4px">✓ Tiada klien dalam pool 2nd year — <strong>full marks (150 pts)</strong> applied.</div>`;
+    return `<div style="color:#bbb;font-size:.78rem;padding:6px 0">Tiada klien dalam pool PR13 untuk bulan yang dipilih.</div>`;
+  }
   const eligible = r.rows.filter(c => c._cls !== 'na');
   if (!eligible.length) return `<div style="color:#bbb;font-size:.78rem;padding:6px 0">Tiada klien dalam pool ini.</div>`;
 
@@ -2030,7 +2033,8 @@ function renderBscEstimator() {
     const pr13  = r2a.eligACE > 0 ? r2a.rate : null;
     const pr25  = r2b.eligACE > 0 ? r2b.rate : null;
     const k2a   = pr13 !== null ? _bscKpi2aPts(pr13) : 0;
-    const k2b   = pr25 !== null ? _bscKpi2bPts(pr25) : 0;
+    // No eligible 2b clients = full marks (150 pts) — agent can't be penalised for an empty cohort
+    const k2b   = pr25 !== null ? _bscKpi2bPts(pr25) : 150;
     const hasBsc = pr13 !== null || pr25 !== null;
     // BSC = KPI1(150×20%) + KPI2a×25% + KPI2b×30% + KPI3(100×10%) + KPI4(100×15%)
     //     = 55 + k2a×0.25 + k2b×0.30
@@ -2042,6 +2046,34 @@ function renderBscEstimator() {
     if (b.bsc === null) return -1;
     return b.bsc - a.bsc;
   });
+
+  // Band summary counts
+  const bandAgents = { over: [], near: [], below: [], nodata: [] };
+  for (const { ag, bsc } of agRows) {
+    const sn = shortN(ag.name);
+    if (bsc === null)   bandAgents.nodata.push(sn);
+    else if (bsc >= 100) bandAgents.over.push(sn);
+    else if (bsc >= 85)  bandAgents.near.push(sn);
+    else                 bandAgents.below.push(sn);
+  }
+  const bandSummary = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+      <div style="background:rgba(10,155,67,.07);border-radius:14px;padding:12px 14px;border:1.5px solid rgba(10,155,67,.18)">
+        <div style="font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#0a9b43;margin-bottom:4px">✨ Overperformer</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#0a9b43;line-height:1">${bandAgents.over.length}</div>
+        <div style="font-size:.69rem;color:#0a9b43;opacity:.8;margin-top:4px">${bandAgents.over.join(', ') || '—'}</div>
+      </div>
+      <div style="background:rgba(230,138,0,.07);border-radius:14px;padding:12px 14px;border:1.5px solid rgba(230,138,0,.18)">
+        <div style="font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#e68a00;margin-bottom:4px">📊 Near Target</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#e68a00;line-height:1">${bandAgents.near.length}</div>
+        <div style="font-size:.69rem;color:#e68a00;opacity:.8;margin-top:4px">${bandAgents.near.join(', ') || '—'}</div>
+      </div>
+      <div style="background:rgba(229,57,53,.06);border-radius:14px;padding:12px 14px;border:1.5px solid rgba(229,57,53,.15)">
+        <div style="font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#e53935;margin-bottom:4px">⚠️ Below</div>
+        <div style="font-size:1.5rem;font-weight:900;color:#e53935;line-height:1">${bandAgents.below.length}</div>
+        <div style="font-size:.69rem;color:#e53935;opacity:.8;margin-top:4px">${bandAgents.below.join(', ') || '—'}</div>
+      </div>
+    </div>`;
 
   const cards = agRows.map(({ ag, pr13, pr25, k2a, k2b, bsc, r2a, r2b }) => {
     const code  = ag.code;
@@ -2062,7 +2094,7 @@ function renderBscEstimator() {
 
     const b = _bscBandInfo(bsc);
     const k2aHint = pr13 !== null ? `${pr13.toFixed(2)}% → <strong>${k2a} pts</strong>` : '<span style="color:#bbb">—</span>';
-    const k2bHint = pr25 !== null ? `${pr25.toFixed(2)}% → <strong>${k2b} pts</strong>` : '<span style="color:#bbb">—</span>';
+    const k2bHint = pr25 !== null ? `${pr25.toFixed(2)}% → <strong>${k2b} pts</strong>` : '<span style="color:#0a9b43;font-weight:800">Full marks</span>';
     const k2aColor = _bscPtsColor(k2a), k2bColor = _bscPtsColor(k2b);
 
     return `
@@ -2090,7 +2122,7 @@ function renderBscEstimator() {
             <div style="font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:8px">BSC Breakdown</div>
             <div class="bsc-breakdown-row"><span>KPI 1 — CFF (150 pts × 20%)</span><span>+30.00</span></div>
             <div class="bsc-breakdown-row bsc-br-hi" style="color:${k2aColor}"><span>KPI 2a — PR13 (${k2a} pts × 25%)</span><span>+${(k2a*0.25).toFixed(2)}</span></div>
-            <div class="bsc-breakdown-row bsc-br-hi" style="color:${k2bColor}"><span>KPI 2b — 2nd Year (${k2b} pts × 30%)</span><span>+${(k2b*0.30).toFixed(2)}</span></div>
+            <div class="bsc-breakdown-row bsc-br-hi" style="color:${k2bColor}"><span>KPI 2b — 2nd Year (${k2b} pts × 30%)${pr25 === null ? ' <em style="font-weight:400;font-size:.67rem;color:#0a9b43">[full marks]</em>' : ''}</span><span>+${(k2b*0.30).toFixed(2)}</span></div>
             <div class="bsc-breakdown-row"><span>KPI 3 — Complaints (100 pts × 10%)</span><span>+10.00</span></div>
             <div class="bsc-breakdown-row"><span>KPI 4 — CPD Hours (100 pts × 15%)</span><span>+15.00</span></div>
             <div class="bsc-breakdown-row bsc-br-total" style="color:${b.color}"><span>BSC Score</span><span>${bsc.toFixed(2)}%</span></div>
@@ -2109,7 +2141,7 @@ function renderBscEstimator() {
           <div class="bsc-kpi-section">
             <div class="bsc-kpi-sec-hdr">
               <span>KPI 2b — 2nd Year Persistency</span>
-              ${pr25 !== null ? `<span class="bsc-kpi-sec-badge" style="color:${k2bColor};background:${k2bColor}1a">${pr25.toFixed(2)}% · ${k2b} pts</span>` : '<span style="color:#bbb;font-size:.74rem;font-weight:700;text-transform:none">No data</span>'}
+              ${pr25 !== null ? `<span class="bsc-kpi-sec-badge" style="color:${k2bColor};background:${k2bColor}1a">${pr25.toFixed(2)}% · ${k2b} pts</span>` : '<span style="color:#0a9b43;font-size:.74rem;font-weight:800;text-transform:none;background:rgba(10,155,67,.09);border-radius:7px;padding:2px 8px">✓ Full marks · 150 pts</span>'}
             </div>
             ${_bscChecklistHtml(r2b, false)}
           </div>
@@ -2127,6 +2159,7 @@ function renderBscEstimator() {
       Tap any agent card to see the per-client checklist and recovery potential.
     </div>
     <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:10px">BSC Projection — ${projLabel()}</div>
+    ${bandSummary}
     ${cards}
 
     <div class="bsc-card" style="margin-top:20px">
