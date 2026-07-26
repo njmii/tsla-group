@@ -223,14 +223,29 @@ td.right{text-align:right;font-weight:700;}
 .bsc-wrap{padding:4px 0 16px;}
 .bsc-card{background:white;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.06);padding:18px 20px;margin-bottom:12px;}
 .bsc-card-title{font-weight:900;font-size:.97rem;margin-bottom:14px;}
-.bsc-agent-card{display:flex;justify-content:space-between;align-items:center;background:white;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:14px 16px;margin-bottom:10px;}
+.bsc-agent-card{background:white;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:10px;overflow:hidden;}
+.bsc-agent-summary{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;gap:12px;transition:background .12s;}
+.bsc-agent-summary:hover{background:#fafafa;}
 .bsc-agent-left{flex:1;min-width:0;}
 .bsc-agent-name{font-weight:900;font-size:.97rem;}
 .bsc-agent-sub{font-size:.75rem;color:#aaa;margin-top:2px;}
-.bsc-agent-pr{font-size:.75rem;color:#888;margin-top:6px;}
+.bsc-agent-kpis{font-size:.73rem;color:#888;margin-top:6px;}
 .bsc-agent-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;margin-left:14px;}
 .bsc-agent-score{font-size:1.7rem;font-weight:900;letter-spacing:-.03em;line-height:1;}
 .bsc-agent-band{font-size:.68rem;font-weight:800;border-radius:8px;padding:3px 9px;white-space:nowrap;}
+.bsc-breakdown-row{display:flex;justify-content:space-between;font-size:.74rem;padding:3px 0;color:#888;}
+.bsc-breakdown-row.bsc-br-hi{color:#111;font-weight:800;}
+.bsc-breakdown-row.bsc-br-total{font-weight:900;font-size:.82rem;border-top:2px solid #eee;margin-top:4px;padding-top:6px;}
+.bsc-kpi-section{margin-top:14px;}
+.bsc-kpi-sec-hdr{display:flex;justify-content:space-between;align-items:center;font-size:.69rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:8px;}
+.bsc-kpi-sec-badge{font-size:.76rem;font-weight:900;padding:2px 8px;border-radius:8px;text-transform:none;letter-spacing:0;}
+.bsc-cl-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;margin-bottom:4px;}
+.bsc-cl-info{flex:1;min-width:0;}
+.bsc-cl-name{font-weight:700;font-size:.83rem;}
+.bsc-cl-meta{font-size:.68rem;color:#aaa;margin-top:1px;}
+.bsc-cl-ace{font-size:.77rem;font-weight:800;color:#555;flex-shrink:0;}
+.bsc-cl-badge{font-size:.66rem;font-weight:800;border-radius:7px;padding:2px 7px;flex-shrink:0;}
+.bsc-potential{font-size:.74rem;color:#0a9b43;background:rgba(10,155,67,.07);border-radius:10px;padding:8px 12px;margin-top:8px;line-height:1.6;}
 .bsc-inp-wrap{display:flex;align-items:center;border:2px solid #eee;border-radius:10px;overflow:hidden;background:white;}
 .bsc-inp-wrap:focus-within{border-color:#ff7a00;}
 .bsc-inp-suf{padding:0 6px;font-size:.78rem;font-weight:700;color:#aaa;white-space:nowrap;}
@@ -609,6 +624,41 @@ function calcGroupPR13(ag, allAgents) {
 function calcCE(agent) {
   const r = _calcMetric(agent, classifyCE);
   return { ...r, ce: r.rate };
+}
+
+/* ── KPI 2b — 2nd-year persistency (25-month cohort) ─────
+   Window: issued 25-36 months before projection month end.
+   Same payment rules as PR13; monthsPaid threshold is 25.  */
+function pr25Window() {
+  const base = PROJ_YEAR * 12 + PROJ_MONTH;
+  return { wsKey: base - 36, weKey: base - 24 };
+}
+
+function classifyPR25(c) {
+  if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
+  const issued    = new Date(c.issueDate);
+  const issuedKey = issued.getFullYear() * 12 + issued.getMonth();
+  const { wsKey, weKey } = pr25Window();
+  if (issuedKey < wsKey)  return { cls: 'na', reason: 'Aged out (>36 months)' };
+  if (issuedKey >= weKey) return { cls: 'na', reason: 'Not yet 25 months old' };
+  if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
+  const eff = pointInTimeStatus(c);
+  if (eff === 'In Force') {
+    if (_isPrediction() && (c.payMethod || '').toLowerCase().includes('credit'))
+      return { cls: '0', reason: 'Credit Card (unconfirmed)' };
+    return { cls: '100', reason: 'In Force', watch: _watchFlag(c) };
+  }
+  if (eff === 'Contract Surrendered') {
+    return monthsPaid(c) >= 25
+      ? { cls: '100', reason: 'Contract Surrendered (≥25mo)' }
+      : { cls: '0',   reason: 'Contract Surrendered (<25mo)' };
+  }
+  return { cls: '0', reason: 'Lapsed' };
+}
+
+function calcKpi2b(agent) {
+  const r = _calcMetric(agent, classifyPR25);
+  return { ...r, kpi2b: r.rate };
 }
 
 /* ── Compute YTD ACE (Jan 1 – today) for one agent ───── */
@@ -1904,9 +1954,66 @@ function _bscCommCalc(planKey, yearIdx, contribution, bscPct) {
 }
 
 function _bscBandInfo(bsc) {
-  return bsc > 100
-    ? { label: '✨ Overperformer', color: '#0a9b43', bg: 'rgba(10,155,67,.1)' }
-    : { label: '📊 Basic Perform',  color: '#e68a00', bg: 'rgba(230,138,0,.1)' };
+  if (bsc >= 100) return { label: '✨ Overperformer',   color: '#0a9b43', bg: 'rgba(10,155,67,.1)' };
+  if (bsc >= 85)  return { label: '📊 Near Target',     color: '#e68a00', bg: 'rgba(230,138,0,.1)' };
+  return             { label: '⚠️ Below Standard', color: '#e53935', bg: 'rgba(229,57,53,.08)' };
+}
+
+function _bscPtsColor(pts) {
+  return pts >= 125 ? '#0a9b43' : pts >= 75 ? '#e68a00' : '#e53935';
+}
+
+function _bscChecklistHtml(r, isKpi2a) {
+  if (!r || r.eligACE === 0) return `<div style="color:#bbb;font-size:.78rem;padding:6px 0">Tiada klien dalam pool ini untuk bulan yang dipilih.</div>`;
+  const eligible = r.rows.filter(c => c._cls !== 'na');
+  if (!eligible.length) return `<div style="color:#bbb;font-size:.78rem;padding:6px 0">Tiada klien dalam pool ini.</div>`;
+
+  const sortOrd = { watch: 0, '0': 1, '100': 2, excl: 3 };
+  const sorted  = [...eligible].sort((a, b) => {
+    const ak = a._watch ? 0 : (sortOrd[a._cls] ?? 2);
+    const bk = b._watch ? 0 : (sortOrd[b._cls] ?? 2);
+    return ak - bk;
+  });
+
+  const fmtRM = v => 'RM ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const shortN = n => { const p = n.split(' '); return p.length <= 2 ? n : p.slice(0,2).join(' '); };
+
+  const rows = sorted.map(c => {
+    const isWatch = c._watch;
+    const cls = c._cls;
+    let rowBg, badgeColor, badgeBg, badgeLbl;
+    if (isWatch)       { rowBg='rgba(199,119,0,.07)'; badgeColor='#c77700'; badgeBg='rgba(199,119,0,.12)'; badgeLbl='⚠️ Watch'; }
+    else if (cls==='100') { rowBg='rgba(10,155,67,.05)'; badgeColor='#0a9b43'; badgeBg='rgba(10,155,67,.12)'; badgeLbl='✓ 100%'; }
+    else if (cls==='0')   { rowBg='rgba(229,57,53,.05)'; badgeColor='#e53935'; badgeBg='rgba(229,57,53,.10)'; badgeLbl='✗ 0%'; }
+    else                  { rowBg='#f8f8f8'; badgeColor='#999'; badgeBg='#f0f0f0'; badgeLbl='Excl'; }
+    const nm   = shortN(c.name || '—');
+    const cert = (c.certNo || '').replace(/^FWD\//,'');
+    return `<div class="bsc-cl-row" style="background:${rowBg}">
+      <div class="bsc-cl-info">
+        <div class="bsc-cl-name">${nm}</div>
+        <div class="bsc-cl-meta">${cert}${c._reason ? ' · ' + c._reason : ''}</div>
+      </div>
+      <div class="bsc-cl-ace">${fmtRM(c._ace)}</div>
+      <div class="bsc-cl-badge" style="color:${badgeColor};background:${badgeBg}">${badgeLbl}</div>
+    </div>`;
+  }).join('');
+
+  // Recovery potential
+  const zeroRows = eligible.filter(c => c._cls === '0');
+  let potHtml = '';
+  if (zeroRows.length && r.eligACE > 0) {
+    const potColl = r.collACE + zeroRows.reduce((s, c) => s + c._ace, 0);
+    const potRate = Math.round(potColl / r.eligACE * 10000) / 100;
+    const curPts  = isKpi2a ? _bscKpi2aPts(r.rate) : _bscKpi2bPts(r.rate);
+    const potPts  = isKpi2a ? _bscKpi2aPts(potRate) : _bscKpi2bPts(potRate);
+    const gain    = (potPts - curPts) * (isKpi2a ? 0.25 : 0.30);
+    if (gain > 0) {
+      potHtml = `<div class="bsc-potential">💡 Recover all ${zeroRows.length} client(s) at 0% → rate ${potRate.toFixed(2)}% (${potPts} pts) → <strong>BSC +${gain.toFixed(2)}%</strong></div>`;
+    } else if (potRate > r.rate) {
+      potHtml = `<div class="bsc-potential" style="color:#888;background:#f5f5f5">Recover all ${zeroRows.length} client(s) → rate ${potRate.toFixed(2)}% (same pts bracket)</div>`;
+    }
+  }
+  return rows + potHtml;
 }
 
 function renderBscEstimator() {
@@ -1915,15 +2022,20 @@ function renderBscEstimator() {
   const data = window._lastData;
   if (!data) { el.innerHTML = '<div class="loading">Loading…</div>'; return; }
 
-  // With KPI1(150pts×20%) + KPI2b(150pts×30%) + KPI3(100pts×10%) + KPI4(100pts×15%) = 100 fixed
-  // BSC = 100 + _bscKpi2aPts(pr13) × 0.25
+  const shortN = n => { const p = n.split(' '); return p.length <= 2 ? n : p.slice(0,2).join(' '); };
+
   const agRows = data.agents.map(ag => {
-    const r = calcPR13(ag);
-    const hasPR13 = r && r.eligACE > 0;
-    const pr13 = hasPR13 ? Math.round(r.collACE / r.eligACE * 10000) / 100 : null;
-    const kpi2aPts = hasPR13 ? _bscKpi2aPts(pr13) : null;
-    const bsc = hasPR13 ? 100 + kpi2aPts * 0.25 : null;
-    return { ag, pr13, kpi2aPts, bsc };
+    const r2a   = calcPR13(ag);
+    const r2b   = calcKpi2b(ag);
+    const pr13  = r2a.eligACE > 0 ? r2a.rate : null;
+    const pr25  = r2b.eligACE > 0 ? r2b.rate : null;
+    const k2a   = pr13 !== null ? _bscKpi2aPts(pr13) : 0;
+    const k2b   = pr25 !== null ? _bscKpi2bPts(pr25) : 0;
+    const hasBsc = pr13 !== null || pr25 !== null;
+    // BSC = KPI1(150×20%) + KPI2a×25% + KPI2b×30% + KPI3(100×10%) + KPI4(100×15%)
+    //     = 55 + k2a×0.25 + k2b×0.30
+    const bsc = hasBsc ? 55 + k2a * 0.25 + k2b * 0.30 : null;
+    return { ag, pr13, pr25, k2a, k2b, bsc, r2a, r2b };
   }).sort((a, b) => {
     if (a.bsc === null && b.bsc === null) return 0;
     if (a.bsc === null) return 1;
@@ -1931,39 +2043,76 @@ function renderBscEstimator() {
     return b.bsc - a.bsc;
   });
 
-  const pr13Bracket = pts => {
-    if (pts >= 150) return '≥95%';
-    if (pts >= 125) return '≥92.5%';
-    if (pts >= 100) return '≥90%';
-    if (pts >=  75) return '≥85%';
-    return '<85%';
-  };
+  const cards = agRows.map(({ ag, pr13, pr25, k2a, k2b, bsc, r2a, r2b }) => {
+    const code  = ag.code;
+    const bodyId  = `bscD_${code}`;
+    const arrowId = `bscA_${code}`;
 
-  const shortN = name => { const p = name.split(' '); return p.length <= 2 ? name : p.slice(0,2).join(' '); };
-
-  const cards = agRows.map(({ag, pr13, kpi2aPts, bsc}) => {
     if (bsc === null) return `
       <div class="bsc-agent-card">
-        <div class="bsc-agent-left">
-          <div class="bsc-agent-name">${shortN(ag.name)}</div>
-          <div class="bsc-agent-sub">${ag.code}</div>
-          <div class="bsc-agent-pr" style="color:#bbb">Tiada data PR13 bulan ini</div>
-        </div>
-        <div class="bsc-agent-right">
-          <div class="bsc-agent-score" style="color:#ccc">—</div>
+        <div class="bsc-agent-summary" style="cursor:default">
+          <div class="bsc-agent-left">
+            <div class="bsc-agent-name">${shortN(ag.name)}</div>
+            <div class="bsc-agent-sub">${code}</div>
+            <div class="bsc-agent-kpis" style="color:#bbb">Tiada data PR13 / 2nd-year bulan ini</div>
+          </div>
+          <div class="bsc-agent-right"><div class="bsc-agent-score" style="color:#ccc">—</div></div>
         </div>
       </div>`;
+
     const b = _bscBandInfo(bsc);
+    const k2aHint = pr13 !== null ? `${pr13.toFixed(2)}% → <strong>${k2a} pts</strong>` : '<span style="color:#bbb">—</span>';
+    const k2bHint = pr25 !== null ? `${pr25.toFixed(2)}% → <strong>${k2b} pts</strong>` : '<span style="color:#bbb">—</span>';
+    const k2aColor = _bscPtsColor(k2a), k2bColor = _bscPtsColor(k2b);
+
     return `
       <div class="bsc-agent-card">
-        <div class="bsc-agent-left">
-          <div class="bsc-agent-name">${shortN(ag.name)}</div>
-          <div class="bsc-agent-sub">${ag.code}</div>
-          <div class="bsc-agent-pr">PR13 <strong>${pr13.toFixed(2)}%</strong> (${pr13Bracket(kpi2aPts)}) · KPI 2a <strong>${kpi2aPts} pts</strong></div>
+        <div class="bsc-agent-summary" onclick="_bscToggle('${bodyId}','${arrowId}')">
+          <div class="bsc-agent-left">
+            <div class="bsc-agent-name">${shortN(ag.name)}</div>
+            <div class="bsc-agent-sub">${code}</div>
+            <div class="bsc-agent-kpis">
+              KPI 2a&nbsp;<span style="color:${k2aColor}">${k2aHint}</span>
+              &nbsp;·&nbsp;
+              KPI 2b&nbsp;<span style="color:${k2bColor}">${k2bHint}</span>
+            </div>
+          </div>
+          <div class="bsc-agent-right">
+            <div class="bsc-agent-score" style="color:${b.color}">${bsc.toFixed(2)}%</div>
+            <div class="bsc-agent-band" style="color:${b.color};background:${b.bg}">${b.label}</div>
+            <span id="${arrowId}" style="font-size:.62rem;color:#bbb">▼ checklist</span>
+          </div>
         </div>
-        <div class="bsc-agent-right">
-          <div class="bsc-agent-score" style="color:${b.color}">${bsc.toFixed(2)}%</div>
-          <div class="bsc-agent-band" style="color:${b.color};background:${b.bg}">${b.label}</div>
+
+        <div id="${bodyId}" style="display:none;padding:0 16px 16px;border-top:1px solid #f0f0f0">
+          <!-- Breakdown -->
+          <div style="background:#f8f9ff;border-radius:12px;padding:12px 14px;margin:12px 0">
+            <div style="font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:8px">BSC Breakdown</div>
+            <div class="bsc-breakdown-row"><span>KPI 1 — CFF (150 pts × 20%)</span><span>+30.00</span></div>
+            <div class="bsc-breakdown-row bsc-br-hi" style="color:${k2aColor}"><span>KPI 2a — PR13 (${k2a} pts × 25%)</span><span>+${(k2a*0.25).toFixed(2)}</span></div>
+            <div class="bsc-breakdown-row bsc-br-hi" style="color:${k2bColor}"><span>KPI 2b — 2nd Year (${k2b} pts × 30%)</span><span>+${(k2b*0.30).toFixed(2)}</span></div>
+            <div class="bsc-breakdown-row"><span>KPI 3 — Complaints (100 pts × 10%)</span><span>+10.00</span></div>
+            <div class="bsc-breakdown-row"><span>KPI 4 — CPD Hours (100 pts × 15%)</span><span>+15.00</span></div>
+            <div class="bsc-breakdown-row bsc-br-total" style="color:${b.color}"><span>BSC Score</span><span>${bsc.toFixed(2)}%</span></div>
+          </div>
+
+          <!-- KPI 2a checklist -->
+          <div class="bsc-kpi-section">
+            <div class="bsc-kpi-sec-hdr">
+              <span>KPI 2a — 1st Year Persistency (PR13)</span>
+              ${pr13 !== null ? `<span class="bsc-kpi-sec-badge" style="color:${k2aColor};background:${k2aColor}1a">${pr13.toFixed(2)}% · ${k2a} pts</span>` : ''}
+            </div>
+            ${_bscChecklistHtml(r2a, true)}
+          </div>
+
+          <!-- KPI 2b checklist -->
+          <div class="bsc-kpi-section">
+            <div class="bsc-kpi-sec-hdr">
+              <span>KPI 2b — 2nd Year Persistency</span>
+              ${pr25 !== null ? `<span class="bsc-kpi-sec-badge" style="color:${k2bColor};background:${k2bColor}1a">${pr25.toFixed(2)}% · ${k2b} pts</span>` : '<span style="color:#bbb;font-size:.74rem;font-weight:700;text-transform:none">No data</span>'}
+            </div>
+            ${_bscChecklistHtml(r2b, false)}
+          </div>
         </div>
       </div>`;
   }).join('');
@@ -1973,8 +2122,9 @@ function renderBscEstimator() {
 
   el.innerHTML = `<div class="bsc-wrap">
     <div style="font-size:.74rem;color:#888;background:#f8f9ff;border-radius:14px;padding:10px 14px;margin-bottom:14px;line-height:1.7">
-      KPI 1 (CFF), KPI 2b (2nd-year persistency), KPI 3 (complaints) &amp; KPI 4 (CPD) diasumsikan <strong>penuh markah</strong>.
-      BSC ditentukan sepenuhnya oleh <strong>PR13 — KPI 2a (wajaran 25%)</strong>.
+      KPI 1 (CFF), KPI 3 (complaints) &amp; KPI 4 (CPD) diasumsikan <strong>penuh markah</strong>.
+      BSC varies with <strong>KPI 2a — PR13 (25%)</strong> and <strong>KPI 2b — 2nd year persistency (30%)</strong>.
+      Tap any agent card to see the per-client checklist and recovery potential.
     </div>
     <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:10px">BSC Projection — ${projLabel()}</div>
     ${cards}
@@ -1983,9 +2133,17 @@ function renderBscEstimator() {
       <div class="bsc-card-title">💰 Commission Estimator</div>
       <div class="bsc-comm-controls">
         <div class="bsc-ctrl-grp">
-          <span class="bsc-ctrl-lbl">PR13 (%)</span>
+          <span class="bsc-ctrl-lbl">PR13 / KPI 2a (%)</span>
           <div class="bsc-inp-wrap">
             <input id="bscPr13" type="number" min="0" max="100" step="0.5" value=""
+              class="bsc-inp" placeholder="—" oninput="calcBscComm()">
+            <span class="bsc-inp-suf">%</span>
+          </div>
+        </div>
+        <div class="bsc-ctrl-grp">
+          <span class="bsc-ctrl-lbl">2nd Year / KPI 2b (%)</span>
+          <div class="bsc-inp-wrap">
+            <input id="bscPr25" type="number" min="0" max="100" step="0.5" value=""
               class="bsc-inp" placeholder="—" oninput="calcBscComm()">
             <span class="bsc-inp-suf">%</span>
           </div>
@@ -2011,7 +2169,9 @@ function renderBscEstimator() {
           </div>
         </div>
       </div>
-      <div id="bscCommResult" style="font-size:.84rem;color:#888;text-align:center;padding:8px 0">Enter PR13 above to estimate commission.</div>
+      <div id="bscCommResult" style="font-size:.84rem;color:#888;text-align:center;padding:8px 0">
+        Enter PR13 and 2nd year rate to estimate commission.
+      </div>
     </div>
 
     <div style="font-size:.72rem;color:#bbb;text-align:center;padding:8px 0;line-height:1.7">
@@ -2019,6 +2179,15 @@ function renderBscEstimator() {
       Overperformer bonus applies to Y1 variable only.
     </div>
   </div>`;
+}
+
+function _bscToggle(bodyId, arrowId) {
+  const body  = document.getElementById(bodyId);
+  const arrow = document.getElementById(arrowId);
+  if (!body) return;
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : '';
+  if (arrow) arrow.textContent = open ? '▼ checklist' : '▲ checklist';
 }
 
 function calcBscComm() {
