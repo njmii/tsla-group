@@ -219,6 +219,33 @@ td.right{text-align:right;font-weight:700;}
 .month-picker-sel{border:2px solid #eee;border-radius:12px;padding:6px 10px;font-size:.8rem;font-weight:700;color:#111;background:white;cursor:pointer;outline:none;}
 .month-picker-sel:focus{border-color:#ff7a00;}
 
+/* ── BSC Estimator ────────────────────────────────────── */
+.bsc-wrap{padding:4px 0 16px;}
+.bsc-card{background:white;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.06);padding:18px 20px;margin-bottom:12px;}
+.bsc-card-title{font-weight:900;font-size:.97rem;margin-bottom:14px;}
+.bsc-kpi-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+.bsc-kpi-row:last-of-type{border-bottom:none;}
+.bsc-kpi-info{flex:1;min-width:0;}
+.bsc-kpi-name{display:block;font-weight:800;font-size:.88rem;}
+.bsc-kpi-weight{display:inline-block;font-size:.68rem;font-weight:800;background:#f0f0f0;color:#666;border-radius:6px;padding:2px 6px;margin:3px 0;}
+.bsc-kpi-hints{display:block;font-size:.68rem;color:#aaa;line-height:1.6;margin-top:2px;}
+.bsc-kpi-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.bsc-kpi-pts{font-size:.82rem;font-weight:800;min-width:60px;text-align:right;}
+.bsc-inp-wrap{display:flex;align-items:center;border:2px solid #eee;border-radius:10px;overflow:hidden;background:white;}
+.bsc-inp-wrap:focus-within{border-color:#ff7a00;}
+.bsc-inp-suf{padding:0 6px;font-size:.78rem;font-weight:700;color:#aaa;white-space:nowrap;}
+.bsc-inp{width:70px;padding:7px 6px;border:none;font-size:.9rem;font-weight:700;color:#111;background:white;outline:none;text-align:right;}
+.bsc-score-block{display:flex;align-items:flex-start;gap:16px;margin-top:14px;padding:16px;background:#f8f9ff;border-radius:16px;}
+.bsc-score-num{font-size:2.8rem;font-weight:900;letter-spacing:-.04em;line-height:1;}
+.bsc-score-lbl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:4px;}
+.bsc-score-breakdown{flex:1;min-width:0;}
+.bsc-comm-controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+.bsc-ctrl-grp{display:flex;flex-direction:column;gap:4px;}
+.bsc-ctrl-lbl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#888;}
+.bsc-comm-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:.86rem;gap:8px;}
+.bsc-comm-row:last-of-type{border-bottom:none;}
+.bsc-comm-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;font-weight:900;font-size:.92rem;border-top:2px solid #eee;margin-top:4px;}
+
 /* ── Manual Payment tab shared styles ─────────────── */
 .sp-agent-card{background:white;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:12px;overflow:hidden;}
 .sp-agent-header{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;transition:opacity .15s;}
@@ -267,10 +294,12 @@ td.right{text-align:right;font-weight:700;}
       <button id="tabLb" class="lb-tab active" onclick="switchLbTab('lb')">📊 PR13 &amp; CE</button>
       <button id="tabContest" class="lb-tab" onclick="switchLbTab('contest')">🏆 Road to Bali</button>
       <button id="tabMP" class="lb-tab" onclick="switchLbTab('mp')">💸 Manual Payment</button>
+      <button id="tabBsc" class="lb-tab" onclick="switchLbTab('bsc')">📊 BSC Score</button>
     </div>
     <div id="leaderboardList"><div class="loading">Loading data…</div></div>
     <div id="contestList" style="display:none"></div>
     <div id="mpList" style="display:none"></div>
+    <div id="bscList" style="display:none"></div>
   </div>
 
   <!-- Agent detail -->
@@ -1257,11 +1286,17 @@ function showLeaderboard() {
 /* ── Leaderboard tab switch ──────────────────────────── */
 function switchLbTab(tab) {
   document.getElementById('leaderboardList').style.display = tab === 'lb'      ? '' : 'none';
-  document.getElementById('contestList').style.display = tab === 'contest' ? '' : 'none';
-  document.getElementById('mpList').style.display      = tab === 'mp'      ? '' : 'none';
+  document.getElementById('contestList').style.display     = tab === 'contest' ? '' : 'none';
+  document.getElementById('mpList').style.display          = tab === 'mp'      ? '' : 'none';
+  document.getElementById('bscList').style.display         = tab === 'bsc'     ? '' : 'none';
   document.getElementById('tabLb').classList.toggle('active', tab === 'lb');
   document.getElementById('tabContest').classList.toggle('active', tab === 'contest');
   document.getElementById('tabMP').classList.toggle('active', tab === 'mp');
+  document.getElementById('tabBsc').classList.toggle('active', tab === 'bsc');
+  if (tab === 'bsc' && !document.getElementById('bscList').dataset.built) {
+    renderBscEstimator();
+    document.getElementById('bscList').dataset.built = '1';
+  }
 }
 
 /* ── Contest: Road to Bali ───────────────────────────── */
@@ -1815,6 +1850,269 @@ function _renderMpCards() {
   });
 
   el.innerHTML = html;
+}
+
+/* ── BSC Estimator ────────────────────────────────────── */
+
+const BSC_PLANS = {
+  trad: { label: 'Traditional (FWD Life / Protect / Income First)', years: [
+    { fixed: 27,    variable: 13,    opBoost: 11.9 },
+    { fixed: 19.25, variable: 10.75, opBoost: 0    },
+    { fixed: 12.5,  variable: 7.5,   opBoost: 0    },
+    { fixed: 15,    variable: 0,     opBoost: 0    },
+    { fixed: 10,    variable: 0,     opBoost: 0    },
+    { fixed: 10,    variable: 0,     opBoost: 0    }
+  ]},
+  alc: { label: 'ALC: ILP', years: [
+    { fixed: 11.25, variable: 8.75,  opBoost: 10.5 },
+    { fixed: 11.25, variable: 8.75,  opBoost: 0    },
+    { fixed: 8.75,  variable: 6.25,  opBoost: 0    },
+    { fixed: 17,    variable: 0,     opBoost: 0    },
+    { fixed: 11.5,  variable: 0,     opBoost: 0    },
+    { fixed: 11.5,  variable: 0,     opBoost: 0    }
+  ]},
+  tlc: { label: 'TLC: ILP', years: [
+    { fixed: 15,    variable: 10,    opBoost: 10.5 },
+    { fixed: 15,    variable: 10,    opBoost: 0    },
+    { fixed: 10.5,  variable: 8,     opBoost: 0    },
+    { fixed: 20.5,  variable: 0,     opBoost: 0    },
+    { fixed: 11.5,  variable: 0,     opBoost: 0    },
+    { fixed: 11.5,  variable: 0,     opBoost: 0    }
+  ]}
+};
+
+function _bscKpi1Pts(v) {
+  if (v >= 90) return 150; if (v >= 80) return 125; if (v >= 70) return 100;
+  if (v >= 60) return 75;  if (v >= 50) return 50;  return 0;
+}
+function _bscKpi2aPts(v) {
+  if (v >= 95) return 150; if (v >= 92.5) return 125; if (v >= 90) return 100;
+  if (v >= 85) return 75;  return 0;
+}
+function _bscKpi2bPts(v) {
+  if (v >= 90) return 150; if (v >= 85) return 125; if (v >= 80) return 100;
+  if (v >= 75) return 75;  return 0;
+}
+
+function _bscCommCalc(planKey, yearIdx, contribution, bscPct) {
+  const yr  = BSC_PLANS[planKey].years[yearIdx];
+  const bsc = bscPct / 100;
+  const fixed = contribution * yr.fixed / 100;
+  let variable = 0;
+  if (yr.variable > 0) {
+    if (bsc <= 1.0) {
+      variable = contribution * (yr.variable / 100) * bsc;
+    } else {
+      const overFrac = (bsc - 1.0) / 0.375;
+      variable = contribution * (yr.variable / 100) + contribution * (yr.opBoost / 100) * overFrac;
+    }
+  }
+  return { fixed, variable, total: fixed + variable };
+}
+
+function renderBscEstimator() {
+  const el = document.getElementById('bscList');
+  if (!el) return;
+
+  const kpis = [
+    { id: 'kpi1',  label: 'KPI 1 — CFF Rate',               wt: 20,  unit: '%',
+      hints: '≥90→150 · ≥80→125 · ≥70→100 · ≥60→75 · ≥50→50 · <50→0' },
+    { id: 'kpi2a', label: 'KPI 2a — 1st Year Persistency',   wt: 25,  unit: '%',
+      hints: '≥95→150 · ≥92.5→125 · ≥90→100 · ≥85→75 · else→0' },
+    { id: 'kpi2b', label: 'KPI 2b — 2nd Year Persistency',   wt: 30,  unit: '%',
+      hints: '≥90→150 · ≥85→125 · ≥80→100 · ≥75→75 · else→0' },
+    { id: 'kpi3',  label: 'KPI 3 — Substantiated Complaints', wt: 10,  unit: '',
+      hints: '0 complaints→100 · 1+→0',  step: '1', min: '0' },
+    { id: 'kpi4',  label: 'KPI 4 — CPD Hours',               wt: 15,  unit: 'hrs',
+      hints: '≥30 hrs→100 · else→0' }
+  ];
+
+  const kpiRows = kpis.map(k => `
+    <div class="bsc-kpi-row">
+      <div class="bsc-kpi-info">
+        <span class="bsc-kpi-name">${k.label}</span>
+        <span class="bsc-kpi-weight">Weight ${k.wt}%</span>
+        <span class="bsc-kpi-hints">${k.hints}</span>
+      </div>
+      <div class="bsc-kpi-right">
+        <div class="bsc-inp-wrap">
+          <input id="${k.id}" type="number" min="${k.min||'0'}" step="${k.step||'0.5'}" value=""
+            class="bsc-inp" placeholder="—" oninput="calcBSC()">
+          ${k.unit ? `<span class="bsc-inp-suf">${k.unit}</span>` : ''}
+        </div>
+        <div class="bsc-kpi-pts" id="${k.id}Pts" style="color:#aaa">—</div>
+      </div>
+    </div>`).join('');
+
+  const planOpts = Object.entries(BSC_PLANS).map(([k,v]) =>
+    `<option value="${k}">${v.label}</option>`).join('');
+
+  el.innerHTML = `
+    <div class="bsc-wrap">
+      <div class="bsc-card">
+        <div class="bsc-card-title">📊 BSC Score Estimator</div>
+        ${kpiRows}
+        <div id="bscScoreBlock" class="bsc-score-block" style="margin-top:14px">
+          <div>
+            <div class="bsc-score-lbl">BSC Score</div>
+            <div id="bscScoreNum" class="bsc-score-num" style="color:#bbb">—</div>
+            <div id="bscScoreStatus" style="font-size:.78rem;font-weight:800;margin-top:4px;color:#aaa">Enter all 5 KPIs above</div>
+          </div>
+          <div id="bscBreakdown" class="bsc-score-breakdown"></div>
+        </div>
+      </div>
+
+      <div class="bsc-card">
+        <div class="bsc-card-title">💰 Commission Calculator</div>
+        <div class="bsc-comm-controls">
+          <div class="bsc-ctrl-grp">
+            <span class="bsc-ctrl-lbl">Plan Type</span>
+            <select id="bscPlan" class="month-picker-sel" onchange="calcBSC()">${planOpts}</select>
+          </div>
+          <div class="bsc-ctrl-grp">
+            <span class="bsc-ctrl-lbl">Policy Year</span>
+            <select id="bscYear" class="month-picker-sel" onchange="calcBSC()">
+              <option value="0">Year 1</option><option value="1">Year 2</option>
+              <option value="2">Year 3</option><option value="3">Year 4</option>
+              <option value="4">Year 5</option><option value="5">Year 6</option>
+            </select>
+          </div>
+          <div class="bsc-ctrl-grp">
+            <span class="bsc-ctrl-lbl">Monthly Contribution (RM)</span>
+            <div class="bsc-inp-wrap">
+              <span class="bsc-inp-suf">RM</span>
+              <input id="bscPremium" type="number" min="0" step="50" value="250"
+                class="bsc-inp" style="width:90px" oninput="calcBSC()">
+            </div>
+          </div>
+        </div>
+        <div id="bscCommResult" style="font-size:.84rem;color:#888;text-align:center;padding:8px 0">Enter BSC score above to see commission estimate.</div>
+      </div>
+
+      <div style="font-size:.72rem;color:#bbb;text-align:center;padding:8px 0;line-height:1.7">
+        Max BSC = 137.5% (KPI 3 &amp; 4 max at 100pts). Variable commission scales with BSC; fixed is unaffected.<br>
+        Overperformer bonus applies to Y1 variable only. Excludes RTU, ATU, single-contribution certificates.
+      </div>
+    </div>`;
+
+  calcBSC();
+}
+
+function calcBSC() {
+  const v1  = document.getElementById('kpi1')?.value;
+  const v2a = document.getElementById('kpi2a')?.value;
+  const v2b = document.getElementById('kpi2b')?.value;
+  const v3  = document.getElementById('kpi3')?.value;
+  const v4  = document.getElementById('kpi4')?.value;
+  if (!v1 && !v2a && !v2b && !v3 && !v4) return;
+
+  const p1  = parseFloat(v1)  || 0;
+  const p2a = parseFloat(v2a) || 0;
+  const p2b = parseFloat(v2b) || 0;
+  const p3  = v3 === '' ? null : parseFloat(v3);
+  const p4  = parseFloat(v4)  || 0;
+
+  const s1  = _bscKpi1Pts(p1);
+  const s2a = _bscKpi2aPts(p2a);
+  const s2b = _bscKpi2bPts(p2b);
+  const s3  = p3 === null ? null : (p3 === 0 ? 100 : 0);
+  const s4  = p4 >= 30 ? 100 : 0;
+
+  const fmtPts = s => s === null ? '<span style="color:#aaa">—</span>'
+    : `<span style="color:${s >= 100 ? '#0a9b43' : s >= 75 ? '#e68a00' : '#e53935'};font-weight:900">${s} pts</span>`;
+
+  if (document.getElementById('kpi1Pts'))   document.getElementById('kpi1Pts').innerHTML   = fmtPts(v1  !== '' ? s1  : null);
+  if (document.getElementById('kpi2aPts'))  document.getElementById('kpi2aPts').innerHTML  = fmtPts(v2a !== '' ? s2a : null);
+  if (document.getElementById('kpi2bPts'))  document.getElementById('kpi2bPts').innerHTML  = fmtPts(v2b !== '' ? s2b : null);
+  if (document.getElementById('kpi3Pts'))   document.getElementById('kpi3Pts').innerHTML   = fmtPts(s3);
+  if (document.getElementById('kpi4Pts'))   document.getElementById('kpi4Pts').innerHTML   = fmtPts(v4  !== '' ? s4  : null);
+
+  const allEntered = v1 !== '' && v2a !== '' && v2b !== '' && v3 !== '' && v4 !== '';
+  if (!allEntered) {
+    document.getElementById('bscCommResult').innerHTML =
+      '<div style="font-size:.84rem;color:#888;text-align:center;padding:8px 0">Enter all 5 KPIs to see commission estimate.</div>';
+    return;
+  }
+
+  const score = s1 * 0.20 + s2a * 0.25 + s2b * 0.30 + (s3 || 0) * 0.10 + s4 * 0.15;
+  const scoreRnd = Math.round(score * 10) / 10;
+  const color = score >= 100 ? '#0a9b43' : score >= 75 ? '#e68a00' : '#e53935';
+
+  const scoreEl = document.getElementById('bscScoreNum');
+  if (scoreEl) { scoreEl.textContent = scoreRnd + '%'; scoreEl.style.color = color; }
+
+  const statusEl = document.getElementById('bscScoreStatus');
+  if (statusEl) {
+    const label = score >= 137 ? '🏆 Maximum Score (137.5%)'
+      : score >= 100 ? '✨ Overperformer'
+      : score >= 75  ? '✅ Meets Standard'
+      : '⚠️ Below Standard';
+    statusEl.innerHTML = `<span style="color:${color}">${label}</span>`;
+  }
+
+  const bdEl = document.getElementById('bscBreakdown');
+  if (bdEl) bdEl.innerHTML = `
+    <div style="font-size:.72rem;color:#888;line-height:1.9;border-left:3px solid ${color};padding-left:10px">
+      <div>KPI 1: <strong>${s1}</strong> × 20% = ${(s1*0.20).toFixed(2)}</div>
+      <div>KPI 2a: <strong>${s2a}</strong> × 25% = ${(s2a*0.25).toFixed(2)}</div>
+      <div>KPI 2b: <strong>${s2b}</strong> × 30% = ${(s2b*0.30).toFixed(2)}</div>
+      <div>KPI 3: <strong>${s3}</strong> × 10% = ${((s3||0)*0.10).toFixed(2)}</div>
+      <div>KPI 4: <strong>${s4}</strong> × 15% = ${(s4*0.15).toFixed(2)}</div>
+    </div>`;
+
+  // Commission calculator
+  const plan    = document.getElementById('bscPlan')?.value || 'trad';
+  const yearIdx = parseInt(document.getElementById('bscYear')?.value || '0');
+  const monthly = parseFloat(document.getElementById('bscPremium')?.value) || 0;
+
+  const yr  = BSC_PLANS[plan].years[yearIdx];
+  const mc  = _bscCommCalc(plan, yearIdx, monthly, score);
+  const mc100 = _bscCommCalc(plan, yearIdx, monthly, 100);
+  const vsBase = mc.total - mc100.total;
+  const RM = v => 'RM&nbsp;' + v.toFixed(2);
+
+  let varHtml = '';
+  if (yr.variable > 0) {
+    const hasOp = score > 100 && yr.opBoost > 0;
+    const baseVarAmt = monthly * yr.variable / 100;
+    const opAmt = mc.variable - baseVarAmt;
+    varHtml = `
+      <div class="bsc-comm-row">
+        <span>Variable Commission<span style="font-size:.7rem;color:#999"> ${yr.variable}%${hasOp ? ' + overperformer' : ''}</span></span>
+        <strong>${RM(mc.variable)}/mo</strong>
+      </div>`;
+    if (hasOp && opAmt > 0.001) varHtml += `
+      <div class="bsc-comm-row" style="background:rgba(10,155,67,.04);border-radius:8px;padding:4px 8px;font-size:.8rem">
+        <span style="color:#0a9b43">↳ Base (at BSC=100%): ${RM(baseVarAmt)}</span>
+        <span style="color:#0a9b43">+ Overperformer: ${RM(opAmt)}</span>
+      </div>`;
+  } else {
+    varHtml = `<div class="bsc-comm-row"><span style="color:#aaa">Variable Commission</span><span style="color:#aaa">N/A (Year ${yearIdx+1})</span></div>`;
+  }
+
+  const vsHtml = vsBase !== 0
+    ? `<div style="font-size:.78rem;margin-top:6px;text-align:right;color:${vsBase > 0 ? '#0a9b43' : '#e53935'}">
+        vs BSC=100%: ${vsBase > 0 ? '+' : ''}${RM(vsBase)}/mo
+        (${vsBase > 0 ? '+' : ''}${RM(vsBase * 12)}/yr)
+      </div>` : '';
+
+  document.getElementById('bscCommResult').innerHTML = `
+    <div>
+      <div class="bsc-comm-row">
+        <span>Fixed Commission<span style="font-size:.7rem;color:#999"> ${yr.fixed}%, BSC-independent</span></span>
+        <strong>${RM(mc.fixed)}/mo</strong>
+      </div>
+      ${varHtml}
+      <div class="bsc-comm-total">
+        <span>Total Commission</span>
+        <span>${RM(mc.total)}/mo · ${RM(mc.total*12)}/yr</span>
+      </div>
+      ${vsHtml}
+      <div style="font-size:.7rem;color:#bbb;margin-top:8px;line-height:1.6">
+        Based on RM${monthly.toFixed(2)}/mo regular contribution.
+        Annual = monthly × 12 = RM${(monthly*12).toFixed(2)}.
+      </div>
+    </div>`;
 }
 
 /* ── Month picker ─────────────────────────────────────── */
