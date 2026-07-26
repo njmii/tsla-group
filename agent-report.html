@@ -88,6 +88,8 @@ body{background:#f7f8fa;color:#111;overflow-x:hidden;}
 .pr13-big{background:#0a9b43;border-radius:16px;padding:14px 18px;text-align:center;grid-column:1/-1;}
 .pr13-big-lbl{font-size:.72rem;font-weight:800;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
 .pr13-big-val{font-size:2.4rem;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:1;}
+.sum-arr{transition:transform .2s;font-size:.75rem;opacity:.45;display:inline-block;transform:rotate(180deg);}
+.whatif-hint{font-size:.78rem;color:#555;margin-top:10px;padding:9px 12px;background:rgba(10,155,67,.06);border-radius:10px;text-align:center;line-height:1.5;}
 
 /* Audit filter bar */
 .audit-filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
@@ -861,30 +863,43 @@ function showAgent(code) {
   if (!hasData) {
     summaryHTML += `<div class="notice">No PR13 data for ${projLabel()}<small>All policies are less than 1 year old — they will enter PR13 when they hit their 1-year anniversary.</small></div>`;
   } else {
+    const _zeroCount = result.rows.filter(r => r._cls === '0').length;
+    const _needed    = Math.max(0, 0.9 * eligACE - collACE);
+    const _avgZero   = _zeroCount > 0 ? zeroACE / _zeroCount : 0;
+    const _nRecover  = (_needed > 0 && _avgZero > 0) ? Math.ceil(_needed / _avgZero) : 0;
+    const _whatif    = _nRecover > 0
+      ? `<div class="whatif-hint">💡 Recover <strong>${_nRecover}</strong> client${_nRecover !== 1 ? 's' : ''} (avg RM&nbsp;${RA(_avgZero)} ACE) to reach 90%</div>`
+      : '';
     summaryHTML += `
       <div class="pr13-summary">
-        <div class="pr13-summary-title">PR13 Summary — ${projLabel()}</div>
-        <div class="pr13-summary-grid">
-          <div class="pr13-big">
-            <div class="pr13-big-lbl">Final PR13</div>
-            <div class="pr13-big-val">${pr13.toFixed(2)}%</div>
+        <div class="pr13-summary-title" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center" onclick="_spToggleSummary(this)">
+          <span>PR13 Summary — ${projLabel()}</span>
+          <span class="sum-arr">▼</span>
+        </div>
+        <div class="pr13-sum-body">
+          <div class="pr13-summary-grid">
+            <div class="pr13-big">
+              <div class="pr13-big-lbl">Final PR13</div>
+              <div class="pr13-big-val">${pr13.toFixed(2)}%</div>
+            </div>
+            <div class="pr13-summary-item">
+              <div class="pr13-summary-lbl">Total Eligible ACE</div>
+              <div class="pr13-summary-val">${RA(eligACE)}</div>
+            </div>
+            <div class="pr13-summary-item">
+              <div class="pr13-summary-lbl">Total Collected (100%)</div>
+              <div class="pr13-summary-val" style="color:#0a9b43">${RA(collACE)}</div>
+            </div>
+            <div class="pr13-summary-item">
+              <div class="pr13-summary-lbl">Total 0% ACE</div>
+              <div class="pr13-summary-val" style="color:#e53935">${RA(zeroACE)}</div>
+            </div>
+            <div class="pr13-summary-item">
+              <div class="pr13-summary-lbl">Total Excluded ACE</div>
+              <div class="pr13-summary-val" style="color:#aaa">${RA(exclACE)}</div>
+            </div>
           </div>
-          <div class="pr13-summary-item">
-            <div class="pr13-summary-lbl">Total Eligible ACE</div>
-            <div class="pr13-summary-val">${RA(eligACE)}</div>
-          </div>
-          <div class="pr13-summary-item">
-            <div class="pr13-summary-lbl">Total Collected (100%)</div>
-            <div class="pr13-summary-val" style="color:#0a9b43">${RA(collACE)}</div>
-          </div>
-          <div class="pr13-summary-item">
-            <div class="pr13-summary-lbl">Total 0% ACE</div>
-            <div class="pr13-summary-val" style="color:#e53935">${RA(zeroACE)}</div>
-          </div>
-          <div class="pr13-summary-item">
-            <div class="pr13-summary-lbl">Total Excluded ACE</div>
-            <div class="pr13-summary-val" style="color:#aaa">${RA(exclACE)}</div>
-          </div>
+          ${_whatif}
         </div>
       </div>
     `;
@@ -893,27 +908,32 @@ function showAgent(code) {
   if (hasCEData) {
     summaryHTML += `
       <div class="ce-summary">
-        <div class="ce-summary-title">CE Summary — ${projLabel()}</div>
-        <div class="ce-summary-grid">
-          <div class="ce-big">
-            <div class="ce-big-lbl">Final CE</div>
-            <div class="ce-big-val">${ce.toFixed(2)}%</div>
-          </div>
-          <div class="ce-summary-item">
-            <div class="ce-summary-lbl">Total Eligible ACE</div>
-            <div class="ce-summary-val">${RA(ceEligACE)}</div>
-          </div>
-          <div class="ce-summary-item">
-            <div class="ce-summary-lbl">Total Collected (100%)</div>
-            <div class="ce-summary-val" style="color:#1a73e8">${RA(ceCollACE)}</div>
-          </div>
-          <div class="ce-summary-item">
-            <div class="ce-summary-lbl">Total 0% ACE</div>
-            <div class="ce-summary-val" style="color:#e53935">${RA(ceZeroACE)}</div>
-          </div>
-          <div class="ce-summary-item">
-            <div class="ce-summary-lbl">CE Eligible</div>
-            <div class="ce-summary-val">${ceEligCount}</div>
+        <div class="ce-summary-title" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center" onclick="_spToggleSummary(this)">
+          <span>CE Summary — ${projLabel()}</span>
+          <span class="sum-arr" style="color:#1a73e8">▼</span>
+        </div>
+        <div class="ce-sum-body">
+          <div class="ce-summary-grid">
+            <div class="ce-big">
+              <div class="ce-big-lbl">Final CE</div>
+              <div class="ce-big-val">${ce.toFixed(2)}%</div>
+            </div>
+            <div class="ce-summary-item">
+              <div class="ce-summary-lbl">Total Eligible ACE</div>
+              <div class="ce-summary-val">${RA(ceEligACE)}</div>
+            </div>
+            <div class="ce-summary-item">
+              <div class="ce-summary-lbl">Total Collected (100%)</div>
+              <div class="ce-summary-val" style="color:#1a73e8">${RA(ceCollACE)}</div>
+            </div>
+            <div class="ce-summary-item">
+              <div class="ce-summary-lbl">Total 0% ACE</div>
+              <div class="ce-summary-val" style="color:#e53935">${RA(ceZeroACE)}</div>
+            </div>
+            <div class="ce-summary-item">
+              <div class="ce-summary-lbl">CE Eligible</div>
+              <div class="ce-summary-val">${ceEligCount}</div>
+            </div>
           </div>
         </div>
       </div>`;
@@ -1012,7 +1032,7 @@ function renderAuditTable() {
     return `
       <tr class="${isDim ? 'excl-row' : isCECCPast ? 'ce-cc-warn' : ''}" style="${c._watch ? 'background:rgba(199,119,0,.07);' : c.status === 'Lapsed' ? 'background:rgba(229,57,53,.05);' : ''}" data-name="${(c.name||'').toLowerCase().replace(/"/g,'')}" data-cert="${(c.certNo||'').toLowerCase()}" data-cls="${dispCls}" data-status="${c.status||''}" data-duekey="${dueDateKey}">
         <td style="color:#aaa;white-space:nowrap">${cbHtml}${i + 1}</td>
-        <td><strong>${c.name || '—'}</strong>${c._watch ? '<br><span style="font-size:.68rem;font-weight:800;color:#c77700;background:rgba(199,119,0,.12);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ Due this month</span>' : ''}${isCECCPast ? '<br><span style="font-size:.68rem;font-weight:800;color:#e65100;background:rgba(255,193,7,.22);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ CC payment overdue — update</span>' : ''}<br><span style="font-size:.73rem;color:#aaa">${c.certNo || ''}</span></td>
+        <td><strong>${c.name || '—'}</strong>${c._watch ? '<br><span style="font-size:.68rem;font-weight:800;color:#c77700;background:rgba(199,119,0,.12);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ Due this month</span>' : ''}${isCECCPast ? '<br><span style="font-size:.68rem;font-weight:800;color:#e65100;background:rgba(255,193,7,.22);padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px">⚠️ CC payment overdue — update</span>' : ''}<br><span style="font-size:.73rem;color:#aaa;cursor:pointer" data-v="${c.certNo||''}" onclick="_copyText(this.dataset.v,this)" title="Copy">${c.certNo || ''}</span></td>
         <td>${c.issueDate || '—'}</td>
         <td>${c.dueDate || '—'}</td>
         <td>${c.payMode || '—'}</td>
@@ -1387,6 +1407,21 @@ function _mpMatchFilter(c) {
   if (_mpFilter === 'inforce') return c.status === 'In Force';
   if (_mpFilter === 'lapsed')  return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
   return true;
+}
+function _spToggleSummary(titleEl) {
+  const body = titleEl.nextElementSibling;
+  const arrow = titleEl.querySelector('.sum-arr');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : '';
+  if (arrow) arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+function _copyText(txt, el) {
+  navigator.clipboard.writeText(txt).then(() => {
+    const orig = el.textContent;
+    el.textContent = '✓';
+    el.style.color = '#0a9b43';
+    setTimeout(() => { el.textContent = orig; el.style.color = ''; }, 1200);
+  });
 }
 function _spToggle(bodyId, arrowId) {
   const b = document.getElementById(bodyId);
