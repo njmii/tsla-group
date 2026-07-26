@@ -1829,7 +1829,7 @@ function _renderMpCards() {
     const thisMonth = clients.filter(c => c._monthsOverdue === 0).length;
 
     html += `<div class="sp-agent-card">
-      <div class="sp-agent-header" onclick="_spToggle('${bodyId}','${arrowId}')">`
+      <div class="sp-agent-header" onclick="_spToggle('${bodyId}','${arrowId}')">
         <div>
           <div class="sp-agent-name">${shortName}</div>
           <div class="sp-agent-subline">${ag.code} · ${clients.length} kes</div>
