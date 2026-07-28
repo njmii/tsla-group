@@ -235,6 +235,9 @@ const GROUPS = {
 const MTD_TARGET = 10000;
 const X13 = new Set(['FWD Life First','FWD Protect First','FWD Income First']);
 const FX12 = new Set(['AN443318','AN457372']);
+const EXCLUDE_AGENTS = new Set(['A15741']);
+const NO_COMMISSION  = new Set(['A11668']);
+const COMM_RATE = 0.32 / 12;
 
 /* ── State ───────────────────────────── */
 let DATA = null, CUR = null, PU = 'P', VY, VM;
@@ -453,7 +456,7 @@ function switchTab(t) {
 function renderHome() {
   if (!DATA) return;
 
-  const agCards = DATA.agents.map(ag=>{
+  const agCards = DATA.agents.filter(ag=>!EXCLUDE_AGENTS.has(ag.code)).map(ag=>{
     const cl = ag.clients||[];
     const m = mtdClients(cl).reduce((s,c)=>s+ace(c),0);
     const pct = Math.min(100, m/MTD_TARGET*100);
@@ -501,7 +504,7 @@ function renderDash(code) {
   else {bc.textContent='No data';bc.style.color='#666';bc.style.background='#3d3d3d';}
 
   try{renderContest(code);}catch(e){console.error('contest',e);}
-  try{renderMTD(clients);}catch(e){console.error('mtd',e);}
+  try{renderMTD(clients,code);}catch(e){console.error('mtd',e);}
   try{renderCE(r13,rCE);}catch(e){console.error('ce',e);}
   try{renderBSC(r13,r25,ka,kb,bsc,bd);}catch(e){console.error('bsc',e);}
   try{renderMP(clients);}catch(e){console.error('mp',e);document.getElementById('mpCard').innerHTML='<div class="card"><div class="card-hdr hdr-red">💸 Koleksi Manual</div><div class="card-body"><div class="empty-msg">Ralat memuatkan data.</div></div></div>';}
@@ -510,13 +513,15 @@ function renderDash(code) {
 }
 
 /* ── MTD Card ────────────────────────── */
-function renderMTD(clients) {
+function renderMTD(clients, agCode) {
   const mtdC=mtdClients(clients);
   const mtd=mtdC.reduce((s,c)=>s+ace(c),0);
   const ytd=ytdClients(clients).reduce((s,c)=>s+ace(c),0);
   const pct=Math.min(100,mtd/MTD_TARGET*100);
   const sf=MTD_TARGET-mtd;
   const bc=pct>=100?'#27ae60':pct>=60?'#f0a500':'#e53935';
+  const showComm=!NO_COMMISSION.has(agCode);
+  const mtdComm=mtd*COMM_RATE, ytdComm=ytd*COMM_RATE;
 
   const rows=mtdC.slice(0,5).map(c=>`
     <div class="mp-item">
@@ -536,11 +541,13 @@ function renderMTD(clients) {
             <div class="st-lbl">MTD ACE</div>
             <div class="big-num" style="color:${bc}">${RA(mtd)}</div>
             <div class="st-sub">Target: ${RA(MTD_TARGET)}</div>
+            ${showComm&&mtd>0?`<div style="font-size:.67rem;color:#f0a500;font-weight:800;margin-top:4px">Komisen MTD: ${RM(mtdComm)}</div>`:''}
           </div>
           <div style="text-align:right">
             <div class="st-lbl">YTD ${VY}</div>
             <div style="font-size:1.2rem;font-weight:900;color:#bbb">${RA(ytd)}</div>
             <div class="st-sub">${mtdC.length} kes</div>
+            ${showComm&&ytd>0?`<div style="font-size:.67rem;color:#aaa;font-weight:700;margin-top:4px">Komisen YTD: ${RM(ytdComm)}</div>`:''}
           </div>
         </div>
         <div class="prog-wrap"><div class="prog-bar" style="width:${pct.toFixed(1)}%;background:${bc}"></div></div>
