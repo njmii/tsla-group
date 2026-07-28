@@ -183,6 +183,21 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
 .sp-cl-right{text-align:right;flex-shrink:0}
 .sp-contrib2{font-weight:800;font-size:.77rem;color:#444}
 .sp-tag2{font-size:.6rem;font-weight:800;border-radius:7px;padding:2px 6px}
+/* Activity tab */
+.act-link-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#1565c0,#1e88e5);color:white;border:none;border-radius:14px;padding:13px 18px;font-size:.85rem;font-weight:800;cursor:pointer;width:100%;margin-bottom:14px;font-family:inherit;text-decoration:none;justify-content:center}
+.act-link-btn:active{opacity:.85}
+.act-inp-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.act-inp-grp label{display:block;font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:5px}
+.act-num-inp{width:100%;border:2px solid #eee;border-radius:12px;padding:11px;font-size:1.3rem;font-weight:900;text-align:center;outline:none;background:white;color:#111;transition:.15s;font-family:inherit}
+.act-num-inp:focus{border-color:#ff7a00}
+.act-submit-btn{width:100%;background:#ff7a00;color:white;border:none;border-radius:12px;padding:12px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:inherit}
+.act-submit-btn:active{opacity:.85}
+.act-hist-row{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:11px;margin-bottom:5px;background:#f7f8fa}
+.act-hist-date{font-size:.75rem;font-weight:700;color:#555}
+.act-hist-nums{display:flex;gap:10px}
+.act-num-chip{font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:8px}
+.act-present{background:rgba(26,115,232,.12);color:#1a73e8}
+.act-close{background:rgba(39,174,96,.12);color:#27ae60}
 </style>
 </head>
 <body>
@@ -239,6 +254,7 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
           <button id="tabOv" class="tab-btn on" onclick="switchTab('ov')">📊 Overview</button>
           <button id="tabMp" class="tab-btn" onclick="switchTab('mp')">💸 Manual</button>
           <button id="tabPr" class="tab-btn" onclick="switchTab('pr')">📋 PR13</button>
+          <button id="tabAct" class="tab-btn" onclick="switchTab('act')">📅 Aktiviti</button>
         </div>
 
         <div id="paneOv">
@@ -249,6 +265,9 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
         </div>
         <div id="paneMp" style="display:none">
           <div id="mpCard"></div>
+        </div>
+        <div id="paneActivity" style="display:none">
+          <div id="actContent"><div class="loading">Memuatkan aktiviti…</div></div>
         </div>
         <div id="panePr" style="display:none">
           <div id="prSummary"></div>
@@ -314,11 +333,14 @@ const FX12 = new Set(['AN443318','AN457372']);
 const EXCLUDE_AGENTS = new Set(['A15741']);
 const NO_COMMISSION  = new Set(['A11668']);
 const COMM_RATE = 0.32 / 12;
+const ACTIVITY_CODE_MAP = { 'A14252': 'TSLA_ROZA' };
+function actCode(prCode) { return ACTIVITY_CODE_MAP[prCode] || prCode; }
 
 /* ── State ───────────────────────────── */
 let DATA = null, CUR = null, PU = 'P', VY, VM;
 let _PR_POOL='PR13', _PR_ROWS=[], _PR_R13=null, _PR_CE=null;
 let _MP_CLIENTS=[], _MP_FILTER='all';
+let _ACT_UNSUB=null, _FB_DB=null;
 
 /* ── Date init ───────────────────────── */
 function initDate() {
@@ -508,6 +530,7 @@ if (sessionStorage.getItem('212_ok')==='1') {
 
 /* ── Navigation ──────────────────────── */
 function showHome() {
+  if(_ACT_UNSUB){_ACT_UNSUB();_ACT_UNSUB=null;}
   CUR=null;
   document.getElementById('viewHome').style.display='';
   document.getElementById('viewDash').style.display='none';
@@ -525,9 +548,12 @@ function switchTab(t) {
   document.getElementById('paneOv').style.display=t==='ov'?'':'none';
   document.getElementById('paneMp').style.display=t==='mp'?'':'none';
   document.getElementById('panePr').style.display=t==='pr'?'':'none';
+  document.getElementById('paneActivity').style.display=t==='act'?'':'none';
   document.getElementById('tabOv').classList.toggle('on',t==='ov');
   document.getElementById('tabMp').classList.toggle('on',t==='mp');
   document.getElementById('tabPr').classList.toggle('on',t==='pr');
+  document.getElementById('tabAct').classList.toggle('on',t==='act');
+  if(t==='act') loadActivity(CUR);
 }
 
 /* ── Home — agent selection list ─────── */
@@ -563,6 +589,7 @@ function renderHome() {
 
 /* ── Agent Dashboard ─────────────────── */
 function renderDash(code) {
+  if(_ACT_UNSUB){_ACT_UNSUB();_ACT_UNSUB=null;}
   const ag = DATA.agents.find(a=>a.code===code);
   if (!ag) return;
   const clients = agClients(code);
@@ -1105,6 +1132,159 @@ function renderPR(r13,rCE,r25){
   _212_renderPoolTabs();
   _212_renderAuditTable();
 }
+
+/* ── Activity Tab ──────────────────────────────────────────────── */
+function _initFirebase() {
+  if (_FB_DB) return _FB_DB;
+  if (!window.firebase) return null;
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey:      'AIzaSyAyLIIH1zmeoBqH1DuT3wbSxmQlRcDJ_P4',
+        authDomain:  'tsla-group.firebaseapp.com',
+        databaseURL: 'https://tsla-group-default-rtdb.asia-southeast1.firebasedatabase.app',
+        projectId:   'tsla-group',
+      });
+    }
+    _FB_DB = firebase.database();
+    return _FB_DB;
+  } catch(e) { return null; }
+}
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function _actDateLabel(d) {
+  const [y,m,dd] = d.split('-').map(Number);
+  const dt = new Date(y, m-1, dd);
+  try { return dt.toLocaleDateString('ms-MY', {weekday:'short',day:'numeric',month:'short'}); }
+  catch(e) { return d; }
+}
+
+function loadActivity(prCode) {
+  const el = document.getElementById('actContent');
+  if (!el) return;
+  if (_ACT_UNSUB) { _ACT_UNSUB(); _ACT_UNSUB = null; }
+
+  const db = _initFirebase();
+  if (!db) {
+    el.innerHTML = `<div class="empty-msg">Firebase tidak tersedia. Semak sambungan internet.<br><br>
+      <a href="activity-tracker.html" target="_blank" class="act-link-btn" style="margin:0 auto;max-width:300px">
+        🔗 Buka Papan Aktiviti Penuh
+      </a></div>`;
+    return;
+  }
+
+  const code = actCode(prCode);
+  const today = todayStr();
+  // Build list of last 14 days (descending)
+  const dates = [];
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    dates.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  }
+
+  el.innerHTML = '<div class="loading">Memuatkan aktiviti…</div>';
+
+  const ref = db.ref('activity');
+  const listener = ref.on('value', snap => {
+    const all = snap.val() || {};
+    _renderActivityPane(el, code, prCode, all, dates, today);
+  }, () => {
+    el.innerHTML = '<div class="empty-msg">Gagal memuatkan aktiviti Firebase.</div>';
+  });
+  _ACT_UNSUB = () => ref.off('value', listener);
+}
+
+function _renderActivityPane(el, code, prCode, allData, dates, today) {
+  const todayData = (allData[today] && allData[today][code]) || {};
+  const present = todayData.present || 0;
+  const close   = todayData.close   || 0;
+  const ag = DATA ? DATA.agents.find(a=>a.code===prCode) : null;
+  const agName = ag ? ag.name : code;
+
+  const todayHtml = `
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hdr hdr-teal">📅 Aktiviti Hari Ini — ${today}</div>
+      <div class="card-body">
+        <a href="activity-tracker.html" target="_blank" class="act-link-btn">
+          🔗 Papan Aktiviti Penuh — Semua Agen
+        </a>
+        <div style="display:flex;gap:20px;margin-bottom:14px;text-align:center">
+          <div style="flex:1">
+            <div class="st-lbl">Presentasi</div>
+            <div style="font-size:2.4rem;font-weight:900;letter-spacing:-.04em;color:#1a73e8;line-height:1">${present}</div>
+          </div>
+          <div style="width:1px;background:#eee"></div>
+          <div style="flex:1">
+            <div class="st-lbl">Close</div>
+            <div style="font-size:2.4rem;font-weight:900;letter-spacing:-.04em;color:#27ae60;line-height:1">${close}</div>
+          </div>
+        </div>
+        <div class="act-inp-wrap">
+          <div class="act-inp-grp">
+            <label>Presentasi</label>
+            <input id="actPresentInp" type="number" class="act-num-inp" min="0" value="${present}" placeholder="0">
+          </div>
+          <div class="act-inp-grp">
+            <label>Close</label>
+            <input id="actCloseInp" type="number" class="act-num-inp" min="0" value="${close}" placeholder="0">
+          </div>
+        </div>
+        <button class="act-submit-btn" onclick="submitActivity()">💾 Simpan Aktiviti Hari Ini</button>
+        <div id="actMsg" style="font-size:.72rem;text-align:center;margin-top:8px;color:#27ae60;min-height:18px"></div>
+      </div>
+    </div>`;
+
+  const histRows = dates.filter(d => d !== today).map(d => {
+    const dayData = (allData[d] && allData[d][code]) || {};
+    const p  = dayData.present || 0;
+    const cl = dayData.close   || 0;
+    if (p === 0 && cl === 0) return null;
+    return `<div class="act-hist-row">
+      <div class="act-hist-date">${_actDateLabel(d)}</div>
+      <div class="act-hist-nums">
+        <span class="act-num-chip act-present">📊 ${p}</span>
+        <span class="act-num-chip act-close">✓ ${cl}</span>
+      </div>
+    </div>`;
+  }).filter(Boolean);
+
+  const histHtml = histRows.length > 0 ? `
+    <div class="card">
+      <div class="card-hdr hdr-slate">📈 Rekod 14 Hari Lalu — ${SN(agName)}</div>
+      <div class="card-body">${histRows.join('')}</div>
+    </div>` : `<div class="empty-msg" style="padding:16px">Tiada rekod dalam 14 hari lalu.</div>`;
+
+  el.innerHTML = todayHtml + histHtml;
+}
+
+function submitActivity() {
+  const presentVal = Math.max(0, parseInt(document.getElementById('actPresentInp')?.value || '0') || 0);
+  const closeVal   = Math.max(0, parseInt(document.getElementById('actCloseInp')?.value   || '0') || 0);
+  const db = _initFirebase();
+  if (!db || !CUR) return;
+  const code = actCode(CUR);
+  const ag   = DATA ? DATA.agents.find(a=>a.code===CUR) : null;
+  const agName = ag ? ag.name : code;
+  const today  = todayStr();
+  const msgEl  = document.getElementById('actMsg');
+  if (msgEl) { msgEl.style.color='#555'; msgEl.textContent='Menyimpan…'; }
+  db.ref(`activity/${today}/${code}`).set({
+    present:   presentVal,
+    close:     closeVal,
+    name:      agName,
+    updatedAt: new Date().toISOString(),
+  }).then(() => {
+    if (msgEl) { msgEl.style.color='#27ae60'; msgEl.textContent='✓ Tersimpan!'; setTimeout(()=>{if(msgEl)msgEl.textContent='';},2500); }
+  }).catch(() => {
+    if (msgEl) { msgEl.style.color='#e53935'; msgEl.textContent='Ralat menyimpan. Cuba lagi.'; }
+  });
+}
 </script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </body>
 </html>
