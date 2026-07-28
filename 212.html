@@ -945,22 +945,17 @@ const CONTEST_TARGET = 50000;
 function renderContest(agCode, grp) {
   const start=new Date(CONTEST_START), end=new Date(CONTEST_END), now=new Date();
   const totalDays=Math.round((end-start)/86400000);
-  const elapsed=Math.min(Math.max(Math.round((now-start)/86400000),0),totalDays);
   const daysLeft=Math.max(0,Math.round((end-now)/86400000));
-  const timePct=totalDays>0?elapsed/totalDays*100:0;
+  const timePct=totalDays>0?Math.min(100,Math.round((now-start)/86400000)/totalDays*100):0;
 
-  // Group total (all agents, contest window)
-  const allCl=DATA.agents.flatMap(a=>a.clients||[]);
-  const grpCl=allCl.filter(c=>c.issueDate>=CONTEST_START&&c.issueDate<=CONTEST_END);
-  const grpACE=grpCl.reduce((s,c)=>s+ace(c),0);
+  // Contest is personal production — always use the agent's own clients, never group
+  const agObj = DATA.agents.find(a=>a.code===agCode);
+  const myCl  = (agObj?agObj.clients||[]).filter(c=>c.issueDate>=CONTEST_START&&c.issueDate<=CONTEST_END);
+  const myACE = myCl.reduce((s,c)=>s+ace(c),0);
 
-  // This agent's contribution
-  const myCl=agClients(agCode).filter(c=>c.issueDate>=CONTEST_START&&c.issueDate<=CONTEST_END);
-  const myACE=myCl.reduce((s,c)=>s+ace(c),0);
-
-  const pct=Math.min(100,grpACE/CONTEST_TARGET*100);
-  const barC=pct>=80?'#27ae60':pct>=50?'#f0a500':'#e53935';
-  const shortfall=Math.max(0,CONTEST_TARGET-grpACE);
+  const pct      = Math.min(100, myACE/CONTEST_TARGET*100);
+  const barC     = pct>=80?'#27ae60':pct>=50?'#f0a500':'#e53935';
+  const shortfall= Math.max(0, CONTEST_TARGET-myACE);
 
   document.getElementById('contestCard').innerHTML=`
     <div class="card" style="margin-bottom:12px">
@@ -968,21 +963,21 @@ function renderContest(agCode, grp) {
       <div class="card-body">
         <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
           <div>
-            <div class="st-lbl">TSLA Group ACE</div>
-            <div class="big-num" style="color:${barC}">${RA(grpACE)}</div>
-            <div class="st-sub">Target: ${RA(CONTEST_TARGET)}${shortfall>0?' · Shortfall: '+RA(shortfall):' ✓ Achieved!'}</div>
+            <div class="st-lbl">Pengeluaran Peribadi</div>
+            <div class="big-num" style="color:${barC}">${RA(myACE)}</div>
+            <div class="st-sub">Target peribadi: ${RA(CONTEST_TARGET)}${shortfall>0?' · Shortfall: '+RA(shortfall):' ✓ Achieved!'}</div>
           </div>
           <div style="text-align:right">
-            <div class="st-lbl">${grp?'Sumbangan '+grp.name:'Sumbangan Saya'}</div>
-            <div style="font-size:1.15rem;font-weight:900;color:#f0a500">${RA(myACE)}</div>
-            <div class="st-sub">${myCl.length} kes · ${daysLeft} hari lagi</div>
+            <div class="st-lbl">Kes Contest</div>
+            <div style="font-size:1.15rem;font-weight:900;color:#f0a500">${myCl.length} kes</div>
+            <div class="st-sub">${daysLeft} hari lagi</div>
           </div>
         </div>
         <div class="prog-wrap">
           <div class="prog-bar" style="width:${pct.toFixed(1)}%;background:${barC}"></div>
         </div>
         <div class="pct-row">
-          <span>${pct.toFixed(1)}% daripada target</span>
+          <span>${pct.toFixed(1)}% daripada target peribadi (${RA(CONTEST_TARGET)})</span>
           <span>Masa: ${timePct.toFixed(0)}% berlalu</span>
         </div>
       </div>
