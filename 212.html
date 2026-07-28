@@ -186,15 +186,62 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
 /* Activity tab */
 .act-link-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#1565c0,#1e88e5);color:white;border:none;border-radius:14px;padding:13px 18px;font-size:.85rem;font-weight:800;cursor:pointer;width:100%;margin-bottom:14px;font-family:inherit;text-decoration:none;justify-content:center}
 .act-link-btn:active{opacity:.85}
-.act-inp-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.act-inp-grp label{display:block;font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:5px}
-.act-num-inp{width:100%;border:2px solid #eee;border-radius:12px;padding:11px;font-size:1.3rem;font-weight:900;text-align:center;outline:none;background:white;color:#111;transition:.15s;font-family:inherit}
-.act-num-inp:focus{border-color:#ff7a00}
-.act-submit-btn{width:100%;background:#ff7a00;color:white;border:none;border-radius:12px;padding:12px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:inherit}
-.act-submit-btn:active{opacity:.85}
-.act-hist-row{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:11px;margin-bottom:5px;background:#f7f8fa}
-.act-hist-date{font-size:.75rem;font-weight:700;color:#555}
-.act-hist-nums{display:flex;gap:10px}
+.act-date-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px}
+.act-date-nav-btn{background:white;border:2px solid #eee;border-radius:12px;width:38px;height:38px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
+.act-date-nav-btn:hover{border-color:#ff7a00;color:#ff7a00}
+.act-date-nav-btn:disabled{opacity:.3;cursor:default}
+.act-date-label{font-weight:800;font-size:.97rem;min-width:120px;text-align:center;line-height:1.3}
+.act-date-sub{font-size:.72rem;color:#aaa;font-weight:600;text-align:center}
+.act-metrics-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.act-metric-box{background:#f7f8fa;border:2px solid #eee;border-radius:18px;padding:16px;text-align:center;transition:.15s}
+.act-metric-box:focus-within{border-color:#ff7a00;background:white}
+.act-metric-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px}
+.act-metric-lbl-present{color:#1a73e8}
+.act-metric-lbl-close{color:#0a9b43}
+.act-metric-input{width:100%;border:none;background:transparent;text-align:center;font-size:2.6rem;font-weight:900;color:#111;outline:none;line-height:1;font-family:inherit}
+.act-metric-input::placeholder{color:#e0e0e0}
+.act-metric-sub{font-size:.7rem;color:#aaa;margin-top:5px}
+.act-submit-btn2{width:100%;background:#ff7a00;color:white;border:none;border-radius:16px;padding:15px;font-size:1rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s}
+.act-submit-btn2:active{transform:scale(.98)}
+.act-submit-btn2:disabled{opacity:.5;cursor:default}
+.act-stab-row{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid #f0f0f0}
+.act-stab{padding:6px 16px;border:none;border-radius:10px;font-size:.78rem;font-weight:800;cursor:pointer;font-family:inherit;background:#f0f0f0;color:#888;transition:.15s}
+.act-stab.active{background:#111;color:white}
+.act-totals-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 0;margin-bottom:10px}
+.act-total-box{background:#f7f8fa;border-radius:14px;padding:14px 16px;text-align:center}
+.act-total-lbl{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.act-total-lbl.present{color:#1a73e8}
+.act-total-lbl.close{color:#0a9b43}
+.act-total-val{font-size:2.2rem;font-weight:900}
+.act-total-val.present{color:#1a73e8}
+.act-total-val.close{color:#0a9b43}
+.act-amod-derived{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.act-amod-d-box{background:#f7f8fa;border-radius:14px;padding:12px 14px}
+.act-amod-d-lbl{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin-bottom:5px}
+.act-amod-d-val{font-size:1.4rem;font-weight:900;color:#111}
+.act-amod-progress{background:#f7f8fa;border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.act-amod-prog-lbl{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin-bottom:8px}
+.act-amod-prog-bar-wrap{background:#e8e8e8;border-radius:8px;height:8px;overflow:hidden;margin-bottom:6px}
+.act-amod-prog-bar{height:8px;border-radius:8px;background:#ff7a00;transition:width .4s}
+.act-amod-prog-note{font-size:.75rem;color:#888;font-weight:600}
+.act-amod-alert{background:rgba(229,57,53,.07);border:1.5px solid rgba(229,57,53,.25);border-radius:14px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;margin-top:10px}
+.act-amod-alert-title{font-weight:800;font-size:.88rem;color:#c62828;margin-bottom:2px}
+.act-amod-alert-sub{font-size:.76rem;color:#888;line-height:1.4}
+.act-amod-good{background:rgba(10,155,67,.07);border:1.5px solid rgba(10,155,67,.25);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-top:10px}
+.act-amod-good-text{font-weight:700;font-size:.86rem;color:#0a6b2e}
+.act-mo-table{width:100%;border-collapse:collapse}
+.act-mo-table th{padding:8px 16px;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#bbb;text-align:left;border-bottom:2px solid #f0f0f0}
+.act-mo-table th.num{text-align:center}
+.act-mo-table td{padding:12px 16px;border-bottom:1px solid #f7f8fa;vertical-align:middle}
+.act-mo-table td.num{text-align:center;font-variant-numeric:tabular-nums}
+.act-mo-table tr:last-child td{border-bottom:none}
+.act-mo-table tr{cursor:pointer}
+.act-mo-table tr:hover td{background:#fafafa}
+.act-hist-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f7f8fa;cursor:pointer}
+.act-hist-row:last-child{border-bottom:none}
+.act-hist-row:hover{background:#fafafa}
+.act-hist-date{font-size:.82rem;font-weight:700;color:#555}
+.act-hist-nums{display:flex;gap:8px}
 .act-num-chip{font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:8px}
 .act-present{background:rgba(26,115,232,.12);color:#1a73e8}
 .act-close{background:rgba(39,174,96,.12);color:#27ae60}
@@ -354,7 +401,7 @@ function actCode(prCode) { return ACTIVITY_CODE_MAP[prCode] || prCode; }
 let DATA = null, CUR = null, PU = 'P', VY, VM;
 let _PR_POOL='PR13', _PR_ROWS=[], _PR_R13=null, _PR_CE=null;
 let _MP_CLIENTS=[], _MP_FILTER='all';
-let _ACT_UNSUB=null, _FB_DB=null;
+let _ACT_UNSUB=null, _FB_DB=null, _ACT_ALL_DATA={}, _ACT_VIEW_DATE=null, _ACT_TAB_ACT='daily', _ACT_LAST_PR_CODE=null;
 
 /* ── Date init ───────────────────────── */
 function initDate() {
@@ -1178,11 +1225,13 @@ function todayStr() {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-function _actDateLabel(d) {
-  const [y,m,dd] = d.split('-').map(Number);
-  const dt = new Date(y, m-1, dd);
-  try { return dt.toLocaleDateString('ms-MY', {weekday:'short',day:'numeric',month:'short'}); }
-  catch(e) { return d; }
+function _actFmtDate(str) {
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('en-MY', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function _actFmtDateShort(str) {
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('en-MY', {day:'numeric',month:'short',year:'numeric'});
 }
 
 function loadActivity(prCode) {
@@ -1190,119 +1239,305 @@ function loadActivity(prCode) {
   if (!el) return;
   if (_ACT_UNSUB) { _ACT_UNSUB(); _ACT_UNSUB = null; }
 
-  const db = _initFirebase();
-  if (!db) {
-    el.innerHTML = `<div class="empty-msg">Firebase tidak tersedia. Semak sambungan internet.<br><br>
-      <a href="activity-tracker.html" target="_blank" class="act-link-btn" style="margin:0 auto;max-width:300px">
-        🔗 Buka Papan Aktiviti Penuh
-      </a></div>`;
-    return;
+  if (prCode !== _ACT_LAST_PR_CODE) {
+    _ACT_VIEW_DATE = todayStr();
+    _ACT_TAB_ACT = 'daily';
+    _ACT_LAST_PR_CODE = prCode;
   }
 
   const code = actCode(prCode);
-  const today = todayStr();
-  // Build list of last 14 days (descending)
-  const dates = [];
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    dates.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  const ag = DATA ? DATA.agents.find(a=>a.code===prCode) : null;
+  const agName = ag ? ag.name : code;
+
+  const db = _initFirebase();
+  if (!db) {
+    el.innerHTML = `<div class="empty-msg" style="padding:16px">Firebase tidak tersedia.<br><br>
+      <a href="activity-tracker.html" target="_blank" class="act-link-btn">🔗 Buka Papan Aktiviti Penuh</a></div>`;
+    return;
   }
 
-  el.innerHTML = '<div class="loading">Memuatkan aktiviti…</div>';
+  el.innerHTML = `
+    <div class="act-date-nav">
+      <button class="act-date-nav-btn" onclick="_actShift(-1)">‹</button>
+      <div>
+        <div class="act-date-label" id="actDateLabel"></div>
+        <div class="act-date-sub" id="actDateSub"></div>
+      </div>
+      <button class="act-date-nav-btn" id="actNextBtn" onclick="_actShift(1)">›</button>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hdr hdr-teal">✍️ Log Aktiviti — ${SN(agName)}</div>
+      <div class="card-body">
+        <div class="act-metrics-row">
+          <div class="act-metric-box">
+            <div class="act-metric-lbl act-metric-lbl-present">Aktiviti</div>
+            <input class="act-metric-input" id="actPresentInp" type="number" min="0" max="99" placeholder="0" inputmode="numeric"/>
+            <div class="act-metric-sub">presentations</div>
+          </div>
+          <div class="act-metric-box">
+            <div class="act-metric-lbl act-metric-lbl-close">Close</div>
+            <input class="act-metric-input" id="actCloseInp" type="number" min="0" max="99" placeholder="0" inputmode="numeric"/>
+            <div class="act-metric-sub">policies sold</div>
+          </div>
+        </div>
+        <button class="act-submit-btn2" id="actSubmitBtn" onclick="submitActivity()">Update Aktiviti</button>
+        <div id="actMsg" style="font-size:.72rem;text-align:center;margin-top:8px;color:#27ae60;min-height:18px"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:12px;overflow:hidden">
+      <div class="act-stab-row">
+        <button class="act-stab active" id="actStabDaily" onclick="_actSetTab('daily')">Daily</button>
+        <button class="act-stab" id="actStabMonthly" onclick="_actSetTab('monthly')">Monthly</button>
+      </div>
+      <div id="actSummaryBody"><div class="loading" style="padding:16px">Memuatkan…</div></div>
+    </div>
+    <div class="card" id="actHistoryCard" style="display:none;margin-bottom:12px;overflow:hidden">
+      <div class="card-hdr hdr-slate">📅 Rekod Terbaru</div>
+      <div id="actHistoryBody"></div>
+    </div>
+    <a href="activity-tracker.html" target="_blank" class="act-link-btn">🔗 Papan Aktiviti Penuh — Semua Agen</a>`;
 
-  const ref = db.ref('activity');
+  _actUpdateDateNav();
+
+  const ref = _FB_DB.ref('activity');
   const listener = ref.on('value', snap => {
-    const all = snap.val() || {};
-    _renderActivityPane(el, code, prCode, all, dates, today);
+    _ACT_ALL_DATA = snap.val() || {};
+    _actPopulateInputs(code);
+    _actRenderView(code, agName);
+    _actRenderHistory(code);
   }, () => {
-    el.innerHTML = '<div class="empty-msg">Gagal memuatkan aktiviti Firebase.</div>';
+    const body = document.getElementById('actSummaryBody');
+    if (body) body.innerHTML = '<div class="empty-msg" style="padding:16px">Gagal memuatkan aktiviti.</div>';
   });
   _ACT_UNSUB = () => ref.off('value', listener);
 }
 
-function _renderActivityPane(el, code, prCode, allData, dates, today) {
-  const todayData = (allData[today] && allData[today][code]) || {};
-  const present = todayData.present || 0;
-  const close   = todayData.close   || 0;
-  const ag = DATA ? DATA.agents.find(a=>a.code===prCode) : null;
-  const agName = ag ? ag.name : code;
+function _actUpdateDateNav() {
+  const today = todayStr();
+  const vd  = _ACT_VIEW_DATE || today;
+  const ym  = vd.slice(0,7);
+  const todayYm = today.slice(0,7);
+  const lbl  = document.getElementById('actDateLabel');
+  const sub  = document.getElementById('actDateSub');
+  const next = document.getElementById('actNextBtn');
+  if (!lbl) return;
+  if (_ACT_TAB_ACT === 'monthly') {
+    const mLabel = new Date(ym + '-01T00:00:00').toLocaleString('en-MY', {month:'long',year:'numeric'});
+    lbl.textContent = mLabel;
+    sub.textContent = '';
+    if (next) next.disabled = ym >= todayYm;
+  } else {
+    const parts = _actFmtDate(vd).split(', ');
+    lbl.textContent = vd === today ? 'Today' : (parts[0] || _actFmtDate(vd));
+    sub.textContent = vd === today ? _actFmtDateShort(vd) : (parts.slice(1).join(', ') || '');
+    if (next) next.disabled = vd >= today;
+  }
+}
 
-  const todayHtml = `
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-hdr hdr-teal">📅 Aktiviti Hari Ini — ${today}</div>
-      <div class="card-body">
-        <a href="activity-tracker.html" target="_blank" class="act-link-btn">
-          🔗 Papan Aktiviti Penuh — Semua Agen
-        </a>
-        <div style="display:flex;gap:20px;margin-bottom:14px;text-align:center">
-          <div style="flex:1">
-            <div class="st-lbl">Presentasi</div>
-            <div style="font-size:2.4rem;font-weight:900;letter-spacing:-.04em;color:#1a73e8;line-height:1">${present}</div>
-          </div>
-          <div style="width:1px;background:#eee"></div>
-          <div style="flex:1">
-            <div class="st-lbl">Close</div>
-            <div style="font-size:2.4rem;font-weight:900;letter-spacing:-.04em;color:#27ae60;line-height:1">${close}</div>
-          </div>
-        </div>
-        <div class="act-inp-wrap">
-          <div class="act-inp-grp">
-            <label>Presentasi</label>
-            <input id="actPresentInp" type="number" class="act-num-inp" min="0" value="${present}" placeholder="0">
-          </div>
-          <div class="act-inp-grp">
-            <label>Close</label>
-            <input id="actCloseInp" type="number" class="act-num-inp" min="0" value="${close}" placeholder="0">
-          </div>
-        </div>
-        <button class="act-submit-btn" onclick="submitActivity()">💾 Simpan Aktiviti Hari Ini</button>
-        <div id="actMsg" style="font-size:.72rem;text-align:center;margin-top:8px;color:#27ae60;min-height:18px"></div>
-      </div>
-    </div>`;
+function _actShift(delta) {
+  const today = todayStr();
+  if (_ACT_TAB_ACT === 'monthly') {
+    const ym = (_ACT_VIEW_DATE||today).slice(0,7);
+    const [y2,m2] = ym.split('-').map(Number);
+    const dt = new Date(y2, m2-1+delta, 1);
+    _ACT_VIEW_DATE = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-01`;
+  } else {
+    const [y,m,d] = (_ACT_VIEW_DATE||today).split('-').map(Number);
+    const dt = new Date(y,m-1,d+delta);
+    _ACT_VIEW_DATE = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+  }
+  const code = actCode(CUR);
+  const ag = DATA ? DATA.agents.find(a=>a.code===CUR) : null;
+  _actUpdateDateNav();
+  _actPopulateInputs(code);
+  _actRenderView(code, ag ? ag.name : code);
+}
 
-  const histRows = dates.filter(d => d !== today).map(d => {
-    const dayData = (allData[d] && allData[d][code]) || {};
-    const p  = dayData.present || 0;
-    const cl = dayData.close   || 0;
-    if (p === 0 && cl === 0) return null;
-    return `<div class="act-hist-row">
-      <div class="act-hist-date">${_actDateLabel(d)}</div>
+function _actSetTab(t) {
+  _ACT_TAB_ACT = t;
+  const dBtn = document.getElementById('actStabDaily');
+  const mBtn = document.getElementById('actStabMonthly');
+  if (dBtn) dBtn.classList.toggle('active', t==='daily');
+  if (mBtn) mBtn.classList.toggle('active', t==='monthly');
+  _actUpdateDateNav();
+  const code = actCode(CUR);
+  const ag = DATA ? DATA.agents.find(a=>a.code===CUR) : null;
+  _actRenderView(code, ag ? ag.name : code);
+}
+
+function _actPopulateInputs(code) {
+  const vd = _ACT_VIEW_DATE || todayStr();
+  const existing = (_ACT_ALL_DATA[vd] && _ACT_ALL_DATA[vd][code]) || {};
+  const pInp = document.getElementById('actPresentInp');
+  const cInp = document.getElementById('actCloseInp');
+  if (pInp) pInp.value = existing.present != null ? existing.present : '';
+  if (cInp) cInp.value = existing.close   != null ? existing.close   : '';
+}
+
+function _actRenderView(code, agName) {
+  if (_ACT_TAB_ACT === 'monthly') { _actRenderMonthly(code); } else { _actRenderDaily(code); }
+}
+
+function _actRenderDaily(code) {
+  const body = document.getElementById('actSummaryBody');
+  if (!body) return;
+  const vd = _ACT_VIEW_DATE || todayStr();
+  const existing = (_ACT_ALL_DATA[vd] && _ACT_ALL_DATA[vd][code]) || {};
+  const present = existing.present || 0;
+  const close   = existing.close   || 0;
+  const expected = Math.floor(present / 5);
+  const pending  = Math.max(0, expected - close);
+  const rem      = present % 5;
+  const toNext   = rem === 0 ? 5 : 5 - rem;
+  const progPct  = present === 0 ? 0 : rem === 0 ? 100 : Math.round((rem / 5) * 100);
+
+  let alertHtml = '';
+  if (present === 0 && close === 0) {
+    alertHtml = `<div class="act-amod-good"><span style="font-size:1.3rem">📭</span><span class="act-amod-good-text">Tiada rekod aktiviti untuk tarikh ini.</span></div>`;
+  } else if (pending > 0) {
+    alertHtml = `<div class="act-amod-alert"><span style="font-size:1.3rem;flex-shrink:0;margin-top:1px">⚠️</span><div>
+      <div class="act-amod-alert-title">${pending} close pending — ready to close!</div>
+      <div class="act-amod-alert-sub">${present} presentations ÷ 5 = ${expected} expected close. Only ${close} recorded.</div>
+    </div></div>`;
+  } else if (expected > 0 && pending === 0) {
+    alertHtml = `<div class="act-amod-good"><span style="font-size:1.3rem">✅</span><span class="act-amod-good-text">All expected closes recorded. Great work!</span></div>`;
+  }
+
+  const progNote = present === 0
+    ? 'Mula log presentations'
+    : rem === 0
+      ? `At bracket — ${expected} expected close${expected>1?'s':''}. Next bracket in 5 more.`
+      : `${toNext} more presentation${toNext>1?'s':''} to next expected close`;
+
+  body.innerHTML = `<div style="padding:14px 16px">
+    <div class="act-totals-strip">
+      <div class="act-total-box"><div class="act-total-lbl present">Aktiviti</div><div class="act-total-val present">${present}</div></div>
+      <div class="act-total-box"><div class="act-total-lbl close">Close</div><div class="act-total-val close">${close}</div></div>
+    </div>
+    <div class="act-amod-derived">
+      <div class="act-amod-d-box"><div class="act-amod-d-lbl">Expected Close</div><div class="act-amod-d-val" style="color:#ff7a00">${expected}</div></div>
+      <div class="act-amod-d-box"><div class="act-amod-d-lbl">Pending Close</div><div class="act-amod-d-val" style="color:${pending>0?'#e53935':'#0a9b43'}">${pending}</div></div>
+    </div>
+    <div class="act-amod-progress">
+      <div class="act-amod-prog-lbl">Progress to next bracket</div>
+      <div class="act-amod-prog-bar-wrap"><div class="act-amod-prog-bar" style="width:${progPct}%"></div></div>
+      <div class="act-amod-prog-note">${progNote}</div>
+    </div>
+    ${alertHtml}
+  </div>`;
+}
+
+function _actRenderMonthly(code) {
+  const body = document.getElementById('actSummaryBody');
+  if (!body) return;
+  const today = todayStr();
+  const ym = (_ACT_VIEW_DATE||today).slice(0,7);
+  const monthLabel = new Date(ym + '-01T00:00:00').toLocaleString('en-MY', {month:'long',year:'numeric'});
+
+  let totalPresent = 0, totalClose = 0;
+  const rows = [];
+  Object.keys(_ACT_ALL_DATA).sort().filter(d => d.startsWith(ym)).forEach(date => {
+    const e = (_ACT_ALL_DATA[date]||{})[code];
+    if (!e) return;
+    const p = e.present||0, cl = e.close||0;
+    totalPresent += p; totalClose += cl;
+    rows.push({ date, p, cl, updatedAt: e.updatedAt||'' });
+  });
+
+  if (rows.length === 0) {
+    body.innerHTML = `<div class="empty-msg" style="padding:16px">Tiada rekod untuk ${monthLabel}.</div>`;
+    return;
+  }
+
+  const expected = Math.floor(totalPresent / 5);
+  const pending  = Math.max(0, expected - totalClose);
+  rows.sort((a,b) => b.date.localeCompare(a.date));
+
+  let tableHtml = `<table class="act-mo-table"><thead><tr>
+    <th>Tarikh</th><th class="num">Aktiviti</th><th class="num">Close</th><th class="num">Updated</th>
+  </tr></thead><tbody>`;
+  rows.forEach(r => {
+    tableHtml += `<tr onclick="_actGoDate('${r.date}')">
+      <td><div class="mo-name">${_actFmtDateShort(r.date)}</div></td>
+      <td class="num"><span class="${r.p>0?'mo-val-p':'mo-val-z'}">${r.p||'—'}</span></td>
+      <td class="num"><span class="${r.cl>0?'mo-val-c':'mo-val-z'}">${r.cl||'—'}</span></td>
+      <td class="num"><span style="font-size:.7rem;color:#bbb;font-family:monospace">${r.updatedAt}</span></td>
+    </tr>`;
+  });
+  tableHtml += '</tbody></table>';
+
+  body.innerHTML = `
+    <div style="padding:10px 16px 4px;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#bbb">${monthLabel}</div>
+    <div class="act-totals-strip">
+      <div class="act-total-box"><div class="act-total-lbl present">Total Aktiviti</div><div class="act-total-val present">${totalPresent}</div></div>
+      <div class="act-total-box"><div class="act-total-lbl close">Total Close</div><div class="act-total-val close">${totalClose}</div></div>
+    </div>
+    <div style="padding:0 16px 8px;display:flex;gap:12px;font-size:.78rem;font-weight:700;color:#555">
+      <span>Expected: <span style="color:#ff7a00">${expected}</span></span>
+      <span>Pending: <span style="color:${pending>0?'#e53935':'#0a9b43'}">${pending}</span></span>
+    </div>
+    ${tableHtml}`;
+}
+
+function _actRenderHistory(code) {
+  const card = document.getElementById('actHistoryCard');
+  const body = document.getElementById('actHistoryBody');
+  if (!card || !body) return;
+  const vd = _ACT_VIEW_DATE || todayStr();
+  const dates = Object.keys(_ACT_ALL_DATA)
+    .filter(d => d !== vd && (_ACT_ALL_DATA[d]||{})[code])
+    .sort().reverse().slice(0, 7);
+  if (!dates.length) { card.style.display='none'; return; }
+  card.style.display = '';
+  body.innerHTML = dates.map(ds => {
+    const e = (_ACT_ALL_DATA[ds]||{})[code]||{};
+    return `<div class="act-hist-row" onclick="_actGoDate('${ds}')">
+      <div class="act-hist-date">${_actFmtDateShort(ds)}</div>
       <div class="act-hist-nums">
-        <span class="act-num-chip act-present">📊 ${p}</span>
-        <span class="act-num-chip act-close">✓ ${cl}</span>
+        <span class="act-num-chip act-present">▲ ${e.present||0}</span>
+        <span class="act-num-chip act-close">✓ ${e.close||0}</span>
       </div>
     </div>`;
-  }).filter(Boolean);
+  }).join('');
+}
 
-  const histHtml = histRows.length > 0 ? `
-    <div class="card">
-      <div class="card-hdr hdr-slate">📈 Rekod 14 Hari Lalu — ${SN(agName)}</div>
-      <div class="card-body">${histRows.join('')}</div>
-    </div>` : `<div class="empty-msg" style="padding:16px">Tiada rekod dalam 14 hari lalu.</div>`;
-
-  el.innerHTML = todayHtml + histHtml;
+function _actGoDate(ds) {
+  _ACT_VIEW_DATE = ds;
+  _ACT_TAB_ACT = 'daily';
+  const dBtn = document.getElementById('actStabDaily');
+  const mBtn = document.getElementById('actStabMonthly');
+  if (dBtn) { dBtn.classList.add('active'); }
+  if (mBtn) { mBtn.classList.remove('active'); }
+  _actUpdateDateNav();
+  const code = actCode(CUR);
+  const ag = DATA ? DATA.agents.find(a=>a.code===CUR) : null;
+  _actPopulateInputs(code);
+  _actRenderView(code, ag ? ag.name : code);
 }
 
 function submitActivity() {
-  const presentVal = Math.max(0, parseInt(document.getElementById('actPresentInp')?.value || '0') || 0);
-  const closeVal   = Math.max(0, parseInt(document.getElementById('actCloseInp')?.value   || '0') || 0);
+  const presentVal = Math.max(0, parseInt(document.getElementById('actPresentInp')?.value||'0')||0);
+  const closeVal   = Math.max(0, parseInt(document.getElementById('actCloseInp')?.value  ||'0')||0);
   const db = _initFirebase();
   if (!db || !CUR) return;
+  const vd = _ACT_VIEW_DATE || todayStr();
   const code = actCode(CUR);
   const ag   = DATA ? DATA.agents.find(a=>a.code===CUR) : null;
   const agName = ag ? ag.name : code;
-  const today  = todayStr();
-  const msgEl  = document.getElementById('actMsg');
+  const msgEl = document.getElementById('actMsg');
+  const btn   = document.getElementById('actSubmitBtn');
   if (msgEl) { msgEl.style.color='#555'; msgEl.textContent='Menyimpan…'; }
-  db.ref(`activity/${today}/${code}`).set({
-    present:   presentVal,
-    close:     closeVal,
-    name:      agName,
-    updatedAt: new Date().toISOString(),
+  if (btn) { btn.disabled=true; btn.textContent='Saving…'; }
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  db.ref(`activity/${vd}/${code}`).set({
+    present: presentVal, close: closeVal, name: agName, updatedAt: timeStr,
   }).then(() => {
-    if (msgEl) { msgEl.style.color='#27ae60'; msgEl.textContent='✓ Tersimpan!'; setTimeout(()=>{if(msgEl)msgEl.textContent='';},2500); }
+    if (msgEl) { msgEl.style.color='#27ae60'; msgEl.textContent=`✓ Tersimpan! (${vd})`; setTimeout(()=>{if(msgEl)msgEl.textContent='';},2500); }
   }).catch(() => {
     if (msgEl) { msgEl.style.color='#e53935'; msgEl.textContent='Ralat menyimpan. Cuba lagi.'; }
+  }).finally(() => {
+    if (btn) { btn.disabled=false; btn.textContent='Update Aktiviti'; }
   });
 }
 </script>
