@@ -135,6 +135,54 @@ table.audit tr:last-child td{border-bottom:none}
 
 .empty-msg{text-align:center;padding:22px;color:#555;font-size:.84rem}
 .loading{text-align:center;padding:40px;color:#555}
+
+/* ── PR13 audit tab (agent-report style, dark) */
+.ar-sum-box{border-radius:15px;padding:13px 15px;margin-bottom:11px}
+.ar-sum-ttl{font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center}
+.ar-sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ar-sum-big{border-radius:11px;padding:11px;text-align:center;grid-column:1/-1}
+.ar-sum-big-lbl{font-size:.6rem;font-weight:800;opacity:.82;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.ar-sum-big-val{font-size:1.85rem;font-weight:900;letter-spacing:-.03em;line-height:1;color:#fff}
+.ar-sum-it{background:#333;border-radius:9px;padding:9px 11px}
+.ar-sum-lbl{font-size:.6rem;color:#666;margin-bottom:2px}
+.ar-sum-val{font-weight:800;font-size:.82rem}
+.pool-tab-row{display:flex;gap:6px;margin-bottom:10px}
+.pool-tab{border:none;border-radius:11px;padding:7px 14px;font-size:.75rem;font-weight:800;cursor:pointer;color:#555;background:#3d3d3d;transition:.12s}
+.pool-tab-pr.on{background:#0a9b43;color:#fff}
+.pool-tab-ce.on{background:#1a73e8;color:#fff}
+.ar-filter-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px}
+.ar-search{flex:1;min-width:120px;border:2px solid #444;border-radius:11px;padding:7px 10px;font-size:.77rem;outline:none;font-family:inherit;color:#f0f0f0;background:#333}
+.ar-search:focus{border-color:#f07d26}
+.ar-sel{border:2px solid #444;border-radius:11px;padding:6px 8px;font-size:.7rem;font-weight:700;outline:none;background:#333;color:#aaa;cursor:pointer}
+.ar-sel:focus{border-color:#f07d26}
+.ar-tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,.07);margin-bottom:12px}
+table.ar-tbl{width:100%;border-collapse:collapse;font-size:.71rem}
+table.ar-tbl th{background:#2b2b2b;font-weight:800;font-size:.6rem;text-transform:uppercase;letter-spacing:.04em;color:#555;padding:8px 9px;text-align:left;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.07)}
+table.ar-tbl td{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+table.ar-tbl tr:last-child td{border-bottom:none}
+table.ar-tbl tr.dim-r td{opacity:.38}
+.ar-cls{font-size:.61rem;font-weight:800;border-radius:7px;padding:2px 6px;white-space:nowrap}
+.ar-100{background:rgba(10,155,67,.15);color:#27ae60}
+.ar-0{background:rgba(229,57,53,.15);color:#e53935}
+.ar-excl{background:#3d3d3d;color:#666}
+.ar-na{background:#2b2b2b;color:#444}
+.ar-st{font-size:.61rem;font-weight:700;border-radius:6px;padding:2px 6px;display:inline-block;white-space:nowrap}
+.ar-if{background:rgba(39,174,96,.12);color:#27ae60}
+.ar-lp{background:rgba(229,57,53,.12);color:#e53935}
+.ar-cs{background:#3d3d3d;color:#777}
+table.ar-tbl td.r{text-align:right;font-weight:700}
+.zcb{width:13px;height:13px;cursor:pointer;accent-color:#27ae60;margin-right:2px;vertical-align:middle}
+.proj-bar{background:rgba(10,155,67,.08);border:2px dashed rgba(39,174,96,.3);border-radius:12px;padding:8px 13px;margin-bottom:10px;font-size:.77rem;color:#5dba8a;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.whatif-hint{font-size:.72rem;background:rgba(10,155,67,.07);border-radius:9px;padding:7px 11px;margin-top:7px;line-height:1.5;color:#666}
+/* ── MP tab (agent-report style, dark) */
+.sp-cl-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:12px;margin-bottom:6px;border-left:3px solid transparent}
+.sp-cl-info{flex:1;min-width:0}
+.sp-cl-name{font-weight:700;font-size:.82rem}
+.sp-cl-meta{font-size:.65rem;color:#666;margin-top:2px}
+.sp-cl-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.sp-cl-right{text-align:right;flex-shrink:0}
+.sp-contrib2{font-weight:800;font-size:.77rem;color:#ccc}
+.sp-tag2{font-size:.6rem;font-weight:800;border-radius:7px;padding:2px 6px}
 </style>
 </head>
 <body>
@@ -203,7 +251,35 @@ table.audit tr:last-child td{border-bottom:none}
           <div id="mpCard"></div>
         </div>
         <div id="panePr" style="display:none">
-          <div id="prContent"></div>
+          <div id="prSummary"></div>
+          <div class="pool-tab-row" id="poolTabRow"></div>
+          <div id="projBar" class="proj-bar" style="display:none"></div>
+          <div class="ar-filter-bar">
+            <input type="search" id="prSearch" class="ar-search" placeholder="Cari nama atau sijil…" oninput="_212fa()">
+            <select id="prFcls" class="ar-sel" onchange="_212fa()">
+              <option value="">Semua</option><option value="0">0% sahaja</option>
+              <option value="100">100% sahaja</option><option value="excl">Dikecualikan</option>
+              <option value="na">Tidak layak</option>
+            </select>
+            <select id="prFst" class="ar-sel" onchange="_212fa()">
+              <option value="">Semua status</option><option value="In Force">In Force</option>
+              <option value="Lapsed">Lapsed</option><option value="Contract Surrendered">Surrendered</option>
+            </select>
+            <select id="prFdue" class="ar-sel" onchange="_212fa()">
+              <option value="">Semua tarikh</option><option value="overdue">Tertunggak</option>
+              <option value="this-month">Bulan ini</option><option value="next-month">Bulan depan</option>
+            </select>
+          </div>
+          <div class="ar-tbl-wrap">
+            <table class="ar-tbl">
+              <thead><tr>
+                <th>#</th><th>Klien</th><th>Issued</th><th>Due</th><th>Mode</th>
+                <th style="text-align:right">ACE</th><th>Kaedah</th><th>Status</th><th>Kelas</th><th>Sebab</th>
+              </tr></thead>
+              <tbody id="prBody"></tbody>
+              <tfoot id="prFoot"></tfoot>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -241,6 +317,8 @@ const COMM_RATE = 0.32 / 12;
 
 /* ── State ───────────────────────────── */
 let DATA = null, CUR = null, PU = 'P', VY, VM;
+let _PR_POOL='PR13', _PR_ROWS=[], _PR_R13=null, _PR_CE=null;
+let _MP_CLIENTS=[], _MP_FILTER='all';
 
 /* ── Date init ───────────────────────── */
 function initDate() {
@@ -635,129 +713,174 @@ function renderCE(r13,rCE) {
     </div>`;
 }
 
+/* ── Manual Payment helpers ──────────────────────────────────────── */
+function _212_mpPaid() {
+  try { return new Set(JSON.parse(localStorage.getItem('tsla_212_paid') || '[]')); }
+  catch(e) { return new Set(); }
+}
+function _212_mpTogglePaid(certNo) {
+  const s = _212_mpPaid();
+  if (s.has(certNo)) s.delete(certNo); else s.add(certNo);
+  localStorage.setItem('tsla_212_paid', JSON.stringify([...s]));
+  _renderMP212();
+}
+function _212_mpComm(c) { return Math.round((c.contribution || 0) * 0.32 * 100) / 100; }
+function _212_matchMpFilter(c) {
+  if (_MP_FILTER === 'inforce') return c.status === 'In Force';
+  if (_MP_FILTER === 'lapsed')  return c.status === 'Lapsed' || c.status === 'Contract Surrendered';
+  return true;
+}
+function _212_setMpFilter(f) { _MP_FILTER = f; _renderMP212(); }
+
+function _212_mpClientName(c, isPaid) {
+  return `<div class="sp-cl-name" style="${isPaid ? 'text-decoration:line-through;color:#777' : ''}">${c.name || '—'}${isPaid ? '<span style="font-size:.6rem;font-weight:800;color:#0a9b43;background:rgba(10,155,67,.15);padding:1px 6px;border-radius:6px;margin-left:5px">✓ Paid</span>' : ''}</div>`;
+}
+function _212_mpClientRight(c, isPaid, safeCert) {
+  const contrib    = c.contribution ? 'RM ' + RA(c.contribution) + '/mo' : '—';
+  const commission = c.contribution ? 'RM ' + RA(_212_mpComm(c)) : '—';
+  return `<div class="sp-cl-right">
+    <div class="sp-contrib2">${contrib}</div>
+    <div style="font-size:.66rem;color:#e07070;font-weight:800;margin-top:2px">💸 ${commission}</div>
+    <label style="display:flex;align-items:center;gap:4px;margin-top:7px;cursor:pointer;font-size:.7rem;font-weight:700;white-space:nowrap">
+      <input type="checkbox" ${isPaid ? 'checked' : ''} onchange="_212_mpTogglePaid('${safeCert}')" style="cursor:pointer;width:14px;height:14px;accent-color:#0a9b43">
+      <span style="color:${isPaid ? '#0a9b43' : '#888'}">${isPaid ? 'Terbayar' : 'Tandakan'}</span>
+    </label>
+  </div>`;
+}
+
 /* ── Manual Payment Card ─────────────── */
 function renderMP(clients) {
-  const vk=vKey();
-  const AUTO = new Set(['Biro Angkasa','Direct Debit']);
-  const isManual = c => {
-    const m = c.payMethod||'';
-    if (AUTO.has(m)) return false;
-    const s = c.status||'';
-    if (s==='Freelook Cancellation'||s==='Cancelled from Inception') return false;
-    return true;
-  };
+  _MP_CLIENTS = clients;
+  _MP_FILTER = 'all';
+  _renderMP212();
+}
 
-  // All manual-pay clients
-  const manual = clients.filter(isManual);
+function _renderMP212() {
+  const el = document.getElementById('mpCard');
+  if (!el) return;
+  const vk  = vKey();
+  const paid = _212_mpPaid();
 
-  // 1. Lapsed — already missed, need revival
-  const lapsed = manual.filter(c=>c.status==='Lapsed'||c.status==='Contract Surrendered')
-    .map(c=>{
-      const dk=c.dueDate?new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth():null;
-      return {...c,_mo:dk!==null?vk-dk:0};
-    }).sort((a,b)=>b._mo-a._mo);
+  // BA Transition: BA clients issued in last 3 months
+  const baClients = _MP_CLIENTS.filter(c => {
+    if (!c.issueDate) return false;
+    if (c.status === 'Freelook Cancellation') return false;
+    if ((c.payMethod || '') !== 'Biro Angkasa') return false;
+    const ik = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
+    return ik >= vk - 2 && ik <= vk;
+  }).map(c => {
+    const ik = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
+    const dk = c.dueDate ? new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth() : null;
+    return { ...c, _monthsSinceIssue: vk - ik, _monthsOverdue: dk !== null ? vk - dk : null };
+  }).sort((a, b) => b._monthsSinceIssue - a._monthsSinceIssue);
 
-  // 2. Overdue active — In Force but due date passed
-  const overdueAct = manual.filter(c=>{
-    if (c.status!=='In Force'||!c.dueDate) return false;
-    const dk=new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth();
-    return dk<vk;
-  }).map(c=>({...c,_mo:vk-(new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth())}))
-    .sort((a,b)=>b._mo-a._mo);
-
-  // 3. Due this month — collect now
-  const dueNow = manual.filter(c=>{
-    if (c.status!=='In Force'||!c.dueDate) return false;
-    const dk=new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth();
-    return dk===vk;
+  // Overdue: non-BA, dueKey <= vk, not Freelook
+  const overdueAll = _MP_CLIENTS.filter(c => {
+    if (!c.dueDate) return false;
+    if (c.status === 'Freelook Cancellation') return false;
+    if ((c.payMethod || '') === 'Biro Angkasa') return false;
+    const dk = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
+    return dk <= vk;
+  }).map(c => {
+    const dk = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
+    return { ...c, _monthsOverdue: vk - dk };
   });
+  const overdueFiltered = overdueAll.filter(_212_matchMpFilter).sort((a, b) => b._monthsOverdue - a._monthsOverdue);
 
-  // 4. BA Transition — BA clients: first 3 months need manual for 1st/2nd premium
-  const baTr = clients.filter(c=>{
-    if (!c.issueDate||(c.status==='Freelook Cancellation')||(c.payMethod||'')!=='Biro Angkasa') return false;
-    const ik=new Date(c.issueDate).getFullYear()*12+new Date(c.issueDate).getMonth();
-    return ik>=vk-2&&ik<=vk;
-  }).map(c=>({...c,_mo:vk-(new Date(c.issueDate).getFullYear()*12+new Date(c.issueDate).getMonth())}))
-    .sort((a,b)=>b._mo-a._mo);
-
-  const total=lapsed.length+overdueAct.length+dueNow.length+baTr.length;
-
-  const sttChip = s => {
-    if (s==='In Force')            return`<span class="mp-badge" style="color:#27ae60;background:rgba(39,174,96,.15)">IF</span>`;
-    if (s==='Lapsed')              return`<span class="mp-badge" style="color:#e53935;background:rgba(229,57,53,.15)">Lapsed</span>`;
-    if (s==='Contract Surrendered')return`<span class="mp-badge" style="color:#777;background:#3d3d3d">CS</span>`;
-    return`<span class="mp-badge" style="color:#888;background:#3d3d3d">${s}</span>`;
-  };
-  const methodShort = m => (m||'—').replace('Credit Card - IPAY88','CC-IPAY').replace('Credit Card - Razer','CC-Razer').replace('Direct Billing (Cash)','Cash').replace('Credit Card','CC');
-  const certShort = c => (c.certNo||'').replace(/^FWD\//,'');
-
-  let html='';
-  if (!total) { html='<div class="empty-msg">Tiada klien perlu tindakan manual.</div>'; }
-
-  if (baTr.length) {
-    html+=`<div class="sec-h">🏦 BA Transisi — bayaran pertama perlu manual (${baTr.length})</div>`;
-    html+=baTr.map(c=>{
-      const lbl=c._mo===0?'Bulan ini (tutup)':c._mo===1?'Bulan kedua':'Bulan ketiga';
-      return `<div class="mp-item" style="border-left:3px solid #64b5f6">
-        <div class="mp-info">
-          <div class="mp-nm">${c.name||'—'}</div>
-          <div class="mp-mt">${certShort(c)} · ${lbl}</div>
+  const baRowHtml = c => {
+    const stage = c._monthsSinceIssue === 0 ? { pill: '1️⃣', label: 'Bulan 1 — closing (bayar sekarang)',      bg: 'rgba(255,152,0,.07)',  bdr: '#f9a825' }
+                : c._monthsSinceIssue === 1 ? { pill: '2️⃣', label: 'Bulan 2 — bayar JomPay (BA belum aktif)', bg: 'rgba(255,193,7,.07)',  bdr: '#c77700' }
+                :                             { pill: '3️⃣', label: 'Bulan 3 — sahkan potongan Angkasa',        bg: 'rgba(229,57,53,.05)',  bdr: '#e53935' };
+    const isPaid   = paid.has(c.certNo);
+    const safeCert = (c.certNo || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const sChip    = c.status === 'In Force'
+      ? `<span class="sp-tag2" style="color:#27ae60;background:rgba(39,174,96,.15)">IF</span>`
+      : `<span class="sp-tag2" style="color:#e53935;background:rgba(229,57,53,.15)">${c.status}</span>`;
+    const ovLabel  = c._monthsOverdue !== null
+      ? `<span class="sp-tag2" style="color:${c._monthsOverdue<=0?'#27ae60':c._monthsOverdue===1?'#c77700':'#e53935'};background:${c._monthsOverdue<=0?'rgba(39,174,96,.1)':c._monthsOverdue===1?'rgba(199,119,0,.1)':'rgba(229,57,53,.1)'}">${c._monthsOverdue<=0?'Bulan ini':c._monthsOverdue===1?'1 bln overdue':c._monthsOverdue+' bln overdue'}</span>` : '';
+    return `<div class="sp-cl-row" style="background:${stage.bg};border-left-color:${stage.bdr}${isPaid?';opacity:.4':''}">
+      <div class="sp-cl-info">
+        ${_212_mpClientName(c, isPaid)}
+        <div class="sp-cl-meta">${c.certNo||''} · Due ${c.dueDate||'—'} · ${c.plan||''}</div>
+        <div class="sp-cl-tags">
+          ${sChip}
+          <span class="sp-tag2" style="color:#64b5f6;background:rgba(100,181,246,.15)">BA</span>
+          ${ovLabel}
+          <span class="sp-tag2" style="color:${stage.bdr};border:1px solid ${stage.bdr}40">${stage.pill} ${stage.label}</span>
         </div>
-        <div class="mp-amt">${RM(c.contribution)}/bln</div>
-        <span class="mp-badge" style="color:#64b5f6;background:rgba(100,181,246,.15)">BA</span>
-      </div>`;
-    }).join('');
-  }
-
-  if (dueNow.length) {
-    html+=`<div class="sec-h">🟡 Bayaran bulan ini — kumpul sekarang (${dueNow.length})</div>`;
-    html+=dueNow.map(c=>`
-      <div class="mp-item" style="border-left:3px solid #f0a500">
-        <div class="mp-info">
-          <div class="mp-nm">${c.name||'—'}</div>
-          <div class="mp-mt">${certShort(c)} · ${methodShort(c)} · due ${c.dueDate||'—'}</div>
-        </div>
-        <div class="mp-amt">${RM(c.contribution)}</div>
-        ${sttChip(c.status)}
-      </div>`).join('');
-  }
-
-  if (overdueAct.length) {
-    html+=`<div class="sec-h">🔴 Tertunggak — masih aktif (${overdueAct.length})</div>`;
-    html+=overdueAct.map(c=>{
-      const col=c._mo<=1?'#f0a500':'#e53935';
-      return `<div class="mp-item" style="border-left:3px solid ${col}">
-        <div class="mp-info">
-          <div class="mp-nm">${c.name||'—'}</div>
-          <div class="mp-mt">${certShort(c)} · ${methodShort(c)} · due ${c.dueDate||'—'}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div class="mp-amt">${RM(c.contribution)}</div>
-          <div style="font-size:.63rem;color:${col};font-weight:800">${c._mo} bln lalu</div>
-        </div>
-        ${sttChip(c.status)}
-      </div>`;
-    }).join('');
-  }
-
-  if (lapsed.length) {
-    html+=`<div class="sec-h">⚠️ Lapsed / CS — perlukan susulan (${lapsed.length})</div>`;
-    html+=lapsed.map(c=>`
-      <div class="mp-item" style="border-left:3px solid #555;opacity:.85">
-        <div class="mp-info">
-          <div class="mp-nm">${c.name||'—'}</div>
-          <div class="mp-mt">${certShort(c)} · ${methodShort(c)} · due ${c.dueDate||'—'}</div>
-        </div>
-        <div class="mp-amt">${RM(c.contribution)}</div>
-        ${sttChip(c.status)}
-      </div>`).join('');
-  }
-
-  document.getElementById('mpCard').innerHTML=`
-    <div class="card">
-      <div class="card-hdr hdr-red">💸 Koleksi Manual — ${total} klien</div>
-      <div class="card-body">${html}</div>
+      </div>
+      ${_212_mpClientRight(c, isPaid, safeCert)}
     </div>`;
+  };
+
+  const overdueRowHtml = c => {
+    const urgency = c._monthsOverdue >= 3 ? { bg: 'rgba(229,57,53,.06)', bdr: '#e53935', pill: '🔴' }
+                  : c._monthsOverdue === 2 ? { bg: 'rgba(255,152,0,.06)', bdr: '#f9a825', pill: '🟠' }
+                  : c._monthsOverdue === 1 ? { bg: 'rgba(255,193,7,.06)', bdr: '#c77700', pill: '🟡' }
+                  :                          { bg: 'rgba(255,193,7,.04)', bdr: '#c77700', pill: '⏳' };
+    const label  = c._monthsOverdue === 0 ? 'Bulan ini — belum bayar'
+                 : c._monthsOverdue === 1 ? '1 bulan overdue'
+                 : `${c._monthsOverdue} bulan overdue`;
+    const isPaid   = paid.has(c.certNo);
+    const safeCert = (c.certNo || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const sChip    = c.status === 'In Force'
+      ? `<span class="sp-tag2" style="color:#27ae60;background:rgba(39,174,96,.15)">IF</span>`
+      : `<span class="sp-tag2" style="color:#e53935;background:rgba(229,57,53,.15)">${c.status}</span>`;
+    const methodLabel = (c.payMethod || c.payMode || '—')
+      .replace('Credit Card - IPAY88','CC-IPAY').replace('Credit Card - Razer','CC-Razer')
+      .replace('Direct Billing (Cash)','Cash').replace('Credit Card','CC');
+    return `<div class="sp-cl-row" style="background:${urgency.bg};border-left-color:${urgency.bdr}${isPaid?';opacity:.4':''}">
+      <div class="sp-cl-info">
+        ${_212_mpClientName(c, isPaid)}
+        <div class="sp-cl-meta">${c.certNo||''} · Due ${c.dueDate||'—'} · ${c.plan||''}</div>
+        <div class="sp-cl-tags">
+          ${sChip}
+          <span class="sp-tag2" style="color:#f0a500;background:rgba(240,165,0,.15)">${methodLabel}</span>
+          <span class="sp-tag2" style="color:${urgency.bdr};background:${urgency.bg}">${urgency.pill} ${label}</span>
+        </div>
+      </div>
+      ${_212_mpClientRight(c, isPaid, safeCert)}
+    </div>`;
+  };
+
+  const chipStyle = key => {
+    const active = _MP_FILTER === key;
+    return `style="border:none;border-radius:20px;padding:7px 16px;font-size:.78rem;font-weight:800;cursor:pointer;font-family:inherit;${active ? 'background:#e53935;color:white' : 'background:#3d3d3d;color:#ccc'}"`;
+  };
+
+  let html = '';
+
+  if (baClients.length > 0) {
+    html += `<div style="background:linear-gradient(135deg,#1565c0,#1e88e5);color:white;border-radius:14px;padding:14px 18px;margin-bottom:10px">
+      <div style="font-weight:900;font-size:.95rem;margin-bottom:3px">🏦 Transisi Biro Angkasa — 3 Bulan</div>
+      <div style="font-size:.73rem;opacity:.9;line-height:1.5">${baClients.length} kes BA · 1️⃣ Closing · 2️⃣ Bayar JomPay · 3️⃣ Sahkan potongan Angkasa</div>
+    </div>`;
+    html += baClients.map(baRowHtml).join('');
+    html += `<div style="height:1px;background:#3d3d3d;margin:14px 0"></div>`;
+  }
+
+  html += `<div style="background:linear-gradient(135deg,#7b0000,#c62828);color:white;border-radius:14px;padding:14px 18px;margin-bottom:10px">
+    <div style="font-weight:900;font-size:.95rem;margin-bottom:2px">💸 Manual Payment Overdue</div>
+    <div style="font-size:.73rem;opacity:.85">Kes bukan BA dengan tarikh bayaran lepas — ${overdueFiltered.length} klien</div>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <button onclick="_212_setMpFilter('all')"     ${chipStyle('all')}>Semua</button>
+    <button onclick="_212_setMpFilter('inforce')" ${chipStyle('inforce')}>In Force</button>
+    <button onclick="_212_setMpFilter('lapsed')"  ${chipStyle('lapsed')}>Lapsed / CS</button>
+  </div>`;
+
+  if (overdueFiltered.length === 0 && baClients.length === 0) {
+    html = '<div style="text-align:center;padding:30px;color:#777;font-size:.9rem">Tiada kes manual payment 🎉</div>';
+  } else if (overdueFiltered.length === 0) {
+    html += '<div style="text-align:center;padding:20px;color:#777;font-size:.85rem">Tiada kes dalam kategori ini 🎉</div>';
+  } else {
+    html += overdueFiltered.map(overdueRowHtml).join('');
+  }
+
+  el.innerHTML = `<div class="card">
+    <div class="card-hdr hdr-red">💸 Koleksi Manual</div>
+    <div class="card-body">${html}</div>
+  </div>`;
 }
 
 /* ── Contest: Road to Bali ───────────── */
@@ -812,87 +935,175 @@ function renderContest(agCode) {
     </div>`;
 }
 
-/* ── PR13 & CE Tab ───────────────────── */
-function renderPR(r13,rCE,r25) {
-  const p13=r13.rate, ce=rCE.rate, p25=r25.rate;
-  const vk=vKey();
+/* ── PR13 tab helpers ────────────────── */
+function _watchFl(c){
+  if(!c.dueDate)return false;
+  return new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth()===vKey();
+}
 
-  const auditRows=[
-    ...r13.rows.filter(c=>c._cls!=='na').map(c=>({...c,_pool:'PR13'})),
-    ...rCE.rows.filter(c=>c._cls!=='na').map(c=>({...c,_pool:'CE'})),
-  ].sort((a,b)=>({'100':0,'0':1,excl:2}[a._cls]??1)-({'100':0,'0':1,excl:2}[b._cls]??1));
+function _212_renderPrSummary(r13,rCE){
+  const el=document.getElementById('prSummary');if(!el)return;
+  let html='';
+  if(r13.rate!==null){
+    const zCnt=r13.rows?r13.rows.filter(r=>r._cls==='0').length:0;
+    const avgZ=zCnt>0?r13.zACE/zCnt:0;
+    const needed=Math.max(0,0.9*r13.eACE-r13.cACE);
+    const nRec=needed>0&&avgZ>0?Math.ceil(needed/avgZ):0;
+    const wi=nRec>0?`<div class="whatif-hint">💡 Pulihkan <strong>${nRec}</strong> klien (purata ${RA(avgZ)} ACE) untuk capai 90%</div>`:'';
+    html+=`<div class="ar-sum-box" style="background:rgba(10,155,67,.07);border:2px solid rgba(10,155,67,.18)">
+      <div class="ar-sum-ttl" style="color:#27ae60" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'">
+        <span>PR13 Summary — ${vLabel()}</span><span>▼</span></div>
+      <div>
+        <div class="ar-sum-grid">
+          <div class="ar-sum-big" style="background:#0a9b43"><div class="ar-sum-big-lbl">PR13 Final</div><div class="ar-sum-big-val">${r13.rate.toFixed(2)}%</div></div>
+          <div class="ar-sum-it"><div class="ar-sum-lbl">Elig ACE</div><div class="ar-sum-val">${RA(r13.eACE)}</div></div>
+          <div class="ar-sum-it"><div class="ar-sum-lbl">Collected</div><div class="ar-sum-val" style="color:#27ae60">${RA(r13.cACE)}</div></div>
+          <div class="ar-sum-it"><div class="ar-sum-lbl">0% ACE</div><div class="ar-sum-val" style="color:#e53935">${RA(r13.zACE)}</div></div>
+          <div class="ar-sum-it"><div class="ar-sum-lbl">Excl ACE</div><div class="ar-sum-val" style="color:#555">${RA(r13.xACE)}</div></div>
+        </div>${wi}</div></div>`;
+  }
+  if(rCE.rate!==null){
+    html+=`<div class="ar-sum-box" style="background:rgba(26,115,232,.07);border:2px solid rgba(26,115,232,.18)">
+      <div class="ar-sum-ttl" style="color:#5c9ee8" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'">
+        <span>CE Summary — ${vLabel()}</span><span>▼</span></div>
+      <div>
+        <div class="ar-sum-grid">
+          <div class="ar-sum-big" style="background:#1a73e8"><div class="ar-sum-big-lbl">CE Final</div><div class="ar-sum-big-val">${rCE.rate.toFixed(2)}%</div></div>
+          <div class="ar-sum-it"><div class="ar-sum-lbl">Elig ACE</div><div class="ar-sum-val">${RA(rCE.eACE)}</div></div>
+          <div class="ar-sum-it"><div class="ar-sum-lbl">Collected</div><div class="ar-sum-val" style="color:#5c9ee8">${RA(rCE.cACE)}</div></div>
+          <div class="ar-sum-it"><div class="ar-sum-lbl">0% ACE</div><div class="ar-sum-val" style="color:#e53935">${RA(rCE.zACE)}</div></div>
+          <div class="ar-sum-it"><div class="ar-sum-lbl">Layak</div><div class="ar-sum-val">${rCE.eCnt}</div></div>
+        </div></div></div>`;
+  }
+  if(!html) html='<div class="empty-msg">Tiada data PR13/CE untuk bulan ini.</div>';
+  el.innerHTML=html;
+}
 
-  const clsH=(cls,watch)=>{
-    if (watch) return`<span class="cls-chip" style="color:#f0a500;background:rgba(240,165,0,.15)">⚠️ Watch</span>`;
-    if (cls==='100') return`<span class="cls-chip" style="color:#27ae60;background:rgba(39,174,96,.15)">✓ 100%</span>`;
-    if (cls==='0')   return`<span class="cls-chip" style="color:#e53935;background:rgba(229,57,53,.15)">✗ 0%</span>`;
-    return`<span class="cls-chip" style="color:#666;background:#3d3d3d">Excl</span>`;
+function _212_renderPoolTabs(){
+  const pr13Cnt=_PR_ROWS.filter(r=>r._pool==='PR13'||r._pool===null).length;
+  const ceCnt=_PR_ROWS.filter(r=>r._pool==='CE').length;
+  document.getElementById('poolTabRow').innerHTML=`
+    <button class="pool-tab pool-tab-pr ${_PR_POOL==='PR13'?'on':''}" onclick="_212_switchPool('PR13')">
+      PR13 <span style="font-size:.65rem;background:rgba(255,255,255,.12);border-radius:7px;padding:1px 6px;margin-left:3px">${pr13Cnt}</span></button>
+    <button class="pool-tab pool-tab-ce ${_PR_POOL==='CE'?'on':''}" onclick="_212_switchPool('CE')">
+      CE <span style="font-size:.65rem;background:rgba(255,255,255,.12);border-radius:7px;padding:1px 6px;margin-left:3px">${ceCnt}</span></button>`;
+}
+function _212_switchPool(pool){_PR_POOL=pool;_212_renderPoolTabs();_212_renderAuditTable();}
+
+function _212_renderAuditTable(){
+  const pool=_PR_POOL;
+  const poolRows=pool==='CE'
+    ?_PR_ROWS.filter(r=>r._pool==='CE')
+    :_PR_ROWS.filter(r=>r._pool==='PR13'||r._pool===null);
+  const clsOrd={'0':1,'excl':2,'na':3,'100':4};
+  const sorted=[...poolRows].sort((a,b)=>{
+    const ak=a._watch?0:(clsOrd[a._cls]??3);
+    const bk=b._watch?0:(clsOrd[b._cls]??3);
+    return ak-bk;
+  });
+  const metric=pool==='PR13'?_PR_R13:_PR_CE;
+  const rate=metric.rate;
+  const clsH=(cls,w)=>{
+    if(cls==='100')return`<span class="ar-cls ar-100">${w?'⚠️ ':''}100%</span>`;
+    if(cls==='0')  return`<span class="ar-cls ar-0">0%</span>`;
+    if(cls==='excl')return`<span class="ar-cls ar-excl">Excl</span>`;
+    return`<span class="ar-cls ar-na">–</span>`;
   };
-  const poolH=p=>p==='PR13'
-    ?`<span class="pool-chip" style="color:#ce93d8;background:rgba(206,147,216,.15)">PR13</span>`
-    :`<span class="pool-chip" style="color:#90caf9;background:rgba(144,202,249,.15)">CE</span>`;
+  const stH=s=>{
+    if(s==='In Force')             return`<span class="ar-st ar-if">IF</span>`;
+    if(s==='Lapsed')               return`<span class="ar-st ar-lp">Lapsed</span>`;
+    if(s==='Contract Surrendered') return`<span class="ar-st ar-cs">CS</span>`;
+    return`<span class="ar-st ar-cs">${(s||'—').substring(0,4)}</span>`;
+  };
+  const pmShort=m=>(m||'—').replace('Biro Angkasa','BA').replace('Direct Debit','DD')
+    .replace('Credit Card - IPAY88','CC-IPAY').replace('Credit Card - Razer','CC-Razer')
+    .replace('Credit Card','CC').replace('Direct Billing (Cash)','Cash');
+  ['prSearch','prFcls','prFst','prFdue'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const vk=vKey();
+  document.getElementById('prBody').innerHTML=sorted.map((c,i)=>{
+    const isDim=c._cls==='na'||c._cls==='excl';
+    const isBA=c.payMethod==='Biro Angkasa'&&c.status!=='Contract Surrendered'&&c.status!=='Freelook Cancellation';
+    const dispCls=isBA?'100':c._cls;
+    const cbHtml=dispCls==='0'?`<input type="checkbox" class="zcb" data-ace="${c._ace}" data-pool="${pool}" onchange="_212_updateProj()"> `:'';
+    const dk=c.dueDate?new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth():-1;
+    const dc=dk<0?'#555':dk===vk?'#f0a500':dk<vk?'#e53935':'#777';
+    return`<tr class="${isDim?'dim-r':''}" style="${c._watch?'background:rgba(199,119,0,.08)':c.status==='Lapsed'?'background:rgba(229,57,53,.05)':''}" data-name="${(c.name||'').toLowerCase().replace(/"/g,'')}" data-cert="${(c.certNo||'').toLowerCase().replace(/^fwd\//,'')}" data-cls="${dispCls}" data-status="${c.status||''}" data-duekey="${dk}">
+      <td style="color:#555;white-space:nowrap">${cbHtml}${i+1}</td>
+      <td><div style="font-weight:700;color:#f0f0f0;font-size:.77rem">${c.name||'—'}</div>${c._watch?'<span style="font-size:.59rem;font-weight:800;color:#f0a500;background:rgba(255,152,0,.15);padding:1px 5px;border-radius:5px;display:inline-block;margin-top:2px">⚠️ Due this month</span>':''}<div style="font-size:.62rem;color:#555;margin-top:1px">${(c.certNo||'').replace(/^FWD\//,'')}</div></td>
+      <td style="white-space:nowrap;color:#666">${c.issueDate||'—'}</td>
+      <td style="white-space:nowrap;color:${dc};font-weight:700">${c.dueDate||'—'}</td>
+      <td style="color:#666">${c.payMode||'—'}</td>
+      <td class="r" style="color:${dispCls==='0'?'#e53935':'#bbb'}">${isDim?'—':RA(c._ace)}</td>
+      <td style="color:#666">${pmShort(c.payMethod)}</td>
+      <td>${stH(c.status)}</td>
+      <td>${clsH(dispCls,c._watch)}</td>
+      <td style="color:${c._watch?'#f0a500':'#555'}">${isBA?'Biro Angkasa':c._reason}</td>
+    </tr>`;
+  }).join('');
+  const foot=document.getElementById('prFoot');
+  if(rate!==null&&metric.eACE>0){
+    const col=pool==='PR13'?'#27ae60':'#5c9ee8';
+    const bg=pool==='PR13'?'rgba(39,174,96,.08)':'rgba(26,115,232,.08)';
+    foot.innerHTML=`<tr style="background:${bg}"><td colspan="5" style="text-align:right;font-size:.82rem;font-weight:900;color:${col}">${pool} = ${RA(metric.cACE)} ÷ ${RA(metric.eACE)} × 100</td><td class="r" style="color:${col};font-size:.96rem">${rate.toFixed(2)}%</td><td colspan="4"></td></tr>`;
+  } else {foot.innerHTML='';}
+  _212_updateProj();
+}
 
-  document.getElementById('prContent').innerHTML=`
-    <div class="g2" style="margin-bottom:12px">
-      <div class="mbox">
-        <div class="mbox-lbl" style="color:#ce93d8">PR13 (KPI 2a)</div>
-        <div class="mbox-val" style="color:${p13!==null?rateC(p13):'#555'}">${p13!==null?p13.toFixed(2)+'%':'—'}</div>
-        <div style="font-size:.69rem;color:#555;margin-top:4px">${r13.eCnt} klien eligible</div>
-      </div>
-      <div class="mbox">
-        <div class="mbox-lbl" style="color:#90caf9">CE (1st Year)</div>
-        <div class="mbox-val" style="color:${ce!==null?rateCC(ce):'#555'}">${ce!==null?ce.toFixed(2)+'%':'—'}</div>
-        <div style="font-size:.69rem;color:#555;margin-top:4px">${rCE.eCnt} klien eligible</div>
-      </div>
-    </div>
+function _212fa(){
+  const q=(document.getElementById('prSearch')?.value||'').trim().toLowerCase();
+  const cls=document.getElementById('prFcls')?.value||'';
+  const st=document.getElementById('prFst')?.value||'';
+  const due=document.getElementById('prFdue')?.value||'';
+  const now=new Date();now.setHours(0,0,0,0);
+  const tk=now.getFullYear()*12+now.getMonth(), nk=tk+1;
+  document.querySelectorAll('#prBody tr').forEach(tr=>{
+    const mq=!q||(tr.dataset.name||'').includes(q)||(tr.dataset.cert||'').includes(q);
+    const mc=!cls||tr.dataset.cls===cls;
+    const ms=!st||tr.dataset.status===st;
+    let md=true;
+    if(due){const dk=parseInt(tr.dataset.duekey||'-1');
+      if(due==='overdue')    md=dk>=0&&dk<tk;
+      else if(due==='this-month')md=dk===tk;
+      else if(due==='next-month')md=dk===nk;}
+    tr.style.display=mq&&mc&&ms&&md?'':'none';
+  });
+}
 
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-hdr hdr-slate">KPI 2b — 2nd Year Persistency</div>
-      <div class="card-body">
-        <div style="display:flex;align-items:center;gap:16px">
-          <div class="big-num" style="color:${p25!==null?rateC(p25):'#555'}">${p25!==null?p25.toFixed(2)+'%':'—'}</div>
-          <div>
-            <div style="font-size:.74rem;color:#777">${r25.eCnt} klien · ${RA(r25.eACE)} ACE</div>
-            <div style="font-size:.7rem;color:#555;margin-top:2px">Cohort: ${new Date(VY,VM-36,1).toLocaleString('en-MY',{month:'short',year:'numeric'})} – ${new Date(VY,VM-24,1).toLocaleString('en-MY',{month:'short',year:'numeric'})}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+function _212_updateProj(){
+  const pool=_PR_POOL;
+  const metric=pool==='PR13'?_PR_R13:_PR_CE;
+  if(!metric)return;
+  let addACE=0;
+  document.querySelectorAll('.zcb:checked').forEach(cb=>{if(cb.dataset.pool===pool)addACE+=parseFloat(cb.dataset.ace)||0;});
+  const bar=document.getElementById('projBar');if(!bar)return;
+  if(addACE>0&&metric.eACE>0){
+    const projRate=Math.round((metric.cACE+addACE)/metric.eACE*1000)/10;
+    const col=pool==='PR13'?'#27ae60':'#5c9ee8';
+    const base=metric.rate!==null?`<span style="color:#666">${metric.rate.toFixed(2)}%</span> <span style="color:#444">→</span> `:'';
+    const delta=metric.rate!==null?` <span style="color:${col}">(+${(projRate-metric.rate).toFixed(2)}%)</span>`:'';
+    bar.innerHTML=`<span style="font-weight:900">🎯 ${pool} jika dikutip:</span> ${base}<strong style="color:${col};font-size:.9rem">${projRate.toFixed(2)}%</strong>${delta} <span style="font-size:.7rem;color:#555">${RA(addACE)} ACE</span>`;
+    bar.style.display='flex';
+  } else {bar.style.display='none';}
+}
 
-    <div class="chips">
-      <div class="chip">Elig ACE <span>${RA(r13.eACE)}</span></div>
-      <div class="chip">Coll <span>${RA(r13.cACE)}</span></div>
-      <div class="chip">0% <span>${RA(r13.zACE)}</span></div>
-      <div class="chip">Excl <span>${RA(r13.xACE)}</span></div>
-    </div>
-
-    <div class="sec-h">Audit — PR13 &amp; CE (${auditRows.length} klien)</div>
-    <div class="audit-wrap">
-      <table class="audit">
-        <thead><tr>
-          <th>Klien</th><th>Pool</th><th>Due Date</th><th>Method</th>
-          <th style="text-align:right">ACE</th><th>Status</th>
-        </tr></thead>
-        <tbody>
-        ${auditRows.length===0?'<tr><td colspan="6" style="text-align:center;color:#444;padding:20px">Tiada data</td></tr>':
-          auditRows.map(c=>{
-            const dk=c.dueDate?new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth():null;
-            const dc=dk===null?'#555':dk===vk?'#f0a500':dk<vk?'#e53935':'#27ae60';
-            return`<tr>
-              <td>
-                <div style="font-weight:700;font-size:.77rem;color:#f0f0f0">${SN(c.name||'—')}</div>
-                <div style="font-size:.62rem;color:#555">${(c.certNo||'').replace(/^FWD\//,'')}</div>
-              </td>
-              <td>${poolH(c._pool)}</td>
-              <td style="color:${dc};font-weight:700;font-size:.71rem">${c.dueDate||'—'}</td>
-              <td style="font-size:.68rem;color:#666">${(c.payMethod||'—').replace('Biro Angkasa','BA')}</td>
-              <td style="text-align:right;font-weight:800;font-size:.71rem;color:#bbb">${RA(c._ace)}</td>
-              <td>${clsH(c._cls,c._watch)}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>`;
+/* ── PR13 & CE Tab ───────────────────── */
+function renderPR(r13,rCE,r25){
+  _PR_R13=r13; _PR_CE=rCE;
+  _PR_POOL=r13.rate!==null?'PR13':'CE';
+  // Build combined rows: each client classified in its pool (PR13 takes priority)
+  _PR_ROWS=r13.rows.map((pr13Row,i)=>{
+    const ceRow=rCE.rows[i];
+    const w=_watchFl(pr13Row)&&(pr13Row._cls==='100'||ceRow._cls==='100');
+    if(pr13Row._cls!=='na'){
+      return{...pr13Row,_pool:'PR13',_watch:w&&pr13Row._cls==='100'};
+    } else if(ceRow._cls!=='na'){
+      return{...ceRow,_pool:'CE',_watch:w&&ceRow._cls==='100'};
+    }
+    return{...pr13Row,_pool:null,_watch:false};
+  });
+  _212_renderPrSummary(r13,rCE);
+  _212_renderPoolTabs();
+  _212_renderAuditTable();
 }
 </script>
 </body>
