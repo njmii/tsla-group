@@ -84,7 +84,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* Tabs */
 .tab-row{display:flex;gap:4px;background:#333;border-radius:14px;padding:4px;margin-bottom:13px}
-.tab-btn{flex:1;border:none;background:transparent;border-radius:11px;padding:9px 0;font-size:.8rem;font-weight:800;cursor:pointer;color:#666;transition:.12s}
+.tab-btn{flex:1;border:none;background:transparent;border-radius:11px;padding:8px 0;font-size:.74rem;font-weight:800;cursor:pointer;color:#666;transition:.12s}
 .tab-btn.on{background:#f07d26;color:#fff}
 
 /* KPI rows */
@@ -189,7 +189,8 @@ table.audit tr:last-child td{border-bottom:none}
 
         <div class="tab-row">
           <button id="tabOv" class="tab-btn on" onclick="switchTab('ov')">📊 Overview</button>
-          <button id="tabPr" class="tab-btn" onclick="switchTab('pr')">📋 PR13 &amp; CE</button>
+          <button id="tabMp" class="tab-btn" onclick="switchTab('mp')">💸 Manual</button>
+          <button id="tabPr" class="tab-btn" onclick="switchTab('pr')">📋 PR13</button>
         </div>
 
         <div id="paneOv">
@@ -197,6 +198,8 @@ table.audit tr:last-child td{border-bottom:none}
           <div id="mtdCard"></div>
           <div id="ceCard"></div>
           <div id="bscCard"></div>
+        </div>
+        <div id="paneMp" style="display:none">
           <div id="mpCard"></div>
         </div>
         <div id="panePr" style="display:none">
@@ -438,11 +441,12 @@ function showDash(code) {
   renderDash(code);
 }
 function switchTab(t) {
-  const isOv=t==='ov';
-  document.getElementById('paneOv').style.display=isOv?'':'none';
-  document.getElementById('panePr').style.display=isOv?'none':'';
-  document.getElementById('tabOv').classList.toggle('on',isOv);
-  document.getElementById('tabPr').classList.toggle('on',!isOv);
+  document.getElementById('paneOv').style.display=t==='ov'?'':'none';
+  document.getElementById('paneMp').style.display=t==='mp'?'':'none';
+  document.getElementById('panePr').style.display=t==='pr'?'':'none';
+  document.getElementById('tabOv').classList.toggle('on',t==='ov');
+  document.getElementById('tabMp').classList.toggle('on',t==='mp');
+  document.getElementById('tabPr').classList.toggle('on',t==='pr');
 }
 
 /* ── Home — agent selection list ─────── */
@@ -496,12 +500,12 @@ function renderDash(code) {
   if (bd){bc.textContent=bd.lbl+' '+bsc.toFixed(1)+'%';bc.style.color=bd.color;bc.style.background=bd.bg;}
   else {bc.textContent='No data';bc.style.color='#666';bc.style.background='#3d3d3d';}
 
-  renderContest(code);
-  renderMTD(clients);
-  renderCE(r13,rCE);
-  renderBSC(r13,r25,ka,kb,bsc,bd);
-  renderMP(clients);
-  renderPR(r13,rCE,r25);
+  try{renderContest(code);}catch(e){console.error('contest',e);}
+  try{renderMTD(clients);}catch(e){console.error('mtd',e);}
+  try{renderCE(r13,rCE);}catch(e){console.error('ce',e);}
+  try{renderBSC(r13,r25,ka,kb,bsc,bd);}catch(e){console.error('bsc',e);}
+  try{renderMP(clients);}catch(e){console.error('mp',e);document.getElementById('mpCard').innerHTML='<div class="card"><div class="card-hdr hdr-red">💸 Koleksi Manual</div><div class="card-body"><div class="empty-msg">Ralat memuatkan data.</div></div></div>';}
+  try{renderPR(r13,rCE,r25);}catch(e){console.error('pr',e);}
   switchTab('ov');
 }
 
