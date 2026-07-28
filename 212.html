@@ -193,7 +193,9 @@ table.audit tr:last-child td{border-bottom:none}
         </div>
 
         <div id="paneOv">
+          <div id="contestCard"></div>
           <div id="mtdCard"></div>
+          <div id="ceCard"></div>
           <div id="bscCard"></div>
           <div id="mpCard"></div>
         </div>
@@ -494,7 +496,9 @@ function renderDash(code) {
   if (bd){bc.textContent=bd.lbl+' '+bsc.toFixed(1)+'%';bc.style.color=bd.color;bc.style.background=bd.bg;}
   else {bc.textContent='No data';bc.style.color='#666';bc.style.background='#3d3d3d';}
 
+  renderContest(code);
   renderMTD(clients);
+  renderCE(r13,rCE);
   renderBSC(r13,r25,ka,kb,bsc,bd);
   renderMP(clients);
   renderPR(r13,rCE,r25);
@@ -594,56 +598,206 @@ function renderBSC(r13,r25,ka,kb,bsc,bd) {
     </div>`;
 }
 
+/* ── CE Quick Card (Overview) ────────── */
+function renderCE(r13,rCE) {
+  const p13=r13.rate, ce=rCE.rate;
+  document.getElementById('ceCard').innerHTML=`
+    <div class="g2" style="margin-bottom:12px">
+      <div class="card" style="margin-bottom:0">
+        <div class="card-hdr hdr-teal">CE (1st Year)</div>
+        <div class="card-body" style="text-align:center;padding:12px 14px">
+          <div style="font-size:2rem;font-weight:900;letter-spacing:-.03em;color:${ce!==null?rateCC(ce):'#555'}">
+            ${ce!==null?ce.toFixed(2)+'%':'—'}
+          </div>
+          <div style="font-size:.67rem;color:#666;margin-top:3px">${rCE.eCnt} klien eligible</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-hdr hdr-violet">PR13 (13th Month)</div>
+        <div class="card-body" style="text-align:center;padding:12px 14px">
+          <div style="font-size:2rem;font-weight:900;letter-spacing:-.03em;color:${p13!==null?rateC(p13):'#555'}">
+            ${p13!==null?p13.toFixed(2)+'%':'—'}
+          </div>
+          <div style="font-size:.67rem;color:#666;margin-top:3px">${r13.eCnt} klien eligible</div>
+        </div>
+      </div>
+    </div>`;
+}
+
 /* ── Manual Payment Card ─────────────── */
 function renderMP(clients) {
   const vk=vKey();
-  const overdue=clients.filter(c=>{
-    if (!c.dueDate||c.status==='Freelook Cancellation'||(c.payMethod||'')==='Biro Angkasa') return false;
-    return new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth()<=vk;
+  const AUTO = new Set(['Biro Angkasa','Direct Debit']);
+  const isManual = c => {
+    const m = c.payMethod||'';
+    if (AUTO.has(m)) return false;
+    const s = c.status||'';
+    if (s==='Freelook Cancellation'||s==='Cancelled from Inception') return false;
+    return true;
+  };
+
+  // All manual-pay clients
+  const manual = clients.filter(isManual);
+
+  // 1. Lapsed — already missed, need revival
+  const lapsed = manual.filter(c=>c.status==='Lapsed'||c.status==='Contract Surrendered')
+    .map(c=>{
+      const dk=c.dueDate?new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth():null;
+      return {...c,_mo:dk!==null?vk-dk:0};
+    }).sort((a,b)=>b._mo-a._mo);
+
+  // 2. Overdue active — In Force but due date passed
+  const overdueAct = manual.filter(c=>{
+    if (c.status!=='In Force'||!c.dueDate) return false;
+    const dk=new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth();
+    return dk<vk;
   }).map(c=>({...c,_mo:vk-(new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth())}))
     .sort((a,b)=>b._mo-a._mo);
 
-  const baTr=clients.filter(c=>{
-    if (!c.issueDate||c.status==='Freelook Cancellation'||(c.payMethod||'')!=='Biro Angkasa') return false;
+  // 3. Due this month — collect now
+  const dueNow = manual.filter(c=>{
+    if (c.status!=='In Force'||!c.dueDate) return false;
+    const dk=new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth();
+    return dk===vk;
+  });
+
+  // 4. BA Transition — BA clients: first 3 months need manual for 1st/2nd premium
+  const baTr = clients.filter(c=>{
+    if (!c.issueDate||(c.status==='Freelook Cancellation')||(c.payMethod||'')!=='Biro Angkasa') return false;
     const ik=new Date(c.issueDate).getFullYear()*12+new Date(c.issueDate).getMonth();
     return ik>=vk-2&&ik<=vk;
   }).map(c=>({...c,_mo:vk-(new Date(c.issueDate).getFullYear()*12+new Date(c.issueDate).getMonth())}))
     .sort((a,b)=>b._mo-a._mo);
 
+  const total=lapsed.length+overdueAct.length+dueNow.length+baTr.length;
+
+  const sttChip = s => {
+    if (s==='In Force')            return`<span class="mp-badge" style="color:#27ae60;background:rgba(39,174,96,.15)">IF</span>`;
+    if (s==='Lapsed')              return`<span class="mp-badge" style="color:#e53935;background:rgba(229,57,53,.15)">Lapsed</span>`;
+    if (s==='Contract Surrendered')return`<span class="mp-badge" style="color:#777;background:#3d3d3d">CS</span>`;
+    return`<span class="mp-badge" style="color:#888;background:#3d3d3d">${s}</span>`;
+  };
+  const methodShort = m => (m||'—').replace('Credit Card - IPAY88','CC-IPAY').replace('Credit Card - Razer','CC-Razer').replace('Direct Billing (Cash)','Cash').replace('Credit Card','CC');
+  const certShort = c => (c.certNo||'').replace(/^FWD\//,'');
+
   let html='';
-  if (!overdue.length&&!baTr.length) html='<div class="empty-msg">Tiada klien perlu tindakan manual.</div>';
+  if (!total) { html='<div class="empty-msg">Tiada klien perlu tindakan manual.</div>'; }
 
   if (baTr.length) {
-    html+=`<div class="sec-h">🏦 BA Transisi</div>`;
+    html+=`<div class="sec-h">🏦 BA Transisi — bayaran pertama perlu manual (${baTr.length})</div>`;
     html+=baTr.map(c=>{
-      const lbl=c._mo===0?'Bulan ini':c._mo===1?'Bulan kedua':'Bulan ketiga';
-      return `<div class="mp-item">
-        <div class="mp-info"><div class="mp-nm">${c.name||'—'}</div><div class="mp-mt">${c.certNo||''} · ${lbl}</div></div>
+      const lbl=c._mo===0?'Bulan ini (tutup)':c._mo===1?'Bulan kedua':'Bulan ketiga';
+      return `<div class="mp-item" style="border-left:3px solid #64b5f6">
+        <div class="mp-info">
+          <div class="mp-nm">${c.name||'—'}</div>
+          <div class="mp-mt">${certShort(c)} · ${lbl}</div>
+        </div>
         <div class="mp-amt">${RM(c.contribution)}/bln</div>
-        <div class="mp-badge" style="color:#64b5f6;background:rgba(100,181,246,.15)">BA</div>
+        <span class="mp-badge" style="color:#64b5f6;background:rgba(100,181,246,.15)">BA</span>
       </div>`;
     }).join('');
   }
-  if (overdue.length) {
-    html+=`<div class="sec-h">💸 Perlu bayaran manual — ${overdue.length} klien</div>`;
-    html+=overdue.map(c=>{
-      const col=c._mo===0?'#f0a500':'#e53935';
-      const lbl=c._mo===0?'Bulan ini':`${c._mo} bln lalu`;
-      return `<div class="mp-item">
+
+  if (dueNow.length) {
+    html+=`<div class="sec-h">🟡 Bayaran bulan ini — kumpul sekarang (${dueNow.length})</div>`;
+    html+=dueNow.map(c=>`
+      <div class="mp-item" style="border-left:3px solid #f0a500">
         <div class="mp-info">
           <div class="mp-nm">${c.name||'—'}</div>
-          <div class="mp-mt">${(c.certNo||'').replace(/^FWD\//,'')} · ${c.payMethod||'—'}</div>
+          <div class="mp-mt">${certShort(c)} · ${methodShort(c)} · due ${c.dueDate||'—'}</div>
         </div>
         <div class="mp-amt">${RM(c.contribution)}</div>
-        <div class="mp-badge" style="color:${col};background:rgba(229,57,53,.15)">${lbl}</div>
+        ${sttChip(c.status)}
+      </div>`).join('');
+  }
+
+  if (overdueAct.length) {
+    html+=`<div class="sec-h">🔴 Tertunggak — masih aktif (${overdueAct.length})</div>`;
+    html+=overdueAct.map(c=>{
+      const col=c._mo<=1?'#f0a500':'#e53935';
+      return `<div class="mp-item" style="border-left:3px solid ${col}">
+        <div class="mp-info">
+          <div class="mp-nm">${c.name||'—'}</div>
+          <div class="mp-mt">${certShort(c)} · ${methodShort(c)} · due ${c.dueDate||'—'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="mp-amt">${RM(c.contribution)}</div>
+          <div style="font-size:.63rem;color:${col};font-weight:800">${c._mo} bln lalu</div>
+        </div>
+        ${sttChip(c.status)}
       </div>`;
     }).join('');
+  }
+
+  if (lapsed.length) {
+    html+=`<div class="sec-h">⚠️ Lapsed / CS — perlukan susulan (${lapsed.length})</div>`;
+    html+=lapsed.map(c=>`
+      <div class="mp-item" style="border-left:3px solid #555;opacity:.85">
+        <div class="mp-info">
+          <div class="mp-nm">${c.name||'—'}</div>
+          <div class="mp-mt">${certShort(c)} · ${methodShort(c)} · due ${c.dueDate||'—'}</div>
+        </div>
+        <div class="mp-amt">${RM(c.contribution)}</div>
+        ${sttChip(c.status)}
+      </div>`).join('');
   }
 
   document.getElementById('mpCard').innerHTML=`
     <div class="card">
-      <div class="card-hdr hdr-red">💸 Manual Payment</div>
+      <div class="card-hdr hdr-red">💸 Koleksi Manual — ${total} klien</div>
       <div class="card-body">${html}</div>
+    </div>`;
+}
+
+/* ── Contest: Road to Bali ───────────── */
+const CONTEST_START  = '2026-07-01';
+const CONTEST_END    = '2026-09-30';
+const CONTEST_TARGET = 50000;
+
+function renderContest(agCode) {
+  const start=new Date(CONTEST_START), end=new Date(CONTEST_END), now=new Date();
+  const totalDays=Math.round((end-start)/86400000);
+  const elapsed=Math.min(Math.max(Math.round((now-start)/86400000),0),totalDays);
+  const daysLeft=Math.max(0,Math.round((end-now)/86400000));
+  const timePct=totalDays>0?elapsed/totalDays*100:0;
+
+  // Group total (all agents, contest window)
+  const allCl=DATA.agents.flatMap(a=>a.clients||[]);
+  const grpCl=allCl.filter(c=>c.issueDate>=CONTEST_START&&c.issueDate<=CONTEST_END);
+  const grpACE=grpCl.reduce((s,c)=>s+ace(c),0);
+
+  // This agent's contribution
+  const myCl=agClients(agCode).filter(c=>c.issueDate>=CONTEST_START&&c.issueDate<=CONTEST_END);
+  const myACE=myCl.reduce((s,c)=>s+ace(c),0);
+
+  const pct=Math.min(100,grpACE/CONTEST_TARGET*100);
+  const barC=pct>=80?'#27ae60':pct>=50?'#f0a500':'#e53935';
+  const shortfall=Math.max(0,CONTEST_TARGET-grpACE);
+
+  document.getElementById('contestCard').innerHTML=`
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hdr" style="background:linear-gradient(135deg,#b06000,#e87c25)">🏆 Road to Bali — Jul–Sep 2026</div>
+      <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
+          <div>
+            <div class="st-lbl">TSLA Group ACE</div>
+            <div class="big-num" style="color:${barC}">${RA(grpACE)}</div>
+            <div class="st-sub">Target: ${RA(CONTEST_TARGET)}${shortfall>0?' · Shortfall: '+RA(shortfall):' ✓ Achieved!'}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="st-lbl">Sumbangan Saya</div>
+            <div style="font-size:1.15rem;font-weight:900;color:#f0a500">${RA(myACE)}</div>
+            <div class="st-sub">${myCl.length} kes · ${daysLeft} hari lagi</div>
+          </div>
+        </div>
+        <div class="prog-wrap">
+          <div class="prog-bar" style="width:${pct.toFixed(1)}%;background:${barC}"></div>
+        </div>
+        <div class="pct-row">
+          <span>${pct.toFixed(1)}% daripada target</span>
+          <span>Masa: ${timePct.toFixed(0)}% berlalu</span>
+        </div>
+      </div>
     </div>`;
 }
 
