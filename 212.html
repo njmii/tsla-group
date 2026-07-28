@@ -325,8 +325,22 @@ function submitPin() {
 
 /* ── Config ──────────────────────────── */
 const GROUPS = {
-  'A11668': ['A11668','A13290','A14252','A12322'],
+  'A11668': { name: 'TSLA Unit',  logo: 'assets/tslalogo.png',       members: ['A11668','A13290','A14252','A12322'] },
+  'A15781': { name: 'HTP',        logo: 'assets/logo-htp.png',        members: ['A15781','A16553'] },
+  'A15756': { name: 'SSG',        logo: 'assets/logo-ssg.png',        members: ['A15756','A14252','A15475'] },
+  'A14252': { name: 'ResaRose',   logo: 'assets/logo-reezora.png',    members: ['A14252','A15475'] },
 };
+// Agents without their own group → show introducer's group when U is pressed
+const AGENT_TO_GROUP = {
+  'A16553': 'A15781', // Adam → Fauzan → HTP
+  'A15475': 'A14252', // Muaz → Roza → ResaRose
+};
+function getGroupForAgent(code) {
+  if (GROUPS[code])                    return { leaderCode: code,         ...GROUPS[code] };
+  const ldr = AGENT_TO_GROUP[code];
+  if (ldr && GROUPS[ldr])              return { leaderCode: ldr,          ...GROUPS[ldr] };
+  return null;
+}
 const MTD_TARGET = 10000;
 const X13 = new Set(['FWD Life First','FWD Protect First','FWD Income First']);
 const FX12 = new Set(['AN443318','AN457372']);
@@ -386,9 +400,12 @@ function refresh() { CUR ? renderDash(CUR) : renderHome(); }
 /* ── Clients for agent ───────────────── */
 function agClients(code) {
   if (!DATA) return [];
-  if (PU==='U' && GROUPS[code]) {
-    const s = new Set(GROUPS[code]);
-    return DATA.agents.filter(a=>s.has(a.code)).flatMap(a=>a.clients||[]);
+  if (PU === 'U') {
+    const grp = getGroupForAgent(code);
+    if (grp) {
+      const s = new Set(grp.members);
+      return DATA.agents.filter(a=>s.has(a.code)).flatMap(a=>a.clients||[]);
+    }
   }
   const a = DATA.agents.find(a=>a.code===code);
   return a ? (a.clients||[]) : [];
@@ -593,7 +610,7 @@ function renderDash(code) {
   const ag = DATA.agents.find(a=>a.code===code);
   if (!ag) return;
   const clients = agClients(code);
-  const isUnit = PU==='U'&&GROUPS[code]&&GROUPS[code].length>1;
+  const grp = PU==='U' ? getGroupForAgent(code) : null;
 
   const r13=calcM(clients,clsPR13), rCE=calcM(clients,clsCE), r25=calcM(clients,clsPR25);
   const ka=r13.rate!==null?k2aPts(r13.rate):0, kb=r25.rate!==null?k2bPts(r25.rate):0;
@@ -601,15 +618,24 @@ function renderDash(code) {
   const bsc=hasBsc?55+ka*0.25+kb*0.30:null;
   const bd=bsc!==null?band(bsc):null;
 
-  document.getElementById('dashAv').textContent=INI(ag.name);
-  document.getElementById('dashName').textContent=SN(ag.name)+(isUnit?' (Unit)':'');
-  document.getElementById('dashCode').textContent=ag.code+' — '+vLabel();
+  // Avatar: group logo in U mode, initials in P mode
+  const avEl = document.getElementById('dashAv');
+  if (grp && grp.logo) {
+    avEl.innerHTML = `<img src="${grp.logo}" style="width:100%;height:100%;object-fit:contain;border-radius:11px;padding:3px;background:white">`;
+  } else {
+    avEl.innerHTML = '';
+    avEl.textContent = INI(ag.name);
+  }
+  document.getElementById('dashName').textContent = grp ? grp.name : SN(ag.name);
+  document.getElementById('dashCode').textContent  = grp
+    ? `${grp.name} Group · ${grp.members.length} agen — ${vLabel()}`
+    : `${ag.code} — ${vLabel()}`;
   const bc=document.getElementById('dashBand');
   if (bd){bc.textContent=bd.lbl+' '+bsc.toFixed(1)+'%';bc.style.color=bd.color;bc.style.background=bd.bg;}
   else {bc.textContent='No data';bc.style.color='#aaa';bc.style.background='#f0f0f0';}
 
-  try{renderContest(code);}catch(e){console.error('contest',e);}
-  try{renderMTD(clients,code);}catch(e){console.error('mtd',e);}
+  try{renderContest(code,grp);}catch(e){console.error('contest',e);}
+  try{renderMTD(clients,code,grp);}catch(e){console.error('mtd',e);}
   try{renderCE(r13,rCE);}catch(e){console.error('ce',e);}
   try{renderBSC(r13,r25,ka,kb,bsc,bd);}catch(e){console.error('bsc',e);}
   try{renderMP(clients);}catch(e){console.error('mp',e);document.getElementById('mpCard').innerHTML='<div class="card"><div class="card-hdr hdr-red">💸 Koleksi Manual</div><div class="card-body"><div class="empty-msg">Ralat memuatkan data.</div></div></div>';}
@@ -618,7 +644,7 @@ function renderDash(code) {
 }
 
 /* ── MTD Card ────────────────────────── */
-function renderMTD(clients, agCode) {
+function renderMTD(clients, agCode, grp) {
   const mtdC=mtdClients(clients);
   const mtd=mtdC.reduce((s,c)=>s+ace(c),0);
   const ytd=ytdClients(clients).reduce((s,c)=>s+ace(c),0);
@@ -627,6 +653,7 @@ function renderMTD(clients, agCode) {
   const bc=pct>=100?'#27ae60':pct>=60?'#f0a500':'#e53935';
   const showComm=!NO_COMMISSION.has(agCode);
   const mtdComm=mtd*COMM_RATE, ytdComm=ytd*COMM_RATE;
+  const cardTitle = grp ? `📈 Pengeluaran MTD — ${grp.name} — ${vLabel()}` : `📈 Pengeluaran MTD — ${vLabel()}`;
 
   const rows=mtdC.slice(0,5).map(c=>`
     <div class="mp-item">
@@ -639,7 +666,7 @@ function renderMTD(clients, agCode) {
 
   document.getElementById('mtdCard').innerHTML=`
     <div class="card">
-      <div class="card-hdr hdr-orange">📈 Pengeluaran MTD — ${vLabel()}</div>
+      <div class="card-hdr hdr-orange">${cardTitle}</div>
       <div class="card-body">
         <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
           <div>
@@ -915,7 +942,7 @@ const CONTEST_START  = '2026-07-01';
 const CONTEST_END    = '2026-09-30';
 const CONTEST_TARGET = 50000;
 
-function renderContest(agCode) {
+function renderContest(agCode, grp) {
   const start=new Date(CONTEST_START), end=new Date(CONTEST_END), now=new Date();
   const totalDays=Math.round((end-start)/86400000);
   const elapsed=Math.min(Math.max(Math.round((now-start)/86400000),0),totalDays);
@@ -946,7 +973,7 @@ function renderContest(agCode) {
             <div class="st-sub">Target: ${RA(CONTEST_TARGET)}${shortfall>0?' · Shortfall: '+RA(shortfall):' ✓ Achieved!'}</div>
           </div>
           <div style="text-align:right">
-            <div class="st-lbl">Sumbangan Saya</div>
+            <div class="st-lbl">${grp?'Sumbangan '+grp.name:'Sumbangan Saya'}</div>
             <div style="font-size:1.15rem;font-weight:900;color:#f0a500">${RA(myACE)}</div>
             <div class="st-sub">${myCl.length} kes · ${daysLeft} hari lagi</div>
           </div>
