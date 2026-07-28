@@ -159,7 +159,7 @@ table.audit tr:last-child td{border-bottom:none}
     <span class="top-brand">Two1two</span>
     <select id="monthSel" class="month-sel" onchange="onMonthChange()"></select>
   </div>
-  <div class="sub-bar">
+  <div id="subBar" class="sub-bar" style="display:none">
     <div class="pu-wrap">
       <button id="puP" class="pu-btn on" onclick="setPU('P')">P</button>
       <button id="puU" class="pu-btn" onclick="setPU('U')">U</button>
@@ -425,12 +425,14 @@ function showHome() {
   CUR=null;
   document.getElementById('viewHome').style.display='';
   document.getElementById('viewDash').style.display='none';
+  document.getElementById('subBar').style.display='none';
   renderHome();
 }
 function showDash(code) {
   CUR=code;
   document.getElementById('viewHome').style.display='none';
   document.getElementById('viewDash').style.display='';
+  document.getElementById('subBar').style.display='';
   renderDash(code);
 }
 function switchTab(t) {
@@ -441,19 +443,9 @@ function switchTab(t) {
   document.getElementById('tabPr').classList.toggle('on',!isOv);
 }
 
-/* ── Home ────────────────────────────── */
+/* ── Home — agent selection list ─────── */
 function renderHome() {
   if (!DATA) return;
-  const all = DATA.agents.flatMap(a=>a.clients||[]);
-
-  const mtdAll = mtdClients(all);
-  const ytdAll = ytdClients(all);
-  const mtdACE = mtdAll.reduce((s,c)=>s+ace(c),0);
-  const ytdACE = ytdAll.reduce((s,c)=>s+ace(c),0);
-
-  const r13 = calcM(all, clsPR13);
-  const rCE = calcM(all, clsCE);
-  const pr13R = r13.rate, ceR = rCE.rate;
 
   const agCards = DATA.agents.map(ag=>{
     const cl = ag.clients||[];
@@ -478,54 +470,7 @@ function renderHome() {
   }).join('');
 
   document.getElementById('homeContent').innerHTML = `
-    <div class="g2">
-      <div class="card">
-        <div class="card-hdr hdr-orange">ACE / FYC</div>
-        <div class="card-body">
-          <div class="st-lbl">MTD — ${vLabel()}</div>
-          <div class="st-val">${RA(mtdACE)}</div>
-          <div class="st-lbl" style="margin-top:10px">YTD ${VY}</div>
-          <div class="st-val" style="font-size:1.1rem;color:#bbb">${RA(ytdACE)}</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-hdr hdr-purple">Kes Baharu</div>
-        <div class="card-body">
-          <div class="st-lbl">MTD — ${vLabel()}</div>
-          <div class="st-val">${mtdAll.length}</div>
-          <div class="st-lbl" style="margin-top:10px">YTD ${VY}</div>
-          <div class="st-val" style="font-size:1.1rem;color:#bbb">${ytdAll.length}</div>
-        </div>
-      </div>
-    </div>
-    <div class="g2">
-      <div class="card">
-        <div class="card-hdr hdr-teal">CE (1st Year)</div>
-        <div class="card-body" style="text-align:center">
-          <div style="font-size:2.4rem;font-weight:900;letter-spacing:-.03em;color:${ceR!==null?rateCC(ceR):'#555'}">
-            ${ceR!==null?ceR.toFixed(2)+'%':'—'}
-          </div>
-          <div style="font-size:.69rem;color:#666;margin-top:4px">${rCE.eCnt} klien eligible</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-hdr hdr-violet">PR13 (13th Month)</div>
-        <div class="card-body" style="text-align:center">
-          <div style="font-size:2.4rem;font-weight:900;letter-spacing:-.03em;color:${pr13R!==null?rateC(pr13R):'#555'}">
-            ${pr13R!==null?pr13R.toFixed(2)+'%':'—'}
-          </div>
-          <div style="font-size:.69rem;color:#666;margin-top:4px">${r13.eCnt} klien eligible</div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-hdr hdr-slate">Manpower</div>
-      <div class="card-body" style="display:flex;gap:24px">
-        <div><div class="st-lbl">Agen</div><div class="st-val">${DATA.agents.length}</div></div>
-        <div><div class="st-lbl">Klien</div><div class="st-val">${all.length}</div></div>
-      </div>
-    </div>
-    <div class="sec-h">Prestasi Agen — ${vLabel()}</div>
+    <div class="sec-h" style="margin-top:4px">Pilih Agen — ${vLabel()}</div>
     <div class="ag-grid">${agCards}</div>`;
 }
 
