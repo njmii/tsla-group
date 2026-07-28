@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>212 — Agent Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f6fa;color:#111;min-height:100vh}
+.container{max-width:680px;margin:0 auto;padding:20px 16px 40px}
+
+/* PIN Modal */
+#pinOverlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center}
+.pin-box{background:#fff;border-radius:28px;padding:32px 28px;width:320px;max-width:90vw;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.18)}
+.pin-logo{font-size:2rem;margin-bottom:4px}
+.pin-title{font-weight:900;font-size:1.2rem;margin-bottom:4px;color:#111}
+.pin-sub{color:#aaa;font-size:.82rem;margin-bottom:22px}
+.pin-input{width:100%;border:2px solid #eee;border-radius:14px;padding:14px;font-size:1.4rem;text-align:center;letter-spacing:.3em;outline:none;font-weight:700;transition:.15s;-webkit-text-security:disc}
+.pin-input:focus{border-color:#ff7a00}
+.pin-err{color:#e53935;font-size:.8rem;margin-top:8px;min-height:18px;font-weight:700}
+.pin-btn{margin-top:16px;width:100%;background:#ff7a00;color:#fff;border:none;border-radius:14px;padding:14px;font-size:1rem;font-weight:800;cursor:pointer}
+
+/* App */
+#app{display:none}
+
+/* Header */
+.dash-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.back-btn{background:#fff;border:2px solid #eee;border-radius:12px;padding:8px 14px;font-size:.85rem;font-weight:800;cursor:pointer;color:#555;display:flex;align-items:center;gap:5px}
+.back-btn:hover{border-color:#ff7a00;color:#ff7a00}
+.brand{font-weight:900;font-size:1.1rem;color:#ff7a00}
+
+/* Agent List */
+.agent-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.agent-card{background:#fff;border-radius:18px;padding:18px 16px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:.15s;border:2px solid transparent}
+.agent-card:hover{border-color:#ff7a00;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+.agent-card-name{font-weight:900;font-size:.92rem;line-height:1.3;margin-bottom:4px}
+.agent-card-code{font-size:.73rem;color:#aaa;margin-bottom:8px}
+.agent-card-band{font-size:.7rem;font-weight:800;border-radius:8px;padding:3px 8px;display:inline-block}
+
+/* Dashboard */
+#viewDash{display:none}
+.dash-agent-name{font-weight:900;font-size:1.1rem;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-agent-code{font-size:.75rem;color:#aaa;font-weight:600}
+.band-chip{font-size:.72rem;font-weight:800;border-radius:10px;padding:4px 10px;white-space:nowrap}
+
+/* Tabs */
+.tab-row{display:flex;gap:4px;background:#eee;border-radius:14px;padding:4px;margin-bottom:16px}
+.tab-btn{flex:1;border:none;background:transparent;border-radius:11px;padding:9px 0;font-size:.82rem;font-weight:800;cursor:pointer;transition:.15s;color:#888}
+.tab-btn.active{background:#fff;color:#ff7a00;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
+/* Cards */
+.card{background:#fff;border-radius:20px;box-shadow:0 2px 14px rgba(0,0,0,.06);padding:18px 18px 16px;margin-bottom:12px}
+.card-title{font-weight:900;font-size:.9rem;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.card-lbl{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:4px}
+.card-val{font-size:1.5rem;font-weight:900;letter-spacing:-.03em;line-height:1}
+
+/* MTD */
+.mtd-row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:12px}
+.mtd-target{font-size:.8rem;color:#aaa;font-weight:700;margin-top:3px}
+.progress-wrap{background:#f0f0f0;border-radius:99px;height:10px;overflow:hidden;margin-bottom:6px}
+.progress-bar{height:100%;border-radius:99px;transition:width .4s}
+.mtd-detail{display:flex;justify-content:space-between;font-size:.75rem;color:#888;font-weight:700}
+.shortfall-chip{display:inline-block;padding:6px 14px;border-radius:12px;font-size:.82rem;font-weight:800;margin-top:10px}
+
+/* BSC */
+.bsc-score-row{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.bsc-big{font-size:2.2rem;font-weight:900;letter-spacing:-.04em;line-height:1}
+.bsc-sub{font-size:.75rem;color:#aaa;font-weight:700;margin-top:2px}
+.kpi-row{display:flex;justify-content:space-between;font-size:.78rem;padding:5px 0;border-bottom:1px solid #f5f5f5;color:#666}
+.kpi-row:last-child{border-bottom:none}
+.kpi-pts{font-weight:800}
+
+/* Manual Payment */
+.mp-client{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;margin-bottom:6px}
+.mp-info{flex:1;min-width:0}
+.mp-name{font-weight:700;font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp-meta{font-size:.69rem;color:#aaa;margin-top:2px}
+.mp-badge{font-size:.65rem;font-weight:800;border-radius:7px;padding:2px 7px;flex-shrink:0}
+.mp-amt{font-size:.75rem;font-weight:800;color:#555;flex-shrink:0}
+.sec-hdr{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#888;margin:10px 0 6px}
+
+/* PR13/CE Summary */
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.metric-box{background:#f8f9ff;border-radius:14px;padding:12px 14px}
+.metric-box-lbl{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.metric-box-val{font-size:1.7rem;font-weight:900;letter-spacing:-.04em;line-height:1}
+.metric-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.m-chip{background:#f5f5f5;border-radius:10px;padding:5px 10px;font-size:.73rem;font-weight:700;color:#555}
+.m-chip span{font-weight:900;color:#111}
+
+/* Audit table */
+.audit-wrap{overflow-x:auto;border-radius:14px;border:1px solid #f0f0f0}
+table.audit{width:100%;border-collapse:collapse;font-size:.76rem}
+table.audit th{padding:9px 10px;text-align:left;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#aaa;border-bottom:1px solid #f0f0f0;white-space:nowrap;background:#fafafa}
+table.audit td{padding:8px 10px;border-bottom:1px solid #f8f8f8;vertical-align:middle}
+table.audit tr:last-child td{border-bottom:none}
+.cls-chip{font-size:.65rem;font-weight:800;border-radius:6px;padding:2px 6px;white-space:nowrap}
+.pool-chip{font-size:.6rem;font-weight:800;border-radius:5px;padding:1px 5px;white-space:nowrap}
+
+.empty-msg{text-align:center;padding:24px;color:#ccc;font-size:.85rem}
+.loading{text-align:center;padding:40px;color:#bbb}
+</style>
+</head>
+<body>
+
+<!-- PIN Overlay -->
+<div id="pinOverlay">
+  <div class="pin-box">
+    <div class="pin-logo">🔒</div>
+    <div class="pin-title">212</div>
+    <div class="pin-sub">Agent Dashboard — Masukkan PIN</div>
+    <input id="pinInput" class="pin-input" type="tel" maxlength="4" placeholder="••••"
+      oninput="onPin(this.value)" autocomplete="off">
+    <div id="pinErr" class="pin-err"></div>
+    <button class="pin-btn" onclick="submitPin()">Masuk</button>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div class="container">
+    <div class="dash-header">
+      <span class="brand">212</span>
+      <div id="headerMid" style="flex:1"></div>
+    </div>
+
+    <!-- Agent List -->
+    <div id="viewList">
+      <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:12px">Pilih Agen</div>
+      <div id="agentGrid" class="agent-grid"><div class="loading">Loading…</div></div>
+    </div>
+
+    <!-- Agent Dashboard -->
+    <div id="viewDash">
+      <div style="margin-bottom:16px">
+        <button class="back-btn" onclick="showList()">← Agen</button>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:10px">
+          <div>
+            <div id="dashAgentName" class="dash-agent-name"></div>
+            <div id="dashAgentCode" class="dash-agent-code"></div>
+          </div>
+          <div id="dashBandChip" class="band-chip"></div>
+        </div>
+      </div>
+
+      <div class="tab-row">
+        <button id="tabOv" class="tab-btn active" onclick="switchTab('overview')">📊 Overview</button>
+        <button id="tabPR" class="tab-btn" onclick="switchTab('pr13')">📋 PR13 & CE</button>
+      </div>
+
+      <div id="tabOverview">
+        <!-- MTD Card -->
+        <div class="card">
+          <div class="card-title">📈 Pengeluaran — Bulan Ini</div>
+          <div id="mtdContent"></div>
+        </div>
+
+        <!-- BSC Card -->
+        <div class="card">
+          <div class="card-title">🏆 BSC Performance</div>
+          <div id="bscContent"></div>
+        </div>
+
+        <!-- Manual Payment Card -->
+        <div class="card">
+          <div class="card-title">💸 Manual Payment</div>
+          <div id="mpContent"></div>
+        </div>
+      </div>
+
+      <div id="tabPr13" style="display:none">
+        <!-- PR13 & CE Content -->
+        <div id="pr13Content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── PIN gate ─────────────────────────────────── */
+const PIN = '1111';
+function onPin(v) { if (v.length === 4) submitPin(); }
+function submitPin() {
+  const v = document.getElementById('pinInput').value;
+  if (v === PIN) {
+    sessionStorage.setItem('212_ok', '1');
+    document.getElementById('pinOverlay').style.display = 'none';
+    document.getElementById('app').style.display = '';
+    initApp();
+  } else {
+    document.getElementById('pinErr').textContent = 'PIN salah. Cuba lagi.';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinInput').focus();
+  }
+}
+if (sessionStorage.getItem('212_ok') === '1') {
+  document.getElementById('pinOverlay').style.display = 'none';
+  document.getElementById('app').style.display = '';
+}
+
+/* ── Date / projection setup ─────────────────── */
+const _today = new Date(); _today.setHours(0,0,0,0);
+const PROJ_YEAR  = _today.getFullYear();
+const PROJ_MONTH = _today.getMonth();
+const PROJ_LAST  = new Date(PROJ_YEAR, PROJ_MONTH + 1, 0);
+const TODAY_KEY  = PROJ_YEAR * 12 + PROJ_MONTH;
+
+function projLabel() {
+  return new Date(PROJ_YEAR, PROJ_MONTH, 1)
+    .toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+}
+function prevLabel() {
+  const m = PROJ_MONTH === 0 ? 11 : PROJ_MONTH - 1;
+  const y = PROJ_MONTH === 0 ? PROJ_YEAR - 1 : PROJ_YEAR;
+  return new Date(y, m, 1).toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+}
+
+/* ── ACE / classification helpers ─────────────── */
+const X13_PLANS = new Set(['FWD Life First', 'FWD Protect First', 'FWD Income First']);
+const FORCE_X12 = new Set(['AN443318', 'AN457372']);
+
+function getACE(c) {
+  const cert = (c.certNo || '').replace(/^FWD\//, '');
+  if (!FORCE_X12.has(cert) && X13_PLANS.has(c.plan)) {
+    const d = new Date(c.issueDate || '');
+    if (!isNaN(d.getTime()) && d >= new Date('2024-07-01') && d <= new Date('2024-11-30') && c.contribution >= 200)
+      return Math.round(c.contribution * 13 * 100) / 100;
+  }
+  return c.ace || Math.round(c.contribution * 12 * 100) / 100;
+}
+
+function monthsPaid(c) {
+  if (!c.issueDate || !c.statusUpdatedDate) return 0;
+  const a = new Date(c.issueDate), b = new Date(c.statusUpdatedDate);
+  return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+}
+
+function pointInTimeStatus(c) {
+  if (!c.statusUpdatedDate) return c.status;
+  const upd = new Date(c.statusUpdatedDate);
+  if (c.status === 'Contract Surrendered' && upd > PROJ_LAST) return 'In Force';
+  if (c.status === 'Lapsed') {
+    const updKey = upd.getFullYear() * 12 + upd.getMonth();
+    if (updKey > TODAY_KEY && monthsPaid(c) >= 13) return 'In Force';
+  }
+  return c.status;
+}
+
+function classifyPR13(c) {
+  if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
+  const ik = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
+  const base = TODAY_KEY, ws = base - 24, we = base - 12;
+  if (ik < ws || ik >= we) return { cls: 'na', reason: 'Outside window' };
+  if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
+  const eff = pointInTimeStatus(c);
+  if (eff === 'In Force') return { cls: '100', reason: 'In Force' };
+  if (eff === 'Contract Surrendered')
+    return monthsPaid(c) >= 13 ? { cls: '100', reason: 'CS ≥13mo' } : { cls: '0', reason: 'CS <13mo' };
+  return { cls: '0', reason: eff || 'Not In Force' };
+}
+
+function classifyCE(c) {
+  if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
+  const ik = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
+  const ceM = TODAY_KEY - 12;
+  if (ik < ceM || ik >= TODAY_KEY) return { cls: 'na', reason: 'Outside CE window' };
+  if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
+  if (c.dueDate) {
+    const dk = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
+    if (dk === TODAY_KEY) return { cls: '100', reason: 'Due this month', watch: true };
+    if (dk < TODAY_KEY)  return { cls: '0',   reason: 'Due date passed' };
+  }
+  if (c.status === 'Contract Surrendered') return { cls: '0', reason: 'Contract Surrendered' };
+  if (c.payMethod === 'Biro Angkasa')       return { cls: '100', reason: 'Biro Angkasa' };
+  return c.status === 'In Force' ? { cls: '100', reason: 'In Force' } : { cls: '0', reason: c.status };
+}
+
+function classifyPR25(c) {
+  if (!c.issueDate) return { cls: 'na', reason: 'No issue date' };
+  const ik = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
+  const ws = TODAY_KEY - 36, we = TODAY_KEY - 24;
+  if (ik < ws || ik >= we) return { cls: 'na', reason: 'Outside window' };
+  if (c.status === 'Freelook Cancellation') return { cls: 'excl', reason: 'Freelook Cancellation' };
+  const eff = pointInTimeStatus(c);
+  if (eff === 'In Force') return { cls: '100', reason: 'In Force' };
+  if (eff === 'Contract Surrendered')
+    return monthsPaid(c) >= 25 ? { cls: '100', reason: 'CS ≥25mo' } : { cls: '0', reason: 'CS <25mo' };
+  return { cls: '0', reason: 'Lapsed' };
+}
+
+function calcMetric(agent, classifyFn) {
+  let eligACE = 0, collACE = 0, zeroACE = 0, exclACE = 0, eligCount = 0;
+  const rows = [];
+  for (const c of (agent.clients || [])) {
+    const ace = getACE(c);
+    const r = classifyFn(c);
+    rows.push({ ...c, _cls: r.cls, _reason: r.reason, _ace: ace, _watch: r.watch || false });
+    if (r.cls === 'na') continue;
+    if (r.cls === 'excl') { exclACE += ace; continue; }
+    eligACE += ace; eligCount++;
+    if (r.cls === '100') collACE += ace; else zeroACE += ace;
+  }
+  const rate = eligACE > 0 ? Math.round(collACE / eligACE * 10000) / 100 : null;
+  return { rate, eligACE, collACE, zeroACE, exclACE, eligCount, rows };
+}
+
+/* ── BSC helpers ──────────────────────────────── */
+function bscK2aPts(v) { return v >= 95 ? 150 : v >= 92.5 ? 125 : v >= 90 ? 100 : v >= 85 ? 75 : 0; }
+function bscK2bPts(v) { return v >= 90 ? 150 : v >= 85 ? 125 : v >= 80 ? 100 : v >= 75 ? 75 : 0; }
+function bscBand(score) {
+  if (score >= 100) return { label: '✨ Overperformer', color: '#0a9b43', bg: 'rgba(10,155,67,.1)' };
+  if (score >= 85)  return { label: '📊 Near Target',   color: '#e68a00', bg: 'rgba(230,138,0,.1)' };
+  return                   { label: '⚠️ Below Standard', color: '#e53935', bg: 'rgba(229,57,53,.08)' };
+}
+function ptsColor(pts) { return pts >= 125 ? '#0a9b43' : pts >= 75 ? '#e68a00' : '#e53935'; }
+
+/* ── Format helpers ───────────────────────────── */
+const RM  = v => 'RM ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const RA  = v => 'RM ' + v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const sn  = n => { const p = (n || '').split(' '); return p.length <= 2 ? n : p.slice(0, 2).join(' '); };
+
+/* ── App init ─────────────────────────────────── */
+let _data = null;
+let _curAgent = null;
+
+function initApp() {
+  fetch('data/pr-data.json')
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(data => { _data = data; renderList(); })
+    .catch(() => {
+      document.getElementById('agentGrid').innerHTML =
+        '<div class="empty-msg">Gagal memuatkan data.</div>';
+    });
+}
+
+if (sessionStorage.getItem('212_ok') === '1') initApp();
+
+/* ── Agent List ───────────────────────────────── */
+function renderList() {
+  const grid = document.getElementById('agentGrid');
+  if (!_data) return;
+
+  const cards = _data.agents.map(ag => {
+    const r2a = calcMetric(ag, classifyPR13);
+    const r2b = calcMetric(ag, classifyPR25);
+    const k2a = r2a.rate !== null ? bscK2aPts(r2a.rate) : 0;
+    const k2b = r2b.rate !== null ? bscK2bPts(r2b.rate) : 0;
+    const hasBsc = r2a.rate !== null || r2b.rate !== null;
+    const bsc = hasBsc ? 55 + k2a * 0.25 + k2b * 0.30 : null;
+    const b = bsc !== null ? bscBand(bsc) : null;
+    return `<div class="agent-card" onclick="showDash('${ag.code}')">
+      <div class="agent-card-name">${sn(ag.name)}</div>
+      <div class="agent-card-code">${ag.code}</div>
+      ${b ? `<div class="agent-card-band" style="color:${b.color};background:${b.bg}">${b.label} ${bsc.toFixed(1)}%</div>` : '<div class="agent-card-band" style="color:#bbb;background:#f5f5f5">—</div>'}
+    </div>`;
+  }).join('');
+
+  grid.innerHTML = cards;
+}
+
+/* ── Navigation ───────────────────────────────── */
+function showList() {
+  document.getElementById('viewList').style.display = '';
+  document.getElementById('viewDash').style.display = 'none';
+  document.getElementById('headerMid').innerHTML = '';
+}
+
+function showDash(code) {
+  _curAgent = _data.agents.find(a => a.code === code);
+  if (!_curAgent) return;
+  document.getElementById('viewList').style.display = 'none';
+  document.getElementById('viewDash').style.display = '';
+  renderDash(_curAgent);
+}
+
+function switchTab(t) {
+  const isOv = t === 'overview';
+  document.getElementById('tabOverview').style.display = isOv ? '' : 'none';
+  document.getElementById('tabPr13').style.display    = isOv ? 'none' : '';
+  document.getElementById('tabOv').classList.toggle('active', isOv);
+  document.getElementById('tabPR').classList.toggle('active', !isOv);
+}
+
+/* ── Render Dashboard ─────────────────────────── */
+function renderDash(ag) {
+  // Compute all metrics
+  const r2a = calcMetric(ag, classifyPR13);
+  const rCE = calcMetric(ag, classifyCE);
+  const r2b = calcMetric(ag, classifyPR25);
+  const k2a = r2a.rate !== null ? bscK2aPts(r2a.rate) : 0;
+  const k2b = r2b.rate !== null ? bscK2bPts(r2b.rate) : 0;
+  const hasBsc = r2a.rate !== null || r2b.rate !== null;
+  const bsc = hasBsc ? 55 + k2a * 0.25 + k2b * 0.30 : null;
+  const b = bsc !== null ? bscBand(bsc) : null;
+
+  // Header
+  document.getElementById('dashAgentName').textContent = sn(ag.name);
+  document.getElementById('dashAgentCode').textContent = ag.code;
+  const chip = document.getElementById('dashBandChip');
+  if (b) { chip.textContent = b.label; chip.style.color = b.color; chip.style.background = b.bg; }
+  else { chip.textContent = ''; }
+
+  // MTD
+  renderMTD(ag);
+
+  // BSC
+  renderBSC(r2a, r2b, k2a, k2b, bsc, b);
+
+  // Manual Payment
+  renderMP(ag);
+
+  // PR13 & CE tab
+  renderPR13Tab(r2a, rCE, r2b);
+
+  // Default to overview
+  switchTab('overview');
+}
+
+/* ── MTD Card ─────────────────────────────────── */
+const MTD_TARGET = 10000;
+function renderMTD(ag) {
+  const clients = (ag.clients || []).filter(c => {
+    if (!c.issueDate) return false;
+    const d = new Date(c.issueDate);
+    return d.getFullYear() === PROJ_YEAR && d.getMonth() === PROJ_MONTH;
+  });
+  const mtd = clients.reduce((s, c) => s + getACE(c), 0);
+  const pct = Math.min(100, mtd / MTD_TARGET * 100);
+  const shortfall = MTD_TARGET - mtd;
+  const barColor = pct >= 100 ? '#0a9b43' : pct >= 60 ? '#e68a00' : '#e53935';
+
+  document.getElementById('mtdContent').innerHTML = `
+    <div class="mtd-row">
+      <div>
+        <div class="card-lbl">MTD — ${projLabel()}</div>
+        <div class="card-val" style="color:${barColor}">${RA(mtd)}</div>
+        <div class="mtd-target">Target bulanan: ${RA(MTD_TARGET)}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="card-lbl">Kes baharu</div>
+        <div style="font-size:1.8rem;font-weight:900;color:${barColor}">${clients.length}</div>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar" style="width:${pct.toFixed(1)}%;background:${barColor}"></div>
+    </div>
+    <div class="mtd-detail"><span>${pct.toFixed(1)}% daripada target</span><span>${RA(MTD_TARGET)}</span></div>
+    ${shortfall > 0
+      ? `<div class="shortfall-chip" style="background:rgba(229,57,53,.07);color:#e53935">Shortfall: <strong>${RA(shortfall)}</strong></div>`
+      : `<div class="shortfall-chip" style="background:rgba(10,155,67,.09);color:#0a9b43">🎉 Target dicapai! Lebihan: <strong>${RA(-shortfall)}</strong></div>`}
+    ${clients.length > 0 ? `
+    <div class="sec-hdr" style="margin-top:14px">Kes baharu bulan ini</div>
+    ${clients.map(c => `<div class="mp-client" style="background:#f9f9f9">
+      <div class="mp-info">
+        <div class="mp-name">${c.name || '—'}</div>
+        <div class="mp-meta">${c.certNo || ''} · ${c.plan || ''}</div>
+      </div>
+      <div class="mp-amt">${RM(getACE(c))} ACE</div>
+    </div>`).join('')}` : ''}`;
+}
+
+/* ── BSC Card ─────────────────────────────────── */
+function renderBSC(r2a, r2b, k2a, k2b, bsc, b) {
+  if (bsc === null) {
+    document.getElementById('bscContent').innerHTML =
+      '<div class="empty-msg">Tiada data untuk pengiraan BSC.</div>';
+    return;
+  }
+  const k2aC = ptsColor(k2a), k2bC = ptsColor(k2b);
+  document.getElementById('bscContent').innerHTML = `
+    <div class="bsc-score-row">
+      <div>
+        <div class="bsc-big" style="color:${b.color}">${bsc.toFixed(2)}%</div>
+        <div class="bsc-sub">${projLabel()}</div>
+      </div>
+      <div class="band-chip" style="color:${b.color};background:${b.bg}">${b.label}</div>
+    </div>
+    <div class="kpi-row">
+      <span>KPI 1 — CFF (150 pts × 20%)</span>
+      <span class="kpi-pts" style="color:#0a9b43">+30.00</span>
+    </div>
+    <div class="kpi-row">
+      <span>KPI 2a — PR13 (${k2a} pts × 25%)</span>
+      <span class="kpi-pts" style="color:${k2aC}">+${(k2a * 0.25).toFixed(2)}</span>
+    </div>
+    <div class="kpi-row" style="color:#555">
+      <span style="padding-left:12px;color:#aaa">
+        ${r2a.rate !== null ? `${r2a.rate.toFixed(2)}% · ${r2a.eligCount} klien eligible` : 'Tiada klien dalam window'}
+      </span>
+    </div>
+    <div class="kpi-row">
+      <span>KPI 2b — 2nd Year (${k2b} pts × 30%)</span>
+      <span class="kpi-pts" style="color:${k2bC}">+${(k2b * 0.30).toFixed(2)}</span>
+    </div>
+    <div class="kpi-row" style="color:#555">
+      <span style="padding-left:12px;color:#aaa">
+        ${r2b.rate !== null ? `${r2b.rate.toFixed(2)}% · ${r2b.eligCount} klien eligible` : 'Tiada kohort 2nd year (0 pts)'}
+      </span>
+    </div>
+    <div class="kpi-row">
+      <span>KPI 3 — Complaints (100 pts × 10%)</span>
+      <span class="kpi-pts" style="color:#0a9b43">+10.00</span>
+    </div>
+    <div class="kpi-row" style="font-weight:800;border-top:2px solid #eee;padding-top:8px;margin-top:4px">
+      <span>BSC Score</span>
+      <span style="color:${b.color}">${bsc.toFixed(2)}%</span>
+    </div>`;
+}
+
+/* ── Manual Payment Card ──────────────────────── */
+function renderMP(ag) {
+  // Non-BA clients with dueDate ≤ current month
+  const overdue = (ag.clients || [])
+    .filter(c => {
+      if (!c.dueDate) return false;
+      if (c.status === 'Freelook Cancellation') return false;
+      if ((c.payMethod || '') === 'Biro Angkasa') return false;
+      const dk = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
+      return dk <= TODAY_KEY;
+    })
+    .map(c => ({
+      ...c,
+      _mo: TODAY_KEY - (new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth())
+    }))
+    .sort((a, b) => b._mo - a._mo);
+
+  // BA transition: issued in last 2 months
+  const baTrans = (ag.clients || [])
+    .filter(c => {
+      if (!c.issueDate) return false;
+      if (c.status === 'Freelook Cancellation') return false;
+      if ((c.payMethod || '') !== 'Biro Angkasa') return false;
+      const ik = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
+      return ik >= TODAY_KEY - 2 && ik <= TODAY_KEY;
+    })
+    .map(c => ({
+      ...c,
+      _mo: TODAY_KEY - (new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth())
+    }))
+    .sort((a, b) => b._mo - a._mo);
+
+  let html = '';
+
+  if (overdue.length === 0 && baTrans.length === 0) {
+    html = '<div class="empty-msg">Tiada klien perlu tindakan manual.</div>';
+  }
+
+  if (baTrans.length > 0) {
+    html += `<div class="sec-hdr">🏦 BA Transisi — bayaran pertama/kedua perlu manual</div>`;
+    html += baTrans.map(c => {
+      const label = c._mo === 0 ? 'Bulan ini (tutup)' : c._mo === 1 ? 'Bulan kedua' : 'Bulan ketiga';
+      return `<div class="mp-client" style="background:rgba(30,136,229,.06)">
+        <div class="mp-info">
+          <div class="mp-name">${c.name || '—'}</div>
+          <div class="mp-meta">${c.certNo || ''} · ${label}</div>
+        </div>
+        <div class="mp-amt">${RM(c.contribution)}/bln</div>
+        <div class="mp-badge" style="color:#1e88e5;background:rgba(30,136,229,.12)">BA</div>
+      </div>`;
+    }).join('');
+  }
+
+  if (overdue.length > 0) {
+    html += `<div class="sec-hdr" style="margin-top:${baTrans.length ? 12 : 0}px">💸 Perlu bayaran manual — ${overdue.length} klien</div>`;
+    html += overdue.map(c => {
+      const color = c._mo === 0 ? '#e68a00' : '#e53935';
+      const bg    = c._mo === 0 ? 'rgba(230,138,0,.08)' : 'rgba(229,57,53,.06)';
+      const lbl   = c._mo === 0 ? 'Bulan ini' : `${c._mo} bln lalu`;
+      const stt   = c.status === 'In Force' ? '✓ Active' : c.status;
+      return `<div class="mp-client" style="background:${bg}">
+        <div class="mp-info">
+          <div class="mp-name">${c.name || '—'}</div>
+          <div class="mp-meta">${(c.certNo || '').replace(/^FWD\//,'')} · ${c.payMethod || '—'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="mp-amt">${RM(c.contribution)}</div>
+          <div style="font-size:.65rem;color:#aaa;margin-top:1px">${stt}</div>
+        </div>
+        <div class="mp-badge" style="color:${color};background:rgba(229,57,53,.1)">${lbl}</div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('mpContent').innerHTML = html;
+}
+
+/* ── PR13 & CE Tab ─────────────────────────────── */
+function renderPR13Tab(r2a, rCE, r2b) {
+  const pr13 = r2a.rate, ce = rCE.rate, pr25 = r2b.rate;
+  const pr13C = pr13 !== null ? (pr13 >= 90 ? '#0a9b43' : pr13 >= 70 ? '#e68a00' : '#e53935') : '#bbb';
+  const ceC   = ce   !== null ? (ce   >= 90 ? '#0a9b43' : ce   >= 70 ? '#e68a00' : '#e53935') : '#bbb';
+  const pr25C = pr25 !== null ? (pr25 >= 90 ? '#0a9b43' : pr25 >= 70 ? '#e68a00' : '#e53935') : '#bbb';
+
+  // Merge all rows for audit table (PR13 + CE, exclude na)
+  const auditRows = [
+    ...r2a.rows.filter(c => c._cls !== 'na').map(c => ({ ...c, _pool: 'PR13' })),
+    ...rCE.rows.filter(c => c._cls !== 'na').map(c => ({ ...c, _pool: 'CE' })),
+  ].sort((a, b) => {
+    const ord = { '100': 0, '0': 1, excl: 2 };
+    return (ord[a._cls] ?? 1) - (ord[b._cls] ?? 1);
+  });
+
+  const clsHtml = (cls, watch) => {
+    if (watch) return `<span class="cls-chip" style="color:#c77700;background:rgba(199,119,0,.12)">⚠️ Watch</span>`;
+    if (cls === '100') return `<span class="cls-chip" style="color:#0a9b43;background:rgba(10,155,67,.1)">✓ 100%</span>`;
+    if (cls === '0')   return `<span class="cls-chip" style="color:#e53935;background:rgba(229,57,53,.08)">✗ 0%</span>`;
+    return `<span class="cls-chip" style="color:#999;background:#f0f0f0">Excl</span>`;
+  };
+
+  const poolHtml = pool => pool === 'PR13'
+    ? `<span class="pool-chip" style="color:#7b1fa2;background:rgba(123,31,162,.1)">PR13</span>`
+    : `<span class="pool-chip" style="color:#1565c0;background:rgba(21,101,192,.1)">CE</span>`;
+
+  document.getElementById('pr13Content').innerHTML = `
+    <div class="metric-grid">
+      <div class="metric-box">
+        <div class="metric-box-lbl" style="color:#7b1fa2">PR13 (KPI 2a)</div>
+        <div class="metric-box-val" style="color:${pr13C}">${pr13 !== null ? pr13.toFixed(2) + '%' : '—'}</div>
+        <div style="font-size:.72rem;color:#aaa;margin-top:4px">${r2a.eligCount} klien eligible</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-box-lbl" style="color:#1565c0">CE (1st Year)</div>
+        <div class="metric-box-val" style="color:${ceC}">${ce !== null ? ce.toFixed(2) + '%' : '—'}</div>
+        <div style="font-size:.72rem;color:#aaa;margin-top:4px">${rCE.eligCount} klien eligible</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">KPI 2b — 2nd Year Persistency</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="bsc-big" style="color:${pr25C}">${pr25 !== null ? pr25.toFixed(2) + '%' : '—'}</div>
+        <div>
+          <div style="font-size:.75rem;color:#888">${r2b.eligCount} klien · ${RA(r2b.eligACE)} ACE eligible</div>
+          <div style="font-size:.73rem;color:#aaa;margin-top:2px">Cohort: ${new Date(PROJ_YEAR, PROJ_MONTH - 36, 1).toLocaleString('en-MY',{month:'short',year:'numeric'})} – ${new Date(PROJ_YEAR, PROJ_MONTH - 24, 1).toLocaleString('en-MY',{month:'short',year:'numeric'})}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-chips">
+      <div class="m-chip">Elig ACE <span>${RA(r2a.eligACE)}</span></div>
+      <div class="m-chip">Coll <span>${RA(r2a.collACE)}</span></div>
+      <div class="m-chip">0% <span>${RA(r2a.zeroACE)}</span></div>
+      <div class="m-chip">Excl <span>${RA(r2a.exclACE)}</span></div>
+    </div>
+    <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#aaa;margin-bottom:8px">Audit — PR13 &amp; CE (${auditRows.length} klien)</div>
+    <div class="audit-wrap">
+      <table class="audit">
+        <thead><tr>
+          <th>Klien</th><th>Pool</th><th>Due Date</th><th>Method</th><th style="text-align:right">ACE</th><th>Status</th>
+        </tr></thead>
+        <tbody>
+        ${auditRows.length === 0 ? '<tr><td colspan="6" style="text-align:center;color:#ccc;padding:20px">Tiada data</td></tr>' :
+          auditRows.map(c => {
+            const dk = c.dueDate ? new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth() : null;
+            const dateColor = dk === null ? '#aaa' : dk === TODAY_KEY ? '#e68a00' : dk < TODAY_KEY ? '#e53935' : '#0a9b43';
+            return `<tr${c._watch ? ' style="background:rgba(199,119,0,.05)"' : c._cls === '0' ? ' style="background:rgba(229,57,53,.03)"' : ''}>
+              <td>
+                <div style="font-weight:700;font-size:.8rem">${sn(c.name || '—')}</div>
+                <div style="font-size:.65rem;color:#bbb">${(c.certNo || '').replace(/^FWD\//,'')}</div>
+              </td>
+              <td>${poolHtml(c._pool)}</td>
+              <td style="color:${dateColor};font-weight:700">${c.dueDate || '—'}</td>
+              <td style="font-size:.71rem;color:#777">${(c.payMethod || '—').replace('Biro Angkasa','BA')}</td>
+              <td style="text-align:right;font-weight:800;font-size:.75rem">${RA(c._ace)}</td>
+              <td>${clsHtml(c._cls, c._watch)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+</script>
+</body>
+</html>
