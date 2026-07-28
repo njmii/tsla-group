@@ -256,7 +256,8 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
     <div class="pin-title">Two1two</div>
     <div class="pin-sub">Agent Dashboard — Masukkan PIN</div>
     <input id="pinInput" class="pin-input" type="tel" maxlength="4" placeholder="••••"
-      oninput="if(this.value.length===4)submitPin()" autocomplete="off">
+      oninput="if(this.value.replace(/\D/g,'').length===4){this.value=this.value.replace(/\D/g,'');submitPin()}"
+      autocomplete="off" inputmode="numeric">
     <div id="pinErr" class="pin-err"></div>
     <button class="pin-btn" onclick="submitPin()">Masuk</button>
   </div>
@@ -997,7 +998,7 @@ function renderContest(agCode, grp) {
 
   // Contest is personal production — always use the agent's own clients, never group
   const agObj = DATA.agents.find(a=>a.code===agCode);
-  const myCl  = (agObj?agObj.clients||[]).filter(c=>c.issueDate>=CONTEST_START&&c.issueDate<=CONTEST_END);
+  const myCl  = (agObj?.clients||[]).filter(c=>c.issueDate>=CONTEST_START&&c.issueDate<=CONTEST_END);
   const myACE = myCl.reduce((s,c)=>s+ace(c),0);
 
   const pct      = Math.min(100, myACE/CONTEST_TARGET*100);
