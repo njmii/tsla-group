@@ -886,47 +886,17 @@ function renderMTD(clients, agCode, grp) {
 function renderBSC(r13,r25,ka,kb,bsc,bd) {
   if (bsc===null) {
     document.getElementById('bscCard').innerHTML=`
-      <div class="card"><div class="card-hdr hdr-dark">🏆 BSC Performance</div>
-      <div class="card-body"><div class="empty-msg">Tiada data untuk pengiraan BSC.</div></div></div>`;
+      <div class="card"><div class="card-hdr hdr-dark">🏆 BSC</div>
+      <div class="card-body"><div class="empty-msg">Tiada data BSC.</div></div></div>`;
     return;
   }
+  const status = bsc>=100?'Overperformed':bsc>=85?'On Track':'Underperformed';
   document.getElementById('bscCard').innerHTML=`
     <div class="card">
-      <div class="card-hdr" style="background:${bd.color}">🏆 BSC Performance — ${vLabel()}</div>
-      <div class="card-body">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
-          <div>
-            <div class="big-num" style="color:${bd.color}">${bsc.toFixed(2)}%</div>
-            <div class="big-sub">${vLabel()}</div>
-          </div>
-          <div class="band" style="color:${bd.color};background:${bd.bg};font-size:.76rem;padding:6px 12px">${bd.lbl}</div>
-        </div>
-        <div class="kpi-row">
-          <span style="color:#888">KPI 1 — CFF (150 pts × 20%)</span>
-          <span class="kpi-pts" style="color:#27ae60">+30.00</span>
-        </div>
-        <div class="kpi-row">
-          <span>KPI 2a — PR13 (${ka} pts × 25%)</span>
-          <span class="kpi-pts" style="color:${ptsC(ka)}">+${(ka*0.25).toFixed(2)}</span>
-        </div>
-        <div class="kpi-row kpi-sub">
-          <span style="color:#555">${r13.rate!==null?`${r13.rate.toFixed(2)}% · ${r13.eCnt} klien`:'Tiada klien dalam window'}</span>
-        </div>
-        <div class="kpi-row">
-          <span>KPI 2b — 2nd Year (${kb} pts × 30%)</span>
-          <span class="kpi-pts" style="color:${ptsC(kb)}">+${(kb*0.30).toFixed(2)}</span>
-        </div>
-        <div class="kpi-row kpi-sub">
-          <span style="color:#555">${r25.rate!==null?`${r25.rate.toFixed(2)}% · ${r25.eCnt} klien`:'Tiada kohort 2nd year (0 pts)'}</span>
-        </div>
-        <div class="kpi-row">
-          <span style="color:#888">KPI 3 — Complaints (100 pts × 10%)</span>
-          <span class="kpi-pts" style="color:#27ae60">+10.00</span>
-        </div>
-        <div class="kpi-row" style="font-weight:900;border-top:2px solid #eee;padding-top:8px;margin-top:4px">
-          <span style="color:#111">BSC Score</span>
-          <span style="color:${bd.color};font-size:1rem">${bsc.toFixed(2)}%</span>
-        </div>
+      <div class="card-hdr" style="background:${bd.color}">🏆 BSC — ${vLabel()}</div>
+      <div class="card-body" style="text-align:center;padding:18px 16px">
+        <div class="big-num" style="color:${bd.color};font-size:2.8rem">${bsc.toFixed(2)}%</div>
+        <div class="band" style="color:${bd.color};background:${bd.bg};font-size:.82rem;padding:6px 14px;margin-top:10px;display:inline-block">${status}</div>
       </div>
     </div>`;
 }
