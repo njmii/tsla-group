@@ -53,6 +53,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hdr-slate{background:#455a64}
 .hdr-dark{background:#555}
 
+/* Startup scheme */
+.su-hdr{background:#7b1fa2;padding:11px 16px;font-size:.75rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#fff;border-radius:18px 18px 0 0}
+.su-body{padding:14px 16px 16px}
+.su-card{background:white;border-radius:18px;overflow:hidden;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.su-scheme-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.su-scheme-name{font-size:1rem;font-weight:900;color:#7b1fa2}
+.su-status-pill{font-size:.65rem;font-weight:800;border-radius:20px;padding:3px 10px}
+.su-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.su-stat{background:#f7f8fa;border-radius:12px;padding:11px 13px}
+.su-stat-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:3px}
+.su-stat-val{font-size:1.1rem;font-weight:900;letter-spacing:-.02em;color:#111}
+.su-stat-sub{font-size:.63rem;color:#aaa;margin-top:2px;font-weight:700}
+.su-prog-wrap{background:#e9d5ff;border-radius:99px;height:8px;overflow:hidden;margin:6px 0 3px}
+.su-prog-bar{height:100%;border-radius:99px}
+.su-prog-row{display:flex;justify-content:space-between;font-size:.63rem;color:#999;font-weight:700;margin-bottom:10px}
+.su-divider{border:none;border-top:1px solid #f0f0f0;margin:12px 0}
+.su-month-hdr{font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#7b1fa2;margin-bottom:8px}
+.su-month-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.su-result-pill{font-size:.68rem;font-weight:800;border-radius:8px;padding:3px 8px;display:inline-block}
+.su-badge{font-size:.57rem;font-weight:800;border-radius:6px;padding:2px 6px;background:#f3e8ff;color:#7b1fa2;display:inline-block;margin-top:3px}
+
 /* Two-col grid */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .g2 .card{margin-bottom:0}
@@ -303,6 +324,7 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
           <button id="tabMp" class="tab-btn" onclick="switchTab('mp')">💸 Manual</button>
           <button id="tabPr" class="tab-btn" onclick="switchTab('pr')">📋 PR13</button>
           <button id="tabAct" class="tab-btn" onclick="switchTab('act')">📅 Aktiviti</button>
+          <button id="tabSu" class="tab-btn" style="display:none" onclick="switchTab('su')">🚀 Startup</button>
         </div>
 
         <div id="paneOv">
@@ -317,6 +339,7 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
         <div id="paneActivity" style="display:none">
           <div id="actContent"><div class="loading">Memuatkan aktiviti…</div></div>
         </div>
+        <div id="paneSu" style="display:none"><div id="suCard"></div></div>
         <div id="panePr" style="display:none">
           <div id="prSummary"></div>
           <div class="pool-tab-row" id="poolTabRow"></div>
@@ -396,10 +419,11 @@ const EXCLUDE_AGENTS = new Set(['A15741']);
 const NO_COMMISSION  = new Set(['A11668']);
 const COMM_RATE = 0.32 / 12;
 const ACTIVITY_CODE_MAP = { 'A14252': 'TSLA_ROZA' };
+const STARTUP_AGENTS = new Set(['A15475','A15756','A15781','A16553']);
 function actCode(prCode) { return ACTIVITY_CODE_MAP[prCode] || prCode; }
 
 /* ── State ───────────────────────────── */
-let DATA = null, CUR = null, PU = 'P', VY, VM;
+let DATA = null, STARTUP_DATA = null, CUR = null, PU = 'P', VY, VM;
 let _PR_POOL='PR13', _PR_ROWS=[], _PR_R13=null, _PR_CE=null;
 let _MP_CLIENTS=[], _MP_FILTER='all';
 let _ACT_UNSUB=null, _FB_DB=null, _ACT_ALL_DATA={}, _ACT_VIEW_DATE=null, _ACT_TAB_ACT='daily', _ACT_LAST_PR_CODE=null;
@@ -578,12 +602,16 @@ function initApp() {
   initDate();
   buildMonths();
   setUpdLbl();
-  fetch('data/pr-data.json')
-    .then(r=>{if(!r.ok)throw Error(r.status);return r.json()})
-    .then(d=>{DATA=d;renderHome()})
-    .catch(()=>{
-      document.getElementById('homeContent').innerHTML='<div class="empty-msg">Gagal memuatkan data.</div>';
-    });
+  Promise.all([
+    fetch('data/pr-data.json').then(r=>{if(!r.ok)throw Error(r.status);return r.json()}),
+    fetch('data/startup-data.json').then(r=>r.ok?r.json():null).catch(()=>null)
+  ]).then(([pr, su])=>{
+    DATA=pr;
+    STARTUP_DATA=su;
+    renderHome();
+  }).catch(()=>{
+    document.getElementById('homeContent').innerHTML='<div class="empty-msg">Gagal memuatkan data.</div>';
+  });
 }
 
 /* boot */
@@ -614,11 +642,14 @@ function switchTab(t) {
   document.getElementById('paneMp').style.display=t==='mp'?'':'none';
   document.getElementById('panePr').style.display=t==='pr'?'':'none';
   document.getElementById('paneActivity').style.display=t==='act'?'':'none';
+  document.getElementById('paneSu').style.display=t==='su'?'':'none';
   document.getElementById('tabOv').classList.toggle('on',t==='ov');
   document.getElementById('tabMp').classList.toggle('on',t==='mp');
   document.getElementById('tabPr').classList.toggle('on',t==='pr');
   document.getElementById('tabAct').classList.toggle('on',t==='act');
+  document.getElementById('tabSu').classList.toggle('on',t==='su');
   if(t==='act') loadActivity(CUR);
+  if(t==='su') renderStartup(CUR);
 }
 
 /* ── Home — agent selection list ─────── */
@@ -635,8 +666,12 @@ function renderHome() {
     const hasBsc=ra.rate!==null||rb.rate!==null;
     const bsc=hasBsc?55+ka*0.25+kb*0.30:null;
     const bd=bsc!==null?band(bsc):null;
+    const isSu = STARTUP_AGENTS.has(ag.code);
     return `<div class="ag-card" onclick="showDash('${ag.code}')">
-      <div class="ag-name">${SN(ag.name)}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <div class="ag-name">${SN(ag.name)}</div>
+        ${isSu?'<span class="su-badge">🚀 Startup</span>':''}
+      </div>
       <div class="ag-code">${ag.code}</div>
       <div class="prog-wrap"><div class="prog-bar" style="width:${pct.toFixed(0)}%;background:${bc}"></div></div>
       <div style="display:flex;justify-content:space-between;font-size:.65rem;color:#666;margin-bottom:6px">
@@ -688,7 +723,114 @@ function renderDash(code) {
   try{renderBSC(r13,r25,ka,kb,bsc,bd);}catch(e){console.error('bsc',e);}
   try{renderMP(clients);}catch(e){console.error('mp',e);document.getElementById('mpCard').innerHTML='<div class="card"><div class="card-hdr hdr-red">💸 Koleksi Manual</div><div class="card-body"><div class="empty-msg">Ralat memuatkan data.</div></div></div>';}
   try{renderPR(r13,rCE,r25);}catch(e){console.error('pr',e);}
+  const suTab = document.getElementById('tabSu');
+  suTab.style.display = STARTUP_AGENTS.has(code) ? '' : 'none';
   switchTab('ov');
+}
+
+/* ── Startup Card ────────────────────── */
+function renderStartup(code) {
+  const el = document.getElementById('suCard');
+  if (!STARTUP_DATA) { el.innerHTML='<div class="empty-msg">Tiada data startup.</div>'; return; }
+  const su = STARTUP_DATA.agents.find(a=>a.code===code);
+  if (!su) { el.innerHTML='<div class="empty-msg">Agen ini tiada dalam skim startup.</div>'; return; }
+
+  const latest = su.months[su.months.length-1];
+  const ytdPct = su.ytdTargetACE>0 ? Math.min(100, su.ytdACE/su.ytdTargetACE*100) : 0;
+  const ytdCasePct = su.ytdTargetCases>0 ? Math.min(100, su.ytdCases/su.ytdTargetCases*100) : 0;
+  const progColor = ytdPct>=100?'#27ae60':ytdPct>=60?'#7b1fa2':'#e53935';
+  const statusColor = su.status==='ACTIVE'?{bg:'#d4edda',c:'#155724'}:{bg:'#f8d7da',c:'#721c24'};
+  const trainColor = su.training==='MET'?{bg:'#d4edda',c:'#155724'}:{bg:'#f8d7da',c:'#721c24'};
+
+  function resultPill(r) {
+    const ok = r==='Qualified';
+    return `<span class="su-result-pill" style="background:${ok?'#d4edda':'#ffeeba'};color:${ok?'#155724':'#856404'}">${r}</span>`;
+  }
+
+  el.innerHTML = `
+    <div class="su-card">
+      <div class="su-hdr">🚀 Startup Scheme — ${STARTUP_DATA.title.replace('Start-Up Elite Scheme Monthly Validation - ','')}</div>
+      <div class="su-body">
+
+        <div class="su-scheme-row">
+          <div class="su-scheme-name">${su.scheme}</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="su-status-pill" style="background:${statusColor.bg};color:${statusColor.c}">${su.status}</span>
+            <span class="su-status-pill" style="background:${trainColor.bg};color:${trainColor.c}">Training ${su.training}</span>
+          </div>
+        </div>
+
+        <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:6px">Pencapaian YTD</div>
+        <div class="su-stat-grid">
+          <div class="su-stat">
+            <div class="su-stat-lbl">ACE YTD</div>
+            <div class="su-stat-val">${RM(su.ytdACE)}</div>
+            <div class="su-stat-sub">Sasaran: ${RM(su.ytdTargetACE)}</div>
+          </div>
+          <div class="su-stat">
+            <div class="su-stat-lbl">Kes YTD</div>
+            <div class="su-stat-val">${su.ytdCases|0} / ${su.ytdTargetCases|0}</div>
+            <div class="su-stat-sub">${ytdCasePct.toFixed(0)}% sasaran</div>
+          </div>
+        </div>
+        <div class="su-prog-wrap"><div class="su-prog-bar" style="width:${ytdPct.toFixed(1)}%;background:${progColor}"></div></div>
+        <div class="su-prog-row"><span>ACE ${ytdPct.toFixed(1)}%</span><span>${RM(su.ytdTargetACE-su.ytdACE>0?su.ytdTargetACE-su.ytdACE:0)} lagi</span></div>
+
+        <hr class="su-divider">
+        <div class="su-stat-grid">
+          <div class="su-stat">
+            <div class="su-stat-lbl">Bonus Diterima</div>
+            <div class="su-stat-val" style="color:#7b1fa2">${RM(su.ytdPayout)}</div>
+            <div class="su-stat-sub">Kumulatif: ${RM(su.totalPayout)}</div>
+          </div>
+          <div class="su-stat">
+            <div class="su-stat-lbl">Bonus Per Bulan</div>
+            <div class="su-stat-val" style="color:#7b1fa2">RM 2,000</div>
+            <div class="su-stat-sub">Jika layak</div>
+          </div>
+        </div>
+
+        ${latest ? `
+        <hr class="su-divider">
+        <div class="su-month-hdr">Evaluasi Terkini — ${latest.evalMonth}</div>
+        <div class="su-month-grid">
+          <div class="su-stat">
+            <div class="su-stat-lbl">ACE MTD</div>
+            <div class="su-stat-val">${RM(latest.mtdACE)}</div>
+            <div class="su-stat-sub">Sasaran: ${RM(latest.mtdTarget)}</div>
+          </div>
+          <div class="su-stat">
+            <div class="su-stat-lbl">Kes MTD</div>
+            <div class="su-stat-val">${latest.mtdCases|0} / ${latest.mtdTargetCases|0}</div>
+            <div class="su-stat-sub">Bulan semasa</div>
+          </div>
+          <div class="su-stat" style="grid-column:1/-1">
+            <div class="su-stat-lbl">Keputusan</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px">
+              <div>MTD: ${resultPill(latest.mtdResult)} <span style="font-size:.63rem;color:#aaa;font-weight:700">${RM(latest.mtdPayout)}</span></div>
+              <div>Catch-Up: ${resultPill(latest.catchResult)} <span style="font-size:.63rem;color:#aaa;font-weight:700">${latest.catchPayout>0?RM(latest.catchPayout):'—'}</span></div>
+            </div>
+          </div>
+        </div>
+        ` : ''}
+
+        <hr class="su-divider">
+        <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:6px">Sasaran Bulan Depan</div>
+        <div class="su-month-grid">
+          <div class="su-stat">
+            <div class="su-stat-lbl">ACE Perlu</div>
+            <div class="su-stat-val" style="color:#7b1fa2">RM 8,000</div>
+            <div class="su-stat-sub">Minimum layak</div>
+          </div>
+          <div class="su-stat">
+            <div class="su-stat-lbl">Kes Perlu</div>
+            <div class="su-stat-val" style="color:#7b1fa2">2 kes</div>
+            <div class="su-stat-sub">Minimum layak</div>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
 }
 
 /* ── MTD Card ────────────────────────── */
