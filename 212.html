@@ -871,17 +871,23 @@ function renderStartup(code) {
             <div class="su-stat-lbl">ACE YTD</div>
             <div class="su-stat-val">${RM(su.ytdACE)}</div>
             <div class="su-stat-sub">Sasaran: ${RM(su.ytdTargetACE)}</div>
-            <div style="margin-top:8px">
-              <div class="su-stat-lbl">Baki</div>
-              <div style="font-size:.88rem;font-weight:900;color:${progColor}">${su.ytdACE>=su.ytdTargetACE?'✓ Tercapai!':RM(su.ytdTargetACE-su.ytdACE)+' lagi'}</div>
+            <div style="margin-top:6px">
+              ${(()=>{const diff=su.ytdACE-su.ytdTargetACE; const surplus=diff>=0;
+                return `<span style="display:inline-block;padding:2px 7px;border-radius:10px;font-size:.65rem;font-weight:800;background:${surplus?'rgba(39,174,96,.13)':'rgba(229,57,53,.11)'};color:${surplus?'#1a7a42':'#c62828'}">
+                  ${surplus?'▲ Lebihan +'+RM(diff):'▼ Kurang '+RM(-diff)}
+                </span>`;})()}
+              ${su.ytdACE>=su.ytdTargetACE?'<div style="font-size:.6rem;color:#888;margin-top:3px">Boleh guna untuk Catch-Up</div>':''}
             </div>
           </div>
           <div style="flex:1;min-width:0">
             <div class="su-stat-lbl">Kes YTD</div>
             <div class="su-stat-val">${su.ytdCases|0} / ${su.ytdTargetCases|0}</div>
             <div style="margin-top:4px">
-              <div class="su-prog-wrap" style="margin:6px 0 3px"><div class="su-prog-bar" style="width:${ytdCasePct.toFixed(1)}%;background:${ytdCasePct>=100?'#27ae60':'#7b1fa2'}"></div></div>
-              <div style="font-size:.63rem;color:#aaa;font-weight:700">${ytdCasePct.toFixed(0)}% sasaran</div>
+              <div class="su-prog-wrap" style="margin:4px 0 4px"><div class="su-prog-bar" style="width:${ytdCasePct.toFixed(1)}%;background:${ytdCasePct>=100?'#27ae60':'#7b1fa2'}"></div></div>
+              ${(()=>{const diff=(su.ytdCases|0)-(su.ytdTargetCases|0); const surplus=diff>=0;
+                return `<span style="display:inline-block;padding:2px 7px;border-radius:10px;font-size:.65rem;font-weight:800;background:${surplus?'rgba(39,174,96,.13)':'rgba(229,57,53,.11)'};color:${surplus?'#1a7a42':'#c62828'}">
+                  ${surplus?'▲ +'+diff+' kes':'▼ '+(-diff)+' kes lagi'}
+                </span>`;})()}
             </div>
           </div>
         </div>
