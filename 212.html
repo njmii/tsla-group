@@ -266,6 +266,61 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
 .act-num-chip{font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:8px}
 .act-present{background:rgba(26,115,232,.12);color:#1a73e8}
 .act-close{background:rgba(39,174,96,.12);color:#27ae60}
+
+/* ── Alert badge chips on home cards ── */
+.alert-chip{font-size:.56rem;font-weight:800;border-radius:6px;padding:2px 6px;display:inline-block;margin-top:4px;margin-right:3px}
+
+/* ── Dark mode ─────────────────────── */
+body[data-theme="dark"]{background:#0f0f0f;color:#e8e8e8}
+body[data-theme="dark"] #pinOverlay{background:#0f0f0f}
+body[data-theme="dark"] .pin-box{background:#1a1a1a}
+body[data-theme="dark"] .pin-input{background:#252525;color:#e8e8e8;border-color:#333}
+body[data-theme="dark"] .card,
+body[data-theme="dark"] .ag-card,
+body[data-theme="dark"] .ag-hdr-box{background:#1a1a1a;box-shadow:0 4px 20px rgba(0,0,0,.35)}
+body[data-theme="dark"] .ag-card{border-color:transparent}
+body[data-theme="dark"] .ag-card:hover,body[data-theme="dark"] .ag-card:active{border-color:#ff7a00}
+body[data-theme="dark"] .sub-bar{background:#1a1a1a;border-bottom-color:#333}
+body[data-theme="dark"] .tab-row{background:#252525}
+body[data-theme="dark"] .tab-btn{color:#666}
+body[data-theme="dark"] .back-btn{background:#252525}
+body[data-theme="dark"] .prog-wrap{background:#333}
+body[data-theme="dark"] .su-prog-wrap{background:#4a2060}
+body[data-theme="dark"] .su-stat,body[data-theme="dark"] .mbox,body[data-theme="dark"] .ar-sum-it,
+body[data-theme="dark"] .act-metric-box,body[data-theme="dark"] .act-total-box,
+body[data-theme="dark"] .act-amod-d-box,body[data-theme="dark"] .act-amod-progress,
+body[data-theme="dark"] .mp-item{background:#252525}
+body[data-theme="dark"] .su-divider{border-top-color:#333}
+body[data-theme="dark"] .su-card{background:#1a1a1a}
+body[data-theme="dark"] .ar-search{background:#252525;color:#e8e8e8;border-color:#333}
+body[data-theme="dark"] .ar-search:focus{border-color:#ff7a00}
+body[data-theme="dark"] .ar-sel{background:#252525;color:#aaa;border-color:#333}
+body[data-theme="dark"] .audit-wrap,body[data-theme="dark"] .ar-tbl-wrap{border-color:#333}
+body[data-theme="dark"] table.audit th,body[data-theme="dark"] table.ar-tbl th{background:#252525;border-bottom-color:#333}
+body[data-theme="dark"] table.audit td,body[data-theme="dark"] table.ar-tbl td{border-bottom-color:#222;color:#ccc}
+body[data-theme="dark"] table.ar-tbl tr.dim-r td{opacity:.25}
+body[data-theme="dark"] .kpi-row{border-bottom-color:#222;color:#ccc}
+body[data-theme="dark"] .chip{background:#252525;color:#666}
+body[data-theme="dark"] .chip span{color:#e8e8e8}
+body[data-theme="dark"] .act-stab{background:#252525;color:#666}
+body[data-theme="dark"] .act-stab.active{background:#e0e0e0;color:#111}
+body[data-theme="dark"] .act-date-nav-btn{background:#1a1a1a;border-color:#333;color:#ccc}
+body[data-theme="dark"] .sec-h{color:#555}
+body[data-theme="dark"] .upd-lbl{color:rgba(255,255,255,.7)}
+body[data-theme="dark"] .month-sel option{background:#1a1a1a}
+body[data-theme="dark"] .sp-cl-row{background:#1e1e1e!important}
+body[data-theme="dark"] .ar-sum-box{border-color:#333!important}
+body[data-theme="dark"] .act-amod-alert{background:rgba(229,57,53,.12)!important}
+body[data-theme="dark"] .act-amod-good{background:rgba(10,155,67,.1)!important}
+body[data-theme="dark"] .pool-tab{background:#252525;color:#666}
+body[data-theme="dark"] .whatif-hint{background:rgba(10,155,67,.08);color:#aaa}
+body[data-theme="dark"] .proj-bar{background:rgba(10,155,67,.08)!important;border-color:rgba(10,155,67,.25)!important;color:#5dbe7a}
+body[data-theme="dark"] .act-mo-table th{border-bottom-color:#333;color:#555}
+body[data-theme="dark"] .act-mo-table td{border-bottom-color:#1a1a1a}
+body[data-theme="dark"] .act-mo-table tr:hover td{background:#1e1e1e}
+body[data-theme="dark"] .act-hist-row:hover{background:#1e1e1e}
+body[data-theme="dark"] .act-hist-date{color:#aaa}
+body[data-theme="dark"] .footer{opacity:.85}
 </style>
 </head>
 <body>
@@ -289,6 +344,7 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
   <div class="top-bar">
     <img src="assets/tslalogo.png" class="top-logo" alt="TSLA">
     <span class="top-brand">Two1two</span>
+    <button id="darkToggle" onclick="toggleDark()" style="background:rgba(0,0,0,.2);color:#fff;border:none;border-radius:10px;width:32px;height:32px;font-size:1rem;cursor:pointer;flex-shrink:0">🌙</button>
     <select id="monthSel" class="month-sel" onchange="onMonthChange()"></select>
   </div>
   <div id="subBar" class="sub-bar" style="display:none">
@@ -393,6 +449,19 @@ function submitPin() {
     document.getElementById('pinInput').value = '';
   }
 }
+
+/* ── Dark mode ───────────────────────── */
+function applyTheme(dark){
+  document.body.dataset.theme = dark ? 'dark' : 'light';
+  const btn = document.getElementById('darkToggle');
+  if (btn) btn.textContent = dark ? '☀️' : '🌙';
+}
+function toggleDark(){
+  const nowDark = document.body.dataset.theme === 'dark';
+  localStorage.setItem('212_dark', nowDark ? '0' : '1');
+  applyTheme(!nowDark);
+}
+applyTheme(localStorage.getItem('212_dark') === '1');
 
 /* ── Config ──────────────────────────── */
 const GROUPS = {
@@ -656,17 +725,35 @@ function switchTab(t) {
 function renderHome() {
   if (!DATA) return;
 
+  const vk = vKey();
   const agCards = DATA.agents.filter(ag=>!EXCLUDE_AGENTS.has(ag.code)).map(ag=>{
     const cl = ag.clients||[];
     const m = mtdClients(cl).reduce((s,c)=>s+ace(c),0);
     const pct = Math.min(100, m/MTD_TARGET*100);
     const bc = pct>=100?'#27ae60':pct>=60?'#f0a500':'#e53935';
-    const ra = calcM(cl,clsPR13), rb = calcM(cl,clsPR25);
+    const ra = calcM(cl,clsPR13), rb = calcM(cl,clsPR25), rCE = calcM(cl,clsCE);
     const ka=ra.rate!==null?k2aPts(ra.rate):0, kb=rb.rate!==null?k2bPts(rb.rate):0;
     const hasBsc=ra.rate!==null||rb.rate!==null;
     const bsc=hasBsc?55+ka*0.25+kb*0.30:null;
     const bd=bsc!==null?band(bsc):null;
     const isSu = STARTUP_AGENTS.has(ag.code);
+
+    // Alert badges
+    const overdueCount = cl.filter(c=>{
+      if(!c.dueDate||c.status==='Freelook Cancellation'||(c.payMethod||'')==='Biro Angkasa')return false;
+      const dk=new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth();
+      return dk<=vk;
+    }).length;
+    const pr13Risk = ra.rate!==null && ra.rate<85;
+    const ceRisk   = rCE.rate!==null && rCE.rate<85;
+    const ceWatch  = rCE.rows ? rCE.rows.filter(r=>r._watch&&r._cls==='100').length : 0;
+    const badges = [
+      pr13Risk ? `<span class="alert-chip" style="background:rgba(229,57,53,.15);color:#e53935">⚠️ PR13 ${ra.rate.toFixed(0)}%</span>` : '',
+      ceRisk   ? `<span class="alert-chip" style="background:rgba(229,57,53,.15);color:#e53935">⚠️ CE ${rCE.rate.toFixed(0)}%</span>` : '',
+      ceWatch>0 ? `<span class="alert-chip" style="background:rgba(240,165,0,.15);color:#c77700">⏰ CE due ${ceWatch}</span>` : '',
+      overdueCount>0 ? `<span class="alert-chip" style="background:rgba(229,57,53,.12);color:#c0392b">💸 ${overdueCount} overdue</span>` : '',
+    ].join('');
+
     return `<div class="ag-card" onclick="showDash('${ag.code}')">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
         <div class="ag-name">${SN(ag.name)}</div>
@@ -679,11 +766,13 @@ function renderHome() {
       </div>
       ${bd?`<div class="band" style="color:${bd.color};background:${bd.bg}">${bd.lbl} ${bsc.toFixed(1)}%</div>`
           :`<div class="band" style="color:#aaa;background:#f0f0f0">—</div>`}
+      ${badges ? `<div style="margin-top:5px">${badges}</div>` : ''}
     </div>`;
   }).join('');
 
+  const freshLbl = DATA.updated ? `<span style="font-weight:600;color:#bbb;font-size:.62rem"> · Data: ${DATA.updated}</span>` : '';
   document.getElementById('homeContent').innerHTML = `
-    <div class="sec-h" style="margin-top:4px">Pilih Agen — ${vLabel()}</div>
+    <div class="sec-h" style="margin-top:4px">Pilih Agen — ${vLabel()}${freshLbl}</div>
     <div class="ag-grid">${agCards}</div>`;
 }
 
@@ -728,6 +817,26 @@ function renderDash(code) {
   switchTab('ov');
 }
 
+/* ── SVG Donut helper ────────────────── */
+function suDonut(pct, color, label) {
+  const r=36, cx=50, cy=50, sw=8;
+  const circ=2*Math.PI*r;
+  const dash=circ*Math.min(pct,100)/100;
+  const trackColor = document.body.dataset.theme==='dark' ? '#3a1a5a' : '#e9d5ff';
+  return `<svg viewBox="0 0 100 100" width="90" height="90" style="display:block;flex-shrink:0">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${trackColor}" stroke-width="${sw}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}"
+      stroke-dasharray="${dash.toFixed(2)} ${circ.toFixed(2)}"
+      stroke-dashoffset="${(circ/4).toFixed(2)}" stroke-linecap="round"/>
+    <text x="50" y="46" text-anchor="middle" dominant-baseline="middle"
+      font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+      font-size="15" font-weight="900" fill="${color}">${pct.toFixed(0)}%</text>
+    <text x="50" y="60" text-anchor="middle" dominant-baseline="middle"
+      font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+      font-size="8" font-weight="700" fill="#aaa">${label}</text>
+  </svg>`;
+}
+
 /* ── Startup Card ────────────────────── */
 function renderStartup(code) {
   const el = document.getElementById('suCard');
@@ -760,21 +869,27 @@ function renderStartup(code) {
           </div>
         </div>
 
-        <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:6px">Pencapaian YTD</div>
-        <div class="su-stat-grid">
-          <div class="su-stat">
+        <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:10px">Pencapaian YTD</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+          ${suDonut(ytdPct, progColor, 'ACE')}
+          <div style="flex:1;min-width:0">
             <div class="su-stat-lbl">ACE YTD</div>
             <div class="su-stat-val">${RM(su.ytdACE)}</div>
             <div class="su-stat-sub">Sasaran: ${RM(su.ytdTargetACE)}</div>
+            <div style="margin-top:8px">
+              <div class="su-stat-lbl">Baki</div>
+              <div style="font-size:.88rem;font-weight:900;color:${progColor}">${su.ytdACE>=su.ytdTargetACE?'✓ Tercapai!':RM(su.ytdTargetACE-su.ytdACE)+' lagi'}</div>
+            </div>
           </div>
-          <div class="su-stat">
+          <div style="flex:1;min-width:0">
             <div class="su-stat-lbl">Kes YTD</div>
             <div class="su-stat-val">${su.ytdCases|0} / ${su.ytdTargetCases|0}</div>
-            <div class="su-stat-sub">${ytdCasePct.toFixed(0)}% sasaran</div>
+            <div style="margin-top:4px">
+              <div class="su-prog-wrap" style="margin:6px 0 3px"><div class="su-prog-bar" style="width:${ytdCasePct.toFixed(1)}%;background:${ytdCasePct>=100?'#27ae60':'#7b1fa2'}"></div></div>
+              <div style="font-size:.63rem;color:#aaa;font-weight:700">${ytdCasePct.toFixed(0)}% sasaran</div>
+            </div>
           </div>
         </div>
-        <div class="su-prog-wrap"><div class="su-prog-bar" style="width:${ytdPct.toFixed(1)}%;background:${progColor}"></div></div>
-        <div class="su-prog-row"><span>ACE ${ytdPct.toFixed(1)}%</span><span>${RM(su.ytdTargetACE-su.ytdACE>0?su.ytdTargetACE-su.ytdACE:0)} lagi</span></div>
 
         <hr class="su-divider">
         <div class="su-stat-grid">
