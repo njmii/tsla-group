@@ -270,57 +270,6 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
 /* ── Alert badge chips on home cards ── */
 .alert-chip{font-size:.56rem;font-weight:800;border-radius:6px;padding:2px 6px;display:inline-block;margin-top:4px;margin-right:3px}
 
-/* ── Dark mode ─────────────────────── */
-body[data-theme="dark"]{background:#0f0f0f;color:#e8e8e8}
-body[data-theme="dark"] #pinOverlay{background:#0f0f0f}
-body[data-theme="dark"] .pin-box{background:#1a1a1a}
-body[data-theme="dark"] .pin-input{background:#252525;color:#e8e8e8;border-color:#333}
-body[data-theme="dark"] .card,
-body[data-theme="dark"] .ag-card,
-body[data-theme="dark"] .ag-hdr-box{background:#1a1a1a;box-shadow:0 4px 20px rgba(0,0,0,.35)}
-body[data-theme="dark"] .ag-card{border-color:transparent}
-body[data-theme="dark"] .ag-card:hover,body[data-theme="dark"] .ag-card:active{border-color:#ff7a00}
-body[data-theme="dark"] .sub-bar{background:#1a1a1a;border-bottom-color:#333}
-body[data-theme="dark"] .tab-row{background:#252525}
-body[data-theme="dark"] .tab-btn{color:#666}
-body[data-theme="dark"] .back-btn{background:#252525}
-body[data-theme="dark"] .prog-wrap{background:#333}
-body[data-theme="dark"] .su-prog-wrap{background:#4a2060}
-body[data-theme="dark"] .su-stat,body[data-theme="dark"] .mbox,body[data-theme="dark"] .ar-sum-it,
-body[data-theme="dark"] .act-metric-box,body[data-theme="dark"] .act-total-box,
-body[data-theme="dark"] .act-amod-d-box,body[data-theme="dark"] .act-amod-progress,
-body[data-theme="dark"] .mp-item{background:#252525}
-body[data-theme="dark"] .su-divider{border-top-color:#333}
-body[data-theme="dark"] .su-card{background:#1a1a1a}
-body[data-theme="dark"] .ar-search{background:#252525;color:#e8e8e8;border-color:#333}
-body[data-theme="dark"] .ar-search:focus{border-color:#ff7a00}
-body[data-theme="dark"] .ar-sel{background:#252525;color:#aaa;border-color:#333}
-body[data-theme="dark"] .audit-wrap,body[data-theme="dark"] .ar-tbl-wrap{border-color:#333}
-body[data-theme="dark"] table.audit th,body[data-theme="dark"] table.ar-tbl th{background:#252525;border-bottom-color:#333}
-body[data-theme="dark"] table.audit td,body[data-theme="dark"] table.ar-tbl td{border-bottom-color:#222;color:#ccc}
-body[data-theme="dark"] table.ar-tbl tr.dim-r td{opacity:.25}
-body[data-theme="dark"] .kpi-row{border-bottom-color:#222;color:#ccc}
-body[data-theme="dark"] .chip{background:#252525;color:#666}
-body[data-theme="dark"] .chip span{color:#e8e8e8}
-body[data-theme="dark"] .act-stab{background:#252525;color:#666}
-body[data-theme="dark"] .act-stab.active{background:#e0e0e0;color:#111}
-body[data-theme="dark"] .act-date-nav-btn{background:#1a1a1a;border-color:#333;color:#ccc}
-body[data-theme="dark"] .sec-h{color:#555}
-body[data-theme="dark"] .upd-lbl{color:rgba(255,255,255,.7)}
-body[data-theme="dark"] .month-sel option{background:#1a1a1a}
-body[data-theme="dark"] .sp-cl-row{background:#1e1e1e!important}
-body[data-theme="dark"] .ar-sum-box{border-color:#333!important}
-body[data-theme="dark"] .act-amod-alert{background:rgba(229,57,53,.12)!important}
-body[data-theme="dark"] .act-amod-good{background:rgba(10,155,67,.1)!important}
-body[data-theme="dark"] .pool-tab{background:#252525;color:#666}
-body[data-theme="dark"] .whatif-hint{background:rgba(10,155,67,.08);color:#aaa}
-body[data-theme="dark"] .proj-bar{background:rgba(10,155,67,.08)!important;border-color:rgba(10,155,67,.25)!important;color:#5dbe7a}
-body[data-theme="dark"] .act-mo-table th{border-bottom-color:#333;color:#555}
-body[data-theme="dark"] .act-mo-table td{border-bottom-color:#1a1a1a}
-body[data-theme="dark"] .act-mo-table tr:hover td{background:#1e1e1e}
-body[data-theme="dark"] .act-hist-row:hover{background:#1e1e1e}
-body[data-theme="dark"] .act-hist-date{color:#aaa}
-body[data-theme="dark"] .footer{opacity:.85}
 </style>
 </head>
 <body>
@@ -344,7 +293,6 @@ body[data-theme="dark"] .footer{opacity:.85}
   <div class="top-bar">
     <img src="assets/tslalogo.png" class="top-logo" alt="TSLA">
     <span class="top-brand">Two1two</span>
-    <button id="darkToggle" onclick="toggleDark()" style="background:rgba(0,0,0,.2);color:#fff;border:none;border-radius:10px;width:32px;height:32px;font-size:1rem;cursor:pointer;flex-shrink:0">🌙</button>
     <select id="monthSel" class="month-sel" onchange="onMonthChange()"></select>
   </div>
   <div id="subBar" class="sub-bar" style="display:none">
@@ -449,19 +397,6 @@ function submitPin() {
     document.getElementById('pinInput').value = '';
   }
 }
-
-/* ── Dark mode ───────────────────────── */
-function applyTheme(dark){
-  document.body.dataset.theme = dark ? 'dark' : 'light';
-  const btn = document.getElementById('darkToggle');
-  if (btn) btn.textContent = dark ? '☀️' : '🌙';
-}
-function toggleDark(){
-  const nowDark = document.body.dataset.theme === 'dark';
-  localStorage.setItem('212_dark', nowDark ? '0' : '1');
-  applyTheme(!nowDark);
-}
-applyTheme(localStorage.getItem('212_dark') === '1');
 
 /* ── Config ──────────────────────────── */
 const GROUPS = {
@@ -721,6 +656,43 @@ function switchTab(t) {
   if(t==='su') renderStartup(CUR);
 }
 
+/* ── Contest Leaderboard (home) ──────── */
+function renderContestLeaderboard() {
+  const start=CONTEST_START, end=CONTEST_END;
+  const now=new Date().toISOString().slice(0,10);
+  if (now<start||now>end) return '';
+
+  const ranked = DATA.agents.filter(ag=>!EXCLUDE_AGENTS.has(ag.code)).map(ag=>{
+    const myCl=(ag.clients||[]).filter(c=>c.issueDate>=start&&c.issueDate<=end);
+    const myACE=myCl.reduce((s,c)=>s+ace(c),0);
+    return {code:ag.code, name:SN(ag.name), ace:myACE, cases:myCl.length};
+  }).sort((a,b)=>b.ace-a.ace);
+
+  const medals=['🥇','🥈','🥉'];
+  const rows=ranked.map((ag,i)=>{
+    const pct=Math.min(100,ag.ace/CONTEST_TARGET*100);
+    const bc=pct>=80?'#27ae60':pct>=50?'#f0a500':'#e53935';
+    const isTop=i<3;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:${i<ranked.length-1?'1px solid #f5f5f5':'none'}${isTop?';background:transparent':''}" >
+      <div style="font-size:${i<3?'1.2rem':'.82rem'};width:28px;text-align:center;flex-shrink:0;font-weight:900;color:#bbb">${medals[i]||i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:900;font-size:.85rem;margin-bottom:3px">${ag.name}</div>
+        <div class="prog-wrap" style="margin:0 0 2px"><div class="prog-bar" style="width:${pct.toFixed(1)}%;background:${bc}"></div></div>
+        <div style="font-size:.61rem;color:#aaa;font-weight:700">${pct.toFixed(0)}% daripada ${RA(CONTEST_TARGET)} · ${ag.cases} kes</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:.95rem;font-weight:900;color:${bc}">${RA(ag.ace)}</div>
+        ${ag.ace>=CONTEST_TARGET?'<div style="font-size:.6rem;color:#27ae60;font-weight:800">✓ Tercapai</div>':''}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="card" style="margin-bottom:12px">
+    <div class="card-hdr" style="background:linear-gradient(135deg,#b06000,#e87c25)">🏆 Road to Bali — Kedudukan Jul–Sep 2026</div>
+    <div class="card-body" style="padding:10px 16px 14px">${rows}</div>
+  </div>`;
+}
+
 /* ── Home — agent selection list ─────── */
 function renderHome() {
   if (!DATA) return;
@@ -772,6 +744,7 @@ function renderHome() {
 
   const freshLbl = DATA.updated ? `<span style="font-weight:600;color:#bbb;font-size:.62rem"> · Data: ${DATA.updated}</span>` : '';
   document.getElementById('homeContent').innerHTML = `
+    ${renderContestLeaderboard()}
     <div class="sec-h" style="margin-top:4px">Pilih Agen — ${vLabel()}${freshLbl}</div>
     <div class="ag-grid">${agCards}</div>`;
 }
@@ -1320,10 +1293,15 @@ function _212_renderAuditTable(){
     ?_PR_ROWS.filter(r=>r._pool==='CE')
     :_PR_ROWS.filter(r=>r._pool==='PR13'||r._pool===null);
   const clsOrd={'0':1,'excl':2,'na':3,'100':4};
+  const _ik=c=>new Date(c.issueDate).getFullYear()*12+new Date(c.issueDate).getMonth();
+  const _moLeft=c=>pool==='PR13'?(_ik(c)+25-vKey()):(_ik(c)+13-vKey());
   const sorted=[...poolRows].sort((a,b)=>{
-    const ak=a._watch?0:(clsOrd[a._cls]??3);
-    const bk=b._watch?0:(clsOrd[b._cls]??3);
-    return ak-bk;
+    const aw=a._watch?0:99, bw=b._watch?0:99;
+    if(aw!==bw) return aw-bw;
+    const ao=clsOrd[a._cls]??3, bo=clsOrd[b._cls]??3;
+    if(ao!==bo) return ao-bo;
+    if(a._cls==='0') return _moLeft(a)-_moLeft(b);
+    return 0;
   });
   const metric=pool==='PR13'?_PR_R13:_PR_CE;
   const rate=metric.rate;
@@ -1351,9 +1329,13 @@ function _212_renderAuditTable(){
     const cbHtml=dispCls==='0'?`<input type="checkbox" class="zcb" data-ace="${c._ace}" data-pool="${pool}" onchange="_212_updateProj()"> `:'';
     const dk=c.dueDate?new Date(c.dueDate).getFullYear()*12+new Date(c.dueDate).getMonth():-1;
     const dc=dk<0?'#555':dk===vk?'#f0a500':dk<vk?'#e53935':'#777';
+    const moLeft = c._cls==='0'&&!isDim ? _moLeft(c) : null;
+    const urgBadge = moLeft!==null
+      ? `<span style="font-size:.59rem;font-weight:800;padding:1px 5px;border-radius:5px;display:inline-block;margin-top:2px;color:${moLeft<=2?'#c62828':moLeft<=4?'#e68a00':'#555'};background:${moLeft<=2?'rgba(229,57,53,.12)':moLeft<=4?'rgba(255,152,0,.12)':'rgba(0,0,0,.06)'}">⏱ ${moLeft} bln lagi</span>`
+      : '';
     return`<tr class="${isDim?'dim-r':''}" style="${c._watch?'background:rgba(199,119,0,.08)':c.status==='Lapsed'?'background:rgba(229,57,53,.05)':''}" data-name="${(c.name||'').toLowerCase().replace(/"/g,'')}" data-cert="${(c.certNo||'').toLowerCase().replace(/^fwd\//,'')}" data-cls="${dispCls}" data-status="${c.status||''}" data-duekey="${dk}">
       <td style="color:#555;white-space:nowrap">${cbHtml}${i+1}</td>
-      <td><div style="font-weight:700;color:#111;font-size:.77rem">${c.name||'—'}</div>${c._watch?'<span style="font-size:.59rem;font-weight:800;color:#e68a00;background:rgba(255,152,0,.12);padding:1px 5px;border-radius:5px;display:inline-block;margin-top:2px">⚠️ Due this month</span>':''}<div style="font-size:.62rem;color:#aaa;margin-top:1px">${(c.certNo||'').replace(/^FWD\//,'')}</div></td>
+      <td><div style="font-weight:700;color:#111;font-size:.77rem">${c.name||'—'}</div>${c._watch?'<span style="font-size:.59rem;font-weight:800;color:#e68a00;background:rgba(255,152,0,.12);padding:1px 5px;border-radius:5px;display:inline-block;margin-top:2px">⚠️ Due this month</span>':''}${urgBadge}<div style="font-size:.62rem;color:#aaa;margin-top:1px">${(c.certNo||'').replace(/^FWD\//,'')}</div></td>
       <td style="white-space:nowrap;color:#666">${c.issueDate||'—'}</td>
       <td style="white-space:nowrap;color:${dc};font-weight:700">${c.dueDate||'—'}</td>
       <td style="color:#666">${c.payMode||'—'}</td>
