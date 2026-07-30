@@ -811,11 +811,25 @@ function suDonut(pct, color, label) {
 }
 
 /* ── Startup Card ────────────────────── */
+function suMonthLabel(monthNum, baseMonthStr, maxMonthNum) {
+  // baseMonthStr e.g. "May 2026", maxMonthNum e.g. 16 → scheme month 16 = May 2026
+  const parts = baseMonthStr.split(' ');
+  const base = new Date(parts[1], ['January','February','March','April','May','June','July','August','September','October','November','December'].indexOf(parts[0]), 1);
+  base.setMonth(base.getMonth() + (monthNum - maxMonthNum));
+  return base.toLocaleString('en-MY', {month:'long', year:'numeric'});
+}
+
 function renderStartup(code) {
   const el = document.getElementById('suCard');
   if (!STARTUP_DATA) { el.innerHTML='<div class="empty-msg">Tiada data startup.</div>'; return; }
   const su = STARTUP_DATA.agents.find(a=>a.code===code);
   if (!su) { el.innerHTML='<div class="empty-msg">Agen ini tiada dalam skim startup.</div>'; return; }
+
+  // Derive real calendar month names from title
+  const reportPeriod = STARTUP_DATA.title.replace('Start-Up Elite Scheme Monthly Validation - ','');
+  const allMonthNums = (su.months||[]).map(m=>m.month);
+  const maxMonthNum = allMonthNums.length ? Math.max(...allMonthNums) : 1;
+  const toMonthLabel = n => suMonthLabel(n, reportPeriod, maxMonthNum);
 
   const latest = su.months[su.months.length-1];
   const ytdPct = su.ytdTargetACE>0 ? Math.min(100, su.ytdACE/su.ytdTargetACE*100) : 0;
@@ -824,6 +838,14 @@ function renderStartup(code) {
   const statusColor = su.status==='ACTIVE'?{bg:'#d4edda',c:'#155724'}:{bg:'#f8d7da',c:'#721c24'};
   const trainColor = su.training==='MET'?{bg:'#d4edda',c:'#155724'}:{bg:'#f8d7da',c:'#721c24'};
 
+  // Live current month production from master data
+  const liveAg = DATA && DATA.agents ? DATA.agents.find(a=>a.code===code) : null;
+  const liveCl = liveAg ? mtdClients(liveAg.clients||[]) : [];
+  const liveACE = liveCl.reduce((s,c)=>s+ace(c),0);
+  const liveCases = liveCl.length;
+  const livePct = Math.min(100, liveACE / (latest ? latest.mtdTarget : 8000) * 100);
+  const livePctColor = livePct>=100?'#27ae60':livePct>=60?'#7b1fa2':'#e53935';
+
   function resultPill(r) {
     const ok = r==='Qualified';
     return `<span class="su-result-pill" style="background:${ok?'#d4edda':'#ffeeba'};color:${ok?'#155724':'#856404'}">${r}</span>`;
@@ -831,7 +853,7 @@ function renderStartup(code) {
 
   el.innerHTML = `
     <div class="su-card">
-      <div class="su-hdr">🚀 Startup Scheme — ${STARTUP_DATA.title.replace('Start-Up Elite Scheme Monthly Validation - ','')}</div>
+      <div class="su-hdr">🚀 Startup Scheme — ${reportPeriod}</div>
       <div class="su-body">
 
         <div class="su-scheme-row">
@@ -880,7 +902,7 @@ function renderStartup(code) {
 
         ${latest ? `
         <hr class="su-divider">
-        <div class="su-month-hdr">Evaluasi Terkini — ${latest.evalMonth}</div>
+        <div class="su-month-hdr">Laporan Terkini — ${toMonthLabel(latest.month)} <span style="font-size:.62rem;font-weight:600;color:#bbb;margin-left:4px">(bulan lepas)</span></div>
         <div class="su-month-grid">
           <div class="su-stat">
             <div class="su-stat-lbl">ACE MTD</div>
@@ -890,7 +912,7 @@ function renderStartup(code) {
           <div class="su-stat">
             <div class="su-stat-lbl">Kes MTD</div>
             <div class="su-stat-val">${latest.mtdCases|0} / ${latest.mtdTargetCases|0}</div>
-            <div class="su-stat-sub">Bulan semasa</div>
+            <div class="su-stat-sub">${toMonthLabel(latest.month)}</div>
           </div>
           <div class="su-stat" style="grid-column:1/-1">
             <div class="su-stat-lbl">Keputusan</div>
@@ -901,6 +923,21 @@ function renderStartup(code) {
           </div>
         </div>
         ` : ''}
+
+        <hr class="su-divider">
+        <div class="su-month-hdr">Pengeluaran Semasa — ${vLabel()} <span style="font-size:.62rem;font-weight:600;color:#27ae60;margin-left:4px">● Live</span></div>
+        <div class="su-month-grid">
+          <div class="su-stat">
+            <div class="su-stat-lbl">ACE MTD</div>
+            <div class="su-stat-val" style="color:${livePctColor}">${RM(liveACE)}</div>
+            <div class="su-stat-sub">Sasaran: ${RM(latest ? latest.mtdTarget : 8000)}</div>
+          </div>
+          <div class="su-stat">
+            <div class="su-stat-lbl">Kes MTD</div>
+            <div class="su-stat-val" style="color:${livePctColor}">${liveCases} kes</div>
+            <div class="su-stat-sub">${livePct.toFixed(0)}% sasaran ACE</div>
+          </div>
+        </div>
 
         <hr class="su-divider">
         <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:6px">Sasaran Bulan Depan</div>
