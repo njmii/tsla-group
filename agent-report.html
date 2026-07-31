@@ -1786,6 +1786,15 @@ function _renderMpCards() {
     const statusColor  = c.status === 'In Force' ? 'badge-green' : 'badge-red';
     const isPaid       = paid.has(c.certNo);
     const safeCert     = (c.certNo || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const ik = new Date(c.issueDate).getFullYear()*12 + new Date(c.issueDate).getMonth();
+    const vk = PROJ_YEAR * 12 + PROJ_MONTH;
+    const inPR13 = ik >= vk - 24 && ik < vk - 12;
+    const mToPR13 = ik + 13 - vk;
+    const pr13Tag = inPR13
+      ? `<span style="font-size:.64rem;font-weight:800;color:#b71c1c;background:rgba(183,28,28,.12);padding:2px 8px;border-radius:8px">⚠️ Dalam PR13 sekarang</span>`
+      : mToPR13 > 0
+        ? `<span style="font-size:.64rem;font-weight:800;color:${mToPR13<=3?'#b71c1c':mToPR13<=6?'#e65100':'#777'};background:${mToPR13<=3?'rgba(183,28,28,.10)':mToPR13<=6?'rgba(230,101,0,.10)':'rgba(0,0,0,.06)'};padding:2px 8px;border-radius:8px">⏱ ${mToPR13} bln ke PR13</span>`
+        : '';
     return `<div class="sp-client-row" style="background:${urgency.bg};border-left-color:${urgency.bdr}${isPaid ? ';opacity:.4' : ''}">
         <div class="sp-client-info">
           ${_spClientName(c, isPaid)}
@@ -1794,6 +1803,7 @@ function _renderMpCards() {
             <span class="badge ${statusColor}" style="font-size:.68rem">${c.status}</span>
             <span class="badge badge-amber" style="font-size:.68rem">${c.payMethod || c.payMode || '—'}</span>
             <span style="font-size:.66rem;font-weight:800;color:${urgency.bdr};background:${urgency.bg};padding:2px 8px;border-radius:8px">${urgency.pill} ${label}</span>
+            ${pr13Tag}
           </div>
         </div>
         ${_spClientRight(c, isPaid, safeCert)}

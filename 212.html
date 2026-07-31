@@ -1174,6 +1174,15 @@ function _renderMP212() {
     const methodLabel = (c.payMethod || c.payMode || '—')
       .replace('Credit Card - IPAY88','CC-IPAY').replace('Credit Card - Razer','CC-Razer')
       .replace('Direct Billing (Cash)','Cash').replace('Credit Card','CC');
+    const _ik2 = new Date(c.issueDate).getFullYear()*12 + new Date(c.issueDate).getMonth();
+    const _vk2 = vKey();
+    const _inPR13 = _ik2 >= _vk2 - 24 && _ik2 < _vk2 - 12;
+    const _mToPR13 = _ik2 + 13 - _vk2;
+    const pr13Tag = _inPR13
+      ? `<span class="sp-tag2" style="font-weight:800;color:#b71c1c;background:rgba(183,28,28,.12)">⚠️ Dalam PR13 sekarang</span>`
+      : _mToPR13 > 0
+        ? `<span class="sp-tag2" style="font-weight:800;color:${_mToPR13<=3?'#b71c1c':_mToPR13<=6?'#e65100':'#777'};background:${_mToPR13<=3?'rgba(183,28,28,.10)':_mToPR13<=6?'rgba(230,101,0,.10)':'rgba(0,0,0,.06)'}">⏱ ${_mToPR13} bln ke PR13</span>`
+        : '';
     return `<div class="sp-cl-row" style="background:${urgency.bg};border-left-color:${urgency.bdr}${isPaid?';opacity:.4':''}">
       <div class="sp-cl-info">
         ${_212_mpClientName(c, isPaid)}
@@ -1182,6 +1191,7 @@ function _renderMP212() {
           ${sChip}
           <span class="sp-tag2" style="color:#f0a500;background:rgba(240,165,0,.15)">${methodLabel}</span>
           <span class="sp-tag2" style="color:${urgency.bdr};background:${urgency.bg}">${urgency.pill} ${label}</span>
+          ${pr13Tag}
         </div>
       </div>
       ${_212_mpClientRight(c, isPaid, safeCert)}
