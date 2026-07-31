@@ -1460,7 +1460,7 @@ function renderContest(data) {
 }
 
 /* ── Manual Payment Overdue ──────────────────────────── */
-let _mpFilter  = 'all'; // 'all' | 'inforce' | 'lapsed'
+let _mpFilter  = 'inforce'; // 'all' | 'inforce' | 'lapsed'
 let _mpEntries = [];    // overdue: non-BA, dueKey <= TODAY_KEY
 let _mpBaTrans = [];    // BA transition: Biro Angkasa clients, dueKey in [TODAY_KEY-3, TODAY_KEY]
 
@@ -1711,7 +1711,7 @@ function renderManualPayment(data) {
       return { ag, clients };
     });
 
-  _mpFilter = 'all';
+  _mpFilter = 'inforce';
   _renderMpCards();
 }
 
