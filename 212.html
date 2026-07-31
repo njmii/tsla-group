@@ -1112,7 +1112,10 @@ function _renderMP212() {
     if (c.status === 'Freelook Cancellation') return false;
     if ((c.payMethod || '') !== 'Biro Angkasa') return false;
     const ik = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
-    return ik >= vk - 2 && ik <= vk;
+    if (!(ik >= vk - 2 && ik <= vk)) return false;
+    // Hide if client already paid — next due date is in a future month
+    const dk2 = c.dueDate ? new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth() : null;
+    return dk2 === null || dk2 <= vk;
   }).map(c => {
     const ik = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
     const dk = c.dueDate ? new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth() : null;

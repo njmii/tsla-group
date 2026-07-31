@@ -1702,7 +1702,10 @@ function renderManualPayment(data) {
         if (c.status === 'Freelook Cancellation') return false;
         if ((c.payMethod || '') !== 'Biro Angkasa') return false;
         const issueKey = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
-        return issueKey >= TODAY_KEY - 2 && issueKey <= TODAY_KEY;
+        if (!(issueKey >= TODAY_KEY - 2 && issueKey <= TODAY_KEY)) return false;
+        // Hide if client already paid — next due date is in a future month
+        const dueKey = c.dueDate ? new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth() : null;
+        return dueKey === null || dueKey <= TODAY_KEY;
       }).map(c => {
         const issueKey = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
         const dueKey   = c.dueDate ? new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth() : null;
