@@ -429,7 +429,7 @@ function actCode(prCode) { return ACTIVITY_CODE_MAP[prCode] || prCode; }
 /* ── State ───────────────────────────── */
 let DATA = null, STARTUP_DATA = null, CUR = null, PU = 'P', VY, VM;
 let _PR_POOL='PR13', _PR_ROWS=[], _PR_R13=null, _PR_CE=null;
-let _MP_CLIENTS=[], _MP_FILTER='all';
+let _MP_CLIENTS=[], _MP_FILTER='inforce';
 let _ACT_UNSUB=null, _FB_DB=null, _ACT_ALL_DATA={}, _ACT_VIEW_DATE=null, _ACT_TAB_ACT='daily', _ACT_LAST_PR_CODE=null;
 
 /* ── Date init ───────────────────────── */
@@ -1096,7 +1096,7 @@ function _212_mpClientRight(c, isPaid, safeCert) {
 /* ── Manual Payment Card ─────────────── */
 function renderMP(clients) {
   _MP_CLIENTS = clients;
-  _MP_FILTER = 'all';
+  _MP_FILTER = 'inforce';
   _renderMP212();
 }
 
