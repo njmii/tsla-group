@@ -1833,10 +1833,10 @@ function _renderMpCards() {
             ${needJomPay ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.15);color:#b45309">2️⃣ ${needJomPay}</span>` : ''}
             ${needVerify ? `<span class="sp-count-badge" style="background:rgba(229,57,53,.12);color:#c62828">3️⃣ ${needVerify}</span>` : ''}
             <button onclick="event.stopPropagation();_mpShareWA('${ag.code}','ba')" style="border:none;border-radius:10px;padding:4px 10px;font-size:.72rem;font-weight:800;cursor:pointer;background:rgba(37,211,102,.15);color:#128c7e">📤 WA</button>
-            <span id="${arrowId}" style="color:#1e88e5;font-size:.9rem;margin-left:2px">▲</span>
+            <span id="${arrowId}" style="color:#1e88e5;font-size:.9rem;margin-left:2px">▼</span>
           </div>
         </div>
-        <div class="sp-client-list" id="${bodyId}">
+        <div class="sp-client-list" id="${bodyId}" style="display:none">
           ${clients.map(baRowHtml).join('')}
         </div>
       </div>`;
@@ -1883,10 +1883,10 @@ function _renderMpCards() {
           ${mild      ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.15);color:#b45309">🟡 ${mild}</span>`      : ''}
           ${thisMonth ? `<span class="sp-count-badge" style="background:rgba(255,193,7,.10);color:#b45309">⏳ ${thisMonth}</span>` : ''}
           <button onclick="event.stopPropagation();_mpShareWA('${ag.code}','overdue')" style="border:none;border-radius:10px;padding:4px 10px;font-size:.72rem;font-weight:800;cursor:pointer;background:rgba(37,211,102,.15);color:#128c7e">📤 WA</button>
-          <span id="${arrowId}" style="color:#e53935;font-size:.9rem;margin-left:2px">▲</span>
+          <span id="${arrowId}" style="color:#e53935;font-size:.9rem;margin-left:2px">▼</span>
         </div>
       </div>
-      <div class="sp-client-list" id="${bodyId}">
+      <div class="sp-client-list" id="${bodyId}" style="display:none">
         ${clients.map(overdueRowHtml).join('')}
       </div>
     </div>`;
