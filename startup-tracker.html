@@ -631,9 +631,13 @@ async function pushToGitHub(data) {
   showPushStatus('pushing', '⏳ Menghantar ke GitHub...');
 
   const jsonStr = JSON.stringify(data, null, 0);
-  // Encode UTF-8 → base64 correctly (handles Malay chars)
-  const bytes   = new TextEncoder().encode(jsonStr);
-  const b64     = btoa(String.fromCharCode(...bytes));
+  // Encode UTF-8 → base64 in chunks to avoid stack overflow on large files
+  const bytes = new TextEncoder().encode(jsonStr);
+  let b64 = '';
+  for (let i = 0; i < bytes.length; i += 8192) {
+    b64 += String.fromCharCode(...bytes.subarray(i, i + 8192));
+  }
+  b64 = btoa(b64);
 
   const headers = {
     'Authorization': 'Bearer ' + token,
