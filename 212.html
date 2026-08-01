@@ -965,7 +965,6 @@ function renderHome() {
 
   const freshLbl = DATA.updated ? `<span style="font-weight:600;color:#bbb;font-size:.62rem"> · Data: ${DATA.updated}</span>` : '';
   document.getElementById('homeContent').innerHTML = `
-    ${renderActionList()}
     ${renderContestLeaderboard()}
     <div class="sec-h" style="margin-top:4px">Pilih Agen — ${vLabel()}${freshLbl}</div>
     <div class="ag-grid">${agCards}</div>`;
