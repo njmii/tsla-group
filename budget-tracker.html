@@ -778,6 +778,30 @@ function payKey() {
   return `${viewYear}-${String(viewMonth+1).padStart(2,'0')}`;
 }
 
+function migratePaymentsToPeriodKey() {
+  // Move payments stored under old YYYY-MM keys into the period key (YYYY-MM-DD)
+  if (!data.periodFrom || !data.payments) return;
+  const newKey = data.periodFrom;
+  if (data.payments[newKey]) return; // already on new key, nothing to do
+  const fromYM = data.periodFrom.slice(0, 7);
+  const toYM   = (data.periodTo || data.periodFrom).slice(0, 7);
+  const oldKeys = Object.keys(data.payments).filter(k => k.length === 7 && k >= fromYM && k <= toYM);
+  if (!oldKeys.length) return;
+  data.payments[newKey] = {};
+  oldKeys.forEach(oldKey => {
+    const bucket = data.payments[oldKey] || {};
+    Object.keys(bucket).forEach(cid => {
+      const val = bucket[cid];
+      const entries = Array.isArray(val) ? val
+        : typeof val === 'number' ? [{ id: 0, amount: val, date: oldKey + '-01' }] : [];
+      if (!data.payments[newKey][cid]) data.payments[newKey][cid] = entries;
+      else data.payments[newKey][cid] = [...data.payments[newKey][cid], ...entries];
+    });
+    delete data.payments[oldKey];
+  });
+  save();
+}
+
 function getPayments(commitId) {
   const val = ((data.payments || {})[payKey()] || {})[commitId];
   if (!val) return [];
@@ -1193,6 +1217,7 @@ function load() {
       }
     });
   });
+  migratePaymentsToPeriodKey();
   // Restore inputs
   document.getElementById('salaryInput').value     = data.salary || '';
   document.getElementById('periodFromInput').value = data.periodFrom;
@@ -1338,6 +1363,7 @@ function loginAs(user, fbData) {
     if (!data.payments)   data.payments   = {};
     if (!data.periodFrom) data.periodFrom = '';
     if (!data.periodTo)   data.periodTo   = '';
+    migratePaymentsToPeriodKey();
     localStorage.setItem(currentSK, JSON.stringify(data));
   } else {
     data = { salary:0, commitments:[], expenses:{}, payments:{}, periodFrom:'', periodTo:'' };
@@ -1520,6 +1546,7 @@ async function _bgSync(user) {
     if (!Array.isArray(data.commitments)) data.commitments = Object.values(data.commitments || {});
     if (!data.expenses)   data.expenses   = {};
     if (!data.payments)   data.payments   = {};
+    migratePaymentsToPeriodKey();
     localStorage.setItem(currentSK, JSON.stringify(data));
     document.getElementById('salaryInput').value     = data.salary || '';
     document.getElementById('periodFromInput').value = data.periodFrom || '';
