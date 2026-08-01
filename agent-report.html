@@ -606,6 +606,16 @@ function calcPR13(agent) {
   return { ...r, pr13: r.rate };
 }
 
+function calcPR13NextMonth(agent) {
+  const savedY = PROJ_YEAR, savedM = PROJ_MONTH;
+  const nY = savedM === 11 ? savedY + 1 : savedY;
+  const nM = savedM === 11 ? 0 : savedM + 1;
+  setProjMonth(nY, nM);
+  const r = calcPR13(agent);
+  setProjMonth(savedY, savedM);
+  return r;
+}
+
 /* ── Compute GROUP PR13 for a leader (direct + downlines) ─ */
 function calcGroupPR13(ag, allAgents) {
   if (!ag.downlines || !ag.downlines.length) return null;
@@ -687,10 +697,11 @@ function renderLeaderboard(data) {
   // Compute PR13 and CE for every agent, sort by PR13 desc (null last)
   const agents = data.agents.filter(ag => !EXCLUDED_AGENTS.has(ag.code)).map(ag => ({
     ag,
-    result:    calcPR13(ag),
-    ceResult:  calcCE(ag),
-    ytdACE:    calcYTD(ag),
-    groupPR13: calcGroupPR13(ag, data.agents)
+    result:      calcPR13(ag),
+    ceResult:    calcCE(ag),
+    ytdACE:      calcYTD(ag),
+    groupPR13:   calcGroupPR13(ag, data.agents),
+    nextPR13:    calcPR13NextMonth(ag).pr13
   }));
   const LEADER = 'A11668';
   agents.sort((a, b) => {
@@ -761,7 +772,7 @@ function renderLeaderboard(data) {
       </div>`;
   }
 
-  html += agents.map(({ ag, result, ceResult, ytdACE, groupPR13 }, i) => {
+  html += agents.map(({ ag, result, ceResult, ytdACE, groupPR13, nextPR13 }, i) => {
     const { pr13, eligCount, eligACE, collACE: prCollACE } = result;
     const { ce, eligCount: ceEligCount } = ceResult;
     const atRisk = atRiskMap[ag.code] || [];
@@ -799,6 +810,11 @@ function renderLeaderboard(data) {
             <div style="display:flex;align-items:center;gap:6px">
               <span style="font-size:.68rem;font-weight:700;color:#aaa">${hasGroup ? 'Direct' : 'PR13'}</span>
               <span class="pr13-badge ${prClass}">${prLabel}</span>
+              ${nextPR13 !== null && hasData ? (() => {
+                const d = nextPR13 - pr13;
+                const col = d >= 0 ? '#0a9b43' : '#e53935';
+                return `<span style="font-size:.62rem;font-weight:800;color:${col}">${d >= 0 ? '↗' : '↘'} ${nextPR13.toFixed(1)}%</span>`;
+              })() : ''}
             </div>
             ${hasGroup ? `<div style="display:flex;align-items:center;gap:6px">
               <span style="font-size:.68rem;font-weight:700;color:#aaa">Group</span>
@@ -1517,6 +1533,9 @@ function _spClientMeta(c) {
 function _spClientRight(c, isPaid, safeCert) {
   const contrib    = c.contribution ? _fmtRM(c.contribution) + '/mo' : '—';
   const commission = c.contribution ? _fmtRM(_mpComm(c)) : '—';
+  const waMsg = encodeURIComponent(
+    `Assalamualaikum *${c.name || ''}*,\n\nSekadar peringatan mesra bayaran polisi FWD anda 🔔\n\n📄 No. Sijil: ${c.certNo || ''}\n📋 Pelan: ${c.plan || ''}\n📅 Tarikh Due: ${c.dueDate || '—'}\n💰 Premium: RM ${c.contribution || '—'}/bulan\n\nMohon selesaikan bayaran. Terima kasih 🙏`
+  );
   return `<div class="sp-client-right">
           <div class="sp-contrib">${contrib}</div>
           <div style="font-size:.72rem;color:#e53935;font-weight:800;margin-top:2px">💸 ${commission}</div>
@@ -1524,6 +1543,7 @@ function _spClientRight(c, isPaid, safeCert) {
             <input type="checkbox" ${isPaid ? 'checked' : ''} onchange="_mpTogglePaid('${safeCert}')" style="cursor:pointer;width:14px;height:14px;accent-color:#0a9b43">
             <span style="color:${isPaid ? '#0a9b43' : '#888'}">${isPaid ? 'Terbayar' : 'Tandakan'}</span>
           </label>
+          <a href="https://wa.me/?text=${waMsg}" target="_blank" style="display:block;margin-top:6px;padding:4px 10px;background:#25d366;color:white;border-radius:10px;font-size:.68rem;font-weight:800;text-decoration:none;text-align:center">📲 WA</a>
         </div>`;
 }
 function _sharePickerRow(a, accentColor) {
@@ -2582,13 +2602,37 @@ function xlsxRowsToData(rows) {
 }
 
 /* ── Bootstrap ────────────────────────────────────────── */
+const _GH_RAW_PR = 'https://raw.githubusercontent.com/njmii/tsla-group/main/data/pr-data.json';
+
+function _bgRefresh() {
+  fetch(_GH_RAW_PR + '?t=' + Date.now())
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data) return;
+      const cur = window._lastData;
+      if (cur && cur.updated === data.updated) return;
+      window._lastData = data;
+      buildMonthPicker();
+      renderLeaderboard(data);
+      const badge = document.getElementById('updatedBadge');
+      if (badge) {
+        badge.textContent = '↻ Updated: ' + data.updated;
+        badge.style.background = '#0a9b43';
+        badge.style.color = 'white';
+        setTimeout(() => { badge.style.background = ''; badge.style.color = ''; badge.textContent = 'Data: ' + data.updated; }, 3000);
+      }
+    })
+    .catch(() => {});
+}
+
 function startFetch() {
   fetch('data/pr-data.json')
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(data => { window._lastData = data; buildMonthPicker(); renderLeaderboard(data); })
+    .then(data => { window._lastData = data; buildMonthPicker(); renderLeaderboard(data); setTimeout(_bgRefresh, 1500); })
     .catch(err => {
       document.getElementById('leaderboardList').innerHTML =
         `<div class="error-box">Failed to load data.<br><small>${err.message}</small></div>`;
+      _bgRefresh();
     });
 }
 (function() {
@@ -2600,6 +2644,7 @@ function startFetch() {
       buildMonthPicker();
       renderLeaderboard(data);
       document.getElementById('clearImport').style.display = '';
+      setTimeout(_bgRefresh, 1500);
     } catch(e) { localStorage.removeItem('tsla_data'); startFetch(); }
   } else { startFetch(); }
 })();
