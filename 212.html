@@ -1031,6 +1031,50 @@ function suDonut(pct, color, label) {
   </svg>`;
 }
 
+/* ── Startup Sparkline ───────────────── */
+function suSparkline(months, toMonthLabel, liveACE, liveTarget) {
+  const W = 260, H = 92, padL = 6, padR = 6, padT = 22, padB = 28;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const liveLabel = vLabel().split(' ')[0];
+  const allBars = [
+    ...months.map(m => ({
+      ace: m.mtdACE, target: m.mtdTarget,
+      label: toMonthLabel(m.month).split(' ')[0].slice(0, 3), live: false
+    })),
+    { ace: liveACE, target: liveTarget, label: liveLabel, live: true }
+  ];
+  const n = allBars.length;
+  const gap = Math.min(6, Math.max(3, 24 / n));
+  const barW = (innerW - gap * (n - 1)) / n;
+  const maxACE = Math.max(...allBars.map(b => Math.max(b.ace, b.target)), 1);
+  const refTarget = months.length > 0 ? months[months.length - 1].mtdTarget : liveTarget;
+  const tY = padT + innerH - (innerH * refTarget) / maxACE;
+  const barsHtml = allBars.map((b, i) => {
+    const x = padL + i * (barW + gap);
+    const bH = Math.max(2, (innerH * b.ace) / maxACE);
+    const y = padT + innerH - bH;
+    const pct = b.target > 0 ? b.ace / b.target : 0;
+    const solidColor = pct >= 1 ? '#27ae60' : pct >= 0.8 ? '#f59e0b' : '#e53935';
+    const fill = b.live
+      ? (pct >= 1 ? 'rgba(39,174,96,.28)' : pct >= 0.8 ? 'rgba(245,158,11,.28)' : 'rgba(229,57,53,.28)')
+      : solidColor;
+    const rmLbl = b.ace >= 1000 ? (b.ace / 1000).toFixed(1) + 'k' : Math.round(b.ace);
+    const cx = (x + barW / 2).toFixed(1);
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${bH.toFixed(1)}" rx="3" fill="${fill}"
+      ${b.live ? `stroke="${solidColor}" stroke-width="1.5" stroke-dasharray="3,2"` : ''}/>
+    <text x="${cx}" y="${(y - 4).toFixed(1)}" text-anchor="middle" font-size="7" font-weight="800"
+      fill="${b.live ? '#bbb' : '#555'}" font-family="-apple-system,sans-serif">${rmLbl}</text>
+    <text x="${cx}" y="${(H - padB + 13).toFixed(1)}" text-anchor="middle" font-size="7.5" font-weight="700"
+      fill="${b.live ? '#ff7a00' : '#888'}" font-family="-apple-system,sans-serif">${b.label}</text>
+    ${b.live ? `<text x="${cx}" y="${(H - padB + 21).toFixed(1)}" text-anchor="middle" font-size="6" font-weight="700" fill="#ff7a00" font-family="-apple-system,sans-serif">live</text>` : ''}`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">
+    <line x1="${padL}" y1="${tY.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${tY.toFixed(1)}"
+      stroke="#7b1fa2" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.4"/>
+    ${barsHtml}
+  </svg>`;
+}
+
 /* ── Startup Card ────────────────────── */
 function suMonthLabel(monthNum, baseMonthStr, maxMonthNum) {
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -1143,6 +1187,12 @@ function renderStartup(code) {
             <div class="su-stat-sub">Jika layak</div>
           </div>
         </div>
+
+        <hr class="su-divider">
+        <div class="su-month-hdr">Trend ACE Bulanan
+          <span style="font-size:.6rem;font-weight:600;color:#888;margin-left:6px">— dashed = sasaran · bar oren = live</span>
+        </div>
+        ${suSparkline(su.months, toMonthLabel, liveACE, latest ? latest.mtdTarget : 8000)}
 
         ${latest ? `
         <hr class="su-divider">
