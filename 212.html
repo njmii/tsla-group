@@ -708,6 +708,129 @@ function renderContestLeaderboard() {
   </div>`;
 }
 
+/* ── Today's Action List ─────────────── */
+function renderActionList() {
+  if (!DATA) return '';
+  const vk = vKey();
+  const today = new Date().toLocaleString('en-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+  const agents = DATA.agents.filter(ag => !EXCLUDE_AGENTS.has(ag.code));
+
+  // 1. Overdue non-BA per agent
+  const overdueMap = agents.map(ag => {
+    const overdue = (ag.clients || []).filter(c => {
+      if (!c.dueDate || c.status === 'Freelook Cancellation') return false;
+      if ((c.payMethod || '') === 'Biro Angkasa') return false;
+      const dk = new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth();
+      return dk <= vk;
+    }).map(c => ({ ...c, _mo: vk - (new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth()) }));
+    return { ag, overdue };
+  }).filter(x => x.overdue.length > 0);
+
+  // 2. BA Transisi per agent (issued last 3 months, due this month or overdue)
+  const baMap = agents.map(ag => {
+    const ba = (ag.clients || []).filter(c => {
+      if (!c.issueDate || c.status === 'Freelook Cancellation') return false;
+      if ((c.payMethod || '') !== 'Biro Angkasa') return false;
+      const ik = new Date(c.issueDate).getFullYear() * 12 + new Date(c.issueDate).getMonth();
+      if (!(ik >= vk - 2 && ik <= vk)) return false;
+      const dk = c.dueDate ? new Date(c.dueDate).getFullYear() * 12 + new Date(c.dueDate).getMonth() : null;
+      return dk === null || dk <= vk;
+    });
+    return { ag, ba };
+  }).filter(x => x.ba.length > 0);
+
+  // 3. Startup qualification gaps (live this month vs target)
+  const startupGaps = [];
+  if (STARTUP_DATA) {
+    agents.filter(ag => STARTUP_AGENTS.has(ag.code)).forEach(ag => {
+      const su = STARTUP_DATA.agents.find(a => a.code === ag.code);
+      if (!su) return;
+      const latest = su.months[su.months.length - 1];
+      const mtdTarget = latest ? latest.mtdTarget : 8000;
+      const liveCl = mtdClients(ag.clients || []);
+      const liveACE = liveCl.reduce((s, c) => s + ace(c), 0);
+      const liveCases = liveCl.length;
+      const aceGap = Math.max(0, mtdTarget - liveACE);
+      const caseGap = Math.max(0, 2 - liveCases);
+      if (aceGap > 0 || caseGap > 0) startupGaps.push({ ag, liveACE, liveCases, aceGap, caseGap });
+    });
+  }
+
+  const totalItems = overdueMap.reduce((s,x)=>s+x.overdue.length,0) + baMap.reduce((s,x)=>s+x.ba.length,0) + startupGaps.length;
+
+  if (totalItems === 0) {
+    return `<div class="card" style="margin-bottom:12px">
+      <div class="card-hdr" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">📋 Tindakan Hari Ini — ${today}</div>
+      <div class="card-body" style="padding:14px 16px;text-align:center;color:#27ae60;font-weight:800;font-size:.88rem">✅ Tiada tindakan tertunggak hari ini!</div>
+    </div>`;
+  }
+
+  let sections = '';
+
+  // Overdue section
+  if (overdueMap.length > 0) {
+    const totalOD = overdueMap.reduce((s,x)=>s+x.overdue.length,0);
+    const urgentTotal = overdueMap.reduce((s,x)=>s+x.overdue.filter(c=>c._mo>=3).length,0);
+    sections += `<div style="margin-bottom:14px">
+      <div style="font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#e53935;margin-bottom:7px">💸 Manual Payment Overdue — ${totalOD} kes${urgentTotal?` · ${urgentTotal} urgent`:''}</div>
+      ${overdueMap.map(({ag,overdue})=>{
+        const urgent=overdue.filter(c=>c._mo>=3).length;
+        const rest=overdue.length-urgent;
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5;cursor:pointer" onclick="showDash('${ag.code}')">
+          <span style="font-weight:800;font-size:.84rem">${SN(ag.name)} <span style="font-size:.7rem;color:#aaa;font-weight:600">›</span></span>
+          <div style="display:flex;gap:5px">
+            ${urgent?`<span style="font-size:.7rem;font-weight:800;color:#e53935;background:rgba(229,57,53,.12);padding:2px 8px;border-radius:8px">🔴 ${urgent} urgent</span>`:''}
+            ${rest?`<span style="font-size:.7rem;font-weight:800;color:#c77700;background:rgba(199,119,0,.1);padding:2px 8px;border-radius:8px">⏳ ${rest} kes</span>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  // BA section
+  if (baMap.length > 0) {
+    const totalBA = baMap.reduce((s,x)=>s+x.ba.length,0);
+    sections += `<div style="margin-bottom:14px">
+      <div style="font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#1565c0;margin-bottom:7px">🏦 BA Transisi Bulan Ini — ${totalBA} kes</div>
+      ${baMap.map(({ag,ba})=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5;cursor:pointer" onclick="showDash('${ag.code}')">
+          <span style="font-weight:800;font-size:.84rem">${SN(ag.name)} <span style="font-size:.7rem;color:#aaa;font-weight:600">›</span></span>
+          <span style="font-size:.7rem;font-weight:800;color:#1565c0;background:rgba(21,101,192,.1);padding:2px 8px;border-radius:8px">🏦 ${ba.length} kes</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  // Startup section
+  if (startupGaps.length > 0) {
+    sections += `<div>
+      <div style="font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#7b1fa2;margin-bottom:7px">🚀 Startup Belum Layak — ${startupGaps.length} agen</div>
+      ${startupGaps.map(({ag,liveACE,liveCases,aceGap,caseGap})=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5;cursor:pointer" onclick="showDash('${ag.code}')">
+          <span style="font-weight:800;font-size:.84rem">${SN(ag.name)} <span style="font-size:.7rem;color:#aaa;font-weight:600">›</span></span>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">
+            ${caseGap>0?`<span style="font-size:.7rem;font-weight:800;color:#7b1fa2;background:rgba(123,31,162,.1);padding:2px 8px;border-radius:8px">⚠ ${caseGap} kes lagi</span>`:''}
+            ${aceGap>0?`<span style="font-size:.7rem;font-weight:800;color:#7b1fa2;background:rgba(123,31,162,.1);padding:2px 8px;border-radius:8px">${RA(aceGap)} lagi</span>`:''}
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  const hasUrgent = overdueMap.some(x=>x.overdue.some(c=>c._mo>=3));
+  const hdrBg = hasUrgent ? 'linear-gradient(135deg,#c62828,#e53935)'
+              : overdueMap.length ? 'linear-gradient(135deg,#e65100,#f57c00)'
+              : 'linear-gradient(135deg,#1565c0,#1e88e5)';
+
+  return `<div class="card" style="margin-bottom:12px">
+    <div class="card-hdr" style="background:${hdrBg};cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none';this.querySelector('.al-arr').style.transform=this.nextElementSibling.style.display===''?'':'rotate(-90deg)'">
+      <span>📋 Tindakan Hari Ini — ${today}</span>
+      <span class="al-arr" style="transition:transform .2s">▼</span>
+    </div>
+    <div class="card-body" style="padding:14px 16px">
+      ${sections}
+    </div>
+  </div>`;
+}
+
 /* ── Home — agent selection list ─────── */
 function renderHome() {
   if (!DATA) return;
@@ -759,6 +882,7 @@ function renderHome() {
 
   const freshLbl = DATA.updated ? `<span style="font-weight:600;color:#bbb;font-size:.62rem"> · Data: ${DATA.updated}</span>` : '';
   document.getElementById('homeContent').innerHTML = `
+    ${renderActionList()}
     ${renderContestLeaderboard()}
     <div class="sec-h" style="margin-top:4px">Pilih Agen — ${vLabel()}${freshLbl}</div>
     <div class="ag-grid">${agCards}</div>`;
