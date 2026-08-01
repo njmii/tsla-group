@@ -1033,10 +1033,27 @@ function suDonut(pct, color, label) {
 
 /* ── Startup Card ────────────────────── */
 function suMonthLabel(monthNum, baseMonthStr, maxMonthNum) {
-  // baseMonthStr e.g. "May 2026", maxMonthNum e.g. 16 → scheme month 16 = May 2026
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  // Old title format: "May 2026" — maxMonthNum is the scheme month of that calendar date
   const parts = baseMonthStr.split(' ');
-  const base = new Date(parts[1], ['January','February','March','April','May','June','July','August','September','October','November','December'].indexOf(parts[0]), 1);
-  base.setMonth(base.getMonth() + (monthNum - maxMonthNum));
+  const mIdx = MONTHS.indexOf(parts[0]);
+  const yr = parseInt(parts[parts.length - 1], 10);
+  if (mIdx >= 0 && yr >= 2020) {
+    const base = new Date(yr, mIdx, 1);
+    base.setMonth(base.getMonth() + (monthNum - maxMonthNum));
+    return base.toLocaleString('en-MY', {month:'long', year:'numeric'});
+  }
+  // New title format (e.g. "Year 2 - Elite ACE Credit"): anchor maxMonthNum to the month
+  // before DATA.updated, which is the last complete report month
+  let anchorY, anchorM;
+  if (DATA && DATA.updated) {
+    const [ay, am] = DATA.updated.split('-').map(Number);
+    anchorY = ay; anchorM = am - 2; // am is 1-indexed; -1 to 0-index, -1 more for prev month
+  } else {
+    const now = new Date();
+    anchorY = now.getFullYear(); anchorM = now.getMonth() - 1;
+  }
+  const base = new Date(anchorY, anchorM + (monthNum - maxMonthNum), 1);
   return base.toLocaleString('en-MY', {month:'long', year:'numeric'});
 }
 
