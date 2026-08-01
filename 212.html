@@ -602,6 +602,19 @@ function ytdClients(clients) {
 }
 
 /* ── Init ────────────────────────────── */
+const _212_GH_RAW = 'https://raw.githubusercontent.com/njmii/tsla-group/main/data/pr-data.json';
+
+function _212_bgRefresh() {
+  fetch(_212_GH_RAW + '?t=' + Date.now())
+    .then(r => r.ok ? r.json() : null)
+    .then(fresh => {
+      if (!fresh || (DATA && DATA.updated === fresh.updated)) return;
+      DATA = fresh;
+      renderHome();
+    })
+    .catch(() => {});
+}
+
 function initApp() {
   initDate();
   buildMonths();
@@ -613,8 +626,10 @@ function initApp() {
     DATA=pr;
     STARTUP_DATA=su;
     renderHome();
+    setTimeout(_212_bgRefresh, 1500);
   }).catch(()=>{
     document.getElementById('homeContent').innerHTML='<div class="empty-msg">Gagal memuatkan data.</div>';
+    setTimeout(_212_bgRefresh, 1500);
   });
 }
 
@@ -937,11 +952,16 @@ function renderStartup(code) {
             <div class="su-stat-lbl">ACE MTD</div>
             <div class="su-stat-val" style="color:${livePctColor}">${RM(liveACE)}</div>
             <div class="su-stat-sub">Sasaran: ${RM(latest ? latest.mtdTarget : 8000)}</div>
+            <div class="su-prog-wrap" style="margin:5px 0 3px"><div class="su-prog-bar" style="width:${Math.min(100,livePct).toFixed(1)}%;background:${livePctColor}"></div></div>
+            <div style="font-size:.65rem;font-weight:800;color:${livePctColor}">${livePct.toFixed(0)}% sasaran</div>
           </div>
           <div class="su-stat">
             <div class="su-stat-lbl">Kes MTD</div>
             <div class="su-stat-val" style="color:${livePctColor}">${liveCases} kes</div>
-            <div class="su-stat-sub">${livePct.toFixed(0)}% sasaran ACE</div>
+            <div class="su-stat-sub">Min: 2 kes</div>
+            ${liveCases >= 2
+              ? `<span style="display:inline-block;padding:2px 7px;border-radius:8px;font-size:.65rem;font-weight:800;background:rgba(39,174,96,.13);color:#1a7a42;margin-top:3px">✓ Cukup</span>`
+              : `<span style="display:inline-block;padding:2px 7px;border-radius:8px;font-size:.65rem;font-weight:800;background:rgba(229,57,53,.11);color:#c62828;margin-top:3px">⚠ ${2-liveCases} lagi</span>`}
           </div>
         </div>
 
@@ -1083,6 +1103,9 @@ function _212_mpClientName(c, isPaid) {
 function _212_mpClientRight(c, isPaid, safeCert) {
   const contrib    = c.contribution ? 'RM ' + RA(c.contribution) + '/mo' : '—';
   const commission = c.contribution ? 'RM ' + RA(_212_mpComm(c)) : '—';
+  const waMsg = encodeURIComponent(
+    `Assalamualaikum *${c.name || ''}*,\n\nSekadar peringatan mesra bayaran polisi FWD anda 🔔\n\n📄 No. Sijil: ${c.certNo || ''}\n📋 Pelan: ${c.plan || ''}\n📅 Tarikh Due: ${c.dueDate || '—'}\n💰 Premium: RM ${c.contribution || '—'}/bulan\n\nMohon selesaikan bayaran. Terima kasih 🙏`
+  );
   return `<div class="sp-cl-right">
     <div class="sp-contrib2">${contrib}</div>
     <div style="font-size:.66rem;color:#e53935;font-weight:800;margin-top:2px">💸 ${commission}</div>
@@ -1090,6 +1113,7 @@ function _212_mpClientRight(c, isPaid, safeCert) {
       <input type="checkbox" ${isPaid ? 'checked' : ''} onchange="_212_mpTogglePaid('${safeCert}')" style="cursor:pointer;width:14px;height:14px;accent-color:#0a9b43">
       <span style="color:${isPaid ? '#0a9b43' : '#888'}">${isPaid ? 'Terbayar' : 'Tandakan'}</span>
     </label>
+    <a href="https://wa.me/?text=${waMsg}" target="_blank" style="display:block;margin-top:6px;padding:4px 10px;background:#25d366;color:white;border-radius:10px;font-size:.68rem;font-weight:800;text-decoration:none;text-align:center">📲 WA</a>
   </div>`;
 }
 
