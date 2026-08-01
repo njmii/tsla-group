@@ -773,6 +773,8 @@ function recalcSetup() {
 
 /* ── commitment payment tracking ── */
 function payKey() {
+  // Key by period start date so payments persist across the full period, not just one calendar month
+  if (data.periodFrom) return data.periodFrom;
   return `${viewYear}-${String(viewMonth+1).padStart(2,'0')}`;
 }
 
@@ -844,7 +846,7 @@ function renderCommitmentsTracker() {
         <span class="ct-toggle-icon">💳</span>
         <div>
           <div class="ct-toggle-label">Commitments</div>
-          <div class="ct-toggle-sub">Total RM ${fmtTotal} &nbsp;·&nbsp; ${pct}% paid this month</div>
+          <div class="ct-toggle-sub">Total RM ${fmtTotal} &nbsp;·&nbsp; ${pct}% paid this ${data.periodFrom ? 'period' : 'month'}</div>
         </div>
       </div>
       <span class="ct-toggle-arrow${ctOpen ? ' open' : ''}">▼</span>
