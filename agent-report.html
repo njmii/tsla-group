@@ -610,9 +610,9 @@ function calcPR13NextMonth(agent) {
   const savedY = PROJ_YEAR, savedM = PROJ_MONTH;
   const nY = savedM === 11 ? savedY + 1 : savedY;
   const nM = savedM === 11 ? 0 : savedM + 1;
-  setProjMonth(nY, nM);
+  setProjectionMonth(nY, nM);
   const r = calcPR13(agent);
-  setProjMonth(savedY, savedM);
+  setProjectionMonth(savedY, savedM);
   return r;
 }
 
