@@ -1146,7 +1146,7 @@ function renderStartup(code) {
           </div>
         </div>
 
-        <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:10px">Pencapaian YTD</div>
+        <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:10px">Pencapaian YTD${latest ? `<span style="text-transform:none;font-weight:600;color:#bbb;margin-left:5px">— setakat ${toMonthLabel(latest.month)}</span>` : ''}</div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
           ${suDonut(ytdPct, progColor, 'ACE')}
           <div style="flex:1;min-width:0">
@@ -1290,7 +1290,7 @@ function renderMTD(clients, agCode, grp) {
             ${showComm&&mtd>0?`<div style="font-size:.67rem;color:#f0a500;font-weight:800;margin-top:4px">Komisen MTD: ${RM(mtdComm)}</div>`:''}
           </div>
           <div style="text-align:right">
-            <div class="st-lbl">YTD ${VY}</div>
+            <div class="st-lbl">YTD sehingga ${vLabel()}</div>
             <div style="font-size:1.2rem;font-weight:900;color:#555">${RA(ytd)}</div>
             <div class="st-sub">${mtdC.length} kes</div>
             ${showComm&&ytd>0?`<div style="font-size:.67rem;color:#aaa;font-weight:700;margin-top:4px">Komisen YTD: ${RM(ytdComm)}</div>`:''}
