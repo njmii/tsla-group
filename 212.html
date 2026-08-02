@@ -700,10 +700,10 @@ function renderContestLeaderboard() {
     const pct=Math.min(100,ag.ace/CONTEST_TARGET*100);
     const bc=pct>=80?'#27ae60':pct>=50?'#f0a500':'#e53935';
     const isTop=i<3;
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:${i<ranked.length-1?'1px solid #f5f5f5':'none'}${isTop?';background:transparent':''}" >
+    return `<div onclick="showDash('${ag.code}')" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:${i<ranked.length-1?'1px solid #f5f5f5':'none'}${isTop?';background:transparent':''};cursor:pointer" >
       <div style="font-size:${i<3?'1.2rem':'.82rem'};width:28px;text-align:center;flex-shrink:0;font-weight:900;color:#bbb">${medals[i]||i+1}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-weight:900;font-size:.85rem;margin-bottom:3px">${ag.name}</div>
+        <div style="font-weight:900;font-size:.85rem;margin-bottom:3px;color:#b06000;text-decoration:underline;text-decoration-color:#e8a04070">${ag.name}</div>
         <div class="prog-wrap" style="margin:0 0 2px"><div class="prog-bar" style="width:${pct.toFixed(1)}%;background:${bc}"></div></div>
         <div style="font-size:.61rem;color:#aaa;font-weight:700">${pct.toFixed(0)}% daripada ${RA(CONTEST_TARGET)} · ${ag.cases} kes</div>
       </div>
