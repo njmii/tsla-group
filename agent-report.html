@@ -2788,22 +2788,35 @@ function suSparkline(months, toMonthLabel, liveACE, liveTarget) {
 }
 
 function renderStartupList(filter) {
-  window._suFilter = filter;
+  if (filter) window._suFilter = filter;
+  const f = window._suFilter || 'my';
   const sd = window._startupData;
   const el = document.getElementById('suList');
   if (!el) return;
   if (!sd) { el.innerHTML = '<div class="loading">Loading startup data…</div>'; return; }
 
-  const group = filter === 'vsa' ? SU_VSA : SU_MY_AGENTS;
-  const agentsInGroup = [...group].map(code => {
-    const su = sd.agents.find(a => a.code === code);
-    return { code, su };
-  });
+  const q = (window._suSearch || '').toLowerCase().trim();
 
-  const btnHtml = `<div class="su-filter-row">
-    <button class="su-filter-btn${filter==='my'?' active':''}" onclick="renderStartupList('my')">👤 My Agents</button>
-    <button class="su-filter-btn${filter==='vsa'?' active':''}" onclick="renderStartupList('vsa')">🏢 VSA</button>
+  let agentsInGroup;
+  if (q) {
+    agentsInGroup = sd.agents
+      .filter(a => a.name.toLowerCase().includes(q) || (SHORT_NAMES[a.code]||'').toLowerCase().includes(q))
+      .map(a => ({ code: a.code, su: a }));
+  } else {
+    const group = f === 'vsa' ? SU_VSA : SU_MY_AGENTS;
+    agentsInGroup = [...group].map(code => ({ code, su: sd.agents.find(a => a.code === code) }));
+  }
+
+  const searchHtml = `<div style="margin-bottom:10px">
+    <input id="suSearchInput" type="text" placeholder="🔍 Cari nama ejen…" value=""
+      style="width:100%;box-sizing:border-box;padding:8px 12px;border-radius:12px;border:1.5px solid #e0d5f0;font-size:.85rem;outline:none;background:#faf7ff"
+      oninput="window._suSearch=this.value;window._suSearchActive=true;renderStartupList()">
   </div>`;
+
+  const btnHtml = !q ? `<div class="su-filter-row">
+    <button class="su-filter-btn${f==='my'?' active':''}" onclick="renderStartupList('my')">👤 My Agents</button>
+    <button class="su-filter-btn${f==='vsa'?' active':''}" onclick="renderStartupList('vsa')">🏢 VSA</button>
+  </div>` : `<div style="font-size:.72rem;color:#999;margin-bottom:10px">Carian: "${window._suSearch}" — ${agentsInGroup.length} keputusan</div>`;
 
   const cards = agentsInGroup.map(({code, su}) => {
     const name = SHORT_NAMES[code] || code;
@@ -2838,7 +2851,12 @@ function renderStartupList(filter) {
     </div>`;
   }).join('');
 
-  el.innerHTML = btnHtml + cards;
+  el.innerHTML = searchHtml + btnHtml + cards;
+  const inp = document.getElementById('suSearchInput');
+  if (inp) {
+    inp.value = window._suSearch || '';
+    if (window._suSearchActive) { inp.focus(); window._suSearchActive = false; }
+  }
 }
 
 function showStartupAgent(code) {
