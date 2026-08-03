@@ -2818,17 +2818,18 @@ function renderStartupList(filter) {
     <button class="su-filter-btn${f==='vsa'?' active':''}" onclick="renderStartupList('vsa')">🏢 VSA</button>
   </div>` : `<div style="font-size:.72rem;color:#999;margin-bottom:10px">Carian: "${window._suSearch}" — ${agentsInGroup.length} keputusan</div>`;
 
+  const suSN = n => { const p=(n||'').split(' '); return p.length<=2?n:p.slice(0,2).join(' '); };
   const cards = agentsInGroup.map(({code, su}) => {
-    const shortName = SHORT_NAMES[code] || code;
-    const fullName  = su?.name || shortName;
+    const fullName = su?.name || SHORT_NAMES[code] || code;
+    const dispName = suSN(fullName);
     const color = AGENT_COLORS[code] || '#888';
-    const initial = (su?.name || shortName)[0];
+    const initial = fullName[0];
     if (!su) {
       return `<div class="su-list-card" style="opacity:.6">
         <div style="width:44px;height:44px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:${color};flex-shrink:0">${initial}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-weight:800;font-size:.78rem;color:${color};line-height:1.3">${fullName}</div>
-          <div style="font-size:.68rem;color:#aaa;margin-top:2px">${code} · Tiada data startup</div>
+          <div style="font-weight:900;font-size:.88rem;color:${color};margin-bottom:2px">${dispName}</div>
+          <div style="font-size:.68rem;color:#aaa">${code} · Tiada data startup</div>
         </div>
       </div>`;
     }
@@ -2839,17 +2840,16 @@ function renderStartupList(filter) {
     return `<div class="su-list-card" onclick="showStartupAgent('${code}')">
       <div style="width:44px;height:44px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:${color};flex-shrink:0">${initial}</div>
       <div style="flex:1;min-width:0">
-        <div style="margin-bottom:3px">
-          <span style="font-weight:800;font-size:.78rem;color:${color};line-height:1.3;margin-right:6px">${fullName}</span>
-          <span class="su-status-pill" style="background:${statusBg};color:${statusC};white-space:nowrap">${su.status}</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+          <div style="font-weight:900;font-size:.88rem;color:${color}">${dispName}</div>
+          <span class="su-status-pill" style="background:${statusBg};color:${statusC};flex-shrink:0">${su.status}</span>
         </div>
-        <div style="font-size:.68rem;color:#aaa;margin-bottom:6px">${su.scheme}</div>
+        <div style="font-size:.68rem;color:#aaa;margin-bottom:6px">${code} · ${su.scheme}</div>
         <div style="background:#e9d5ff;border-radius:99px;height:7px;overflow:hidden">
           <div style="width:${ytdPct.toFixed(1)}%;height:100%;border-radius:99px;background:${bc}"></div>
         </div>
         <div style="font-size:.65rem;font-weight:700;color:${bc};margin-top:3px">${ytdPct.toFixed(0)}% YTD · ${R(su.ytdACE)}</div>
       </div>
-      <div style="font-size:.9rem;color:#ccc;flex-shrink:0">›</div>
     </div>`;
   }).join('');
 
