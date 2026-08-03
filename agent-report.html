@@ -436,6 +436,15 @@ const SHORT_NAMES = {
   'A15475': 'Muaz',  'A15756': 'Fadhlan', 'A15781': 'Fauzan',
   'A16553': 'Adam',
 };
+const AGENT_COLORS = {
+  'A11668': '#7b1fa2',  // Najmi — purple
+  'A13290': '#1565c0',  // Naqi — blue
+  'A14252': '#c2185b',  // Roza — pink
+  'A15475': '#2e7d32',  // Muaz — green
+  'A15756': '#e65100',  // Fadhlan — orange
+  'A15781': '#00838f',  // Fauzan — teal
+  'A16553': '#b71c1c',  // Adam — red
+};
 
 function getACE(c) {
   const iss = c.issueDate || '';
@@ -795,7 +804,7 @@ function renderLeaderboard(data) {
         <div class="agent-main">
           <div class="agent-rank ${rankClass}">${rankLabel}</div>
           <div class="agent-info">
-            <div class="agent-name">${shortName}</div>
+            <div class="agent-name" style="color:${AGENT_COLORS[ag.code]||'inherit'}">${shortName}</div>
             <div class="agent-code">${ag.code} · YTD ACE ${R(ytdACE)}</div>
             ${(() => {
               const urgent = atRisk.filter(c => c._urgent).length;
@@ -860,6 +869,7 @@ function showAgent(code) {
   document.getElementById('navTitle').textContent = ag.name.split(' ').slice(0, 2).join(' ');
 
   document.getElementById('detailName').textContent = ag.name;
+  document.getElementById('detailName').style.color = AGENT_COLORS[ag.code] || '';
   document.getElementById('detailCode').textContent = ag.code;
 
   const { pr13, eligACE, collACE, zeroACE, exclACE, eligCount, watchCount, exclCount, naCount } = result;
@@ -1447,7 +1457,7 @@ function renderContest(data) {
         <div class="contest-rank" style="margin-top:2px">${rank}</div>
         <div style="flex:1;min-width:0">
           <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px">
-            <div class="contest-name">${shortName}</div>
+            <div class="contest-name" style="color:${AGENT_COLORS[ag.code]||'inherit'}">${shortName}</div>
             <div style="font-weight:900;font-size:1rem;color:${barColor};flex-shrink:0">${_fmtRM(ace)}</div>
           </div>
           <div class="contest-code" style="margin-bottom:8px">${ag.code} · ${ag.name}</div>
