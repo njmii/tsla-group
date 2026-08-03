@@ -2819,14 +2819,16 @@ function renderStartupList(filter) {
   </div>` : `<div style="font-size:.72rem;color:#999;margin-bottom:10px">Carian: "${window._suSearch}" — ${agentsInGroup.length} keputusan</div>`;
 
   const cards = agentsInGroup.map(({code, su}) => {
-    const name = SHORT_NAMES[code] || code;
+    const shortName = SHORT_NAMES[code] || code;
+    const fullName  = su?.name || shortName;
     const color = AGENT_COLORS[code] || '#888';
+    const initial = (su?.name || shortName)[0];
     if (!su) {
       return `<div class="su-list-card" style="opacity:.6">
-        <div style="width:44px;height:44px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:${color};flex-shrink:0">${name[0]}</div>
+        <div style="width:44px;height:44px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:${color};flex-shrink:0">${initial}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-weight:900;font-size:.95rem;color:${color}">${name}</div>
-          <div style="font-size:.72rem;color:#aaa;margin-top:2px">${code} · Tiada data startup</div>
+          <div style="font-weight:800;font-size:.78rem;color:${color};line-height:1.3">${fullName}</div>
+          <div style="font-size:.68rem;color:#aaa;margin-top:2px">${code} · Tiada data startup</div>
         </div>
       </div>`;
     }
@@ -2835,13 +2837,13 @@ function renderStartupList(filter) {
     const statusBg = su.status === 'ACTIVE' ? '#d4edda' : '#f8d7da';
     const statusC  = su.status === 'ACTIVE' ? '#155724' : '#721c24';
     return `<div class="su-list-card" onclick="showStartupAgent('${code}')">
-      <div style="width:44px;height:44px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:${color};flex-shrink:0">${name[0]}</div>
+      <div style="width:44px;height:44px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:${color};flex-shrink:0">${initial}</div>
       <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
-          <span style="font-weight:900;font-size:.95rem;color:${color}">${name}</span>
-          <span class="su-status-pill" style="background:${statusBg};color:${statusC}">${su.status}</span>
+        <div style="margin-bottom:3px">
+          <span style="font-weight:800;font-size:.78rem;color:${color};line-height:1.3;margin-right:6px">${fullName}</span>
+          <span class="su-status-pill" style="background:${statusBg};color:${statusC};white-space:nowrap">${su.status}</span>
         </div>
-        <div style="font-size:.72rem;color:#aaa;margin-bottom:6px">${su.scheme}</div>
+        <div style="font-size:.68rem;color:#aaa;margin-bottom:6px">${su.scheme}</div>
         <div style="background:#e9d5ff;border-radius:99px;height:7px;overflow:hidden">
           <div style="width:${ytdPct.toFixed(1)}%;height:100%;border-radius:99px;background:${bc}"></div>
         </div>
