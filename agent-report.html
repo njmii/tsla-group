@@ -477,15 +477,6 @@ const AGENT_COLORS = {
 };
 const SU_MY_AGENTS = new Set(['A15475','A15756','A15781','A16553','A15434']);
 const SU_VSA       = new Set(['A13290','A15781','A15434']);
-const AGENT_LEADER = {
-  'A13290': 'A11668',  // Naqi → Najmi
-  'A14252': 'A11668',  // Roza → Najmi
-  'A15475': 'A11668',  // Muaz → Najmi
-  'A15756': 'A11668',  // Fadhlan → Najmi
-  'A15781': 'A13290',  // Fauzan → Naqi
-  'A16553': 'A11668',  // Adam → Najmi
-  'A15434': 'A13290',  // Harith → Naqi
-};
 
 function getACE(c) {
   const iss = c.issueDate || '';
@@ -2837,7 +2828,7 @@ function renderStartupList(filter) {
           <span style="font-weight:900;font-size:.95rem;color:${color}">${name}</span>
           <span class="su-status-pill" style="background:${statusBg};color:${statusC}">${su.status}</span>
         </div>
-        <div style="font-size:.72rem;color:#aaa;margin-bottom:6px">${su.scheme}${AGENT_LEADER[code]?`<span style="margin-left:6px;color:#bbb">· Ketua: <span style="color:${AGENT_COLORS[AGENT_LEADER[code]]||'#888'};font-weight:700">${SHORT_NAMES[AGENT_LEADER[code]]||AGENT_LEADER[code]}</span></span>`:''}</div>
+        <div style="font-size:.72rem;color:#aaa;margin-bottom:6px">${su.scheme}</div>
         <div style="background:#e9d5ff;border-radius:99px;height:7px;overflow:hidden">
           <div style="width:${ytdPct.toFixed(1)}%;height:100%;border-radius:99px;background:${bc}"></div>
         </div>
@@ -2897,7 +2888,7 @@ function showStartupAgent(code) {
       <div style="width:48px;height:48px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:900;color:${color};flex-shrink:0">${name[0]}</div>
       <div>
         <div style="font-size:1.15rem;font-weight:900;color:${color}">${name}</div>
-        <div style="font-size:.75rem;color:#aaa">${code} · ${su.agency||''}${(lc=>{if(!lc)return''; const lcolor=AGENT_COLORS[lc]||'#888'; return ` · Ketua: <span style="color:${lcolor};font-weight:700">${SHORT_NAMES[lc]||lc}</span>`;})(AGENT_LEADER[code])}</div>
+        <div style="font-size:.75rem;color:#aaa">${code} · ${su.agency||''}</div>
       </div>
     </div>
     <div class="su-card">
