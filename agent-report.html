@@ -349,6 +349,7 @@ td.right{text-align:right;font-weight:700;}
       <div class="detail-code" id="detailCode"></div>
       <div class="detail-stats" id="detailStats"></div>
     </div>
+    <div id="detailSuCard"></div>
     <div id="pr13SummaryBlock"></div>
     <div id="estimatorCard" class="estimator-card"></div>
     <div class="audit-tab-row">
@@ -1094,6 +1095,7 @@ function showAgent(code) {
   renderAuditTabs();
   renderAuditTable();
   renderEstimator();
+  renderDetailStartup(code);
 }
 
 /* ── Audit tab rendering ──────────────────────────────── */
@@ -2862,28 +2864,42 @@ function renderStartupList(filter) {
 }
 
 function showStartupAgent(code) {
+  // If agent has PR13/CE data, show full agent detail with startup card embedded
+  if (window._agents && window._agents.find(e => e.ag.code === code)) {
+    showAgent(code);
+    return;
+  }
+  // Fallback for agents only in startup-data (not in pr-data)
   const sd = window._startupData;
   if (!sd) return;
-  const su = sd.agents.find(a => a.code === code);
   const name = SHORT_NAMES[code] || code;
-  const color = AGENT_COLORS[code] || '#888';
-  const liveData = window._lastData;
-  const liveAg = liveData ? liveData.agents.find(a => a.code === code) : null;
-  const liveCl = liveAg ? suMtdClients(liveAg.clients || []) : [];
-  const liveACE = liveCl.reduce((s,c) => s + getACE(c), 0);
-  const liveCases = liveCl.length;
-
   document.getElementById('viewLeaderboard').classList.add('hidden');
   document.getElementById('viewSuDetail').classList.remove('hidden');
   document.getElementById('navBack').style.display = 'block';
   document.getElementById('navSpacer').style.display = 'none';
   document.getElementById('navTitle').textContent = name + ' — Startup';
-
   const el = document.getElementById('viewSuDetail');
-  if (!su) {
-    el.innerHTML = `<div class="su-card"><div class="su-hdr">🚀 Startup Scheme</div><div class="su-body"><div style="color:#aaa;font-size:.85rem;padding:8px 0">Tiada data startup untuk ${name}.</div></div></div>`;
-    return;
-  }
+  el.innerHTML = buildStartupCardHTML(code);
+}
+
+function renderDetailStartup(code) {
+  const el = document.getElementById('detailSuCard');
+  if (!el) return;
+  const html = buildStartupCardHTML(code);
+  el.innerHTML = html ? `<div style="margin-bottom:12px">${html}</div>` : '';
+}
+
+function buildStartupCardHTML(code) {
+  const sd = window._startupData;
+  if (!sd) return '';
+  const su = sd.agents.find(a => a.code === code);
+  if (!su) return '';
+
+  const liveData = window._lastData;
+  const liveAg = liveData ? liveData.agents.find(a => a.code === code) : null;
+  const liveCl = liveAg ? suMtdClients(liveAg.clients || []) : [];
+  const liveACE = liveCl.reduce((s,c) => s + getACE(c), 0);
+  const liveCases = liveCl.length;
 
   const reportTitle = sd.title.replace('Start-Up Elite Scheme Monthly Validation - ','');
   const allMonthNums = (su.months||[]).map(m=>m.month);
@@ -2898,20 +2914,12 @@ function showStartupAgent(code) {
   const livePct = Math.min(100, liveACE / (latest ? latest.mtdTarget : 8000) * 100);
   const livePctColor = livePct >= 100 ? '#27ae60' : livePct >= 60 ? '#7b1fa2' : '#e53935';
 
-  function resultPill(r) {
+  const resultPill = r => {
     const ok = r === 'Qualified';
     return `<span class="su-result-pill" style="background:${ok?'#d4edda':'#ffeeba'};color:${ok?'#155724':'#856404'}">${r}</span>`;
-  }
+  };
 
-  el.innerHTML = `
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-      <div style="width:48px;height:48px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:900;color:${color};flex-shrink:0">${name[0]}</div>
-      <div>
-        <div style="font-size:1.15rem;font-weight:900;color:${color}">${name}</div>
-        <div style="font-size:.75rem;color:#aaa">${code} · ${su.agency||''}</div>
-      </div>
-    </div>
-    <div class="su-card">
+  return `<div class="su-card">
       <div class="su-hdr">🚀 Startup Scheme — ${reportTitle}</div>
       <div class="su-body">
 
