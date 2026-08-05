@@ -153,6 +153,17 @@ tbody tr:last-child td{border-bottom:none}
 .mbtn-del{flex:1;padding:12px;border:2px solid #ffebee;border-radius:12px;font-weight:700;background:white;color:#d32f2f;cursor:pointer;font-size:.88rem}
 .mbtn-del:hover{background:#ffebee}
 
+/* Search */
+.search-wrap{margin-bottom:12px;position:relative}
+.search-inp{width:100%;box-sizing:border-box;padding:9px 14px 9px 38px;border:2px solid #eee;border-radius:14px;font-size:.9rem;outline:none;font-family:inherit;background:white;transition:border-color .2s}
+.search-inp:focus{border-color:#7b1fa2}
+.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#bbb;font-size:.9rem;pointer-events:none}
+.fav-btn{background:none;border:none;font-size:1.15rem;cursor:pointer;padding:4px 4px 4px 2px;line-height:1;transition:transform .15s;flex-shrink:0}
+.fav-btn:hover{transform:scale(1.25)}
+.b-fav{background:rgba(255,193,7,.1);color:#b8860b;cursor:pointer;border:1.5px solid rgba(255,193,7,.3)}
+.b-fav:hover{background:rgba(255,193,7,.2)}
+.b-fav-on{background:rgba(255,193,7,.22);color:#7a5500;cursor:pointer;border:1.5px solid rgba(255,193,7,.55)}
+
 /* Push status */
 .push-status{font-size:.78rem;font-weight:700;padding:5px 12px;border-radius:10px;display:none;align-items:center;gap:5px}
 .ps-pushing{background:#fff3e0;color:#c77700}
@@ -199,6 +210,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="badge-row">
       <span class="badge b-orange" id="titleBadge">📊 Start-Up Elite</span>
       <span class="badge b-filter" id="filterBtn" onclick="toggleFilter()" title="Toggle antara ejen saya / semua ejen">👥 Ejen Saya</span>
+      <span class="badge b-fav" id="favFilterBtn" onclick="toggleFavFilter()" title="Tapis ejen kegemaran">☆ Kegemaran</span>
       <label class="badge b-grey" title="Import Excel baru (admin)">
         📤 Import Excel
         <input type="file" id="xlsxInput2" accept=".xlsx" style="display:none" onchange="handleFile(this.files[0])">
@@ -218,6 +230,11 @@ tbody tr:last-child td{border-bottom:none}
         <option value="payout">Jumlah Payout</option>
         <option value="name">Nama</option>
       </select>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-inp" id="searchInp" type="search" placeholder="Cari nama ejen..." autocomplete="off"
+        oninput="_searchQ=this.value;renderLeaderboard()">
     </div>
     <div id="agentCards"></div>
   </div>
@@ -258,6 +275,26 @@ const MY_AGENTS = new Set(['A15756','A15781','A16553','A15475','A15068','A14690'
 let _data = null;
 let _curAgent = null;
 let _filterOn = true;
+let _favFilter = false;
+let _searchQ = '';
+
+const FAV_KEY = 'tsla_su_fav';
+let _favorites = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]'));
+
+function saveFavorites() { localStorage.setItem(FAV_KEY, JSON.stringify([..._favorites])); }
+function toggleFav(code, e) {
+  e.stopPropagation();
+  if (_favorites.has(code)) _favorites.delete(code); else _favorites.add(code);
+  saveFavorites();
+  renderLeaderboard();
+}
+function toggleFavFilter() {
+  _favFilter = !_favFilter;
+  const btn = document.getElementById('favFilterBtn');
+  btn.className = _favFilter ? 'badge b-fav-on' : 'badge b-fav';
+  btn.textContent = _favFilter ? '★ Kegemaran' : '☆ Kegemaran';
+  renderLeaderboard();
+}
 
 // ── Formatters ──────────────────────────────────────────────────────────────
 
@@ -714,12 +751,17 @@ function renderLeaderboard() {
   const { title, agents: allAgents } = _data;
   document.getElementById('titleBadge').textContent = '📊 ' + title;
 
-  // Apply "My Agents" filter
-  const agents = _filterOn ? allAgents.filter(a => MY_AGENTS.has(a.code)) : allAgents;
+  // Apply filters: favorites > My Agents > All
+  let agents = _favFilter
+    ? allAgents.filter(a => _favorites.has(a.code))
+    : _filterOn ? allAgents.filter(a => MY_AGENTS.has(a.code)) : allAgents;
+
+  // Apply search
+  const q = (_searchQ || '').toLowerCase().trim();
+  if (q) agents = agents.filter(a => a.name.toLowerCase().includes(q) || a.code.toLowerCase().includes(q));
 
   const totalACE = agents.reduce((s, a) => s + a.ytdACE, 0);
   const qualified = agents.filter(a => isQualified(lastCompletedMonth(a)?.mtdResult) || isQualified(lastCompletedMonth(a)?.catchResult)).length;
-
   const totalPayout = agents.reduce((s, a) => s + a.ytdPayout, 0);
   const totalBonus  = agents.reduce((s, a) => s + a.ytdACE * 0.03, 0);
 
@@ -743,27 +785,42 @@ function renderLeaderboard() {
     return a.name.localeCompare(b.name);
   });
 
+  if (!sorted.length) {
+    document.getElementById('agentCards').innerHTML =
+      `<div style="text-align:center;padding:40px 20px;color:#aaa;font-size:.9rem">${q ? `Tiada ejen sepadan "${_searchQ}"` : _favFilter ? 'Tiada ejen kegemaran. Tekan ☆ pada kad ejen untuk tambah.' : 'Tiada ejen.'}</div>`;
+    return;
+  }
+
   document.getElementById('agentCards').innerHTML = sorted.map(a => {
     const acePct = Math.min(100, acePctOf(a));
     const nocPct = Math.min(100, nocPctOf(a));
+    const isFav  = _favorites.has(a.code);
 
-    // Last completed month (with actual data)
-    const last = lastCompletedMonth(a);
-    // Overall result: qualified if MTD or catch-up qualified
-    const isQual = isQualified(last?.mtdResult) || isQualified(last?.catchResult);
-    const displayResult = isQualified(last?.catchResult) && !isQualified(last?.mtdResult)
-      ? (last.mtdResult ? last.mtdResult + ' / Catch-up Qualified' : 'Catch-up Qualified')
-      : last?.mtdResult;
+    const last   = lastCompletedMonth(a);
+    const isMtdQ = isQualified(last?.mtdResult);
+    const isCuQ  = isQualified(last?.catchResult);
+    const isQual = isMtdQ || isCuQ;
     const hasRes = !!(last?.mtdResult || last?.catchResult);
 
-    // This month's total payout (MTD + catch-up combined) = "Total Payout" column
-    const monthPayout = a.totalPayout || 0;
+    // Qualified chip
+    let qualChip;
+    if (!hasRes) {
+      qualChip = `<span class="chip ch-grey">— Belum Ada Keputusan</span>`;
+    } else if (isMtdQ) {
+      qualChip = `<span class="chip ch-g">✓ Qualified MTD</span>`;
+    } else if (isCuQ) {
+      qualChip = `<span class="chip ch-g">✓ Qualified (Catch-Up)</span>`;
+    } else {
+      qualChip = `<span class="chip ch-r">✗ Tidak Layak</span>`;
+    }
 
-    // Next month MTD target + NOC target: prefer next scheme month's row, fall back to current
-    const lastNum = last?.month || 0;
-    const nextMth = a.months.find(m => m.month === lastNum + 1);
-    const nextAce = nextMth?.mtdTarget || last?.mtdTarget || 0;
-    const nextNoc = nextMth?.mtdTargetCases || last?.mtdTargetCases || 0;
+    // Surplus chips (only if qualified)
+    const aceSurplus = a.ytdACE - a.ytdTargetACE;
+    const nocSurplus = (a.ytdNOC|0) - (a.ytdTargetCases|0);
+    const surplusChips = isQual
+      ? `${aceSurplus > 0 ? `<span class="chip ch-g">▲ ${fmtK(aceSurplus)} surplus YTD</span>` : ''}
+         ${nocSurplus > 0 ? `<span class="chip ch-g">▲ ${nocSurplus} NOC surplus</span>` : ''}`
+      : '';
 
     const ceTag   = a.ce   != null ? `<span class="mini-badge ${mbCls(a.ce * 100)}">CE ${(a.ce * 100).toFixed(1)}%</span>` : '';
     const pr13Tag = a.pr13 != null ? `<span class="mini-badge ${mbCls(a.pr13 * 100)}">PR13 ${(a.pr13 * 100).toFixed(1)}%</span>` : '';
@@ -775,7 +832,10 @@ function renderLeaderboard() {
           <div class="a-meta">${a.code}${a.agency ? ' · ' + a.agency : ''}${a.scheme ? ' · ' + a.scheme : ''}</div>
           ${a.remark ? `<div style="font-size:.72rem;color:#888;margin-top:3px;font-style:italic">📝 ${a.remark}</div>` : ''}
         </div>
-        <div class="a-right">${ceTag}${pr13Tag}</div>
+        <div class="a-right" style="display:flex;align-items:flex-start;gap:4px">
+          ${ceTag}${pr13Tag}
+          <button class="fav-btn" onclick="toggleFav('${a.code.replace(/'/g,"\\'")}',event)" title="${isFav?'Buang dari kegemaran':'Tambah ke kegemaran'}">${isFav?'★':'☆'}</button>
+        </div>
       </div>
       <div class="prog">
         <div class="prog-hd">
@@ -792,12 +852,8 @@ function renderLeaderboard() {
         <div class="prog-track"><div class="prog-fill ${fillCls(nocPct)}" style="width:${nocPct}%"></div></div>
       </div>
       <div class="a-chips">
-        ${hasRes ? `<span class="chip ${chCls(isQual)}">${isQual ? '✓' : '✗'} ${displayResult}</span>` : ''}
-        ${monthPayout > 0 ? `<span class="chip ch-o">💰 ${fmtK(monthPayout)}</span>` : ''}
-        ${a.ytdPayout > 0 ? `<span class="chip ch-grey">YTD: ${fmtK(a.ytdPayout)}</span>` : ''}
-        ${a.ytdACE > 0 ? `<span class="chip" style="background:#fffbf0;color:#b45309">🎁 Bonus: ${fmtK(a.ytdACE * 0.03)}</span>` : ''}
-        ${nextAce > 0 ? `<span class="chip ch-grey">→ Next: ${fmtK(nextAce)}${nextNoc > 0 ? ' · ' + nextNoc + ' kes' : ''}</span>` : ''}
-        ${a.training ? `<span class="chip ${chCls(a.training === 'MET')}">${a.training === 'MET' ? '✓' : '✗'} Training</span>` : ''}
+        ${qualChip}
+        ${surplusChips}
       </div>
     </div>`;
   }).join('');
