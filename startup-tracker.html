@@ -802,6 +802,22 @@ function renderLeaderboard() {
     const isQual = isMtdQ || isCuQ;
     const hasRes = !!(last?.mtdResult || last?.catchResult);
 
+    // Next month targets
+    const lastNum = last?.month || 0;
+    const nextMth = a.months.find(m => m.month === lastNum + 1);
+    const nextAce = nextMth?.mtdTarget    || last?.mtdTarget    || 8000;
+    const nextNoc = nextMth?.mtdTargetCases || last?.mtdTargetCases || 2;
+
+    // YTD deficit / surplus
+    const aceDeficit = Math.max(0, a.ytdTargetACE - a.ytdACE);
+    const nocDeficit = Math.max(0, (a.ytdTargetCases|0) - (a.ytdNOC|0));
+    const aceSurplus = a.ytdACE - a.ytdTargetACE;
+    const nocSurplus = (a.ytdNOC|0) - (a.ytdTargetCases|0);
+
+    // What the agent needs to produce this month (MTD + any catch-up)
+    const aceTotalNeed = nextAce + aceDeficit;
+    const nocTotalNeed = nextNoc + nocDeficit;
+
     // Qualified chip
     let qualChip;
     if (!hasRes) {
@@ -814,13 +830,59 @@ function renderLeaderboard() {
       qualChip = `<span class="chip ch-r">✗ Tidak Layak</span>`;
     }
 
-    // Surplus chips (only if qualified)
-    const aceSurplus = a.ytdACE - a.ytdTargetACE;
-    const nocSurplus = (a.ytdNOC|0) - (a.ytdTargetCases|0);
+    // Surplus chips (only if qualified and surplus exists)
     const surplusChips = isQual
       ? `${aceSurplus > 0 ? `<span class="chip ch-g">▲ ${fmtK(aceSurplus)} surplus YTD</span>` : ''}
          ${nocSurplus > 0 ? `<span class="chip ch-g">▲ ${nocSurplus} NOC surplus</span>` : ''}`
       : '';
+
+    // Shortfall block — show whenever there's a deficit in ACE or NOC, or agent is not qualified
+    const showShortfall = aceDeficit > 0 || nocDeficit > 0 || !isQual;
+    const hasAceDef = aceDeficit > 0;
+    const hasNocDef = nocDeficit > 0;
+    const sfBg = (hasAceDef || hasNocDef) ? '#fff5f5' : '#f7f8fa';
+    const sfBorder = (hasAceDef || hasNocDef) ? '#ffd5d5' : '#eee';
+
+    const aceRow = hasAceDef
+      ? `<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+           <span style="font-size:.68rem;font-weight:800;color:#888;min-width:28px">ACE</span>
+           <span style="font-size:.78rem;font-weight:700">${fmtK(nextAce)}</span>
+           <span style="color:#bbb;font-size:.7rem">+</span>
+           <span style="font-size:.78rem;font-weight:800;color:#e53935">${fmtK(aceDeficit)} shortfall</span>
+           <span style="color:#bbb;font-size:.7rem">=</span>
+           <span style="font-size:.85rem;font-weight:900;color:#e53935">${fmtK(aceTotalNeed)} total</span>
+         </div>`
+      : `<div style="display:flex;align-items:center;gap:5px">
+           <span style="font-size:.68rem;font-weight:800;color:#888;min-width:28px">ACE</span>
+           <span style="font-size:.78rem;font-weight:700">${fmtK(nextAce)}</span>
+           <span style="font-size:.68rem;color:#aaa">(bulan ini)</span>
+         </div>`;
+
+    const nocRow = hasNocDef
+      ? `<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+           <span style="font-size:.68rem;font-weight:800;color:#888;min-width:28px">NOC</span>
+           <span style="font-size:.78rem;font-weight:700">${nextNoc} kes</span>
+           <span style="color:#bbb;font-size:.7rem">+</span>
+           <span style="font-size:.78rem;font-weight:800;color:#e53935">${nocDeficit} kes shortfall</span>
+           <span style="color:#bbb;font-size:.7rem">=</span>
+           <span style="font-size:.85rem;font-weight:900;color:#e53935">${nocTotalNeed} kes total</span>
+         </div>`
+      : `<div style="display:flex;align-items:center;gap:5px">
+           <span style="font-size:.68rem;font-weight:800;color:#888;min-width:28px">NOC</span>
+           <span style="font-size:.78rem;font-weight:700">${nextNoc} kes</span>
+           <span style="font-size:.68rem;color:#aaa">(bulan ini)</span>
+         </div>`;
+
+    const shortfallBlock = showShortfall ? `
+      <div style="background:${sfBg};border:1px solid ${sfBorder};border-radius:10px;padding:8px 11px;margin-top:8px">
+        <div style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:${hasAceDef||hasNocDef?'#e53935':'#999'};margin-bottom:6px">
+          ${hasAceDef||hasNocDef ? '⚠ Perlu Bulan Ini (MTD + Shortfall)' : '→ Sasaran Bulan Ini'}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          ${aceRow}
+          ${nocRow}
+        </div>
+      </div>` : '';
 
     const ceTag   = a.ce   != null ? `<span class="mini-badge ${mbCls(a.ce * 100)}">CE ${(a.ce * 100).toFixed(1)}%</span>` : '';
     const pr13Tag = a.pr13 != null ? `<span class="mini-badge ${mbCls(a.pr13 * 100)}">PR13 ${(a.pr13 * 100).toFixed(1)}%</span>` : '';
@@ -855,6 +917,7 @@ function renderLeaderboard() {
         ${qualChip}
         ${surplusChips}
       </div>
+      ${shortfallBlock}
     </div>`;
   }).join('');
 }
