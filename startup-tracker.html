@@ -117,6 +117,25 @@ tbody tr:last-child td{border-bottom:none}
   .sum-bar{gap:10px}
 }
 
+/* ── Startup Detail Card (212-style) ──────────── */
+.su-hdr{background:#7b1fa2;padding:11px 16px;font-size:.75rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#fff;border-radius:18px 18px 0 0}
+.su-body{padding:14px 16px 16px}
+.su-card{background:white;border-radius:18px;overflow:hidden;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.su-scheme-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.su-scheme-name{font-size:1rem;font-weight:900;color:#7b1fa2}
+.su-status-pill{font-size:.65rem;font-weight:800;border-radius:20px;padding:3px 10px}
+.su-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.su-stat{background:#f7f8fa;border-radius:12px;padding:11px 13px}
+.su-stat-lbl{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:3px}
+.su-stat-val{font-size:1.1rem;font-weight:900;letter-spacing:-.02em;color:#111}
+.su-stat-sub{font-size:.68rem;color:#777;margin-top:2px;font-weight:700}
+.su-prog-wrap{background:#e9d5ff;border-radius:99px;height:8px;overflow:hidden;margin:6px 0 3px}
+.su-prog-bar{height:100%;border-radius:99px}
+.su-divider{border:none;border-top:1px solid #f0f0f0;margin:12px 0}
+.su-month-hdr{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#7b1fa2;margin-bottom:8px}
+.su-month-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.su-result-pill{font-size:.68rem;font-weight:800;border-radius:8px;padding:3px 8px;display:inline-block}
+
 /* Token modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center}
 .modal-box{background:white;border-radius:24px;padding:28px 24px;width:340px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
@@ -207,27 +226,7 @@ tbody tr:last-child td{border-bottom:none}
 <!-- Detail View -->
 <div id="viewDetail" style="display:none">
   <div class="container">
-    <div class="card" id="detHeader"></div>
-    <div class="stats-grid" id="detStats"></div>
-    <div class="card">
-      <div class="card-title">📅 Prestasi Bulanan</div>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Bulan</th>
-              <th>MTD ACE</th>
-              <th>Target ACE</th>
-              <th>MTD NOC</th>
-              <th>Target Kes</th>
-              <th>Keputusan</th>
-              <th>Payout</th>
-            </tr>
-          </thead>
-          <tbody id="detTbody"></tbody>
-        </table>
-      </div>
-    </div>
+    <div id="detCard"></div>
   </div>
 </div>
 
@@ -804,55 +803,253 @@ function renderLeaderboard() {
   }).join('');
 }
 
+// ── Detail Helpers ────────────────────────────────────────────────────────────
+
+const RM = v => 'RM ' + (v||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+function suMonthLabel(monthNum, title, maxMonthNum) {
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const parts = (title||'').split(' ');
+  const mIdx = MONTHS.indexOf(parts[0]);
+  const yr = parseInt(parts[parts.length-1], 10);
+  if (mIdx >= 0 && yr >= 2020) {
+    const base = new Date(yr, mIdx, 1);
+    base.setMonth(base.getMonth() + (monthNum - maxMonthNum));
+    return base.toLocaleString('en-MY', {month:'long', year:'numeric'});
+  }
+  const now = new Date();
+  const base = new Date(now.getFullYear(), now.getMonth() - 1 + (monthNum - maxMonthNum), 1);
+  return base.toLocaleString('en-MY', {month:'long', year:'numeric'});
+}
+
+function suDonut(pct, color, label) {
+  const r=36, cx=50, cy=50, sw=8;
+  const circ=2*Math.PI*r, dash=circ*Math.min(pct,100)/100;
+  return `<svg viewBox="0 0 100 100" width="90" height="90" style="display:block;flex-shrink:0">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e9d5ff" stroke-width="${sw}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}"
+      stroke-dasharray="${dash.toFixed(2)} ${circ.toFixed(2)}"
+      stroke-dashoffset="${(circ/4).toFixed(2)}" stroke-linecap="round"/>
+    <text x="50" y="46" text-anchor="middle" dominant-baseline="middle"
+      font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+      font-size="15" font-weight="900" fill="${color}">${pct.toFixed(0)}%</text>
+    <text x="50" y="60" text-anchor="middle" dominant-baseline="middle"
+      font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+      font-size="8" font-weight="700" fill="#aaa">${label}</text>
+  </svg>`;
+}
+
+function suSparkline(months, toMonthLabel, liveACE, liveTarget) {
+  const W=260, H=92, padL=6, padR=6, padT=22, padB=28;
+  const innerW=W-padL-padR, innerH=H-padT-padB;
+  const now=new Date();
+  const liveLabel=now.toLocaleString('en-MY',{month:'short'});
+  const allBars=[
+    ...months.map(m=>({ace:m.mtdACE,target:m.mtdTarget,label:toMonthLabel(m.month).split(' ')[0].slice(0,3),live:false})),
+    {ace:liveACE,target:liveTarget,label:liveLabel,live:true}
+  ];
+  const n=allBars.length;
+  const gap=Math.min(6,Math.max(3,24/n));
+  const barW=(innerW-gap*(n-1))/n;
+  const maxACE=Math.max(...allBars.map(b=>Math.max(b.ace,b.target)),1);
+  const refTarget=months.length>0?months[months.length-1].mtdTarget:liveTarget;
+  const tY=padT+innerH-(innerH*refTarget)/maxACE;
+  const barsHtml=allBars.map((b,i)=>{
+    const x=padL+i*(barW+gap);
+    const bH=Math.max(2,(innerH*b.ace)/maxACE);
+    const y=padT+innerH-bH;
+    const pct=b.target>0?b.ace/b.target:0;
+    const solidColor=pct>=1?'#27ae60':pct>=0.8?'#f59e0b':'#e53935';
+    const fill=b.live?(pct>=1?'rgba(39,174,96,.28)':pct>=0.8?'rgba(245,158,11,.28)':'rgba(229,57,53,.28)'):solidColor;
+    const rmLbl=b.ace>=1000?(b.ace/1000).toFixed(1)+'k':Math.round(b.ace);
+    const cx=(x+barW/2).toFixed(1);
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${bH.toFixed(1)}" rx="3" fill="${fill}"
+      ${b.live?`stroke="${solidColor}" stroke-width="1.5" stroke-dasharray="3,2"`:''}/>
+    <text x="${cx}" y="${(y-4).toFixed(1)}" text-anchor="middle" font-size="7" font-weight="800"
+      fill="${b.live?'#bbb':'#555'}" font-family="-apple-system,sans-serif">${rmLbl}</text>
+    <text x="${cx}" y="${(H-padB+13).toFixed(1)}" text-anchor="middle" font-size="7.5" font-weight="700"
+      fill="${b.live?'#ff7a00':'#888'}" font-family="-apple-system,sans-serif">${b.label}</text>
+    ${b.live?`<text x="${cx}" y="${(H-padB+21).toFixed(1)}" text-anchor="middle" font-size="6" font-weight="700" fill="#ff7a00" font-family="-apple-system,sans-serif">live</text>`:''}`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">
+    <line x1="${padL}" y1="${tY.toFixed(1)}" x2="${(W-padR).toFixed(1)}" y2="${tY.toFixed(1)}"
+      stroke="#7b1fa2" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.4"/>
+    ${barsHtml}
+  </svg>`;
+}
+
+// ── PR Data (for live MTD section) ────────────────────────────────────────────
+
+let _prData = null;
+fetch('data/pr-data.json').then(r=>r.ok?r.json():null).catch(()=>null).then(d=>{
+  _prData = d;
+  // Re-render detail if currently visible
+  if (_curAgent && document.getElementById('viewDetail').style.display !== 'none') renderDetail();
+});
+
 // ── Detail ───────────────────────────────────────────────────────────────────
 
 function renderDetail() {
   const a = _curAgent;
-  const acePct = a.ytdTargetACE  ? Math.min(100, a.ytdACE  / a.ytdTargetACE  * 100) : 0;
-  const nocPct = a.ytdTargetCases ? Math.min(100, a.ytdNOC / a.ytdTargetCases * 100) : 0;
+  const el = document.getElementById('detCard');
+  if (!el) return;
 
-  document.getElementById('detHeader').innerHTML =
-    `<div class="det-name">${a.name}</div>
-     <div class="det-chips">
-       <span class="dchip dc-grey">${a.code}</span>
-       ${a.scheme ? `<span class="dchip dc-orange">${a.scheme}</span>` : ''}
-       ${a.status ? `<span class="dchip ${a.status === 'ACTIVE' ? 'dc-green' : 'dc-grey'}">${a.status}</span>` : ''}
-       ${a.agency ? `<span class="dchip dc-grey">${a.agency}</span>` : ''}
-     </div>
-     ${a.remark ? `<div class="det-remark">📝 ${a.remark}</div>` : ''}`;
+  const reportPeriod = (_data.title||'').replace('Start-Up Elite Scheme Monthly Validation - ','');
+  const allMonthNums = (a.months||[]).map(m=>m.month);
+  const maxMonthNum = allMonthNums.length ? Math.max(...allMonthNums) : 1;
+  const toMonthLabel = n => suMonthLabel(n, reportPeriod, maxMonthNum);
+  const latest = a.months[a.months.length-1];
+  const ytdPct = a.ytdTargetACE>0 ? Math.min(100, a.ytdACE/a.ytdTargetACE*100) : 0;
+  const ytdCasePct = a.ytdTargetCases>0 ? Math.min(100, a.ytdCases/a.ytdTargetCases*100) : 0;
+  const progColor = ytdPct>=100?'#27ae60':ytdPct>=60?'#7b1fa2':'#e53935';
+  const statusColor = a.status==='ACTIVE'?{bg:'#d4edda',c:'#155724'}:{bg:'#f8d7da',c:'#721c24'};
+  const trainColor  = a.training==='MET'  ?{bg:'#d4edda',c:'#155724'}:{bg:'#f8d7da',c:'#721c24'};
 
-  const stat = (val, lbl, col) =>
-    `<div class="stat-card"><div class="stat-val"${col ? ` style="color:${col}"` : ''}>${val}</div><div class="stat-lbl">${lbl}</div></div>`;
+  // Live current month production from pr-data
+  const now = new Date();
+  const curY = now.getFullYear(), curM = now.getMonth()+1; // 1-indexed
+  const liveAg = _prData ? _prData.agents.find(ag=>ag.code===a.code) : null;
+  const liveCl = liveAg ? (liveAg.clients||[]).filter(c=>{
+    if (!c.issueDate) return false;
+    const [y,,m] = c.issueDate.split('-').map(Number);
+    return y===curY && c.issueDate.split('-')[1]*1===curM;
+  }) : [];
+  const liveACE = liveCl.reduce((s,c)=>s+(c.ace||0),0);
+  const liveCases = liveCl.length;
+  const liveTarget = latest ? latest.mtdTarget : 8000;
+  const livePct = Math.min(100, liveACE/liveTarget*100);
+  const livePctColor = livePct>=100?'#27ae60':livePct>=60?'#7b1fa2':'#e53935';
+  const liveMonthLabel = now.toLocaleString('en-MY',{month:'long',year:'numeric'});
 
-  document.getElementById('detStats').innerHTML = [
-    stat(fmtK(a.ytdACE),       'YTD ACE',      '#0a9b43'),
-    stat(fmtK(a.ytdTargetACE), 'Target ACE',    null),
-    stat(acePct.toFixed(1)+'%','ACE Capaian',   colorForPct(acePct)),
-    stat(String(a.ytdNOC),     'YTD NOC',       null),
-    stat(String(a.ytdTargetCases), 'Target Kes', null),
-    stat(nocPct.toFixed(1)+'%','NOC Capaian',   colorForPct(nocPct)),
-    stat(fmtK(a.totalPayout),      'Jumlah Payout', '#ff7a00'),
-    stat(fmtK(a.ytdACE * 0.03),   'Bonus 3%',      '#b45309'),
-    a.ce   != null ? stat((a.ce*100).toFixed(1)+'%',   'CE %',   colorForPct(a.ce*100))   : stat('—','CE %','#aaa'),
-    a.pr13 != null ? stat((a.pr13*100).toFixed(1)+'%', 'PR13 %', colorForPct(a.pr13*100)) : stat('—','PR13 %','#aaa'),
-  ].join('');
+  const resultPill = r => {
+    const ok = (r||'').toLowerCase().includes('qualif') && !(r||'').toLowerCase().includes('not');
+    return `<span class="su-result-pill" style="background:${ok?'#d4edda':'#ffeeba'};color:${ok?'#155724':'#856404'}">${r||'—'}</span>`;
+  };
 
-  document.getElementById('detTbody').innerHTML = a.months.map(m => {
-    const isQ  = isQualified(m.mtdResult) || isQualified(m.catchResult);
-    const hasR = m.mtdResult !== '';
-    const payCell = m.mtdPayout > 0 ? fmtK(m.mtdPayout)
-      : m.catchPayout > 0 ? fmtK(m.catchPayout) + ' <span style="font-size:.65rem;color:#aaa">(catch-up)</span>'
-      : '—';
-    return `<tr>
-      <td><strong>${m.evalMonth || ('M' + m.month)}</strong></td>
-      <td>${fmtK(m.mtdACE)}</td>
-      <td>${fmtK(m.mtdTarget)}</td>
-      <td>${m.mtdNOC || '—'}</td>
-      <td>${m.mtdTargetCases || '—'}</td>
-      <td>${hasR ? `<span style="font-size:.75rem;font-weight:700;color:${isQ?'#0a9b43':'#d32f2f'}">${m.mtdResult}</span>` : '—'}</td>
-      <td>${payCell}</td>
-    </tr>`;
-  }).join('');
+  el.innerHTML = `
+  <div class="su-card">
+    <div class="su-hdr">🚀 Startup Scheme — ${reportPeriod}</div>
+    <div class="su-body">
+
+      <div class="su-scheme-row">
+        <div class="su-scheme-name">${a.scheme}</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="su-status-pill" style="background:${statusColor.bg};color:${statusColor.c}">${a.status}</span>
+          <span class="su-status-pill" style="background:${trainColor.bg};color:${trainColor.c}">Training ${a.training||'—'}</span>
+        </div>
+      </div>
+
+      <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:10px">
+        Pencapaian YTD${latest?`<span style="text-transform:none;font-weight:600;color:#bbb;margin-left:5px">— setakat ${toMonthLabel(latest.month)}</span>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+        ${suDonut(ytdPct, progColor, 'ACE')}
+        <div style="flex:1;min-width:0">
+          <div class="su-stat-lbl">ACE YTD</div>
+          <div class="su-stat-val">${RM(a.ytdACE)}</div>
+          <div class="su-stat-sub">Sasaran: ${RM(a.ytdTargetACE)}</div>
+          <div style="margin-top:6px">
+            ${(()=>{const diff=a.ytdACE-a.ytdTargetACE; const surplus=diff>=0;
+              return `<span style="display:inline-block;padding:2px 7px;border-radius:10px;font-size:.65rem;font-weight:800;background:${surplus?'rgba(39,174,96,.13)':'rgba(229,57,53,.11)'};color:${surplus?'#1a7a42':'#c62828'}">
+                ${surplus?'▲ Lebihan +'+RM(diff):'▼ Kurang '+RM(-diff)}</span>`;})()}
+            ${a.ytdACE>=a.ytdTargetACE?'<div style="font-size:.6rem;color:#888;margin-top:3px">Boleh guna untuk Catch-Up</div>':''}
+          </div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="su-stat-lbl">Kes YTD</div>
+          <div class="su-stat-val">${a.ytdCases|0} / ${a.ytdTargetCases|0}</div>
+          <div style="margin-top:4px">
+            <div class="su-prog-wrap" style="margin:4px 0 4px"><div class="su-prog-bar" style="width:${ytdCasePct.toFixed(1)}%;background:${ytdCasePct>=100?'#27ae60':'#7b1fa2'}"></div></div>
+            ${(()=>{const diff=(a.ytdCases|0)-(a.ytdTargetCases|0); const surplus=diff>=0;
+              return `<span style="display:inline-block;padding:2px 7px;border-radius:10px;font-size:.65rem;font-weight:800;background:${surplus?'rgba(39,174,96,.13)':'rgba(229,57,53,.11)'};color:${surplus?'#1a7a42':'#c62828'}">
+                ${surplus?'▲ +'+diff+' kes':'▼ '+(-diff)+' kes lagi'}</span>`;})()}
+          </div>
+        </div>
+      </div>
+
+      <hr class="su-divider">
+      <div class="su-stat-grid">
+        <div class="su-stat">
+          <div class="su-stat-lbl">Bonus Diterima</div>
+          <div class="su-stat-val" style="color:#7b1fa2">${RM(a.ytdPayout)}</div>
+          <div class="su-stat-sub">Kumulatif: ${RM(a.totalPayout)}</div>
+        </div>
+        <div class="su-stat">
+          <div class="su-stat-lbl">Bonus Per Bulan</div>
+          <div class="su-stat-val" style="color:#7b1fa2">RM 2,000</div>
+          <div class="su-stat-sub">Jika layak</div>
+        </div>
+      </div>
+
+      <hr class="su-divider">
+      <div class="su-month-hdr">Trend ACE Bulanan
+        <span style="font-size:.6rem;font-weight:600;color:#888;margin-left:6px">— dashed = sasaran · bar oren = live</span>
+      </div>
+      ${suSparkline(a.months, toMonthLabel, liveACE, liveTarget)}
+
+      ${latest ? `
+      <hr class="su-divider">
+      <div class="su-month-hdr">Laporan Terkini — ${toMonthLabel(latest.month)} <span style="font-size:.62rem;font-weight:600;color:#bbb;margin-left:4px">(bulan lepas)</span></div>
+      <div class="su-month-grid">
+        <div class="su-stat">
+          <div class="su-stat-lbl">ACE MTD</div>
+          <div class="su-stat-val">${RM(latest.mtdACE)}</div>
+          <div class="su-stat-sub">Sasaran: ${RM(latest.mtdTarget)}</div>
+        </div>
+        <div class="su-stat">
+          <div class="su-stat-lbl">Kes MTD</div>
+          <div class="su-stat-val">${latest.mtdCases|0} / ${latest.mtdTargetCases|0}</div>
+          <div class="su-stat-sub">${toMonthLabel(latest.month)}</div>
+        </div>
+        <div class="su-stat" style="grid-column:1/-1">
+          <div class="su-stat-lbl">Keputusan</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px">
+            <div>MTD: ${resultPill(latest.mtdResult)} <span style="font-size:.63rem;color:#aaa;font-weight:700">${latest.mtdPayout>0?RM(latest.mtdPayout):'—'}</span></div>
+            <div>Catch-Up: ${resultPill(latest.catchResult)} <span style="font-size:.63rem;color:#aaa;font-weight:700">${latest.catchPayout>0?RM(latest.catchPayout):'—'}</span></div>
+          </div>
+        </div>
+      </div>
+      ` : ''}
+
+      <hr class="su-divider">
+      <div class="su-month-hdr">Pengeluaran Semasa — ${liveMonthLabel} <span style="font-size:.62rem;font-weight:600;color:#27ae60;margin-left:4px">● Live</span></div>
+      <div class="su-month-grid">
+        <div class="su-stat">
+          <div class="su-stat-lbl">ACE MTD</div>
+          <div class="su-stat-val" style="color:${livePctColor}">${RM(liveACE)}</div>
+          <div class="su-stat-sub">Sasaran: ${RM(liveTarget)}</div>
+          <div class="su-prog-wrap" style="margin:5px 0 3px"><div class="su-prog-bar" style="width:${Math.min(100,livePct).toFixed(1)}%;background:${livePctColor}"></div></div>
+          <div style="font-size:.65rem;font-weight:800;color:${livePctColor}">${livePct.toFixed(0)}% sasaran</div>
+        </div>
+        <div class="su-stat">
+          <div class="su-stat-lbl">Kes MTD</div>
+          <div class="su-stat-val" style="color:${livePctColor}">${liveCases} kes</div>
+          <div class="su-stat-sub">Min: 2 kes</div>
+          ${liveCases>=2
+            ?`<span style="display:inline-block;padding:2px 7px;border-radius:8px;font-size:.65rem;font-weight:800;background:rgba(39,174,96,.13);color:#1a7a42;margin-top:3px">✓ Cukup</span>`
+            :`<span style="display:inline-block;padding:2px 7px;border-radius:8px;font-size:.65rem;font-weight:800;background:rgba(229,57,53,.11);color:#c62828;margin-top:3px">⚠ ${2-liveCases} lagi</span>`}
+        </div>
+      </div>
+
+      <hr class="su-divider">
+      <div style="font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:6px">Sasaran Bulan Depan</div>
+      <div class="su-month-grid">
+        <div class="su-stat">
+          <div class="su-stat-lbl">ACE Perlu</div>
+          <div class="su-stat-val" style="color:#7b1fa2">RM 8,000</div>
+          <div class="su-stat-sub">Minimum layak</div>
+        </div>
+        <div class="su-stat">
+          <div class="su-stat-lbl">Kes Perlu</div>
+          <div class="su-stat-val" style="color:#7b1fa2">2 kes</div>
+          <div class="su-stat-sub">Minimum layak</div>
+        </div>
+      </div>
+
+      ${a.remark ? `<hr class="su-divider"><div style="font-size:.8rem;color:#888;background:#f8f8f8;border-radius:10px;padding:8px 12px;line-height:1.5">📝 ${a.remark}</div>` : ''}
+
+    </div>
+  </div>`;
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
