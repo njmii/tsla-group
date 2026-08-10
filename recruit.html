@@ -138,6 +138,48 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 .footer{padding:28px 20px;text-align:center;color:#888;font-size:.8rem;border-top:1px solid #eee;margin-top:32px}
 .footer strong{color:#ff7a00}
 
+/* ── TBE NAV BUTTON ── */
+.tbe-nav-btn{background:rgba(255,122,0,.1);color:#ff7a00;border:1.5px solid rgba(255,122,0,.3);border-radius:30px;padding:8px 18px;font-weight:800;font-size:.8rem;cursor:pointer;transition:.2s;font-family:inherit}
+.tbe-nav-btn:hover{background:rgba(255,122,0,.18);border-color:#ff7a00}
+
+/* ── TBE OVERLAY ── */
+#tbeOverlay{display:none;position:fixed;inset:0;background:#f7f8fa;z-index:9990;flex-direction:column;overflow:hidden}
+.tbe-header{background:#ff7a00;color:white;padding:0 20px;flex-shrink:0;display:flex;flex-direction:column;padding-bottom:0}
+.tbe-header-top{display:flex;align-items:center;gap:12px;min-height:54px}
+.tbe-back{background:none;border:none;color:rgba(255,255,255,.85);font-size:1.3rem;cursor:pointer;padding:4px 2px;transition:.2s;line-height:1;font-weight:300}
+.tbe-back:hover{color:white}
+.tbe-title{font-weight:900;font-size:1rem;flex:1}
+.tbe-tabs{display:flex;gap:0;margin-top:10px}
+.tbe-tab{flex:1;background:rgba(255,255,255,.18);border:none;color:rgba(255,255,255,.75);padding:11px 0;font-weight:700;font-size:.82rem;cursor:pointer;transition:.2s;font-family:inherit;border-radius:10px 10px 0 0}
+.tbe-tab.active{background:white;color:#ff7a00}
+.tbe-tab:not(.active):hover{background:rgba(255,255,255,.28);color:white}
+.tbe-body{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.tbe-pane{display:none;flex:1;overflow-y:auto;padding:24px 20px 60px;max-width:760px;margin:0 auto;width:100%}
+.tbe-pane.active{display:block}
+.tbe-step-wrap{counter-reset:tbstep;margin-top:24px}
+.tbe-step{display:flex;gap:16px;margin-bottom:20px;align-items:flex-start}
+.tbe-step-n{width:36px;height:36px;border-radius:50%;background:#ff7a00;color:white;font-weight:900;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(255,122,0,.3)}
+.tbe-step-content{flex:1;padding-top:4px}
+.tbe-step-title{font-weight:900;font-size:.95rem;margin-bottom:4px}
+.tbe-step-body{color:#555;font-size:.85rem;line-height:1.7}
+.tbe-step-body a{color:#ff7a00;font-weight:700;text-decoration:none}
+.tbe-step-body a:hover{text-decoration:underline}
+.tbe-note{background:#fff4eb;border:1px solid #ffd9b0;border-radius:14px;padding:14px 16px;margin-top:20px;font-size:.83rem;color:#7a4400;line-height:1.65}
+.tbe-note strong{color:#ff7a00}
+.tbe-eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#ff7a00;margin-bottom:8px}
+.tbe-heading{font-size:1.45rem;font-weight:900;line-height:1.15;margin-bottom:6px;letter-spacing:-.02em}
+.tbe-sub{color:#666;font-size:.875rem;line-height:1.7;margin-bottom:0}
+.tbe-divider{border:none;border-top:1px solid #eee;margin:24px 0}
+.tbe-pdf-wrap{display:none;flex:1;overflow:hidden;flex-direction:column}
+.tbe-pdf-wrap.active{display:flex}
+.tbe-pdf-toolbar{background:white;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eee;flex-shrink:0}
+.tbe-dl-btn{background:#ff7a00;color:white;border:none;border-radius:30px;padding:9px 20px;font-weight:800;font-size:.82rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:.2s}
+.tbe-dl-btn:hover{background:#ff9a2e}
+.tbe-pdf-frame{flex:1;border:none;width:100%}
+.tbe-info-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.tbe-chip{background:white;border:1px solid #eee;border-radius:20px;padding:6px 14px;font-size:.78rem;font-weight:700;color:#555;display:flex;align-items:center;gap:5px}
+.tbe-chip span{color:#ff7a00}
+
 /* ── REVEAL ── */
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .8s cubic-bezier(.34,1.46,.64,1)}
 .reveal.visible{opacity:1;transform:none}
@@ -208,7 +250,10 @@ body{height:100svh;overflow:hidden;display:flex;flex-direction:column;background
 <div class="navbar">
   <div class="nav-content">
     <img class="nav-logo" src="assets/tslalogo.png" alt="TSLA Group" style="cursor:pointer" onclick="openAdminGate()" title="Admin"/>
-    <a class="nav-cta" onclick="goTo(3);return false;" href="#join">Jom Join ↗</a>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="tbe-nav-btn" onclick="openTBEGate()">📋 TBE</button>
+      <a class="nav-cta" onclick="goTo(3);return false;" href="#join">Jom Join ↗</a>
+    </div>
   </div>
 </div>
 
@@ -628,6 +673,59 @@ if (ctaForm) {
     spawnSparkles(r.left + r.width/2, r.top + r.height/2);
   });
 }
+/* ── TBE GATE ── */
+function openTBEGate() {
+  const m = document.getElementById('tbePinModal');
+  m.style.display = 'flex';
+  document.getElementById('tbePin').value = '';
+  document.getElementById('tbePinErr').textContent = '';
+  setTimeout(() => document.getElementById('tbePin').focus(), 100);
+}
+function closeTBEModal() {
+  document.getElementById('tbePinModal').style.display = 'none';
+}
+function onTBEPin(val) { if (val.length === 4) submitTBEPin(); }
+function submitTBEPin() {
+  const pin = document.getElementById('tbePin').value;
+  if (pin === '1111') {
+    closeTBEModal();
+    openTBE();
+  } else {
+    document.getElementById('tbePinErr').textContent = 'Kod salah. Cuba lagi.';
+    document.getElementById('tbePin').value = '';
+    document.getElementById('tbePin').focus();
+  }
+}
+function openTBE() {
+  const ov = document.getElementById('tbeOverlay');
+  ov.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  switchTBETab(0);
+}
+function closeTBE() {
+  document.getElementById('tbeOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function switchTBETab(idx) {
+  document.getElementById('tbeTabBtn0').classList.toggle('active', idx === 0);
+  document.getElementById('tbeTabBtn1').classList.toggle('active', idx === 1);
+  document.getElementById('tbePane0').classList.toggle('active', idx === 0);
+  const pdfWrap = document.getElementById('tbePane1');
+  pdfWrap.classList.toggle('active', idx === 1);
+  if (idx === 1) {
+    const frame = document.getElementById('tbePdfFrame');
+    if (!frame.src || frame.src === window.location.href) {
+      frame.src = 'assets/TBE_TSLA.pdf';
+    }
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('tbePinModal').style.display === 'flex') closeTBEModal();
+    if (document.getElementById('tbeOverlay').style.display === 'flex') closeTBE();
+  }
+});
+
 /* ── ADMIN GATE ── */
 function openAdminGate() {
   const m = document.getElementById('adminModal');
@@ -655,6 +753,127 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.getElementById('adminModal').style.display === 'flex') closeAdminModal();
 });
 </script>
+
+<!-- TBE PIN MODAL -->
+<div id="tbePinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9995;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:24px;padding:32px 24px;width:300px;max-width:90vw;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.25)">
+    <div style="font-size:2rem;margin-bottom:6px">📋</div>
+    <div style="font-weight:900;font-size:1.1rem;margin-bottom:4px">TBE Resources</div>
+    <div style="color:#888;font-size:.82rem;margin-bottom:20px">Masukkan kod akses 4 digit</div>
+    <input id="tbePin" type="tel" maxlength="4" placeholder="••••"
+      oninput="onTBEPin(this.value)"
+      style="width:100%;padding:14px;border:2px solid #eee;border-radius:14px;font-size:1.4rem;text-align:center;letter-spacing:.3em;outline:none;box-sizing:border-box;font-weight:700;transition:border-color .2s"
+      onfocus="this.style.borderColor='#ff7a00'" onblur="this.style.borderColor='#eee'">
+    <div id="tbePinErr" style="color:#e53935;font-size:.8rem;min-height:20px;margin-top:8px"></div>
+    <button onclick="submitTBEPin()" style="width:100%;padding:13px;background:#ff7a00;color:white;border:none;border-radius:14px;font-weight:800;font-size:.95rem;cursor:pointer;margin-top:4px">Masuk</button>
+    <button onclick="closeTBEModal()" style="width:100%;padding:11px;background:none;color:#aaa;border:none;font-size:.85rem;cursor:pointer;margin-top:8px">Batal</button>
+  </div>
+</div>
+
+<!-- TBE OVERLAY -->
+<div id="tbeOverlay" style="display:none;flex-direction:column;position:fixed;inset:0;background:#f7f8fa;z-index:9990;overflow:hidden">
+  <div class="tbe-header">
+    <div class="tbe-header-top">
+      <button class="tbe-back" onclick="closeTBE()" aria-label="Kembali">‹</button>
+      <div class="tbe-title">TBE Exam Resources</div>
+    </div>
+    <div class="tbe-tabs">
+      <button class="tbe-tab active" id="tbeTabBtn0" onclick="switchTBETab(0)">📋 Panduan Daftar</button>
+      <button class="tbe-tab" id="tbeTabBtn1" onclick="switchTBETab(1)">📄 Soalan &amp; Jawapan</button>
+    </div>
+  </div>
+  <div class="tbe-body">
+
+    <!-- Tab 0: Registration instructions -->
+    <div class="tbe-pane active" id="tbePane0">
+      <div class="tbe-eyebrow">Peperiksaan Pelesenan</div>
+      <div class="tbe-heading">Cara Daftar Peperiksaan TBE</div>
+      <p class="tbe-sub">Takaful Basic Examination (TBE) adalah syarat wajib sebelum anda boleh beroperasi sebagai Perunding Kewangan (FC). Ikuti langkah di bawah untuk mendaftar.</p>
+      <div class="tbe-info-chips">
+        <div class="tbe-chip">⏱ <span>±1.5 jam</span> tempoh peperiksaan</div>
+        <div class="tbe-chip">💰 <span>RM 50</span> yuran peperiksaan</div>
+        <div class="tbe-chip">📊 <span>70%</span> markah lulus (70/100 soalan)</div>
+        <div class="tbe-chip">🔄 <span>CBT</span> Computer-Based Test</div>
+      </div>
+      <hr class="tbe-divider"/>
+      <div class="tbe-step-wrap">
+        <div class="tbe-step">
+          <div class="tbe-step-n">1</div>
+          <div class="tbe-step-content">
+            <div class="tbe-step-title">Buka Portal MTA</div>
+            <p class="tbe-step-body">Layari laman web Persatuan Takaful Malaysia (MTA) di <a href="https://www.takaful.com.my" target="_blank">www.takaful.com.my</a> atau terus ke portal peperiksaan di <a href="https://myeducation.takaful.com.my" target="_blank">myeducation.takaful.com.my</a></p>
+          </div>
+        </div>
+        <div class="tbe-step">
+          <div class="tbe-step-n">2</div>
+          <div class="tbe-step-content">
+            <div class="tbe-step-title">Daftar Akaun Baru</div>
+            <p class="tbe-step-body">Klik <strong>"Register"</strong> dan isi maklumat berikut:<br>
+            • No. Kad Pengenalan (MyKad)<br>
+            • Nama penuh (seperti dalam MyKad)<br>
+            • Alamat e-mel aktif<br>
+            • No. telefon<br>
+            • Kata laluan pilihan anda</p>
+          </div>
+        </div>
+        <div class="tbe-step">
+          <div class="tbe-step-n">3</div>
+          <div class="tbe-step-content">
+            <div class="tbe-step-title">Sahkan E-mel</div>
+            <p class="tbe-step-body">Semak e-mel anda dan klik pautan pengesahan yang dihantar oleh MTA. Pastikan semak folder <strong>Spam/Junk</strong> jika tiada dalam Inbox.</p>
+          </div>
+        </div>
+        <div class="tbe-step">
+          <div class="tbe-step-n">4</div>
+          <div class="tbe-step-content">
+            <div class="tbe-step-title">Log Masuk &amp; Pilih Peperiksaan</div>
+            <p class="tbe-step-body">Log masuk ke portal, klik <strong>"Exam Registration"</strong> dan pilih:<br>
+            • <strong>Jenis peperiksaan:</strong> TBE (Takaful Basic Examination)<br>
+            • <strong>Bahasa:</strong> Bahasa Malaysia atau Bahasa Inggeris<br>
+            • <strong>Tarikh &amp; Pusat Peperiksaan:</strong> Pilih yang paling dekat dan sesuai</p>
+          </div>
+        </div>
+        <div class="tbe-step">
+          <div class="tbe-step-n">5</div>
+          <div class="tbe-step-content">
+            <div class="tbe-step-title">Bayar Yuran Peperiksaan</div>
+            <p class="tbe-step-body">Yuran peperiksaan adalah <strong>RM 50</strong>. Bayaran boleh dibuat melalui:<br>
+            • FPX (Internet Banking)<br>
+            • Kad Debit / Kredit<br>
+            Simpan resit pembayaran sebagai bukti.</p>
+          </div>
+        </div>
+        <div class="tbe-step">
+          <div class="tbe-step-n">6</div>
+          <div class="tbe-step-content">
+            <div class="tbe-step-title">Muat Turun Surat Kebenaran (Admit Card)</div>
+            <p class="tbe-step-body">Selepas bayaran disahkan, muat turun <strong>Admit Card</strong> dari portal. Bawa bersama (cetak atau dalam telefon) ke pusat peperiksaan bersama <strong>MyKad asal</strong>.</p>
+          </div>
+        </div>
+        <div class="tbe-step">
+          <div class="tbe-step-n">7</div>
+          <div class="tbe-step-content">
+            <div class="tbe-step-title">Hadiri Peperiksaan &amp; Semak Keputusan</div>
+            <p class="tbe-step-body">Tiba di pusat peperiksaan <strong>30 minit awal</strong>. Keputusan akan diketahui terus selepas peperiksaan. Jika lulus, sijil akan dimuat naik ke portal dalam masa 2–3 hari bekerja.</p>
+          </div>
+        </div>
+      </div>
+      <div class="tbe-note">
+        <strong>💡 Tips dari TSLA Group:</strong> Belajar menggunakan set soalan dalam tab <strong>"Soalan &amp; Jawapan"</strong>. Fokus pada bahagian Akad, Tabarru', jenis pelan, dan pengiraan premium asas. Ulang buat latihan sekurang-kurangnya 3 kali sebelum hari peperiksaan.
+      </div>
+    </div>
+
+    <!-- Tab 1: PDF viewer -->
+    <div class="tbe-pdf-wrap" id="tbePane1">
+      <div class="tbe-pdf-toolbar">
+        <div style="font-size:.85rem;color:#555;font-weight:600">📄 Soalan &amp; Jawapan TBE — TSLA Group</div>
+        <a class="tbe-dl-btn" href="assets/TBE_TSLA.pdf" download="TBE_TSLA.pdf">⬇ Download PDF</a>
+      </div>
+      <iframe class="tbe-pdf-frame" id="tbePdfFrame" src="" title="TBE Soalan dan Jawapan"></iframe>
+    </div>
+
+  </div><!-- .tbe-body -->
+</div><!-- #tbeOverlay -->
 
 <!-- ADMIN PIN MODAL -->
 <div id="adminModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
