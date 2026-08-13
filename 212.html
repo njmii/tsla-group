@@ -157,6 +157,35 @@ table.audit tr:last-child td{border-bottom:none}
 .empty-msg{text-align:center;padding:22px;color:#888;font-size:.84rem}
 .loading{text-align:center;padding:40px;color:#888}
 
+/* ── MAPA Simulator ── */
+.mapa-metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.mapa-metric{background:#f7f8fa;border-radius:14px;padding:12px 14px;text-align:center}
+.mapa-metric-lbl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:4px}
+.mapa-metric-letter{font-size:1.5rem;font-weight:900;line-height:1;color:#ff7a00}
+.mapa-metric-val{font-size:.9rem;font-weight:900;color:#111;margin-top:2px}
+.mapa-metric-sub{font-size:.65rem;color:#aaa;margin-top:1px}
+.mapa-result-box{background:linear-gradient(135deg,#ff7a00,#e65c00);border-radius:16px;padding:16px 18px;text-align:center;margin-bottom:14px}
+.mapa-result-lbl{font-size:.68rem;font-weight:800;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mapa-result-val{font-size:2rem;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:1}
+.mapa-result-sub{font-size:.72rem;color:rgba(255,255,255,.75);margin-top:4px}
+.mapa-slider-wrap{margin-bottom:16px}
+.mapa-slider-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mapa-slider-name{font-size:.78rem;font-weight:800;color:#111}
+.mapa-slider-badge{font-size:.72rem;font-weight:700;background:#fff4eb;color:#ff7a00;border-radius:8px;padding:3px 9px}
+.mapa-slider{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:99px;background:#eee;outline:none;cursor:pointer;accent-color:#ff7a00}
+.mapa-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#ff7a00;cursor:pointer;border:3px solid white;box-shadow:0 2px 8px rgba(255,122,0,.4)}
+.mapa-slider-range{display:flex;justify-content:space-between;font-size:.62rem;color:#bbb;margin-top:3px}
+.mapa-formula-box{background:#f7f8fa;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:.78rem;color:#555;text-align:center;line-height:1.8}
+.mapa-formula-box strong{color:#ff7a00}
+.mapa-diff-row{display:flex;align-items:center;justify-content:center;gap:10px;font-size:.8rem;font-weight:700;margin-top:8px}
+.mapa-tag-up{background:#e8f8ef;color:#1a8c4a;border-radius:8px;padding:3px 10px}
+.mapa-tag-dn{background:#fde8e8;color:#c0392b;border-radius:8px;padding:3px 10px}
+.mapa-tag-eq{background:#f0f0f0;color:#888;border-radius:8px;padding:3px 10px}
+.mapa-lever-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.mapa-lever{background:white;border:1px solid #eee;border-radius:12px;padding:11px 13px}
+.mapa-lever-title{font-size:.72rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.mapa-lever-body{font-size:.75rem;color:#555;line-height:1.55}
+
 /* ── PR13 audit tab (agent-report style, light) */
 .ar-sum-box{border-radius:15px;padding:13px 15px;margin-bottom:11px}
 .ar-sum-ttl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center}
@@ -340,6 +369,7 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
           <button id="tabPr" class="tab-btn" onclick="switchTab('pr')">📋 PR13</button>
           <button id="tabAct" class="tab-btn" onclick="switchTab('act')">📅 Aktiviti</button>
           <button id="tabSu" class="tab-btn" style="display:none" onclick="switchTab('su')">🚀 Startup</button>
+          <button id="tabMapa" class="tab-btn" style="display:none" onclick="switchTab('mapa')">📊 MAPA</button>
         </div>
 
         <div id="paneOv">
@@ -355,6 +385,7 @@ table.ar-tbl td.r{text-align:right;font-weight:700}
           <div id="actContent"><div class="loading">Memuatkan aktiviti…</div></div>
         </div>
         <div id="paneSu" style="display:none"><div id="suCard"></div></div>
+        <div id="paneMapa" style="display:none"><div id="mapaCard"></div></div>
         <div id="panePr" style="display:none">
           <div id="prSummary"></div>
           <div class="pool-tab-row" id="poolTabRow"></div>
@@ -674,13 +705,16 @@ function switchTab(t) {
   document.getElementById('panePr').style.display=t==='pr'?'':'none';
   document.getElementById('paneActivity').style.display=t==='act'?'':'none';
   document.getElementById('paneSu').style.display=t==='su'?'':'none';
+  document.getElementById('paneMapa').style.display=t==='mapa'?'':'none';
   document.getElementById('tabOv').classList.toggle('on',t==='ov');
   document.getElementById('tabMp').classList.toggle('on',t==='mp');
   document.getElementById('tabPr').classList.toggle('on',t==='pr');
   document.getElementById('tabAct').classList.toggle('on',t==='act');
   document.getElementById('tabSu').classList.toggle('on',t==='su');
+  document.getElementById('tabMapa').classList.toggle('on',t==='mapa');
   if(t==='act') loadActivity(CUR);
   if(t==='su') renderStartup(CUR);
+  if(t==='mapa') renderMapa(CUR);
 }
 
 /* ── Contest Leaderboard (home) ──────── */
@@ -1008,6 +1042,7 @@ function renderDash(code) {
   try{renderPR(r13,rCE,r25);}catch(e){console.error('pr',e);}
   const suTab = document.getElementById('tabSu');
   suTab.style.display = STARTUP_AGENTS.has(code) ? '' : 'none';
+  document.getElementById('tabMapa').style.display = (code === 'A11668') ? '' : 'none';
   switchTab('ov');
 }
 
@@ -1099,6 +1134,249 @@ function suMonthLabel(monthNum, baseMonthStr, maxMonthNum) {
   }
   const base = new Date(anchorY, anchorM + (monthNum - maxMonthNum), 1);
   return base.toLocaleString('en-MY', {month:'long', year:'numeric'});
+}
+
+/* ── MAPA Simulator ──────────────────── */
+let _mapaState = null;
+
+function renderMapa(code) {
+  const el = document.getElementById('mapaCard');
+  if (!DATA) { el.innerHTML = '<div class="empty-msg">Tiada data.</div>'; return; }
+
+  const grp = GROUPS['A11668'];
+  const members = grp ? grp.members : ['A11668'];
+
+  // Compute current MAPA from MTD data
+  let totalCases = 0, totalACE = 0, activeCount = 0;
+  members.forEach(mc => {
+    const ag = DATA.agents.find(a => a.code === mc);
+    if (!ag) return;
+    const mCl = mtdClients(ag.clients || []).filter(c => c.status !== 'Freelook Cancellation');
+    const agCases = mCl.length;
+    const agACE = mCl.reduce((s, c) => s + ace(c), 0);
+    if (agCases > 0) activeCount++;
+    totalCases += agCases;
+    totalACE += agACE;
+  });
+
+  const M_actual = members.length;
+  const A_actual = M_actual > 0 ? Math.round(activeCount / M_actual * 100) : 0;
+  const P_actual = activeCount > 0 ? +(totalCases / activeCount).toFixed(1) : 0;
+  const K_actual = totalCases > 0 ? Math.round(totalACE / totalCases) : 0;
+  const ACE_actual = totalACE;
+
+  // Init slider state only once (or if stale)
+  if (!_mapaState || _mapaState.code !== code) {
+    _mapaState = {
+      code,
+      M: M_actual || 4,
+      A: A_actual || 50,
+      P: P_actual || 2,
+      K: K_actual || 8000,
+    };
+  }
+
+  function projACE() {
+    return Math.round(_mapaState.M * (_mapaState.A / 100) * _mapaState.P * _mapaState.K);
+  }
+
+  function sliderTrack(val, min, max) {
+    const pct = (val - min) / (max - min) * 100;
+    return `background:linear-gradient(to right,#ff7a00 ${pct}%,#eee ${pct}%)`;
+  }
+
+  function buildHTML() {
+    const proj = projACE();
+    const diff = proj - ACE_actual;
+    const diffPct = ACE_actual > 0 ? (diff / ACE_actual * 100) : 0;
+    const activeProj = Math.round(_mapaState.M * _mapaState.A / 100);
+    const casesProj = Math.round(activeProj * _mapaState.P);
+
+    const diffTag = diff > 0
+      ? `<span class="mapa-tag-up">▲ ${RA(diff)} (+${diffPct.toFixed(0)}%)</span>`
+      : diff < 0
+        ? `<span class="mapa-tag-dn">▼ ${RA(Math.abs(diff))} (${diffPct.toFixed(0)}%)</span>`
+        : `<span class="mapa-tag-eq">= Tiada perubahan</span>`;
+
+    return `
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hdr" style="background:#1a237e">📊 MAPA — Analisis Prestasi Pasukan</div>
+      <div class="card-body">
+
+        <!-- Formula -->
+        <div class="mapa-formula-box">
+          <strong>Total ACE</strong> = M × A% × P × K<br>
+          <span style="font-size:.72rem;color:#aaa">Manpower × Activity × Productivity × Avg K-size</span>
+        </div>
+
+        <!-- Current actuals -->
+        <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:8px">📌 Semasa — ${vLabel()}</div>
+        <div class="mapa-metric-grid">
+          <div class="mapa-metric">
+            <div class="mapa-metric-lbl">Manpower</div>
+            <div class="mapa-metric-letter">M</div>
+            <div class="mapa-metric-val">${M_actual} agen</div>
+            <div class="mapa-metric-sub">ahli pasukan</div>
+          </div>
+          <div class="mapa-metric">
+            <div class="mapa-metric-lbl">Activity</div>
+            <div class="mapa-metric-letter" style="color:#6b5bef">A</div>
+            <div class="mapa-metric-val">${A_actual}%</div>
+            <div class="mapa-metric-sub">${activeCount}/${M_actual} aktif</div>
+          </div>
+          <div class="mapa-metric">
+            <div class="mapa-metric-lbl">Productivity</div>
+            <div class="mapa-metric-letter" style="color:#028090">P</div>
+            <div class="mapa-metric-val">${P_actual} kes</div>
+            <div class="mapa-metric-sub">per agen aktif</div>
+          </div>
+          <div class="mapa-metric">
+            <div class="mapa-metric-lbl">Avg K-size</div>
+            <div class="mapa-metric-letter" style="color:#27ae60">K</div>
+            <div class="mapa-metric-val">${RA(K_actual)}</div>
+            <div class="mapa-metric-sub">per kes</div>
+          </div>
+        </div>
+        <div style="background:#f7f8fa;border-radius:12px;padding:11px 14px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:2px">Actual ACE MTD</div>
+            <div id="mapaActualACE" data-val="${Math.round(ACE_actual)}" style="font-size:1.25rem;font-weight:900;color:#111">${RA(Math.round(ACE_actual))}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:2px">Total Kes</div>
+            <div style="font-size:1.25rem;font-weight:900;color:#111">${totalCases}</div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:12px">🎛 Simulator — Ubah nilai untuk lihat impak</div>
+
+        <!-- Slider: M -->
+        <div class="mapa-slider-wrap">
+          <div class="mapa-slider-hdr">
+            <span class="mapa-slider-name">M — Manpower</span>
+            <span class="mapa-slider-badge" id="mapaLblM">${_mapaState.M} agen</span>
+          </div>
+          <input type="range" class="mapa-slider" id="mapaSlM" min="1" max="20" step="1" value="${_mapaState.M}"
+            style="${sliderTrack(_mapaState.M,1,20)}" oninput="mapaUpdate('M',+this.value,1,20)">
+          <div class="mapa-slider-range"><span>1</span><span>20</span></div>
+        </div>
+
+        <!-- Slider: A -->
+        <div class="mapa-slider-wrap">
+          <div class="mapa-slider-hdr">
+            <span class="mapa-slider-name">A — Activity Rate</span>
+            <span class="mapa-slider-badge" id="mapaLblA">${_mapaState.A}%</span>
+          </div>
+          <input type="range" class="mapa-slider" id="mapaSlA" min="10" max="100" step="5" value="${_mapaState.A}"
+            style="${sliderTrack(_mapaState.A,10,100)}" oninput="mapaUpdate('A',+this.value,10,100)">
+          <div class="mapa-slider-range"><span>10%</span><span>100%</span></div>
+        </div>
+
+        <!-- Slider: P -->
+        <div class="mapa-slider-wrap">
+          <div class="mapa-slider-hdr">
+            <span class="mapa-slider-name">P — Productivity (kes/agen aktif)</span>
+            <span class="mapa-slider-badge" id="mapaLblP">${_mapaState.P} kes</span>
+          </div>
+          <input type="range" class="mapa-slider" id="mapaSlP" min="0.5" max="10" step="0.5" value="${_mapaState.P}"
+            style="${sliderTrack(_mapaState.P,0.5,10)}" oninput="mapaUpdate('P',+this.value,0.5,10)">
+          <div class="mapa-slider-range"><span>0.5</span><span>10</span></div>
+        </div>
+
+        <!-- Slider: K -->
+        <div class="mapa-slider-wrap">
+          <div class="mapa-slider-hdr">
+            <span class="mapa-slider-name">K — Avg K-size (ACE/kes)</span>
+            <span class="mapa-slider-badge" id="mapaLblK">${RA(_mapaState.K)}</span>
+          </div>
+          <input type="range" class="mapa-slider" id="mapaSlK" min="1000" max="50000" step="500" value="${_mapaState.K}"
+            style="${sliderTrack(_mapaState.K,1000,50000)}" oninput="mapaUpdate('K',+this.value,1000,50000)">
+          <div class="mapa-slider-range"><span>RM 1k</span><span>RM 50k</span></div>
+        </div>
+
+        <!-- Projected result -->
+        <div class="mapa-result-box">
+          <div class="mapa-result-lbl">Unjuran Total ACE</div>
+          <div class="mapa-result-val" id="mapaProj">${RA(proj)}</div>
+          <div class="mapa-result-sub" id="mapaProjSub">${activeProj} agen aktif × ${casesProj} kes × ${RA(_mapaState.K)}/kes</div>
+        </div>
+        <div class="mapa-diff-row" id="mapaDiff">${diffTag}</div>
+
+        <!-- Levers -->
+        <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin:16px 0 8px">💡 Lever untuk Perbaiki</div>
+        <div class="mapa-lever-grid">
+          <div class="mapa-lever">
+            <div class="mapa-lever-title">↑ Manpower</div>
+            <div class="mapa-lever-body" id="mapaLever1">Rekrut lebih ramai agen baru. Setiap agen tambahan ≈ ${RA(Math.round((_mapaState.A/100)*_mapaState.P*_mapaState.K))} ACE/bulan.</div>
+          </div>
+          <div class="mapa-lever">
+            <div class="mapa-lever-title">↑ Activity</div>
+            <div class="mapa-lever-body" id="mapaLever2">Aktifkan agen yang leka. Setiap +10% activity ≈ +${RA(Math.round(_mapaState.M*0.1*_mapaState.P*_mapaState.K))} ACE.</div>
+          </div>
+          <div class="mapa-lever">
+            <div class="mapa-lever-title">↑ Productivity</div>
+            <div class="mapa-lever-body" id="mapaLever3">Tingkat kes per agen aktif. +0.5 kes/agen ≈ +${RA(Math.round(_mapaState.M*(_mapaState.A/100)*0.5*_mapaState.K))} ACE.</div>
+          </div>
+          <div class="mapa-lever">
+            <div class="mapa-lever-title">↑ Avg K-size</div>
+            <div class="mapa-lever-body" id="mapaLever4">Tingkat premium purata. +RM500/kes ≈ +${RA(Math.round(_mapaState.M*(_mapaState.A/100)*_mapaState.P*500))} ACE.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = buildHTML();
+}
+
+function mapaUpdate(key, val, min, max) {
+  if (!_mapaState) return;
+  _mapaState[key] = val;
+
+  // Update badge
+  const fmtBadge = (k, v) => k==='A' ? v+'%' : k==='K' ? RA(v) : k==='P' ? v+' kes' : v+' agen';
+  const lbl = document.getElementById('mapaLbl'+key);
+  if (lbl) lbl.textContent = fmtBadge(key, val);
+
+  // Update slider gradient
+  const sl = document.getElementById('mapaSl'+key);
+  if (sl) {
+    const pct = (val - min) / (max - min) * 100;
+    sl.style.background = `linear-gradient(to right,#ff7a00 ${pct}%,#eee ${pct}%)`;
+  }
+
+  // Recompute projection
+  const M=_mapaState.M, A=_mapaState.A, P=_mapaState.P, K=_mapaState.K;
+  const activeProj = Math.round(M * A / 100);
+  const casesProj = Math.round(activeProj * P);
+  const proj = Math.round(M * (A / 100) * P * K);
+  const actualEl = document.getElementById('mapaActualACE');
+  const actual = actualEl ? parseInt(actualEl.dataset.val, 10) : 0;
+  const diff = proj - actual;
+  const diffPct = actual > 0 ? (diff / actual * 100) : 0;
+
+  const projEl = document.getElementById('mapaProj');
+  if (projEl) projEl.textContent = RA(proj);
+  const subEl = document.getElementById('mapaProjSub');
+  if (subEl) subEl.textContent = `${activeProj} agen aktif × ${casesProj} kes × ${RA(K)}/kes`;
+  const diffEl = document.getElementById('mapaDiff');
+  if (diffEl) diffEl.innerHTML = diff > 0
+    ? `<span class="mapa-tag-up">▲ ${RA(diff)} (+${diffPct.toFixed(0)}%)</span>`
+    : diff < 0
+      ? `<span class="mapa-tag-dn">▼ ${RA(Math.abs(diff))} (${diffPct.toFixed(0)}%)</span>`
+      : `<span class="mapa-tag-eq">= Tiada perubahan</span>`;
+
+  // Update lever hints
+  const l1 = document.getElementById('mapaLever1');
+  if (l1) l1.textContent = `Rekrut lebih ramai agen baru. Setiap agen tambahan ≈ ${RA(Math.round((A/100)*P*K))} ACE/bulan.`;
+  const l2 = document.getElementById('mapaLever2');
+  if (l2) l2.textContent = `Aktifkan agen yang leka. Setiap +10% activity ≈ +${RA(Math.round(M*0.1*P*K))} ACE.`;
+  const l3 = document.getElementById('mapaLever3');
+  if (l3) l3.textContent = `Tingkat kes per agen aktif. +0.5 kes/agen ≈ +${RA(Math.round(M*(A/100)*0.5*K))} ACE.`;
+  const l4 = document.getElementById('mapaLever4');
+  if (l4) l4.textContent = `Tingkat premium purata. +RM500/kes ≈ +${RA(Math.round(M*(A/100)*P*500))} ACE.`;
 }
 
 function renderStartup(code) {
