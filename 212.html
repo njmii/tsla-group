@@ -1139,196 +1139,266 @@ function suMonthLabel(monthNum, baseMonthStr, maxMonthNum) {
 /* ── MAPA Simulator ──────────────────── */
 let _mapaState = null;
 
+function _mapaForMonth(members, y, m) {
+  let cases = 0, totalACE = 0, active = 0;
+  const mo = `${y}-${String(m+1).padStart(2,'0')}`;
+  members.forEach(mc => {
+    const ag = DATA.agents.find(a => a.code === mc);
+    if (!ag) return;
+    const cl = (ag.clients||[]).filter(c =>
+      (c.issueDate||'').slice(0,7) === mo && c.status !== 'Freelook Cancellation');
+    if (cl.length) active++;
+    cases += cl.length;
+    totalACE += cl.reduce((s,c) => s + ace(c), 0);
+  });
+  const M = members.length;
+  return {
+    mo, y, m,
+    M,
+    active,
+    A: M ? Math.round(active/M*100) : 0,
+    cases,
+    P: active ? +(cases/active).toFixed(1) : 0,
+    K: cases ? Math.round(totalACE/cases) : 0,
+    ACE: Math.round(totalACE),
+  };
+}
+
 function renderMapa(code) {
   const el = document.getElementById('mapaCard');
   if (!DATA) { el.innerHTML = '<div class="empty-msg">Tiada data.</div>'; return; }
 
-  const grp = GROUPS['A11668'];
-  const members = grp ? grp.members : ['A11668'];
+  const members = (GROUPS['A11668'] || {}).members || ['A11668'];
 
-  // Compute current MAPA from MTD data
-  let totalCases = 0, totalACE = 0, activeCount = 0;
-  members.forEach(mc => {
-    const ag = DATA.agents.find(a => a.code === mc);
-    if (!ag) return;
-    const mCl = mtdClients(ag.clients || []).filter(c => c.status !== 'Freelook Cancellation');
-    const agCases = mCl.length;
-    const agACE = mCl.reduce((s, c) => s + ace(c), 0);
-    if (agCases > 0) activeCount++;
-    totalCases += agCases;
-    totalACE += agACE;
-  });
+  // Build history: 12 months back from current
+  const history = [];
+  for (let i = 11; i >= 0; i--) {
+    let y = VY, m = VM - i;
+    while (m < 0) { m += 12; y--; }
+    const row = _mapaForMonth(members, y, m);
+    history.push(row);
+  }
 
-  const M_actual = members.length;
-  const A_actual = M_actual > 0 ? Math.round(activeCount / M_actual * 100) : 0;
-  const P_actual = activeCount > 0 ? +(totalCases / activeCount).toFixed(1) : 0;
-  const K_actual = totalCases > 0 ? Math.round(totalACE / totalCases) : 0;
-  const ACE_actual = totalACE;
+  // Current month row
+  const cur = history[history.length - 1];
+  // Last month with actual data (for simulator baseline)
+  const lastWithData = [...history].reverse().find(r => r.cases > 0) || cur;
 
-  // Init slider state only once (or if stale)
+  // Init slider state once per agent
   if (!_mapaState || _mapaState.code !== code) {
     _mapaState = {
       code,
-      M: M_actual || 4,
-      A: A_actual || 50,
-      P: P_actual || 2,
-      K: K_actual || 8000,
+      M: lastWithData.M,
+      A: lastWithData.A || 50,
+      P: lastWithData.P || 2,
+      K: lastWithData.K || 3000,
     };
   }
 
-  function projACE() {
-    return Math.round(_mapaState.M * (_mapaState.A / 100) * _mapaState.P * _mapaState.K);
-  }
-
   function sliderTrack(val, min, max) {
-    const pct = (val - min) / (max - min) * 100;
+    const pct = Math.max(0, Math.min(100, (val-min)/(max-min)*100));
     return `background:linear-gradient(to right,#ff7a00 ${pct}%,#eee ${pct}%)`;
   }
 
-  function buildHTML() {
-    const proj = projACE();
-    const diff = proj - ACE_actual;
-    const diffPct = ACE_actual > 0 ? (diff / ACE_actual * 100) : 0;
-    const activeProj = Math.round(_mapaState.M * _mapaState.A / 100);
-    const casesProj = Math.round(activeProj * _mapaState.P);
+  // Color helpers
+  function aColor(v)  { return v>=75?'#1a8c4a':v>=50?'#b36b00':'#c0392b'; }
+  function aBg(v)     { return v>=75?'#e6f7ed':v>=50?'#fff4e0':'#fde8e8'; }
+  function pColor(v)  { return v>=3?'#1a8c4a':v>=2?'#b36b00':'#c0392b'; }
+  function pBg(v)     { return v>=3?'#e6f7ed':v>=2?'#fff4e0':'#fde8e8'; }
+  function kColor(v)  { return v>=3500?'#1a8c4a':v>=2500?'#b36b00':'#c0392b'; }
+  function kBg(v)     { return v>=3500?'#e6f7ed':v>=2500?'#fff4e0':'#fde8e8'; }
 
-    const diffTag = diff > 0
-      ? `<span class="mapa-tag-up">▲ ${RA(diff)} (+${diffPct.toFixed(0)}%)</span>`
-      : diff < 0
-        ? `<span class="mapa-tag-dn">▼ ${RA(Math.abs(diff))} (${diffPct.toFixed(0)}%)</span>`
-        : `<span class="mapa-tag-eq">= Tiada perubahan</span>`;
+  // Month label short
+  const moLbl = mo => new Date(mo+'-01').toLocaleString('en-MY',{month:'short',year:'2-digit'});
 
+  // Best performing month
+  const bestRow = [...history].filter(r=>r.cases>0).sort((a,b)=>b.ACE-a.ACE)[0];
+
+  // History rows HTML
+  const histRows = history.map(r => {
+    const isCur = r.y===VY && r.m===VM;
+    const hasData = r.cases > 0;
+    if (!hasData && !isCur) return `
+      <tr style="opacity:.38">
+        <td style="font-size:.72rem;font-weight:700;padding:5px 6px;white-space:nowrap">${moLbl(r.mo)}</td>
+        <td style="text-align:center;font-size:.7rem;padding:5px 4px">${r.M}</td>
+        <td colspan="5" style="text-align:center;font-size:.68rem;color:#bbb;padding:5px 4px">—</td>
+      </tr>`;
+    const isBest = bestRow && r.mo === bestRow.mo;
+    const rowBg = isCur ? '#fff8f0' : isBest ? '#f0fff6' : '';
+    const rowBorder = isCur ? 'border-left:3px solid #ff7a00' : isBest ? 'border-left:3px solid #27ae60' : 'border-left:3px solid transparent';
     return `
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-hdr" style="background:#1a237e">📊 MAPA — Analisis Prestasi Pasukan</div>
-      <div class="card-body">
+      <tr style="background:${rowBg};${rowBorder}">
+        <td style="font-size:.72rem;font-weight:${isCur?900:700};padding:5px 6px;white-space:nowrap;color:${isCur?'#ff7a00':isBest?'#27ae60':'#333'}">
+          ${moLbl(r.mo)}${isCur?' ◀':''}${isBest&&!isCur?' ★':''}
+        </td>
+        <td style="text-align:center;font-size:.72rem;font-weight:700;padding:5px 4px">${r.M}</td>
+        <td style="text-align:center;padding:5px 4px">
+          <span style="font-size:.7rem;font-weight:800;color:${aColor(r.A)};background:${aBg(r.A)};border-radius:6px;padding:2px 5px">${r.A}%</span>
+        </td>
+        <td style="text-align:center;padding:5px 4px">
+          <span style="font-size:.7rem;font-weight:800;color:${pColor(r.P)};background:${pBg(r.P)};border-radius:6px;padding:2px 5px">${r.P}</span>
+        </td>
+        <td style="text-align:center;padding:5px 4px">
+          <span style="font-size:.7rem;font-weight:800;color:${kColor(r.K)};background:${kBg(r.K)};border-radius:6px;padding:2px 5px">${r.K?RA(r.K):'—'}</span>
+        </td>
+        <td style="text-align:right;font-size:.7rem;font-weight:700;padding:5px 6px;color:#555">${r.cases||'—'}</td>
+        <td style="text-align:right;font-size:.72rem;font-weight:900;padding:5px 6px;color:${r.ACE>30000?'#1a8c4a':r.ACE>15000?'#b36b00':'#333'}">${r.ACE?RA(r.ACE):'—'}</td>
+      </tr>`;
+  }).join('');
 
-        <!-- Formula -->
-        <div class="mapa-formula-box">
-          <strong>Total ACE</strong> = M × A% × P × K<br>
-          <span style="font-size:.72rem;color:#aaa">Manpower × Activity × Productivity × Avg K-size</span>
-        </div>
+  // Simulator projection
+  const M=_mapaState.M, A=_mapaState.A, P=_mapaState.P, K=_mapaState.K;
+  const proj = Math.round(M*(A/100)*P*K);
+  const base = lastWithData.ACE || 0;
+  const diff = proj - base;
+  const diffPct = base>0 ? (diff/base*100) : 0;
+  const activeProj = Math.round(M*A/100);
+  const casesProj = Math.round(activeProj*P);
+  const diffTag = diff>0
+    ? `<span class="mapa-tag-up">▲ ${RA(diff)} (+${diffPct.toFixed(0)}%)</span>`
+    : diff<0
+      ? `<span class="mapa-tag-dn">▼ ${RA(Math.abs(diff))} (${diffPct.toFixed(0)}%)</span>`
+      : `<span class="mapa-tag-eq">= Sama dengan baseline</span>`;
 
-        <!-- Current actuals -->
-        <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:8px">📌 Semasa — ${vLabel()}</div>
-        <div class="mapa-metric-grid">
-          <div class="mapa-metric">
-            <div class="mapa-metric-lbl">Manpower</div>
-            <div class="mapa-metric-letter">M</div>
-            <div class="mapa-metric-val">${M_actual} agen</div>
-            <div class="mapa-metric-sub">ahli pasukan</div>
-          </div>
-          <div class="mapa-metric">
-            <div class="mapa-metric-lbl">Activity</div>
-            <div class="mapa-metric-letter" style="color:#6b5bef">A</div>
-            <div class="mapa-metric-val">${A_actual}%</div>
-            <div class="mapa-metric-sub">${activeCount}/${M_actual} aktif</div>
-          </div>
-          <div class="mapa-metric">
-            <div class="mapa-metric-lbl">Productivity</div>
-            <div class="mapa-metric-letter" style="color:#028090">P</div>
-            <div class="mapa-metric-val">${P_actual} kes</div>
-            <div class="mapa-metric-sub">per agen aktif</div>
-          </div>
-          <div class="mapa-metric">
-            <div class="mapa-metric-lbl">Avg K-size</div>
-            <div class="mapa-metric-letter" style="color:#27ae60">K</div>
-            <div class="mapa-metric-val">${RA(K_actual)}</div>
-            <div class="mapa-metric-sub">per kes</div>
-          </div>
-        </div>
-        <div style="background:#f7f8fa;border-radius:12px;padding:11px 14px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:2px">Actual ACE MTD</div>
-            <div id="mapaActualACE" data-val="${Math.round(ACE_actual)}" style="font-size:1.25rem;font-weight:900;color:#111">${RA(Math.round(ACE_actual))}</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:2px">Total Kes</div>
-            <div style="font-size:1.25rem;font-weight:900;color:#111">${totalCases}</div>
-          </div>
-        </div>
+  el.innerHTML = `
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-hdr" style="background:#1a237e">📊 MAPA — Analisis Prestasi Pasukan</div>
+    <div class="card-body">
 
-        <!-- Divider -->
-        <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:12px">🎛 Simulator — Ubah nilai untuk lihat impak</div>
-
-        <!-- Slider: M -->
-        <div class="mapa-slider-wrap">
-          <div class="mapa-slider-hdr">
-            <span class="mapa-slider-name">M — Manpower</span>
-            <span class="mapa-slider-badge" id="mapaLblM">${_mapaState.M} agen</span>
-          </div>
-          <input type="range" class="mapa-slider" id="mapaSlM" min="1" max="20" step="1" value="${_mapaState.M}"
-            style="${sliderTrack(_mapaState.M,1,20)}" oninput="mapaUpdate('M',+this.value,1,20)">
-          <div class="mapa-slider-range"><span>1</span><span>20</span></div>
-        </div>
-
-        <!-- Slider: A -->
-        <div class="mapa-slider-wrap">
-          <div class="mapa-slider-hdr">
-            <span class="mapa-slider-name">A — Activity Rate</span>
-            <span class="mapa-slider-badge" id="mapaLblA">${_mapaState.A}%</span>
-          </div>
-          <input type="range" class="mapa-slider" id="mapaSlA" min="10" max="100" step="5" value="${_mapaState.A}"
-            style="${sliderTrack(_mapaState.A,10,100)}" oninput="mapaUpdate('A',+this.value,10,100)">
-          <div class="mapa-slider-range"><span>10%</span><span>100%</span></div>
-        </div>
-
-        <!-- Slider: P -->
-        <div class="mapa-slider-wrap">
-          <div class="mapa-slider-hdr">
-            <span class="mapa-slider-name">P — Productivity (kes/agen aktif)</span>
-            <span class="mapa-slider-badge" id="mapaLblP">${_mapaState.P} kes</span>
-          </div>
-          <input type="range" class="mapa-slider" id="mapaSlP" min="0.5" max="10" step="0.5" value="${_mapaState.P}"
-            style="${sliderTrack(_mapaState.P,0.5,10)}" oninput="mapaUpdate('P',+this.value,0.5,10)">
-          <div class="mapa-slider-range"><span>0.5</span><span>10</span></div>
-        </div>
-
-        <!-- Slider: K -->
-        <div class="mapa-slider-wrap">
-          <div class="mapa-slider-hdr">
-            <span class="mapa-slider-name">K — Avg K-size (ACE/kes)</span>
-            <span class="mapa-slider-badge" id="mapaLblK">${RA(_mapaState.K)}</span>
-          </div>
-          <input type="range" class="mapa-slider" id="mapaSlK" min="1000" max="50000" step="500" value="${_mapaState.K}"
-            style="${sliderTrack(_mapaState.K,1000,50000)}" oninput="mapaUpdate('K',+this.value,1000,50000)">
-          <div class="mapa-slider-range"><span>RM 1k</span><span>RM 50k</span></div>
-        </div>
-
-        <!-- Projected result -->
-        <div class="mapa-result-box">
-          <div class="mapa-result-lbl">Unjuran Total ACE</div>
-          <div class="mapa-result-val" id="mapaProj">${RA(proj)}</div>
-          <div class="mapa-result-sub" id="mapaProjSub">${activeProj} agen aktif × ${casesProj} kes × ${RA(_mapaState.K)}/kes</div>
-        </div>
-        <div class="mapa-diff-row" id="mapaDiff">${diffTag}</div>
-
-        <!-- Levers -->
-        <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin:16px 0 8px">💡 Lever untuk Perbaiki</div>
-        <div class="mapa-lever-grid">
-          <div class="mapa-lever">
-            <div class="mapa-lever-title">↑ Manpower</div>
-            <div class="mapa-lever-body" id="mapaLever1">Rekrut lebih ramai agen baru. Setiap agen tambahan ≈ ${RA(Math.round((_mapaState.A/100)*_mapaState.P*_mapaState.K))} ACE/bulan.</div>
-          </div>
-          <div class="mapa-lever">
-            <div class="mapa-lever-title">↑ Activity</div>
-            <div class="mapa-lever-body" id="mapaLever2">Aktifkan agen yang leka. Setiap +10% activity ≈ +${RA(Math.round(_mapaState.M*0.1*_mapaState.P*_mapaState.K))} ACE.</div>
-          </div>
-          <div class="mapa-lever">
-            <div class="mapa-lever-title">↑ Productivity</div>
-            <div class="mapa-lever-body" id="mapaLever3">Tingkat kes per agen aktif. +0.5 kes/agen ≈ +${RA(Math.round(_mapaState.M*(_mapaState.A/100)*0.5*_mapaState.K))} ACE.</div>
-          </div>
-          <div class="mapa-lever">
-            <div class="mapa-lever-title">↑ Avg K-size</div>
-            <div class="mapa-lever-body" id="mapaLever4">Tingkat premium purata. +RM500/kes ≈ +${RA(Math.round(_mapaState.M*(_mapaState.A/100)*_mapaState.P*500))} ACE.</div>
-          </div>
-        </div>
-
+      <!-- Formula -->
+      <div class="mapa-formula-box">
+        <strong>Total ACE</strong> = M × A% × P × K<br>
+        <span style="font-size:.72rem;color:#aaa">Manpower × Activity Rate × Productivity × Avg K-size</span>
       </div>
-    </div>`;
-  }
 
-  el.innerHTML = buildHTML();
+      <!-- Current month MAPA -->
+      <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:8px">📌 MAPA Semasa — ${vLabel()}</div>
+      <div class="mapa-metric-grid">
+        <div class="mapa-metric">
+          <div class="mapa-metric-lbl">Manpower</div>
+          <div class="mapa-metric-letter">M</div>
+          <div class="mapa-metric-val">${cur.M} agen</div>
+          <div class="mapa-metric-sub">ahli pasukan</div>
+        </div>
+        <div class="mapa-metric" style="background:${aBg(cur.A)}">
+          <div class="mapa-metric-lbl">Activity</div>
+          <div class="mapa-metric-letter" style="color:${aColor(cur.A)}">A</div>
+          <div class="mapa-metric-val" style="color:${aColor(cur.A)}">${cur.A}%</div>
+          <div class="mapa-metric-sub">${cur.active}/${cur.M} aktif</div>
+        </div>
+        <div class="mapa-metric" style="background:${cur.P?pBg(cur.P):'#f7f8fa'}">
+          <div class="mapa-metric-lbl">Productivity</div>
+          <div class="mapa-metric-letter" style="color:${cur.P?pColor(cur.P):'#aaa'}">P</div>
+          <div class="mapa-metric-val" style="color:${cur.P?pColor(cur.P):'#aaa'}">${cur.P||'—'}</div>
+          <div class="mapa-metric-sub">kes/agen aktif</div>
+        </div>
+        <div class="mapa-metric" style="background:${cur.K?kBg(cur.K):'#f7f8fa'}">
+          <div class="mapa-metric-lbl">Avg K-size</div>
+          <div class="mapa-metric-letter" style="color:${cur.K?kColor(cur.K):'#aaa'}">K</div>
+          <div class="mapa-metric-val" style="color:${cur.K?kColor(cur.K):'#aaa'}">${cur.K?RA(cur.K):'—'}</div>
+          <div class="mapa-metric-sub">per kes</div>
+        </div>
+      </div>
+      <div style="background:#f7f8fa;border-radius:12px;padding:11px 14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:2px">Actual ACE MTD</div>
+          <div id="mapaActualACE" data-val="${cur.ACE}" style="font-size:1.35rem;font-weight:900;color:${cur.ACE?'#111':'#bbb'}">${cur.ACE?RA(cur.ACE):'Tiada kes'}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:2px">Total Kes</div>
+          <div style="font-size:1.35rem;font-weight:900;color:${cur.cases?'#111':'#bbb'}">${cur.cases||'0'}</div>
+        </div>
+      </div>
+
+      <!-- History table -->
+      <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:8px">📅 Rekod 12 Bulan</div>
+      <div style="overflow-x:auto;border-radius:12px;border:1px solid #eee;margin-bottom:16px">
+        <table style="width:100%;border-collapse:collapse;font-family:inherit">
+          <thead>
+            <tr style="background:#f7f8fa">
+              <th style="text-align:left;font-size:.62rem;font-weight:800;padding:7px 6px;color:#888;text-transform:uppercase;letter-spacing:.06em">Bulan</th>
+              <th style="text-align:center;font-size:.62rem;font-weight:800;padding:7px 4px;color:#888">M</th>
+              <th style="text-align:center;font-size:.62rem;font-weight:800;padding:7px 4px;color:#888">A%</th>
+              <th style="text-align:center;font-size:.62rem;font-weight:800;padding:7px 4px;color:#888">P</th>
+              <th style="text-align:center;font-size:.62rem;font-weight:800;padding:7px 4px;color:#888">K</th>
+              <th style="text-align:right;font-size:.62rem;font-weight:800;padding:7px 4px;color:#888">Kes</th>
+              <th style="text-align:right;font-size:.62rem;font-weight:800;padding:7px 6px;color:#888">ACE</th>
+            </tr>
+          </thead>
+          <tbody>${histRows}</tbody>
+        </table>
+      </div>
+      <div style="font-size:.62rem;color:#aaa;margin-bottom:18px">◀ = bulan semasa &nbsp;★ = bulan terbaik</div>
+
+      <!-- Simulator -->
+      <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:4px">🎛 Simulator Sasaran</div>
+      <div style="font-size:.75rem;color:#888;margin-bottom:12px">Baseline: <strong>${moLbl(lastWithData.mo)}</strong> — ${RA(base)} ACE. Laraskan untuk lihat impak.</div>
+
+      <!-- Slider: A -->
+      <div class="mapa-slider-wrap">
+        <div class="mapa-slider-hdr">
+          <span class="mapa-slider-name">A — Activity Rate <span style="font-size:.68rem;color:#aaa">(${cur.A}% semasa)</span></span>
+          <span class="mapa-slider-badge" id="mapaLblA">${A}%</span>
+        </div>
+        <input type="range" class="mapa-slider" id="mapaSlA" min="25" max="100" step="25" value="${A}"
+          style="${sliderTrack(A,25,100)}" oninput="mapaUpdate('A',+this.value,25,100)">
+        <div class="mapa-slider-range"><span>25% (1 aktif)</span><span>100% (semua)</span></div>
+      </div>
+
+      <!-- Slider: P -->
+      <div class="mapa-slider-wrap">
+        <div class="mapa-slider-hdr">
+          <span class="mapa-slider-name">P — Productivity <span style="font-size:.68rem;color:#aaa">(${cur.P||0} semasa)</span></span>
+          <span class="mapa-slider-badge" id="mapaLblP">${P} kes</span>
+        </div>
+        <input type="range" class="mapa-slider" id="mapaSlP" min="1" max="8" step="0.5" value="${P}"
+          style="${sliderTrack(P,1,8)}" oninput="mapaUpdate('P',+this.value,1,8)">
+        <div class="mapa-slider-range"><span>1 kes</span><span>8 kes</span></div>
+      </div>
+
+      <!-- Slider: K -->
+      <div class="mapa-slider-wrap">
+        <div class="mapa-slider-hdr">
+          <span class="mapa-slider-name">K — Avg K-size <span style="font-size:.68rem;color:#aaa">(${cur.K?RA(cur.K):'—'} semasa)</span></span>
+          <span class="mapa-slider-badge" id="mapaLblK">${RA(K)}</span>
+        </div>
+        <input type="range" class="mapa-slider" id="mapaSlK" min="1000" max="8000" step="500" value="${K}"
+          style="${sliderTrack(K,1000,8000)}" oninput="mapaUpdate('K',+this.value,1000,8000)">
+        <div class="mapa-slider-range"><span>RM 1k</span><span>RM 8k</span></div>
+      </div>
+
+      <!-- Projected result -->
+      <div class="mapa-result-box">
+        <div class="mapa-result-lbl">Unjuran Total ACE (M=${M})</div>
+        <div class="mapa-result-val" id="mapaProj">${RA(proj)}</div>
+        <div class="mapa-result-sub" id="mapaProjSub">${activeProj} aktif × ${casesProj} kes × ${RA(K)}/kes</div>
+      </div>
+      <div class="mapa-diff-row" id="mapaDiff">${diffTag}</div>
+
+      <!-- Improvement levers -->
+      <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin:16px 0 8px">💡 Impak Setiap Lever</div>
+      <div class="mapa-lever-grid">
+        <div class="mapa-lever">
+          <div class="mapa-lever-title">+1 Agen Aktif</div>
+          <div class="mapa-lever-body" id="mapaLever1">≈ +${RA(Math.round(P*K))} ACE sebulan dengan P=${P}, K=${RA(K)}.</div>
+        </div>
+        <div class="mapa-lever">
+          <div class="mapa-lever-title">+1 Kes/Agen Aktif</div>
+          <div class="mapa-lever-body" id="mapaLever2">≈ +${RA(Math.round(activeProj*K))} ACE sebulan (${activeProj} agen aktif).</div>
+        </div>
+        <div class="mapa-lever">
+          <div class="mapa-lever-title">+RM500 K-size</div>
+          <div class="mapa-lever-body" id="mapaLever3">≈ +${RA(Math.round(casesProj*500))} ACE sebulan (${casesProj} kes).</div>
+        </div>
+        <div class="mapa-lever">
+          <div class="mapa-lever-title">Sasaran Ideal</div>
+          <div class="mapa-lever-body" id="mapaLever4">M=${M}, A=75%, P=3, K=RM3,500 → ${RA(Math.round(M*0.75*3*3500))} ACE.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>`;
 }
 
 function mapaUpdate(key, val, min, max) {
