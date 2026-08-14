@@ -1184,6 +1184,21 @@ function renderMapa(code) {
   // Last month with actual data (for simulator baseline)
   const lastWithData = [...history].reverse().find(r => r.cases > 0) || cur;
 
+  // Baseline ACE for compound section (fall back to slider-derived estimate if no real data)
+  const bACE = lastWithData.ACE > 0 ? lastWithData.ACE
+    : Math.round(lastWithData.M * (lastWithData.A||50)/100 * (lastWithData.P||2) * (lastWithData.K||3000));
+  const compCards = [{pct:10,f:1.1},{pct:25,f:1.25},{pct:50,f:1.5}].map(({pct,f}) => {
+    const result = Math.round(bACE * Math.pow(f,4));
+    const gain   = Math.round((Math.pow(f,4)-1)*100);
+    const mult   = Math.pow(f,4).toFixed(2);
+    return `<div style="background:white;border:1px solid #eee;border-radius:12px;padding:10px;text-align:center">
+      <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;color:#888;margin-bottom:4px">+${pct}% semua lever</div>
+      <div style="font-size:1rem;font-weight:900;color:#ff7a00">${RA(result)}</div>
+      <div style="font-size:.7rem;font-weight:800;color:#1a8c4a;margin-top:2px">▲ +${gain}%</div>
+      <div style="font-size:.58rem;color:#aaa;margin-top:1px">×${mult} ganda</div>
+    </div>`;
+  }).join('');
+
   // Init slider state once per agent
   if (!_mapaState || _mapaState.code !== code) {
     _mapaState = {
@@ -1335,6 +1350,17 @@ function renderMapa(code) {
       <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:4px">🎛 Simulator Sasaran</div>
       <div style="font-size:.75rem;color:#888;margin-bottom:12px">Baseline: <strong>${moLbl(lastWithData.mo)}</strong> — ${RA(base)} ACE. Laraskan untuk lihat impak.</div>
 
+      <!-- Slider: M -->
+      <div class="mapa-slider-wrap">
+        <div class="mapa-slider-hdr">
+          <span class="mapa-slider-name">M — Manpower <span style="font-size:.68rem;color:#aaa">(${cur.M} semasa)</span></span>
+          <span class="mapa-slider-badge" id="mapaLblM">${M} agen</span>
+        </div>
+        <input type="range" class="mapa-slider" id="mapaSlM" min="1" max="12" step="1" value="${M}"
+          style="${sliderTrack(M,1,12)}" oninput="mapaUpdate('M',+this.value,1,12)">
+        <div class="mapa-slider-range"><span>1 agen</span><span>12 agen</span></div>
+      </div>
+
       <!-- Slider: A -->
       <div class="mapa-slider-wrap">
         <div class="mapa-slider-hdr">
@@ -1370,7 +1396,7 @@ function renderMapa(code) {
 
       <!-- Projected result -->
       <div class="mapa-result-box">
-        <div class="mapa-result-lbl">Unjuran Total ACE (M=${M})</div>
+        <div class="mapa-result-lbl" id="mapaResultLbl">Unjuran Total ACE (M=${M})</div>
         <div class="mapa-result-val" id="mapaProj">${RA(proj)}</div>
         <div class="mapa-result-sub" id="mapaProjSub">${activeProj} aktif × ${casesProj} kes × ${RA(K)}/kes</div>
       </div>
@@ -1380,22 +1406,32 @@ function renderMapa(code) {
       <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin:16px 0 8px">💡 Impak Setiap Lever</div>
       <div class="mapa-lever-grid">
         <div class="mapa-lever">
-          <div class="mapa-lever-title">+1 Agen Aktif</div>
-          <div class="mapa-lever-body" id="mapaLever1">≈ +${RA(Math.round(P*K))} ACE sebulan dengan P=${P}, K=${RA(K)}.</div>
+          <div class="mapa-lever-title">+1 Agen (Rekrut)</div>
+          <div class="mapa-lever-body" id="mapaLever1">Setiap agen baru ≈ +${RA(Math.round((A/100)*P*K))} ACE/bulan dengan A=${A}%, P=${P}, K=${RA(K)}.</div>
         </div>
         <div class="mapa-lever">
-          <div class="mapa-lever-title">+1 Kes/Agen Aktif</div>
-          <div class="mapa-lever-body" id="mapaLever2">≈ +${RA(Math.round(activeProj*K))} ACE sebulan (${activeProj} agen aktif).</div>
+          <div class="mapa-lever-title">+10% Activity</div>
+          <div class="mapa-lever-body" id="mapaLever2">Aktifkan agen leka. +10% A ≈ +${RA(Math.round(M*0.1*P*K))} ACE (${M} agen).</div>
+        </div>
+        <div class="mapa-lever">
+          <div class="mapa-lever-title">+0.5 Kes/Agen Aktif</div>
+          <div class="mapa-lever-body" id="mapaLever3">Tingkat kes per agen. +0.5P ≈ +${RA(Math.round(M*(A/100)*0.5*K))} ACE.</div>
         </div>
         <div class="mapa-lever">
           <div class="mapa-lever-title">+RM500 K-size</div>
-          <div class="mapa-lever-body" id="mapaLever3">≈ +${RA(Math.round(casesProj*500))} ACE sebulan (${casesProj} kes).</div>
-        </div>
-        <div class="mapa-lever">
-          <div class="mapa-lever-title">Sasaran Ideal</div>
-          <div class="mapa-lever-body" id="mapaLever4">M=${M}, A=75%, P=3, K=RM3,500 → ${RA(Math.round(M*0.75*3*3500))} ACE.</div>
+          <div class="mapa-lever-body" id="mapaLever4">Tingkat premium purata. +RM500 ≈ +${RA(Math.round(M*(A/100)*P*500))} ACE (${casesProj} kes).</div>
         </div>
       </div>
+
+      <!-- Compound effect -->
+      <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin:18px 0 8px">💥 Kuasa Penggabungan Lever</div>
+      <div style="background:#f7f8fa;border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:.73rem;color:#555;line-height:1.55">
+        Formula MAPA adalah <strong>darab</strong> — bukan tambah. Naik kecil pada <em>semua</em> lever serentak menghasilkan kesan yang jauh lebih besar daripada naik besar pada satu lever sahaja.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        ${compCards}
+      </div>
+      <div style="font-size:.62rem;color:#aaa;margin-bottom:4px">📌 Pengiraan dari baseline: ${moLbl(lastWithData.mo)} (${RA(bACE)} ACE)</div>
 
     </div>
   </div>`;
@@ -1407,6 +1443,7 @@ function mapaUpdate(key, val, min, max) {
 
   // Update badge
   const fmtBadge = (k, v) => k==='A' ? v+'%' : k==='K' ? RA(v) : k==='P' ? v+' kes' : v+' agen';
+
   const lbl = document.getElementById('mapaLbl'+key);
   if (lbl) lbl.textContent = fmtBadge(key, val);
 
@@ -1431,6 +1468,8 @@ function mapaUpdate(key, val, min, max) {
   if (projEl) projEl.textContent = RA(proj);
   const subEl = document.getElementById('mapaProjSub');
   if (subEl) subEl.textContent = `${activeProj} agen aktif × ${casesProj} kes × ${RA(K)}/kes`;
+  const resultLblEl = document.getElementById('mapaResultLbl');
+  if (resultLblEl) resultLblEl.textContent = `Unjuran Total ACE (M=${M})`;
   const diffEl = document.getElementById('mapaDiff');
   if (diffEl) diffEl.innerHTML = diff > 0
     ? `<span class="mapa-tag-up">▲ ${RA(diff)} (+${diffPct.toFixed(0)}%)</span>`
@@ -1440,13 +1479,13 @@ function mapaUpdate(key, val, min, max) {
 
   // Update lever hints
   const l1 = document.getElementById('mapaLever1');
-  if (l1) l1.textContent = `Rekrut lebih ramai agen baru. Setiap agen tambahan ≈ ${RA(Math.round((A/100)*P*K))} ACE/bulan.`;
+  if (l1) l1.textContent = `Setiap agen baru ≈ +${RA(Math.round((A/100)*P*K))} ACE/bulan dengan A=${A}%, P=${P}, K=${RA(K)}.`;
   const l2 = document.getElementById('mapaLever2');
-  if (l2) l2.textContent = `Aktifkan agen yang leka. Setiap +10% activity ≈ +${RA(Math.round(M*0.1*P*K))} ACE.`;
+  if (l2) l2.textContent = `Aktifkan agen leka. +10% A ≈ +${RA(Math.round(M*0.1*P*K))} ACE (${M} agen).`;
   const l3 = document.getElementById('mapaLever3');
-  if (l3) l3.textContent = `Tingkat kes per agen aktif. +0.5 kes/agen ≈ +${RA(Math.round(M*(A/100)*0.5*K))} ACE.`;
+  if (l3) l3.textContent = `Tingkat kes per agen. +0.5P ≈ +${RA(Math.round(M*(A/100)*0.5*K))} ACE.`;
   const l4 = document.getElementById('mapaLever4');
-  if (l4) l4.textContent = `Tingkat premium purata. +RM500/kes ≈ +${RA(Math.round(M*(A/100)*P*500))} ACE.`;
+  if (l4) l4.textContent = `Tingkat premium purata. +RM500 ≈ +${RA(Math.round(M*(A/100)*P*500))} ACE (${casesProj} kes).`;
 }
 
 function renderStartup(code) {
