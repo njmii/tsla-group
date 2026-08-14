@@ -1168,7 +1168,8 @@ function renderMapa(code) {
   const el = document.getElementById('mapaCard');
   if (!DATA) { el.innerHTML = '<div class="empty-msg">Tiada data.</div>'; return; }
 
-  const members = (GROUPS['A11668'] || {}).members || ['A11668'];
+  // All agents in the data file = full group under Najmi
+  const members = DATA.agents.map(a => a.code);
 
   // Build history: 12 months back from current
   const history = [];
@@ -1356,9 +1357,9 @@ function renderMapa(code) {
           <span class="mapa-slider-name">M — Manpower <span style="font-size:.68rem;color:#aaa">(${lastWithData.M} terkini)</span></span>
           <span class="mapa-slider-badge" id="mapaLblM">${M} agen</span>
         </div>
-        <input type="range" class="mapa-slider" id="mapaSlM" min="1" max="12" step="1" value="${M}"
-          style="${sliderTrack(M,1,12)}" oninput="mapaUpdate('M',+this.value,1,12)">
-        <div class="mapa-slider-range"><span>1 agen</span><span>12 agen</span></div>
+        <input type="range" class="mapa-slider" id="mapaSlM" min="1" max="20" step="1" value="${M}"
+          style="${sliderTrack(M,1,20)}" oninput="mapaUpdate('M',+this.value,1,20)">
+        <div class="mapa-slider-range"><span>1 agen</span><span>20 agen</span></div>
       </div>
 
       <!-- Slider: A -->
