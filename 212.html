@@ -1232,7 +1232,7 @@ function renderMapa(code) {
   const bestRow = [...history].filter(r=>r.cases>0).sort((a,b)=>b.ACE-a.ACE)[0];
 
   // History rows HTML
-  const histRows = history.map(r => {
+  const histRows = [...history].reverse().map(r => {
     const isCur = r.y===VY && r.m===VM;
     const hasData = r.cases > 0;
     if (!hasData && !isCur) return `
