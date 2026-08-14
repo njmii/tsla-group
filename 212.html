@@ -1168,8 +1168,9 @@ function renderMapa(code) {
   const el = document.getElementById('mapaCard');
   if (!DATA) { el.innerHTML = '<div class="empty-msg">Tiada data.</div>'; return; }
 
-  // All agents in the data file = full group under Najmi
-  const members = DATA.agents.map(a => a.code);
+  // Full group excluding Naqi (A13290) and Nor Shahirra (A15741)
+  const MAPA_EXCL = new Set(['A13290','A15741']);
+  const members = DATA.agents.map(a => a.code).filter(c => !MAPA_EXCL.has(c));
 
   // Build history: 12 months back from current
   const history = [];
