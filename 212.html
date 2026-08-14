@@ -1287,42 +1287,42 @@ function renderMapa(code) {
         <span style="font-size:.72rem;color:#aaa">Manpower × Activity Rate × Productivity × Avg K-size</span>
       </div>
 
-      <!-- Current month MAPA -->
-      <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:8px">📌 MAPA Semasa — ${vLabel()}</div>
+      <!-- Latest month MAPA (uses last month with actual data, not empty current calendar month) -->
+      <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:8px">📌 MAPA Terkini — ${moLbl(lastWithData.mo)}${lastWithData.mo!==cur.mo?' <span style="font-size:.6rem;font-weight:600;color:#ff7a00">(data hingga '+moLbl(lastWithData.mo)+')</span>':''}</div>
       <div class="mapa-metric-grid">
         <div class="mapa-metric">
           <div class="mapa-metric-lbl">Manpower</div>
           <div class="mapa-metric-letter">M</div>
-          <div class="mapa-metric-val">${cur.M} agen</div>
+          <div class="mapa-metric-val">${lastWithData.M} agen</div>
           <div class="mapa-metric-sub">ahli pasukan</div>
         </div>
-        <div class="mapa-metric" style="background:${aBg(cur.A)}">
+        <div class="mapa-metric" style="background:${aBg(lastWithData.A)}">
           <div class="mapa-metric-lbl">Activity</div>
-          <div class="mapa-metric-letter" style="color:${aColor(cur.A)}">A</div>
-          <div class="mapa-metric-val" style="color:${aColor(cur.A)}">${cur.A}%</div>
-          <div class="mapa-metric-sub">${cur.active}/${cur.M} aktif</div>
+          <div class="mapa-metric-letter" style="color:${aColor(lastWithData.A)}">A</div>
+          <div class="mapa-metric-val" style="color:${aColor(lastWithData.A)}">${lastWithData.A}%</div>
+          <div class="mapa-metric-sub">${lastWithData.active}/${lastWithData.M} aktif</div>
         </div>
-        <div class="mapa-metric" style="background:${cur.P?pBg(cur.P):'#f7f8fa'}">
+        <div class="mapa-metric" style="background:${lastWithData.P?pBg(lastWithData.P):'#f7f8fa'}">
           <div class="mapa-metric-lbl">Productivity</div>
-          <div class="mapa-metric-letter" style="color:${cur.P?pColor(cur.P):'#aaa'}">P</div>
-          <div class="mapa-metric-val" style="color:${cur.P?pColor(cur.P):'#aaa'}">${cur.P||'—'}</div>
+          <div class="mapa-metric-letter" style="color:${lastWithData.P?pColor(lastWithData.P):'#aaa'}">P</div>
+          <div class="mapa-metric-val" style="color:${lastWithData.P?pColor(lastWithData.P):'#aaa'}">${lastWithData.P||'—'}</div>
           <div class="mapa-metric-sub">kes/agen aktif</div>
         </div>
-        <div class="mapa-metric" style="background:${cur.K?kBg(cur.K):'#f7f8fa'}">
+        <div class="mapa-metric" style="background:${lastWithData.K?kBg(lastWithData.K):'#f7f8fa'}">
           <div class="mapa-metric-lbl">Avg K-size</div>
-          <div class="mapa-metric-letter" style="color:${cur.K?kColor(cur.K):'#aaa'}">K</div>
-          <div class="mapa-metric-val" style="color:${cur.K?kColor(cur.K):'#aaa'}">${cur.K?RA(cur.K):'—'}</div>
+          <div class="mapa-metric-letter" style="color:${lastWithData.K?kColor(lastWithData.K):'#aaa'}">K</div>
+          <div class="mapa-metric-val" style="color:${lastWithData.K?kColor(lastWithData.K):'#aaa'}">${lastWithData.K?RA(lastWithData.K):'—'}</div>
           <div class="mapa-metric-sub">per kes</div>
         </div>
       </div>
       <div style="background:#f7f8fa;border-radius:12px;padding:11px 14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
         <div>
-          <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:2px">Actual ACE MTD</div>
-          <div id="mapaActualACE" data-val="${cur.ACE}" style="font-size:1.35rem;font-weight:900;color:${cur.ACE?'#111':'#bbb'}">${cur.ACE?RA(cur.ACE):'Tiada kes'}</div>
+          <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:2px">Total ACE — ${moLbl(lastWithData.mo)}</div>
+          <div id="mapaActualACE" data-val="${lastWithData.ACE}" style="font-size:1.35rem;font-weight:900;color:${lastWithData.ACE?'#111':'#bbb'}">${lastWithData.ACE?RA(lastWithData.ACE):'Tiada kes'}</div>
         </div>
         <div style="text-align:right">
           <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin-bottom:2px">Total Kes</div>
-          <div style="font-size:1.35rem;font-weight:900;color:${cur.cases?'#111':'#bbb'}">${cur.cases||'0'}</div>
+          <div style="font-size:1.35rem;font-weight:900;color:${lastWithData.cases?'#111':'#bbb'}">${lastWithData.cases||'0'}</div>
         </div>
       </div>
 
@@ -1353,7 +1353,7 @@ function renderMapa(code) {
       <!-- Slider: M -->
       <div class="mapa-slider-wrap">
         <div class="mapa-slider-hdr">
-          <span class="mapa-slider-name">M — Manpower <span style="font-size:.68rem;color:#aaa">(${cur.M} semasa)</span></span>
+          <span class="mapa-slider-name">M — Manpower <span style="font-size:.68rem;color:#aaa">(${lastWithData.M} terkini)</span></span>
           <span class="mapa-slider-badge" id="mapaLblM">${M} agen</span>
         </div>
         <input type="range" class="mapa-slider" id="mapaSlM" min="1" max="12" step="1" value="${M}"
@@ -1364,7 +1364,7 @@ function renderMapa(code) {
       <!-- Slider: A -->
       <div class="mapa-slider-wrap">
         <div class="mapa-slider-hdr">
-          <span class="mapa-slider-name">A — Activity Rate <span style="font-size:.68rem;color:#aaa">(${cur.A}% semasa)</span></span>
+          <span class="mapa-slider-name">A — Activity Rate <span style="font-size:.68rem;color:#aaa">(${lastWithData.A}% terkini)</span></span>
           <span class="mapa-slider-badge" id="mapaLblA">${A}%</span>
         </div>
         <input type="range" class="mapa-slider" id="mapaSlA" min="25" max="100" step="25" value="${A}"
@@ -1375,7 +1375,7 @@ function renderMapa(code) {
       <!-- Slider: P -->
       <div class="mapa-slider-wrap">
         <div class="mapa-slider-hdr">
-          <span class="mapa-slider-name">P — Productivity <span style="font-size:.68rem;color:#aaa">(${cur.P||0} semasa)</span></span>
+          <span class="mapa-slider-name">P — Productivity <span style="font-size:.68rem;color:#aaa">(${lastWithData.P||0} terkini)</span></span>
           <span class="mapa-slider-badge" id="mapaLblP">${P} kes</span>
         </div>
         <input type="range" class="mapa-slider" id="mapaSlP" min="1" max="8" step="0.5" value="${P}"
@@ -1386,7 +1386,7 @@ function renderMapa(code) {
       <!-- Slider: K -->
       <div class="mapa-slider-wrap">
         <div class="mapa-slider-hdr">
-          <span class="mapa-slider-name">K — Avg K-size <span style="font-size:.68rem;color:#aaa">(${cur.K?RA(cur.K):'—'} semasa)</span></span>
+          <span class="mapa-slider-name">K — Avg K-size <span style="font-size:.68rem;color:#aaa">(${lastWithData.K?RA(lastWithData.K):'—'} terkini)</span></span>
           <span class="mapa-slider-badge" id="mapaLblK">${RA(K)}</span>
         </div>
         <input type="range" class="mapa-slider" id="mapaSlK" min="1000" max="8000" step="500" value="${K}"
