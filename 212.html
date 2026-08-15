@@ -1367,7 +1367,7 @@ function renderMapa(code) {
       <div class="mapa-slider-wrap">
         <div class="mapa-slider-hdr">
           <span class="mapa-slider-name">A — Activity Rate <span style="font-size:.68rem;color:#aaa">(${lastWithData.A}% terkini)</span></span>
-          <span class="mapa-slider-badge" id="mapaLblA">${A}%</span>
+          <span class="mapa-slider-badge" id="mapaLblA">${A}% (${Math.round(M*A/100)} agen)</span>
         </div>
         <input type="range" class="mapa-slider" id="mapaSlA" min="25" max="100" step="25" value="${A}"
           style="${sliderTrack(A,25,100)}" oninput="mapaUpdate('A',+this.value,25,100)">
@@ -1444,10 +1444,19 @@ function mapaUpdate(key, val, min, max) {
   _mapaState[key] = val;
 
   // Update badge
-  const fmtBadge = (k, v) => k==='A' ? v+'%' : k==='K' ? RA(v) : k==='P' ? v+' kes' : v+' agen';
-
+  const fmtBadge = (k, v) => {
+    if (k==='A') { const n=Math.round(_mapaState.M*v/100); return `${v}% (${n} agen)`; }
+    if (k==='K') return RA(v);
+    if (k==='P') return v+' kes';
+    return v+' agen';
+  };
   const lbl = document.getElementById('mapaLbl'+key);
   if (lbl) lbl.textContent = fmtBadge(key, val);
+  // When M changes, the active-agent count shown in the A badge changes too
+  if (key==='M') {
+    const aLbl = document.getElementById('mapaLblA');
+    if (aLbl) { const n=Math.round(val*_mapaState.A/100); aLbl.textContent=`${_mapaState.A}% (${n} agen)`; }
+  }
 
   // Update slider gradient
   const sl = document.getElementById('mapaSl'+key);
