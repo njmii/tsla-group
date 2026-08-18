@@ -478,12 +478,35 @@ function enrichFromMaster(agentMap, masterRows) {
     }
   }
 
+  // First pass: collect ALL months per agent to determine their current business block.
+  // Business block = 12-month period (M1-M12 = block 1, M13-M24 = block 2, etc.)
+  const allMonths = {};
+  for (let i = hdrIdx + 1; i < masterRows.length; i++) {
+    const row = masterRows[i];
+    const code = g(row, 'Agent Code');
+    if (!code || code === 'Total' || code === 'Grand Total') continue;
+    const evalMonth = g(row, 'Evaluation Month');
+    const mNum = parseInt(evalMonth.replace(/^M/i, '')) || 0;
+    if (!allMonths[code]) allMonths[code] = 0;
+    if (mNum > allMonths[code]) allMonths[code] = mNum;
+  }
+
+  // Second pass: accumulate only months within the current block
   const acc = {};
   for (let i = hdrIdx + 1; i < masterRows.length; i++) {
     const row = masterRows[i];
     const code = g(row, 'Agent Code');
     if (!code || code === 'Total' || code === 'Grand Total') continue;
-    const mtdACE  = n(row, mtdAceField);
+    const evalMonth = g(row, 'Evaluation Month');
+    const mNum = parseInt(evalMonth.replace(/^M/i, '')) || 0;
+
+    // Current block: M1-M12, M13-M24, M25-M36, etc. (whichever contains max month)
+    const maxM = allMonths[code] || 12;
+    const blockStart = Math.floor((maxM - 1) / 12) * 12 + 1;
+    const blockEnd   = blockStart + 11;
+    if (mNum < blockStart || mNum > blockEnd) continue; // skip prior blocks
+
+    const mtdACE   = n(row, mtdAceField);
     const mtdCases = n(row, 'MTD Cases');
     const ytdTarget = n(row, 'YTD Target ACE');
     if (!acc[code]) acc[code] = { ytdACE: 0, ytdCases: 0, ytdTarget: 0, ytdPayout: 0, totalPayout: 0, months: [] };
@@ -493,8 +516,8 @@ function enrichFromMaster(agentMap, masterRows) {
     acc[code].ytdPayout  = n(row, 'YTD Payout');
     acc[code].totalPayout = n(row, 'Total Payout');
     acc[code].months.push({
-      month: acc[code].months.length + 1,
-      evalMonth: g(row, 'Evaluation Month'),
+      month: mNum - blockStart + 1, // normalise to 1-12 within the block
+      evalMonth,
       mtdACE, mtdTarget: n(row, 'MTD Target ACE'),
       mtdCases, mtdTargetCases: n(row, 'MTD Target Cases'),
       mtdNOC: 0,
