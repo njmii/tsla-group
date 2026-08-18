@@ -462,6 +462,14 @@ function rowsToData(rows) {
     const k = norm(val);
     if (k) colMap[k] = col;
   }
+  // Aliases: map variant header names used across file versions to canonical names.
+  // "MTD Validated ACE" column always holds the PR13 decimal rate; the "PR13" column
+  // holds a date serial (PR13 qualification date) in all recent file versions.
+  [['MTD Validated ACE', 'PR13'],
+   ['YTD Inforce ACE',   'YTD ACE'],
+   ['YTD Validated ACE', 'YTD ACE'],
+   ['YTD Inforce Cases', 'YTD Cases']
+  ].forEach(([src, dest]) => { if (colMap[src]) colMap[dest] = colMap[src]; });
 
   const get = (row, f) => norm(row[colMap[f]] ?? '');
   const num = (row, f) => { const v = get(row, f); return v === '' ? 0 : parseFloat(v) || 0; };
