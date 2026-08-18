@@ -506,22 +506,22 @@ function enrichFromMaster(agentMap, masterRows) {
     const blockEnd   = blockStart + 11;
     if (mNum < blockStart || mNum > blockEnd) continue; // skip prior blocks
 
-    const mtdACE   = n(row, mtdAceField);
-    const mtdCases = n(row, 'MTD Cases');
-    const ytdTarget = n(row, 'YTD Target ACE');
-    const ytdTargetCases = n(row, 'YTD Target Cases');
+    const mtdACE         = n(row, mtdAceField);
+    const mtdCases       = n(row, 'MTD Cases');
+    const mtdTargetACE   = n(row, 'MTD Target ACE');
+    const mtdTargetCases = n(row, 'MTD Target Cases');
     if (!acc[code]) acc[code] = { ytdACE: 0, ytdCases: 0, ytdTarget: 0, ytdTargetCases: 0, ytdPayout: 0, totalPayout: 0, months: [] };
-    acc[code].ytdACE    += mtdACE;
-    acc[code].ytdCases  += mtdCases;
-    acc[code].ytdTarget  = Math.max(acc[code].ytdTarget, ytdTarget);
-    acc[code].ytdTargetCases = Math.max(acc[code].ytdTargetCases, ytdTargetCases);
+    acc[code].ytdACE         += mtdACE;
+    acc[code].ytdCases       += mtdCases;
+    acc[code].ytdTarget      += mtdTargetACE;   // sum MTD targets for current block only
+    acc[code].ytdTargetCases += mtdTargetCases;
     acc[code].ytdPayout  = n(row, 'YTD Payout');
     acc[code].totalPayout = n(row, 'Total Payout');
     acc[code].months.push({
       month: mNum - blockStart + 1, // normalise to 1-12 within the block
       evalMonth,
-      mtdACE, mtdTarget: n(row, 'MTD Target ACE'),
-      mtdCases, mtdTargetCases: n(row, 'MTD Target Cases'),
+      mtdACE, mtdTarget: mtdTargetACE,
+      mtdCases, mtdTargetCases,
       mtdNOC: 0,
       mtdResult: g(row, 'MTD Result'),
       mtdPayout: n(row, 'Monthly Payout'),
