@@ -535,7 +535,7 @@ function rowsToData(rows) {
   }
 
   const agents = Object.values(agentMap)
-    .filter(a => a.name && (a.ytdTargetACE > 0 || a.ytdACE > 0));
+    .filter(a => a.name && a.code);
 
   return { title, updated: new Date().toISOString().split('T')[0], agents };
 }
