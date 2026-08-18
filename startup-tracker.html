@@ -401,6 +401,7 @@ function parseSheet(xml, ss) {
       const v   = c.querySelector('v');
       if      (t === 's')         obj[col] = ss[parseInt(v?.textContent || '0')] || '';
       else if (t === 'inlineStr') obj[col] = c.querySelector('is t')?.textContent || '';
+      else if (t === 'e')         obj[col] = '';
       else                        obj[col] = v?.textContent || '';
     }
     return obj;
