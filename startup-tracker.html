@@ -419,34 +419,105 @@ async function parseXlsx(ab) {
   const wb   = new DOMParser().parseFromString(wbXml,   'text/xml');
   const rels = new DOMParser().parseFromString(relsXml, 'text/xml');
 
-  // Find sheet named "Summary" — r:id is namespaced, check localName
-  let rid = null;
-  for (const s of wb.querySelectorAll('sheet')) {
-    if (s.getAttribute('name') === 'Summary') {
-      for (const a of s.attributes) {
-        if (a.localName === 'id') { rid = a.value; break; }
+  // Helper: find sheet path by exact name
+  const sheetPath = name => {
+    let rid = null;
+    for (const s of wb.querySelectorAll('sheet')) {
+      if (s.getAttribute('name') === name) {
+        for (const a of s.attributes) { if (a.localName === 'id') { rid = a.value; break; } }
+        break;
       }
-      break;
     }
+    if (!rid) return null;
+    for (const r of rels.querySelectorAll('Relationship')) {
+      if (r.getAttribute('Id') === rid) return 'xl/' + r.getAttribute('Target').replace(/^\.\.\//, '');
+    }
+    return null;
+  };
+
+  const summaryPath = sheetPath('Summary');
+  if (!summaryPath) throw new Error('Sheet "Summary" tidak dijumpai dalam fail ini');
+  const summaryXml = await readEntry(ab, entries, summaryPath);
+  if (!summaryXml) throw new Error('Sheet XML tidak dijumpai di: ' + summaryPath);
+
+  // Also parse "Master Payout" for ACE/Cases data (Summary may have #REF! in those cols)
+  let masterRows = null;
+  const masterPath = sheetPath('Master Payout');
+  if (masterPath) {
+    const masterXml = await readEntry(ab, entries, masterPath);
+    if (masterXml) masterRows = parseSheet(masterXml, ss);
   }
-  if (!rid) throw new Error('Sheet "Summary" tidak dijumpai dalam fail ini');
 
-  let target = null;
-  for (const r of rels.querySelectorAll('Relationship')) {
-    if (r.getAttribute('Id') === rid) { target = r.getAttribute('Target'); break; }
-  }
-  if (!target) throw new Error('Relationship untuk Summary tidak dijumpai');
-
-  const path = 'xl/' + target.replace(/^\.\.\//, '');
-  const sheetXml = await readEntry(ab, entries, path);
-  if (!sheetXml) throw new Error('Sheet XML tidak dijumpai di: ' + path);
-
-  return parseSheet(sheetXml, ss);
+  return { summaryRows: parseSheet(summaryXml, ss), masterRows };
 }
 
 // ── Data Extraction ──────────────────────────────────────────────────────────
 
-function rowsToData(rows) {
+function enrichFromMaster(agentMap, masterRows) {
+  // Find header row (row with "Agent Code" cell)
+  let hdrIdx = -1, hdr = null;
+  for (let i = 0; i < masterRows.length; i++) {
+    for (const v of Object.values(masterRows[i])) {
+      if (norm(v) === 'Agent Code') { hdrIdx = i; hdr = masterRows[i]; break; }
+    }
+    if (hdrIdx >= 0) break;
+  }
+  if (!hdr) return;
+
+  const cm = {};
+  for (const [col, val] of Object.entries(hdr)) { const k = norm(val); if (k) cm[k] = col; }
+  const g = (row, f) => norm(row[cm[f]] ?? '');
+  const n = (row, f) => { const v = g(row, f); return v === '' ? 0 : parseFloat(v) || 0; };
+
+  // In V2 files, "MTD ACE" column (labeled "MTD ACE") is empty; actual ACE sits in
+  // the column labeled "Month" (col N). Detect by sampling the first data rows.
+  let mtdAceField = 'MTD ACE';
+  for (let i = hdrIdx + 1; i < Math.min(hdrIdx + 5, masterRows.length); i++) {
+    if (n(masterRows[i], 'MTD ACE') === 0 && n(masterRows[i], 'Month') > 100) {
+      mtdAceField = 'Month'; break;
+    }
+  }
+
+  const acc = {};
+  for (let i = hdrIdx + 1; i < masterRows.length; i++) {
+    const row = masterRows[i];
+    const code = g(row, 'Agent Code');
+    if (!code || code === 'Total' || code === 'Grand Total') continue;
+    const mtdACE  = n(row, mtdAceField);
+    const mtdCases = n(row, 'MTD Cases');
+    const ytdTarget = n(row, 'YTD Target ACE');
+    if (!acc[code]) acc[code] = { ytdACE: 0, ytdCases: 0, ytdTarget: 0, ytdPayout: 0, totalPayout: 0, months: [] };
+    acc[code].ytdACE    += mtdACE;
+    acc[code].ytdCases  += mtdCases;
+    acc[code].ytdTarget  = Math.max(acc[code].ytdTarget, ytdTarget);
+    acc[code].ytdPayout  = n(row, 'YTD Payout');
+    acc[code].totalPayout = n(row, 'Total Payout');
+    acc[code].months.push({
+      month: acc[code].months.length + 1,
+      evalMonth: g(row, 'Evaluation Month'),
+      mtdACE, mtdTarget: n(row, 'MTD Target ACE'),
+      mtdCases, mtdTargetCases: n(row, 'MTD Target Cases'),
+      mtdNOC: 0,
+      mtdResult: g(row, 'MTD Result'),
+      mtdPayout: n(row, 'Monthly Payout'),
+      catchResult: g(row, 'Catch-up Result'),
+      catchPayout: n(row, 'Catch-up Payout'),
+    });
+  }
+
+  for (const [code, a] of Object.entries(acc)) {
+    const ag = agentMap[code];
+    if (!ag) continue;
+    if (a.ytdACE   > 0) ag.ytdACE   = Math.round(a.ytdACE * 100) / 100;
+    if (a.ytdCases > 0) ag.ytdCases = a.ytdCases;
+    if (a.ytdTarget > 0) ag.ytdTargetACE = a.ytdTarget;
+    if (a.ytdPayout > 0) ag.ytdPayout = a.ytdPayout;
+    if (a.totalPayout > 0) ag.totalPayout = a.totalPayout;
+    if (a.months.length) ag.months = a.months;
+  }
+}
+
+function rowsToData(rows, masterRows) {
   // Locate header row by finding "Agent Code"
   let hdrIdx = -1, hdr = null;
   for (let i = 0; i < rows.length; i++) {
@@ -543,6 +614,9 @@ function rowsToData(rows) {
     });
   }
 
+  // Enrich ACE/Cases data from Master Payout sheet (Summary may have #REF! in those cols)
+  if (masterRows) enrichFromMaster(agentMap, masterRows);
+
   const agents = Object.values(agentMap)
     .filter(a => a.name && a.code);
 
@@ -556,8 +630,8 @@ async function handleFile(file) {
   const dropMain = document.getElementById('dropMain');
   if (dropMain) dropMain.textContent = '⏳ Memproses...';
   try {
-    const rows = await parseXlsx(await file.arrayBuffer());
-    const data = rowsToData(rows);
+    const { summaryRows, masterRows } = await parseXlsx(await file.arrayBuffer());
+    const data = rowsToData(summaryRows, masterRows);
     if (!data.agents.length) throw new Error('Tiada data ejen dijumpai dalam fail ini.');
     localStorage.setItem(LS_KEY, JSON.stringify(data));
     _data = data;
