@@ -509,10 +509,12 @@ function enrichFromMaster(agentMap, masterRows) {
     const mtdACE   = n(row, mtdAceField);
     const mtdCases = n(row, 'MTD Cases');
     const ytdTarget = n(row, 'YTD Target ACE');
-    if (!acc[code]) acc[code] = { ytdACE: 0, ytdCases: 0, ytdTarget: 0, ytdPayout: 0, totalPayout: 0, months: [] };
+    const ytdTargetCases = n(row, 'YTD Target Cases');
+    if (!acc[code]) acc[code] = { ytdACE: 0, ytdCases: 0, ytdTarget: 0, ytdTargetCases: 0, ytdPayout: 0, totalPayout: 0, months: [] };
     acc[code].ytdACE    += mtdACE;
     acc[code].ytdCases  += mtdCases;
     acc[code].ytdTarget  = Math.max(acc[code].ytdTarget, ytdTarget);
+    acc[code].ytdTargetCases = Math.max(acc[code].ytdTargetCases, ytdTargetCases);
     acc[code].ytdPayout  = n(row, 'YTD Payout');
     acc[code].totalPayout = n(row, 'Total Payout');
     acc[code].months.push({
@@ -534,6 +536,7 @@ function enrichFromMaster(agentMap, masterRows) {
     if (a.ytdACE   > 0) ag.ytdACE   = Math.round(a.ytdACE * 100) / 100;
     if (a.ytdCases > 0) ag.ytdCases = a.ytdCases;
     if (a.ytdTarget > 0) ag.ytdTargetACE = a.ytdTarget;
+    if (a.ytdTargetCases > 0) ag.ytdTargetCases = a.ytdTargetCases;
     if (a.ytdPayout > 0) ag.ytdPayout = a.ytdPayout;
     if (a.totalPayout > 0) ag.totalPayout = a.totalPayout;
     if (a.months.length) ag.months = a.months;
@@ -880,7 +883,7 @@ function renderLeaderboard() {
 
   const sortBy = document.getElementById('sortSel').value;
   const acePctOf = a => a.ytdTargetACE ? a.ytdACE / a.ytdTargetACE * 100 : 0;
-  const nocPctOf = a => a.ytdTargetCases ? a.ytdNOC / a.ytdTargetCases * 100 : 0;
+  const nocPctOf = a => a.ytdTargetCases ? (a.ytdCases || a.ytdNOC) / a.ytdTargetCases * 100 : 0;
 
   const sorted = [...agents].sort((a, b) => {
     if (sortBy === 'acePct')  return acePctOf(b) - acePctOf(a);
@@ -916,9 +919,10 @@ function renderLeaderboard() {
 
     // YTD deficit / surplus
     const aceDeficit = Math.max(0, a.ytdTargetACE - a.ytdACE);
-    const nocDeficit = Math.max(0, (a.ytdTargetCases|0) - (a.ytdNOC|0));
+    const actualNOC  = a.ytdCases || a.ytdNOC;
+    const nocDeficit = Math.max(0, (a.ytdTargetCases|0) - (actualNOC|0));
     const aceSurplus = a.ytdACE - a.ytdTargetACE;
-    const nocSurplus = (a.ytdNOC|0) - (a.ytdTargetCases|0);
+    const nocSurplus = (actualNOC|0) - (a.ytdTargetCases|0);
 
     // What the agent needs to produce this month (MTD + any catch-up)
     const aceTotalNeed = nextAce + aceDeficit;
@@ -1008,16 +1012,24 @@ function renderLeaderboard() {
       <div class="prog">
         <div class="prog-hd">
           <span class="prog-lbl">YTD ACE</span>
-          <span class="prog-val">${fmtK(a.ytdACE)} / ${fmtK(a.ytdTargetACE)} (${acePct.toFixed(1)}%)</span>
+          <span class="prog-val" style="font-weight:700;color:#333">${acePct.toFixed(1)}%</span>
         </div>
         <div class="prog-track"><div class="prog-fill ${fillCls(acePct)}" style="width:${acePct}%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:.72rem;color:#555"><span style="font-weight:800;color:#111">${fmtK(a.ytdACE)}</span> <span style="color:#aaa">aktual</span></span>
+          <span style="font-size:.72rem;color:#aaa">sasaran <span style="font-weight:700;color:#777">${fmtK(a.ytdTargetACE)}</span></span>
+        </div>
       </div>
       <div class="prog">
         <div class="prog-hd">
           <span class="prog-lbl">YTD NOC</span>
-          <span class="prog-val">${a.ytdNOC} / ${a.ytdTargetCases} kes (${nocPct.toFixed(1)}%)</span>
+          <span class="prog-val" style="font-weight:700;color:#333">${nocPct.toFixed(1)}%</span>
         </div>
         <div class="prog-track"><div class="prog-fill ${fillCls(nocPct)}" style="width:${nocPct}%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:.72rem;color:#555"><span style="font-weight:800;color:#111">${actualNOC|0}</span> <span style="color:#aaa">kes aktual</span></span>
+          <span style="font-size:.72rem;color:#aaa">sasaran <span style="font-weight:700;color:#777">${a.ytdTargetCases|0} kes</span></span>
+        </div>
       </div>
       <div class="a-chips">
         ${qualChip}
