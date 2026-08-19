@@ -530,6 +530,13 @@ function enrichFromMaster(agentMap, masterRows) {
     });
   }
 
+  // Debug: log accumulated rows per agent to browser console
+  for (const [code, a] of Object.entries(acc)) {
+    console.log(`[StartUp] ${code} block rows (aceField=${mtdAceField}):`,
+      a.months.map(m => `${m.evalMonth} ACE=${m.mtdACE}`).join(', '),
+      `→ total=${a.ytdACE.toFixed(2)}`);
+  }
+
   for (const [code, a] of Object.entries(acc)) {
     const ag = agentMap[code];
     if (!ag) continue;
