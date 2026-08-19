@@ -466,6 +466,8 @@ function enrichFromMaster(agentMap, masterRows) {
 
   const cm = {};
   for (const [col, val] of Object.entries(hdr)) { const k = norm(val); if (k) cm[k] = col; }
+  // Debug: print master payout column map so we can identify column W's header name
+  console.log('[StartUp] Master Payout columns:', Object.entries(cm).sort((a,b)=>a[1].localeCompare(b[1])).map(([k,v])=>`${v}="${k}"`).join(', '));
   const g = (row, f) => norm(row[cm[f]] ?? '');
   const n = (row, f) => { const v = g(row, f); return v === '' ? 0 : parseFloat(v) || 0; };
 
