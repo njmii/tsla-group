@@ -748,10 +748,48 @@ function renderContestLeaderboard() {
     </div>`;
   }).join('');
 
-  return `<div class="card" style="margin-bottom:12px">
+  const baliCard = `<div class="card" style="margin-bottom:12px">
     <div class="card-hdr" style="background:linear-gradient(135deg,#b06000,#e87c25)">🏆 Road to Bali — Kedudukan Jul–Sep 2026</div>
     <div class="card-body" style="padding:10px 16px 14px">${rows}</div>
   </div>`;
+
+  // Merdeka leaderboard
+  const today = new Date().toISOString().slice(0,10);
+  let merdekaCard = '';
+  if (today >= MERDEKA_START && today <= MERDEKA_END) {
+    const inEB = today <= MERDEKA_EARLYBIRD;
+    const mRanked = DATA.agents.filter(ag => !EXCLUDE_AGENTS.has(ag.code)).map(ag => {
+      const cl = (ag.clients || []).filter(c => c.issueDate >= MERDEKA_START && c.issueDate <= MERDEKA_END);
+      const myACE   = cl.reduce((s, c) => s + ace(c), 0);
+      const myCases = cl.reduce((s, c) => s + merdekaCase(c), 0);
+      return { code: ag.code, name: SN(ag.name), ace: myACE, cases: myCases };
+    }).sort((a, b) => b.ace - a.ace);
+
+    const mRows = mRanked.map((ag, i) => {
+      const pct = Math.min(100, ag.ace / MERDEKA_ACE_NORMAL * 100);
+      const bc  = pct >= 100 ? '#27ae60' : pct >= 43 ? '#f0a500' : '#c0392b';
+      const cf  = ag.cases % 1 === 0 ? ag.cases : ag.cases.toFixed(1);
+      const reward = ag.ace >= MERDEKA_ACE_NORMAL ? '🎽' : (inEB && ag.ace >= MERDEKA_ACE_EARLY) ? '🎽EB' : ag.cases >= 3 ? '🎟️' : (inEB && ag.cases >= 1) ? '🎟️EB' : '';
+      return `<div onclick="showDash('${ag.code}')" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:${i<mRanked.length-1?'1px solid #f5f5f5':'none'};cursor:pointer">
+        <div style="font-size:${i<3?'1.2rem':'.82rem'};width:28px;text-align:center;flex-shrink:0;font-weight:900;color:#bbb">${['🥇','🥈','🥉'][i]||i+1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:900;font-size:.85rem;margin-bottom:3px;color:#b22222;text-decoration:underline;text-decoration-color:#e8a04070">${ag.name}</div>
+          <div class="prog-wrap" style="margin:0 0 2px"><div class="prog-bar" style="width:${pct.toFixed(1)}%;background:${bc}"></div></div>
+          <div style="font-size:.61rem;color:#aaa;font-weight:700">${pct.toFixed(0)}% daripada ${RA(MERDEKA_ACE_NORMAL)} · ${cf} kes</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:.95rem;font-weight:900;color:${bc}">${RA(ag.ace)}</div>
+          ${reward ? `<div style="font-size:.62rem;font-weight:800;color:#27ae60">${reward}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+    merdekaCard = `<div class="card" style="margin-bottom:12px">
+      <div class="card-hdr" style="background:linear-gradient(135deg,#b22222,#e87c25)">🇲🇾 Merdeka Final Sprint — Kedudukan${inEB?' ⏰ Early Bird':''}</div>
+      <div class="card-body" style="padding:10px 16px 14px">${mRows}</div>
+    </div>`;
+  }
+
+  return merdekaCard + baliCard;
 }
 
 /* ── Client Search ───────────────────── */
@@ -1035,6 +1073,7 @@ function renderDash(code) {
   else {bc.textContent='No data';bc.style.color='#aaa';bc.style.background='#f0f0f0';}
 
   try{renderContest(code,grp);}catch(e){console.error('contest',e);}
+  try{renderMerdekaContest(code);}catch(e){console.error('merdeka',e);}
   try{renderMTD(clients,code,grp);}catch(e){console.error('mtd',e);}
   try{renderCE(r13,rCE);}catch(e){console.error('ce',e);}
   try{renderBSC(r13,r25,ka,kb,bsc,bd);}catch(e){console.error('bsc',e);}
@@ -1941,6 +1980,15 @@ const CONTEST_START  = '2026-07-01';
 const CONTEST_END    = '2026-09-30';
 const CONTEST_TARGET = 50000;
 
+/* ── Contest: Merdeka X Final Sprint 2026 ── */
+const MERDEKA_START      = '2026-08-21';
+const MERDEKA_EARLYBIRD  = '2026-08-31';
+const MERDEKA_END        = '2026-09-15';
+const MERDEKA_ACE_EARLY  = 3800;
+const MERDEKA_ACE_NORMAL = 8800;
+
+function merdekaCase(c) { return ace(c) >= 2400 ? 1 : 0.5; }
+
 function renderContest(agCode, grp) {
   const start=new Date(CONTEST_START), end=new Date(CONTEST_END), now=new Date();
   const totalDays=Math.round((end-start)/86400000);
@@ -1978,6 +2026,89 @@ function renderContest(agCode, grp) {
         <div class="pct-row">
           <span>${pct.toFixed(1)}% daripada target peribadi (${RA(CONTEST_TARGET)})</span>
           <span>Masa: ${timePct.toFixed(0)}% berlalu</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderMerdekaContest(agCode) {
+  const todayStr = new Date().toISOString().slice(0,10);
+  if (todayStr < MERDEKA_START || todayStr > MERDEKA_END) return;
+
+  const agObj = DATA.agents.find(a => a.code === agCode);
+  const myCl  = (agObj?.clients || []).filter(c =>
+    c.issueDate >= MERDEKA_START && c.issueDate <= MERDEKA_END
+  );
+  const myACE   = myCl.reduce((s, c) => s + ace(c), 0);
+  const myCases = myCl.reduce((s, c) => s + merdekaCase(c), 0);
+
+  const inEB       = todayStr <= MERDEKA_EARLYBIRD;
+  const ebDaysLeft = Math.max(0, Math.round((new Date(MERDEKA_EARLYBIRD) - new Date()) / 86400000));
+  const daysLeft   = Math.max(0, Math.round((new Date(MERDEKA_END) - new Date()) / 86400000));
+
+  const pctACE = Math.min(100, myACE / MERDEKA_ACE_NORMAL * 100);
+  const barC   = pctACE >= 100 ? '#27ae60' : pctACE >= 43 ? '#f0a500' : '#c0392b';
+
+  // Best reward achieved
+  let reward = null;
+  if (myACE >= MERDEKA_ACE_NORMAL) reward = { label: '🎽 Ticket + T-Shirt', color: '#27ae60', bg: '#e8f8ef' };
+  else if (inEB && myACE >= MERDEKA_ACE_EARLY) reward = { label: '🎽 Ticket + T-Shirt (Early Bird)', color: '#1a8c4a', bg: '#e8f8ef' };
+  else if (myCases >= 3) reward = { label: '🎟️ Ticket (3 Kes)', color: '#1a73e8', bg: '#e8f0fe' };
+  else if (inEB && myCases >= 1) reward = { label: '🎟️ Ticket (Early Bird)', color: '#1a73e8', bg: '#e8f0fe' };
+
+  const rewardBadge = reward
+    ? `<div style="background:${reward.bg};color:${reward.color};border-radius:10px;padding:6px 12px;font-size:.78rem;font-weight:800;margin-bottom:10px">✓ ${reward.label}</div>`
+    : '';
+
+  // Next milestone hint
+  let hint = '';
+  if (!reward && inEB) {
+    if (myCases < 1) hint = `⏰ ${ebDaysLeft} hari lagi — 1 kes untuk Ticket Early Bird`;
+    else if (myACE < MERDEKA_ACE_EARLY) hint = `⏰ ${ebDaysLeft} hari lagi — ${RA(MERDEKA_ACE_EARLY - myACE)} lagi untuk T-Shirt`;
+  } else if (!reward) {
+    if (myCases < 3) hint = `${daysLeft} hari lagi — ${3 - myCases} kes lagi untuk Ticket`;
+    else hint = `${daysLeft} hari lagi — ${RA(MERDEKA_ACE_NORMAL - myACE)} lagi untuk Ticket + T-Shirt`;
+  }
+  const hintBox = hint
+    ? `<div style="background:#fff8e1;color:#b45309;border-radius:9px;padding:6px 12px;font-size:.74rem;font-weight:700;margin-bottom:10px">${hint}</div>`
+    : '';
+
+  const tile = (lbl, achieved, valHtml, sub) => `
+    <div style="border-radius:12px;padding:10px 12px;background:${achieved?'#e8f8ef':'#f7f8fa'}">
+      <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;color:${achieved?'#1a8c4a':'#888'}">${lbl}</div>
+      <div style="font-size:.95rem;font-weight:900;color:${achieved?'#1a8c4a':'#111'}">${achieved?'✓ ':''} ${valHtml}</div>
+      <div style="font-size:.64rem;margin-top:2px;color:#999">${sub}</div>
+    </div>`;
+
+  const caseFmt = n => n % 1 === 0 ? n : n.toFixed(1);
+
+  document.getElementById('contestCard').innerHTML += `
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hdr" style="background:linear-gradient(135deg,#b22222,#e87c25)">🇲🇾 Merdeka X Final Sprint 2026${inEB?' — ⏰ Early Bird':''}</div>
+      <div class="card-body">
+        ${rewardBadge}${hintBox}
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
+          <div>
+            <div class="st-lbl">ACE Contest</div>
+            <div class="big-num" style="color:${barC}">${RA(myACE)}</div>
+            <div class="st-sub">Target: ${RA(MERDEKA_ACE_NORMAL)} (Ticket + T-Shirt)</div>
+          </div>
+          <div style="text-align:right">
+            <div class="st-lbl">Kes Contest</div>
+            <div style="font-size:1.15rem;font-weight:900;color:#555">${caseFmt(myCases)} kes</div>
+            <div class="st-sub">${daysLeft} hari lagi</div>
+          </div>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" style="width:${pctACE.toFixed(1)}%;background:${barC}"></div></div>
+        <div class="pct-row" style="margin-bottom:12px">
+          <span>${pctACE.toFixed(1)}% daripada ${RA(MERDEKA_ACE_NORMAL)}</span>
+          <span>Tamat 15 Sep 2026</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${tile('Early Bird Ticket', inEB && myCases >= 1, `${caseFmt(myCases)}/1 kes`, '≥1 kes sebelum 31 Ogo')}
+          ${tile('Early Bird T-Shirt', inEB && myACE >= MERDEKA_ACE_EARLY, RA(myACE), `≥${RA(MERDEKA_ACE_EARLY)} sebelum 31 Ogo`)}
+          ${tile('3 Kes (Ticket)', myCases >= 3, `${caseFmt(myCases)}/3 kes`, '≥3 kes sebelum 15 Sep')}
+          ${tile('8,800 ACE + T-Shirt', myACE >= MERDEKA_ACE_NORMAL, RA(myACE), `≥${RA(MERDEKA_ACE_NORMAL)} sebelum 15 Sep`)}
         </div>
       </div>
     </div>`;
