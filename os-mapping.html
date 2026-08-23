@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>OS Mapping</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f2f5;--card:#fff;--top:#1a1f2e;--top2:#242c3d;
+  --text:#111827;--sub:#4b5563;--muted:#9ca3af;--border:#e5e7eb;
+  --orange:#ff7a00;
+  --g:#15803d;--g-bg:#f0fdf4;--g-bd:#86efac;
+  --y:#b45309;--y-bg:#fffbeb;--y-bd:#fde68a;
+  --r:#b91c1c;--r-bg:#fef2f2;--r-bd:#fca5a5;
+  --shadow:0 1px 3px rgba(0,0,0,.09),0 1px 2px rgba(0,0,0,.05);
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1319;--card:#1c2130;--top:#111827;--top2:#1a2035;
+    --text:#f1f5f9;--sub:#94a3b8;--muted:#4b5563;--border:#2d3748;
+    --g-bg:#052e16;--g-bd:#166534;
+    --y-bg:#1c1407;--y-bd:#92400e;
+    --r-bg:#1f0a0a;--r-bd:#991b1b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1319;--card:#1c2130;--top:#111827;--top2:#1a2035;
+  --text:#f1f5f9;--sub:#94a3b8;--muted:#4b5563;--border:#2d3748;
+  --g-bg:#052e16;--g-bd:#166534;
+  --y-bg:#1c1407;--y-bd:#92400e;
+  --r-bg:#1f0a0a;--r-bd:#991b1b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── PIN overlay ── */
+#pinOverlay{position:fixed;inset:0;background:var(--top);z-index:999;display:flex;align-items:center;justify-content:center}
+.pin-box{background:var(--top2);border-radius:24px;padding:40px 28px 32px;width:320px;max-width:90vw;text-align:center}
+.pin-logo{font-size:2.2rem;margin-bottom:12px}
+.pin-title{font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:4px}
+.pin-sub{font-size:.8rem;color:#64748b;margin-bottom:28px}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:24px}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:#2d3748;transition:.15s}
+.pin-dot.fill{background:var(--orange)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pin-key{background:#242c3d;color:#e2e8f0;border:none;border-radius:14px;padding:18px 0;font-size:1.25rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.12s}
+.pin-key:active{background:#ff7a00;color:#fff;transform:scale(.95)}
+.pin-key.wide{grid-column:span 2}
+.pin-err{color:#f87171;font-size:.78rem;font-weight:600;margin-top:12px;min-height:20px}
+
+/* ── App ── */
+#app{display:none;padding-bottom:90px}
+
+/* ── Top bar ── */
+.top-bar{background:var(--top);padding:14px 16px 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.top-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.top-icon{font-size:1.25rem}
+.top-title{font-size:1.05rem;font-weight:800;color:#fff;flex:1}
+.top-action{background:rgba(255,255,255,.1);border:none;border-radius:10px;padding:8px 12px;color:#fff;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:.12s}
+.top-action:hover{background:rgba(255,255,255,.18)}
+
+/* Stats strip */
+.stats{display:flex;gap:0;margin-bottom:0}
+.stat{flex:1;text-align:center;padding:10px 4px;border-top:1px solid rgba(255,255,255,.06)}
+.stat-n{font-size:1.3rem;font-weight:800;line-height:1}
+.stat-l{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.6;margin-top:2px}
+.stat.s-g .stat-n{color:#4ade80}
+.stat.s-y .stat-n{color:#fbbf24}
+.stat.s-r .stat-n{color:#f87171}
+.stat.s-n .stat-n{color:#94a3b8}
+
+/* Filter tabs */
+.tabs{display:flex;background:var(--top2);padding:0 12px 12px;gap:6px}
+.tab{flex:1;border:none;border-radius:20px;padding:7px 0;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.12s;color:#94a3b8;background:rgba(255,255,255,.07)}
+.tab.on{color:#fff}
+.tab.t-all.on{background:var(--orange)}
+.tab.t-g.on{background:#16a34a}
+.tab.t-y.on{background:#d97706}
+.tab.t-r.on{background:#dc2626}
+.tab.t-n.on{background:#475569}
+
+/* ── Content ── */
+.content{padding:14px 13px 0}
+
+/* Zone header */
+.zone-hdr{display:flex;align-items:center;gap:8px;margin:18px 0 9px;padding:0 1px}
+.zone-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.zone-line{flex:1;height:1px;background:var(--border)}
+.zone-count{font-size:.65rem;font-weight:700;color:var(--muted)}
+
+/* School card */
+.school-card{background:var(--card);border-radius:16px;margin-bottom:8px;box-shadow:var(--shadow);overflow:hidden;border:2px solid transparent;transition:border-color .15s}
+.school-card.s-green{border-color:var(--g-bd);background:var(--g-bg)}
+.school-card.s-yellow{border-color:var(--y-bd);background:var(--y-bg)}
+.school-card.s-red{border-color:var(--r-bd);background:var(--r-bg)}
+
+.sc-top{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.sc-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;border:2px solid var(--border);background:var(--bg);transition:.15s}
+.sc-dot.g{background:var(--g);border-color:var(--g)}
+.sc-dot.y{background:#f59e0b;border-color:#f59e0b}
+.sc-dot.r{background:var(--r);border-color:var(--r)}
+.sc-num{font-size:.7rem;font-weight:700;color:var(--muted);min-width:18px;text-align:right;flex-shrink:0}
+.sc-name{flex:1;font-size:.92rem;font-weight:700;color:var(--text);line-height:1.3}
+.sc-status-tag{font-size:.65rem;font-weight:800;border-radius:8px;padding:3px 8px;flex-shrink:0}
+.tag-g{background:rgba(21,128,61,.13);color:var(--g)}
+.tag-y{background:rgba(180,83,9,.12);color:var(--y)}
+.tag-r{background:rgba(185,28,28,.11);color:var(--r)}
+
+/* Status buttons row */
+.sc-btns{display:flex;gap:6px;padding:0 14px 12px}
+.sc-btn{flex:1;border:2px solid transparent;border-radius:10px;padding:7px 4px;font-size:.7rem;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;transition:.12s;background:var(--bg)}
+.sc-btn:hover{opacity:.85}
+.sc-btn.btn-g{border-color:var(--g-bd);color:var(--g)}
+.sc-btn.btn-g.on{background:var(--g);color:#fff;border-color:var(--g)}
+.sc-btn.btn-y{border-color:var(--y-bd);color:var(--y)}
+.sc-btn.btn-y.on{background:#d97706;color:#fff;border-color:#d97706}
+.sc-btn.btn-r{border-color:var(--r-bd);color:var(--r)}
+.sc-btn.btn-r.on{background:var(--r);color:#fff;border-color:var(--r)}
+
+/* Remark input area */
+.sc-remark{padding:0 14px 12px;display:none}
+.sc-remark.show{display:block}
+.sc-inp-label{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
+.sc-inp{width:100%;border:2px solid var(--border);border-radius:10px;padding:9px 12px;font-size:.85rem;font-family:inherit;background:var(--card);color:var(--text);outline:none;transition:.15s}
+.sc-inp:focus{border-color:var(--orange)}
+.sc-remark-note{font-size:.7rem;color:var(--sub);margin-top:5px;padding:0 2px}
+
+/* FAB */
+.fab{position:fixed;bottom:24px;right:18px;width:56px;height:56px;border-radius:50%;background:var(--orange);color:#fff;border:none;font-size:1.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(255,122,0,.5);z-index:90;transition:.15s}
+.fab:active{transform:scale(.92)}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:1rem;font-weight:800;margin-bottom:18px;color:var(--text)}
+.modal label{display:block;font-size:.75rem;font-weight:700;color:var(--sub);margin-bottom:5px;margin-top:14px;text-transform:uppercase;letter-spacing:.05em}
+.modal label:first-of-type{margin-top:0}
+.modal input,.modal select,.modal textarea{width:100%;border:2px solid var(--border);border-radius:12px;padding:11px 14px;font-size:.9rem;font-family:inherit;background:var(--bg);color:var(--text);outline:none;transition:.15s}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--orange)}
+.modal-btns{display:flex;gap:10px;margin-top:20px}
+.modal-btn{flex:1;border:none;border-radius:12px;padding:13px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.12s}
+.modal-btn.cancel{background:var(--bg);color:var(--sub)}
+.modal-btn.save{background:var(--orange);color:#fff}
+.modal-btn:active{opacity:.82}
+
+/* Edit mode toggle */
+.edit-row{display:flex;align-items:center;justify-content:space-between;padding:10px 13px 0}
+.edit-lbl{font-size:.72rem;font-weight:700;color:var(--muted)}
+.edit-toggle{background:var(--bg);border:2px solid var(--border);border-radius:8px;padding:5px 12px;font-size:.72rem;font-weight:800;color:var(--sub);cursor:pointer;font-family:inherit;transition:.12s}
+.edit-toggle.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.del-btn{background:var(--r-bg);border:none;border-radius:8px;padding:5px 10px;font-size:.75rem;font-weight:800;color:var(--r);cursor:pointer;margin-left:8px;display:none;transition:.12s}
+.del-btn.show{display:inline-flex;align-items:center;gap:3px}
+
+/* Empty state */
+.empty{text-align:center;padding:50px 20px;color:var(--muted);font-size:.88rem}
+.empty-icon{font-size:2.5rem;margin-bottom:10px}
+
+/* WhatsApp share result */
+.wa-share-row{display:flex;justify-content:center;padding:16px 13px 0}
+.wa-btn{display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;border:none;border-radius:14px;padding:13px 24px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.12s;width:100%;justify-content:center}
+.wa-btn:active{opacity:.85}
+
+/* Toast */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1f2e;color:#fff;border-radius:14px;padding:10px 20px;font-size:.82rem;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:500;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- PIN overlay -->
+<div id="pinOverlay">
+  <div class="pin-box">
+    <div class="pin-logo">🗺️</div>
+    <div class="pin-title">OS Mapping</div>
+    <div class="pin-sub">Masukkan PIN untuk akses</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-pad" id="pinPad"></div>
+    <div class="pin-err" id="pinErr"></div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="top-row">
+      <span class="top-icon">🗺️</span>
+      <span class="top-title">OS Mapping</span>
+      <button class="top-action" onclick="shareWA()">📤 Share</button>
+      <button class="top-action" onclick="openAddModal()" style="margin-left:4px">+ Tambah</button>
+    </div>
+    <div class="stats">
+      <div class="stat s-g"><div class="stat-n" id="cntG">0</div><div class="stat-l">Confirmed</div></div>
+      <div class="stat s-y"><div class="stat-n" id="cntY">0</div><div class="stat-l">Unconfirmed</div></div>
+      <div class="stat s-r"><div class="stat-n" id="cntR">0</div><div class="stat-l">No Entry</div></div>
+      <div class="stat s-n"><div class="stat-n" id="cntN">0</div><div class="stat-l">Pending</div></div>
+    </div>
+    <div class="tabs">
+      <button class="tab t-all on" onclick="setFilter('all',this)">Semua</button>
+      <button class="tab t-g" onclick="setFilter('green',this)">✅ Confirm</button>
+      <button class="tab t-y" onclick="setFilter('yellow',this)">⚠️ Unconfirm</button>
+      <button class="tab t-r" onclick="setFilter('red',this)">🚫 No Entry</button>
+      <button class="tab t-n" onclick="setFilter('none',this)">⬜ Pending</button>
+    </div>
+  </div>
+
+  <!-- Edit toggle row -->
+  <div class="edit-row">
+    <span class="edit-lbl" id="editLbl">Ketik sekolah untuk kemaskini status</span>
+    <button class="edit-toggle" id="editToggle" onclick="toggleEdit()">✏️ Edit</button>
+  </div>
+
+  <div class="content" id="listContent"></div>
+  <div class="wa-share-row"><button class="wa-btn" onclick="shareWA()">📲 Kongsi via WhatsApp</button></div>
+</div>
+
+<!-- Add/Edit modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Tambah Sekolah</div>
+    <label>Nama Sekolah</label>
+    <input id="mName" type="text" placeholder="cth: SMK Subang Jaya">
+    <label>Zon Lokasi</label>
+    <select id="mZone">
+      <option value="selatan">🔽 Selatan</option>
+      <option value="tengah" selected>⏺ Tengah</option>
+      <option value="utara">🔼 Utara</option>
+    </select>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeModal()">Batal</button>
+      <button class="modal-btn save" onclick="saveSchool()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── Data ── */
+const STORE_KEY = 'tsla_os_schools';
+const PIN = '1111';
+const ZONES = [
+  { id: 'selatan', label: 'Selatan', icon: '🔽' },
+  { id: 'tengah',  label: 'Tengah',  icon: '⏺' },
+  { id: 'utara',   label: 'Utara',   icon: '🔼' },
+];
+
+const DEFAULT_SCHOOLS = [
+  { id: 1, name: 'SMK Nilai', zone: 'selatan', status: 'none', date: '', reason: '' },
+  { id: 2, name: 'SMK Bandar Baru Nilai', zone: 'selatan', status: 'none', date: '', reason: '' },
+  { id: 3, name: 'SMK Rantau', zone: 'selatan', status: 'none', date: '', reason: '' },
+  { id: 4, name: 'SMK Ampang', zone: 'tengah', status: 'none', date: '', reason: '' },
+  { id: 5, name: 'SMK Pandan Indah', zone: 'tengah', status: 'none', date: '', reason: '' },
+  { id: 6, name: 'SMK Seri Ampang', zone: 'tengah', status: 'none', date: '', reason: '' },
+  { id: 7, name: 'SMK Subang Jaya', zone: 'tengah', status: 'none', date: '', reason: '' },
+  { id: 8, name: 'SMK USJ 12', zone: 'tengah', status: 'none', date: '', reason: '' },
+  { id: 9, name: 'SMK Puchong Perdana', zone: 'tengah', status: 'none', date: '', reason: '' },
+  { id: 10, name: 'SMK Damansara Jaya', zone: 'tengah', status: 'none', date: '', reason: '' },
+  { id: 11, name: 'SMK Rawang', zone: 'utara', status: 'none', date: '', reason: '' },
+  { id: 12, name: 'SMK Batang Kali', zone: 'utara', status: 'none', date: '', reason: '' },
+  { id: 13, name: 'SMK Kuala Kubu Bharu', zone: 'utara', status: 'none', date: '', reason: '' },
+];
+
+let schools = [];
+let filter = 'all';
+let editMode = false;
+let editingId = null;
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    schools = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_SCHOOLS));
+  } catch {
+    schools = JSON.parse(JSON.stringify(DEFAULT_SCHOOLS));
+  }
+}
+function save() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(schools));
+}
+function nextId() {
+  return schools.length ? Math.max(...schools.map(s => s.id)) + 1 : 1;
+}
+
+/* ── PIN ── */
+let pinEntry = '';
+const pinBtns = [1,2,3,4,5,6,7,8,9,'⌫',0,'✓'];
+const pad = document.getElementById('pinPad');
+pinBtns.forEach(k => {
+  const b = document.createElement('button');
+  b.className = 'pin-key';
+  if (k === '✓') b.className += ' wide';
+  b.textContent = k;
+  b.onclick = () => pinKey(k);
+  pad.appendChild(b);
+});
+function pinKey(k) {
+  const err = document.getElementById('pinErr');
+  if (k === '⌫') {
+    pinEntry = pinEntry.slice(0, -1);
+  } else if (k === '✓') {
+    if (pinEntry === PIN) {
+      document.getElementById('pinOverlay').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      load(); render();
+    } else {
+      err.textContent = 'PIN salah. Cuba lagi.';
+      pinEntry = '';
+    }
+  } else if (pinEntry.length < 4) {
+    pinEntry += k;
+    if (pinEntry.length === 4) {
+      setTimeout(() => {
+        if (pinEntry === PIN) {
+          document.getElementById('pinOverlay').style.display = 'none';
+          document.getElementById('app').style.display = 'block';
+          load(); render();
+        } else {
+          err.textContent = 'PIN salah. Cuba lagi.';
+          pinEntry = '';
+          updateDots();
+        }
+      }, 120);
+    }
+  }
+  updateDots();
+}
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('d' + i).classList.toggle('fill', i < pinEntry.length);
+  }
+}
+
+/* ── Filter ── */
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  render();
+}
+
+/* ── Edit mode ── */
+function toggleEdit() {
+  editMode = !editMode;
+  const btn = document.getElementById('editToggle');
+  const lbl = document.getElementById('editLbl');
+  btn.classList.toggle('on', editMode);
+  btn.textContent = editMode ? '✅ Selesai' : '✏️ Edit';
+  lbl.textContent = editMode ? 'Mode edit — tekan ✕ untuk padam' : 'Ketik sekolah untuk kemaskini status';
+  render();
+}
+
+/* ── Status ── */
+function setStatus(id, status) {
+  const s = schools.find(s => s.id === id);
+  if (!s) return;
+  if (s.status === status) {
+    s.status = 'none'; s.date = ''; s.reason = '';
+  } else {
+    s.status = status;
+    if (status !== 'green') s.date = '';
+    if (status !== 'yellow' && status !== 'red') s.reason = '';
+  }
+  save(); render();
+  const card = document.getElementById('sc-' + id);
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function updateDate(id, val) {
+  const s = schools.find(s => s.id === id);
+  if (s) { s.date = val; save(); }
+}
+function updateReason(id, val) {
+  const s = schools.find(s => s.id === id);
+  if (s) { s.reason = val; save(); }
+}
+function deleteSchool(id) {
+  if (!confirm('Padam sekolah ini?')) return;
+  schools = schools.filter(s => s.id !== id);
+  save(); render();
+}
+
+/* ── Render ── */
+function render() {
+  const cg = schools.filter(s => s.status === 'green').length;
+  const cy = schools.filter(s => s.status === 'yellow').length;
+  const cr = schools.filter(s => s.status === 'red').length;
+  const cn = schools.filter(s => s.status === 'none').length;
+  document.getElementById('cntG').textContent = cg;
+  document.getElementById('cntY').textContent = cy;
+  document.getElementById('cntR').textContent = cr;
+  document.getElementById('cntN').textContent = cn;
+
+  const visible = filter === 'all' ? schools : schools.filter(s => s.status === filter);
+  const container = document.getElementById('listContent');
+
+  if (visible.length === 0) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>Tiada sekolah dalam kategori ini.</div>`;
+    return;
+  }
+
+  let html = '';
+  let globalIdx = 0;
+  ZONES.forEach(zone => {
+    const zSchools = visible.filter(s => s.zone === zone.id);
+    if (!zSchools.length) return;
+    const allInZone = schools.filter(s => s.zone === zone.id);
+    html += `<div class="zone-hdr">
+      <span class="zone-label">${zone.icon} ${zone.label}</span>
+      <div class="zone-line"></div>
+      <span class="zone-count">${zSchools.length}/${allInZone.length}</span>
+    </div>`;
+    zSchools.forEach(s => {
+      globalIdx++;
+      const dotCls = s.status === 'green' ? 'g' : s.status === 'yellow' ? 'y' : s.status === 'red' ? 'r' : '';
+      const cardCls = s.status === 'green' ? 's-green' : s.status === 'yellow' ? 's-yellow' : s.status === 'red' ? 's-red' : '';
+      const tagHtml = s.status === 'green'
+        ? `<span class="sc-status-tag tag-g">✅ Confirmed</span>`
+        : s.status === 'yellow'
+        ? `<span class="sc-status-tag tag-y">⚠️ Unconfirmed</span>`
+        : s.status === 'red'
+        ? `<span class="sc-status-tag tag-r">🚫 No Entry</span>`
+        : '';
+
+      const remarkShow = (s.status === 'green' || s.status === 'yellow' || s.status === 'red') ? 'show' : '';
+      const remarkLabel = s.status === 'green' ? 'Tarikh Masuk' : 'Sebab / Catatan';
+      const remarkNote = s.status === 'yellow'
+        ? 'Unconfirmed — boleh follow-up semula'
+        : s.status === 'red'
+        ? 'Tidak boleh masuk — tandakan sebab'
+        : 'Rekod tarikh masuk yang disahkan';
+      const remarkInp = s.status === 'green'
+        ? `<input class="sc-inp" type="date" value="${s.date||''}" onchange="updateDate(${s.id},this.value)">`
+        : `<input class="sc-inp" type="text" placeholder="cth: Tunggu kelulusan PPD..." value="${escHtml(s.reason||'')}" oninput="updateReason(${s.id},this.value)">`;
+
+      const delBtn = editMode ? `<button class="del-btn show" onclick="deleteSchool(${s.id})">✕ Padam</button>` : '';
+
+      html += `<div class="school-card ${cardCls}" id="sc-${s.id}">
+        <div class="sc-top">
+          <div class="sc-dot ${dotCls}"></div>
+          <div class="sc-num">${globalIdx}</div>
+          <div class="sc-name">${escHtml(s.name)}</div>
+          ${tagHtml}
+          ${delBtn}
+        </div>
+        <div class="sc-btns">
+          <button class="sc-btn btn-g${s.status==='green'?' on':''}" onclick="setStatus(${s.id},'green')">✅ Confirmed</button>
+          <button class="sc-btn btn-y${s.status==='yellow'?' on':''}" onclick="setStatus(${s.id},'yellow')">⚠️ Unconfirm</button>
+          <button class="sc-btn btn-r${s.status==='red'?' on':''}" onclick="setStatus(${s.id},'red')">🚫 No Entry</button>
+        </div>
+        <div class="sc-remark ${remarkShow}" id="rm-${s.id}">
+          <div class="sc-inp-label">${remarkLabel}</div>
+          ${remarkInp}
+          <div class="sc-remark-note">${remarkNote}</div>
+        </div>
+      </div>`;
+    });
+  });
+
+  container.innerHTML = html;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Add/Edit Modal ── */
+function openAddModal(id) {
+  editingId = id || null;
+  const modal = document.getElementById('modalBg');
+  const title = document.getElementById('modalTitle');
+  if (id) {
+    const s = schools.find(s => s.id === id);
+    if (!s) return;
+    title.textContent = 'Edit Sekolah';
+    document.getElementById('mName').value = s.name;
+    document.getElementById('mZone').value = s.zone;
+  } else {
+    title.textContent = 'Tambah Sekolah';
+    document.getElementById('mName').value = '';
+    document.getElementById('mZone').value = 'tengah';
+  }
+  modal.classList.add('show');
+  setTimeout(() => document.getElementById('mName').focus(), 100);
+}
+function closeModal() {
+  document.getElementById('modalBg').classList.remove('show');
+  editingId = null;
+}
+function saveSchool() {
+  const name = document.getElementById('mName').value.trim();
+  const zone = document.getElementById('mZone').value;
+  if (!name) { alert('Sila masukkan nama sekolah.'); return; }
+  if (editingId) {
+    const s = schools.find(s => s.id === editingId);
+    if (s) { s.name = name; s.zone = zone; }
+  } else {
+    schools.push({ id: nextId(), name, zone, status: 'none', date: '', reason: '' });
+  }
+  save(); render(); closeModal();
+  showToast(editingId ? '✓ Sekolah dikemaskini' : '✓ Sekolah ditambah');
+}
+
+/* ── WhatsApp Share ── */
+function shareWA() {
+  const today = new Date().toLocaleDateString('ms-MY', { day:'numeric', month:'long', year:'numeric' });
+  const green  = schools.filter(s => s.status === 'green');
+  const yellow = schools.filter(s => s.status === 'yellow');
+  const red    = schools.filter(s => s.status === 'red');
+  const none   = schools.filter(s => s.status === 'none');
+
+  let lines = [];
+  lines.push('🗺️ *OS MAPPING — TSLA Group*');
+  lines.push(`📅 ${today}`);
+  lines.push(`📊 ${green.length} Confirmed · ${yellow.length} Unconfirmed · ${red.length} No Entry · ${none.length} Pending`);
+  lines.push('');
+
+  if (green.length) {
+    lines.push('✅ *CONFIRMED* (' + green.length + ')');
+    green.forEach(s => {
+      const dateTxt = s.date ? ` — ${formatDate(s.date)}` : '';
+      lines.push(`• ${s.name}${dateTxt}`);
+    });
+    lines.push('');
+  }
+  if (yellow.length) {
+    lines.push('⚠️ *UNCONFIRMED* (' + yellow.length + ')');
+    yellow.forEach(s => {
+      const note = s.reason ? ` — ${s.reason}` : '';
+      lines.push(`• ${s.name}${note}`);
+    });
+    lines.push('');
+  }
+  if (red.length) {
+    lines.push('🚫 *TIDAK BOLEH MASUK* (' + red.length + ')');
+    red.forEach(s => {
+      const note = s.reason ? ` — ${s.reason}` : '';
+      lines.push(`• ${s.name}${note}`);
+    });
+    lines.push('');
+  }
+  if (none.length) {
+    lines.push('⬜ *BELUM DIKEMASKINI* (' + none.length + ')');
+    lines.push(none.map(s => s.name).join(', '));
+    lines.push('');
+  }
+  lines.push(`_Dikemaskini: ${today}_`);
+
+  const text = lines.join('\n');
+  const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+  window.open(url, '_blank');
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('ms-MY', { day:'numeric', month:'short', year:'numeric' });
+}
+
+/* ── Toast ── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ── Close modal on backdrop click ── */
+document.getElementById('modalBg').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
