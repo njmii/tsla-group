@@ -19,19 +19,6 @@
           "ace": 1379.88
         },
         {
-          "name": "Wan amni nuruddin bin wan mohd yusoff",
-          "certNo": "N0978252",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD CI First",
-          "issueDate": "2023-02-02",
-          "dueDate": "2026-10-01",
-          "contribution": 230,
-          "payMethod": "Credit Card - IPAY88",
-          "statusUpdatedDate": "2023-02-02",
-          "ace": 2760
-        },
-        {
           "name": "IDA NOORYANIE BT MUSTAPHA",
           "certNo": "F0960135",
           "status": "In Force",
@@ -45,17 +32,17 @@
           "ace": 4211.04
         },
         {
-          "name": "Anisah Binti Marlan",
-          "certNo": "F0982270",
+          "name": "Wan amni nuruddin bin wan mohd yusoff",
+          "certNo": "N0978252",
           "status": "In Force",
           "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-02-07",
-          "dueDate": "2026-10-07",
-          "contribution": 240.5,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2023-02-07",
-          "ace": 2886
+          "plan": "FWD CI First",
+          "issueDate": "2023-02-02",
+          "dueDate": "2026-10-01",
+          "contribution": 230,
+          "payMethod": "Credit Card - IPAY88",
+          "statusUpdatedDate": "2023-02-02",
+          "ace": 2760
         },
         {
           "name": "Wan Rosnani Binti Wan Omar",
@@ -69,6 +56,19 @@
           "payMethod": "Direct Billing (Cash)",
           "statusUpdatedDate": "2023-02-09",
           "ace": 1899
+        },
+        {
+          "name": "Anisah Binti Marlan",
+          "certNo": "F0982270",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-02-07",
+          "dueDate": "2026-10-07",
+          "contribution": 240.5,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2023-02-07",
+          "ace": 2886
         },
         {
           "name": "Kamaruzi bin abas",
@@ -123,6 +123,19 @@
           "ace": 3047.52
         },
         {
+          "name": "Mazliza binti mahat",
+          "certNo": "F1033096",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-04-18",
+          "dueDate": "2026-10-13",
+          "contribution": 356.13,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2023-04-18",
+          "ace": 4273.56
+        },
+        {
           "name": "Rosmawati Binti Damiri",
           "certNo": "AN053618",
           "status": "In Force",
@@ -136,17 +149,17 @@
           "ace": 3420
         },
         {
-          "name": "Mazliza binti mahat",
-          "certNo": "F1033096",
+          "name": "NORASMAWIYAH BINTI MOHAMMAD",
+          "certNo": "AN030007",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2023-04-18",
-          "dueDate": "2026-10-13",
-          "contribution": 356.13,
+          "issueDate": "2023-07-31",
+          "dueDate": "2026-09-30",
+          "contribution": 149.96,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2023-04-18",
-          "ace": 4273.56
+          "statusUpdatedDate": "2023-07-31",
+          "ace": 1799.52
         },
         {
           "name": "Syarini Binti Mohd Hashim",
@@ -175,32 +188,6 @@
           "ace": 3087.96
         },
         {
-          "name": "Mazura Binti Haron",
-          "certNo": "AN116774",
-          "status": "Lapsed",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-08-23",
-          "dueDate": "2023-10-23",
-          "contribution": 215.65,
-          "payMethod": "Direct Billing (Cash)",
-          "statusUpdatedDate": "2023-12-23",
-          "ace": 2587.8
-        },
-        {
-          "name": "NORASMAWIYAH BINTI MOHAMMAD",
-          "certNo": "AN030007",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-07-31",
-          "dueDate": "2026-09-30",
-          "contribution": 149.96,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2023-07-31",
-          "ace": 1799.52
-        },
-        {
           "name": "Salmah Binti Mohd",
           "certNo": "AN110750",
           "status": "In Force",
@@ -227,6 +214,19 @@
           "ace": 0
         },
         {
+          "name": "Mazura Binti Haron",
+          "certNo": "AN116774",
+          "status": "Lapsed",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-08-23",
+          "dueDate": "2023-10-23",
+          "contribution": 215.65,
+          "payMethod": "Direct Billing (Cash)",
+          "statusUpdatedDate": "2023-12-23",
+          "ace": 2587.8
+        },
+        {
           "name": "Misnan Bin Kasan",
           "certNo": "AN119628",
           "status": "In Force",
@@ -238,45 +238,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2023-08-26",
           "ace": 3563.52
-        },
-        {
-          "name": "Muhamad Rusnizam Bin Ahmad Turus",
-          "certNo": "AN128987",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-09-07",
-          "dueDate": "2026-10-07",
-          "contribution": 201.67,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2023-09-07",
-          "ace": 2420.04
-        },
-        {
-          "name": "Mohd Fakhruddin Bin Ab Rahman",
-          "certNo": "AN133759",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-09-13",
-          "dueDate": "2025-02-13",
-          "contribution": 419.46,
-          "payMethod": "Credit Card - IPAY88",
-          "statusUpdatedDate": "2023-09-13",
-          "ace": 5033.52
-        },
-        {
-          "name": "Dzulkifli Bin Marjunid",
-          "certNo": "AN129279",
-          "status": "Freelook Cancellation",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-09-06",
-          "dueDate": "2023-09-06",
-          "contribution": 231.53,
-          "payMethod": "Credit Card",
-          "statusUpdatedDate": "2023-09-20",
-          "ace": 0
         },
         {
           "name": "Rashidah Binti Hamzah",
@@ -292,6 +253,45 @@
           "ace": 3539.52
         },
         {
+          "name": "Dzulkifli Bin Marjunid",
+          "certNo": "AN129279",
+          "status": "Freelook Cancellation",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-09-06",
+          "dueDate": "2023-09-06",
+          "contribution": 231.53,
+          "payMethod": "Credit Card",
+          "statusUpdatedDate": "2023-09-20",
+          "ace": 0
+        },
+        {
+          "name": "Mohd Fakhruddin Bin Ab Rahman",
+          "certNo": "AN133759",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-09-13",
+          "dueDate": "2025-02-13",
+          "contribution": 419.46,
+          "payMethod": "Credit Card - IPAY88",
+          "statusUpdatedDate": "2023-09-13",
+          "ace": 5033.52
+        },
+        {
+          "name": "Muhamad Rusnizam Bin Ahmad Turus",
+          "certNo": "AN128987",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-09-07",
+          "dueDate": "2026-10-07",
+          "contribution": 201.67,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2023-09-07",
+          "ace": 2420.04
+        },
+        {
           "name": "Aishah Binti Shamsudin",
           "certNo": "AN134978",
           "status": "In Force",
@@ -305,6 +305,19 @@
           "ace": 2924.76
         },
         {
+          "name": "Siti Azlina Binti Hamir",
+          "certNo": "AN151422",
+          "status": "Contract Surrendered",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-10-02",
+          "dueDate": "2026-03-02",
+          "contribution": 257.33,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-02-28",
+          "ace": 3087.96
+        },
+        {
           "name": "Fitriah Binti Dahlan",
           "certNo": "AN142809",
           "status": "Lapsed",
@@ -316,19 +329,6 @@
           "payMethod": "Direct Debit",
           "statusUpdatedDate": "2025-09-21",
           "ace": 6490.68
-        },
-        {
-          "name": "Tuty Yussnilah Binti Kastor",
-          "certNo": "AN045502",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-09-29",
-          "dueDate": "2026-09-29",
-          "contribution": 184.92,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2023-09-29",
-          "ace": 2219.04
         },
         {
           "name": "Noor Faridah Binti Mohamed Yusof",
@@ -357,19 +357,6 @@
           "ace": 0
         },
         {
-          "name": "Siti Azlina Binti Hamir",
-          "certNo": "AN151422",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-10-02",
-          "dueDate": "2026-03-02",
-          "contribution": 257.33,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-02-28",
-          "ace": 3087.96
-        },
-        {
           "name": "Fitriah Binti Dahlan",
           "certNo": "AN161769",
           "status": "Lapsed",
@@ -381,6 +368,58 @@
           "payMethod": "Direct Debit",
           "statusUpdatedDate": "2025-10-05",
           "ace": 2627.52
+        },
+        {
+          "name": "Tuty Yussnilah Binti Kastor",
+          "certNo": "AN045502",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-09-29",
+          "dueDate": "2026-09-29",
+          "contribution": 184.92,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2023-09-29",
+          "ace": 2219.04
+        },
+        {
+          "name": "Nur Izzati Binti Ibrahim",
+          "certNo": "AN167319",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-10-13",
+          "dueDate": "2026-10-13",
+          "contribution": 208.37,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2023-10-13",
+          "ace": 2500.44
+        },
+        {
+          "name": "Aisah Binti Wazir",
+          "certNo": "AN171708",
+          "status": "Contract Surrendered",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-10-16",
+          "dueDate": "2026-07-16",
+          "contribution": 234.04,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-07-15",
+          "ace": 2808.48
+        },
+        {
+          "name": "Siti Rokiah Binti Ismail",
+          "certNo": "AN200583",
+          "status": "Registered Death Claim",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-11-09",
+          "dueDate": "2024-10-09",
+          "contribution": 239.73,
+          "payMethod": "Direct Billing (Cash)",
+          "statusUpdatedDate": "2026-09-22",
+          "ace": 2876.76
         },
         {
           "name": "MUHAMMAD AZIZ SHAH BIN ALIAS",
@@ -409,19 +448,6 @@
           "ace": 0
         },
         {
-          "name": "Nur Izzati Binti Ibrahim",
-          "certNo": "AN167319",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-10-13",
-          "dueDate": "2026-10-13",
-          "contribution": 208.37,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2023-10-13",
-          "ace": 2500.44
-        },
-        {
           "name": "Faisol Mubarak Bin Ismail",
           "certNo": "AN124250",
           "status": "In Force",
@@ -446,19 +472,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2023-11-10",
           "ace": 2826.96
-        },
-        {
-          "name": "Aisah Binti Wazir",
-          "certNo": "AN171708",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-10-16",
-          "dueDate": "2026-07-16",
-          "contribution": 234.04,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-07-15",
-          "ace": 2808.48
         },
         {
           "name": "Haslina Binti Harun",
@@ -487,30 +500,43 @@
           "ace": 3087.96
         },
         {
-          "name": "Azina Binti Hussin",
-          "certNo": "AN213300",
+          "name": "Azlin Marlina Binti Ibrahim",
+          "certNo": "AN224056",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2023-11-20",
-          "dueDate": "2026-09-20",
-          "contribution": 256,
-          "payMethod": "Direct Billing (Cash)",
-          "statusUpdatedDate": "2023-11-20",
-          "ace": 3072
+          "issueDate": "2023-11-29",
+          "dueDate": "2026-09-29",
+          "contribution": 225.09,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2023-11-29",
+          "ace": 2701.08
         },
         {
-          "name": "Siti Rokiah Binti Ismail",
-          "certNo": "AN200583",
-          "status": "Registered Death Claim",
+          "name": "Siti Hartuti Binti Zainuddin",
+          "certNo": "AN238268",
+          "status": "Cancelled from Inception",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2023-11-09",
-          "dueDate": "2024-10-09",
-          "contribution": 239.73,
-          "payMethod": "Direct Billing (Cash)",
-          "statusUpdatedDate": "2026-09-22",
-          "ace": 2876.76
+          "issueDate": "2023-12-05",
+          "dueDate": "2023-12-05",
+          "contribution": 286.38,
+          "payMethod": "Credit Card - IPAY88",
+          "statusUpdatedDate": "2025-04-18",
+          "ace": 0
+        },
+        {
+          "name": "Kamaruhana Binti Maarop",
+          "certNo": "AN240424",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-12-11",
+          "dueDate": "2026-10-11",
+          "contribution": 327.99,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2023-12-11",
+          "ace": 3935.88
         },
         {
           "name": "Weidawati Binti Ismail",
@@ -526,6 +552,45 @@
           "ace": 4111.08
         },
         {
+          "name": "Sumathy A/p Murugiah",
+          "certNo": "AL245811",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Invest First (Wealth)",
+          "issueDate": "2023-12-14",
+          "dueDate": "2026-10-14",
+          "contribution": 200,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2023-12-14",
+          "ace": 2400
+        },
+        {
+          "name": "Azina Binti Hussin",
+          "certNo": "AN213300",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-11-20",
+          "dueDate": "2026-09-20",
+          "contribution": 256,
+          "payMethod": "Direct Billing (Cash)",
+          "statusUpdatedDate": "2023-11-20",
+          "ace": 3072
+        },
+        {
+          "name": "Sulaiman Bin Hassim",
+          "certNo": "AN167732",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2023-12-28",
+          "dueDate": "2026-09-28",
+          "contribution": 254.57,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2023-12-28",
+          "ace": 3054.84
+        },
+        {
           "name": "Sariah Binti Hj Ibrahim",
           "certNo": "AN208589",
           "status": "Lapsed",
@@ -537,19 +602,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2025-06-20",
           "ace": 3561
-        },
-        {
-          "name": "Siti Hartuti Binti Zainuddin",
-          "certNo": "AN238268",
-          "status": "Cancelled from Inception",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-12-05",
-          "dueDate": "2023-12-05",
-          "contribution": 286.38,
-          "payMethod": "Credit Card - IPAY88",
-          "statusUpdatedDate": "2025-04-18",
-          "ace": 0
         },
         {
           "name": "Zulena Binti Ibrahim",
@@ -578,19 +630,6 @@
           "ace": 3176.04
         },
         {
-          "name": "Kamaruhana Binti Maarop",
-          "certNo": "AN240424",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2023-12-11",
-          "dueDate": "2026-10-11",
-          "contribution": 327.99,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2023-12-11",
-          "ace": 3935.88
-        },
-        {
           "name": "Johanis Binti Abdul Samad @ Jaafar",
           "certNo": "AN276846",
           "status": "Contract Surrendered",
@@ -604,30 +643,17 @@
           "ace": 3052.2
         },
         {
-          "name": "Azlin Marlina Binti Ibrahim",
-          "certNo": "AN224056",
+          "name": "Meor Asri Bin Meor Ahmad Sapian",
+          "certNo": "AN283004",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2023-11-29",
-          "dueDate": "2026-09-29",
-          "contribution": 225.09,
+          "issueDate": "2024-01-15",
+          "dueDate": "2026-10-15",
+          "contribution": 356.35,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2023-11-29",
-          "ace": 2701.08
-        },
-        {
-          "name": "Sumathy A/p Murugiah",
-          "certNo": "AL245811",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Invest First (Wealth)",
-          "issueDate": "2023-12-14",
-          "dueDate": "2026-10-14",
-          "contribution": 200,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2023-12-14",
-          "ace": 2400
+          "statusUpdatedDate": "2024-01-15",
+          "ace": 4276.2
         },
         {
           "name": "RUZITA BINTI HJ HASSAN",
@@ -656,30 +682,17 @@
           "ace": 2924.76
         },
         {
-          "name": "Sulaiman Bin Hassim",
-          "certNo": "AN167732",
+          "name": "Norazlina Binti Ismail",
+          "certNo": "AN339448",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2023-12-28",
-          "dueDate": "2026-09-28",
-          "contribution": 254.57,
+          "issueDate": "2024-03-18",
+          "dueDate": "2026-09-18",
+          "contribution": 247.1,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2023-12-28",
-          "ace": 3054.84
-        },
-        {
-          "name": "Meor Asri Bin Meor Ahmad Sapian",
-          "certNo": "AN283004",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-01-15",
-          "dueDate": "2026-10-15",
-          "contribution": 356.35,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-01-15",
-          "ace": 4276.2
+          "statusUpdatedDate": "2024-03-18",
+          "ace": 2965.2
         },
         {
           "name": "Shakiroh Binti Ab Rahman",
@@ -693,19 +706,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2024-01-24",
           "ace": 3214.68
-        },
-        {
-          "name": "Siti Zarinah Binti Abdullah",
-          "certNo": "AN307993",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-02-13",
-          "dueDate": "2026-09-13",
-          "contribution": 540.89,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-02-13",
-          "ace": 6490.68
         },
         {
           "name": "Ermey Masayu Binti Othman",
@@ -734,19 +734,6 @@
           "ace": 3009.36
         },
         {
-          "name": "Siti Zarinah Binti Abdullah",
-          "certNo": "AN316996",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-02-20",
-          "dueDate": "2026-09-20",
-          "contribution": 432.7,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-02-20",
-          "ace": 5192.4
-        },
-        {
           "name": "Rozita Binti Abu Bakar",
           "certNo": "AN347529",
           "status": "In Force",
@@ -773,19 +760,6 @@
           "ace": 2865.36
         },
         {
-          "name": "ZAHARAH BINTI A YAZID",
-          "certNo": "AN320549",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-02-25",
-          "dueDate": "2026-04-25",
-          "contribution": 236.6,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-02-25",
-          "ace": 2839.2
-        },
-        {
           "name": "Nang Hafidzoh Binti Nik Hamid",
           "certNo": "AN350309",
           "status": "In Force",
@@ -799,30 +773,17 @@
           "ace": 6945.48
         },
         {
-          "name": "Norazlina Binti Ismail",
-          "certNo": "AN339448",
+          "name": "Siti Zarinah Binti Abdullah",
+          "certNo": "AN307993",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2024-03-18",
-          "dueDate": "2026-09-18",
-          "contribution": 247.1,
+          "issueDate": "2024-02-13",
+          "dueDate": "2026-09-13",
+          "contribution": 540.89,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-03-18",
-          "ace": 2965.2
-        },
-        {
-          "name": "Che Marhaini Binti Ibrahim",
-          "certNo": "AN358852",
-          "status": "Lapsed",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-04-04",
-          "dueDate": "2025-07-04",
-          "contribution": 249.09,
-          "payMethod": "Direct Billing (Cash)",
-          "statusUpdatedDate": "2026-06-04",
-          "ace": 2989.08
+          "statusUpdatedDate": "2024-02-13",
+          "ace": 6490.68
         },
         {
           "name": "Norzuraini Binti Abdul Aziz",
@@ -838,6 +799,32 @@
           "ace": 2654.52
         },
         {
+          "name": "Siti Zarinah Binti Abdullah",
+          "certNo": "AN316996",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-02-20",
+          "dueDate": "2026-09-20",
+          "contribution": 432.7,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2024-02-20",
+          "ace": 5192.4
+        },
+        {
+          "name": "Che Marhaini Binti Ibrahim",
+          "certNo": "AN358852",
+          "status": "Lapsed",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-04-04",
+          "dueDate": "2025-07-04",
+          "contribution": 249.09,
+          "payMethod": "Direct Billing (Cash)",
+          "statusUpdatedDate": "2026-06-04",
+          "ace": 2989.08
+        },
+        {
           "name": "SHARIFAH NADIA BINTI SYED AMIRRUDDIN",
           "certNo": "AN362589",
           "status": "In Force",
@@ -849,32 +836,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2024-04-25",
           "ace": 3270.84
-        },
-        {
-          "name": "Zainab Binti Zakaria",
-          "certNo": "AN430799",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-06-20",
-          "dueDate": "2026-10-20",
-          "contribution": 205.12,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-06-20",
-          "ace": 2461.44
-        },
-        {
-          "name": "Maryati Binti Sahudi",
-          "certNo": "AN502773",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-09-05",
-          "dueDate": "2026-09-05",
-          "contribution": 468.08,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2024-09-05",
-          "ace": 5616.96
         },
         {
           "name": "Mohd Azman Bin Awang Ali",
@@ -890,30 +851,17 @@
           "ace": 1662
         },
         {
-          "name": "Istikoma Binti Shalihan",
-          "certNo": "AN441287",
+          "name": "ZAHARAH BINTI A YAZID",
+          "certNo": "AN320549",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2024-06-27",
-          "dueDate": "2026-10-27",
-          "contribution": 212.83,
-          "payMethod": "Direct Debit",
-          "statusUpdatedDate": "2024-06-27",
-          "ace": 2553.96
-        },
-        {
-          "name": "Nurul Farahayu Binti Abd Zalil",
-          "certNo": "AN517631",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-09-10",
-          "dueDate": "2026-10-10",
-          "contribution": 200.66,
+          "issueDate": "2024-02-25",
+          "dueDate": "2026-04-25",
+          "contribution": 236.6,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-09-10",
-          "ace": 2407.92
+          "statusUpdatedDate": "2024-02-25",
+          "ace": 2839.2
         },
         {
           "name": "Vinsala A/p Kanniah",
@@ -929,32 +877,6 @@
           "ace": 3000
         },
         {
-          "name": "Rosly Bin Mokhtar",
-          "certNo": "AN438123",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-06-28",
-          "dueDate": "2025-11-28",
-          "contribution": 234.93,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-06-28",
-          "ace": 2819.16
-        },
-        {
-          "name": "Maznah binti Mohd Yusoff",
-          "certNo": "AN519143",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-09-12",
-          "dueDate": "2026-10-12",
-          "contribution": 246.96,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-09-12",
-          "ace": 2963.52
-        },
-        {
           "name": "Kamaleswary A/p Subramaniam",
           "certNo": "AL395308",
           "status": "In Force",
@@ -966,32 +888,6 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2024-05-26",
           "ace": 3000
-        },
-        {
-          "name": "Natifah Binti Omar",
-          "certNo": "AN462757",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Protect First",
-          "issueDate": "2024-07-19",
-          "dueDate": "2026-10-19",
-          "contribution": 530.23,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-07-19",
-          "ace": 6362.76
-        },
-        {
-          "name": "Indok Nurul Hudayah Binti Mohd Amin",
-          "certNo": "AN528593",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-09-25",
-          "dueDate": "2026-10-25",
-          "contribution": 232.87,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-09-25",
-          "ace": 2794.44
         },
         {
           "name": "Valliammal A/p Shanmugam",
@@ -1007,32 +903,6 @@
           "ace": 3600
         },
         {
-          "name": "PUSHPA A/P MURUGIAH",
-          "certNo": "AN500252",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Income First",
-          "issueDate": "2024-08-26",
-          "dueDate": "2026-09-26",
-          "contribution": 200,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-08-26",
-          "ace": 2400
-        },
-        {
-          "name": "Normisyar Binti Abdul Ghani",
-          "certNo": "AN546050",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-10-25",
-          "dueDate": "2026-10-25",
-          "contribution": 202.11,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-10-25",
-          "ace": 2425.32
-        },
-        {
           "name": "Ramisha Binti Sinnakkannu",
           "certNo": "AN403409",
           "status": "In Force",
@@ -1044,32 +914,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2024-05-28",
           "ace": 2552.16
-        },
-        {
-          "name": "Rosnah Binti Remly",
-          "certNo": "AN500070",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-08-26",
-          "dueDate": "2026-10-26",
-          "contribution": 201.45,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-08-26",
-          "ace": 2417.4
-        },
-        {
-          "name": "Yuliyaniza Binti Ali",
-          "certNo": "AN566379",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-10-28",
-          "dueDate": "2026-09-28",
-          "contribution": 272.57,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-10-28",
-          "ace": 3270.84
         },
         {
           "name": "Hamizan Bin Mohd Mahayuddin",
@@ -1085,17 +929,82 @@
           "ace": 2790.6
         },
         {
-          "name": "Khairuddin Bin Abd Kadir",
-          "certNo": "AN503299",
+          "name": "Zainab Binti Zakaria",
+          "certNo": "AN430799",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2024-08-28",
-          "dueDate": "2026-09-28",
-          "contribution": 158.27,
+          "issueDate": "2024-06-20",
+          "dueDate": "2026-10-20",
+          "contribution": 205.12,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2024-08-28",
-          "ace": 1899.24
+          "statusUpdatedDate": "2024-06-20",
+          "ace": 2461.44
+        },
+        {
+          "name": "Istikoma Binti Shalihan",
+          "certNo": "AN441287",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-06-27",
+          "dueDate": "2026-10-27",
+          "contribution": 212.83,
+          "payMethod": "Direct Debit",
+          "statusUpdatedDate": "2024-06-27",
+          "ace": 2553.96
+        },
+        {
+          "name": "Rosly Bin Mokhtar",
+          "certNo": "AN438123",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-06-28",
+          "dueDate": "2025-11-28",
+          "contribution": 234.93,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2024-06-28",
+          "ace": 2819.16
+        },
+        {
+          "name": "Indok Nurul Hudayah Binti Mohd Amin",
+          "certNo": "AN528593",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-09-25",
+          "dueDate": "2026-10-25",
+          "contribution": 232.87,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2024-09-25",
+          "ace": 2794.44
+        },
+        {
+          "name": "Normisyar Binti Abdul Ghani",
+          "certNo": "AN546050",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-10-25",
+          "dueDate": "2026-10-25",
+          "contribution": 202.11,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2024-10-25",
+          "ace": 2425.32
+        },
+        {
+          "name": "Yuliyaniza Binti Ali",
+          "certNo": "AN566379",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-10-28",
+          "dueDate": "2026-09-28",
+          "contribution": 272.57,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2024-10-28",
+          "ace": 3270.84
         },
         {
           "name": "Zarina Binti Che Mod",
@@ -1111,17 +1020,17 @@
           "ace": 3388.08
         },
         {
-          "name": "Maryati Binti Sahudi",
-          "certNo": "AN494145",
-          "status": "In Force",
+          "name": "Mohamad Samad Bin Saiman",
+          "certNo": "AN589839",
+          "status": "Contract Surrendered",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2024-09-04",
-          "dueDate": "2026-09-04",
-          "contribution": 468.08,
-          "payMethod": "Direct Debit",
-          "statusUpdatedDate": "2024-09-04",
-          "ace": 5616.96
+          "issueDate": "2024-11-19",
+          "dueDate": "2025-12-19",
+          "contribution": 296.96,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-12-17",
+          "ace": 3563.52
         },
         {
           "name": "Mohd Farid Bin Mohammed Ashaari",
@@ -1137,19 +1046,6 @@
           "ace": 2423.4
         },
         {
-          "name": "Mohamad Samad Bin Saiman",
-          "certNo": "AN589839",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-11-19",
-          "dueDate": "2025-12-19",
-          "contribution": 296.96,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-12-17",
-          "ace": 3563.52
-        },
-        {
           "name": "Sulasena A/p Palanimuthu",
           "certNo": "AN602868",
           "status": "In Force",
@@ -1161,32 +1057,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2024-11-27",
           "ace": 2400
-        },
-        {
-          "name": "Samilah Binti Datu Salin",
-          "certNo": "AN705782",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-02-20",
-          "dueDate": "2026-09-20",
-          "contribution": 282.87,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-02-20",
-          "ace": 3394.44
-        },
-        {
-          "name": "Saheran Binti Ibrahim",
-          "certNo": "AN729924",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-03-12",
-          "dueDate": "2026-10-12",
-          "contribution": 223.39,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-03-12",
-          "ace": 2680.68
         },
         {
           "name": "Nithyakala A/p Sadayan",
@@ -1202,32 +1072,6 @@
           "ace": 2400
         },
         {
-          "name": "Liza Binti Hassan",
-          "certNo": "AN709416",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-02-25",
-          "dueDate": "2026-09-25",
-          "contribution": 288.46,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-02-25",
-          "ace": 3461.52
-        },
-        {
-          "name": "Saifulamri Bin Sailan",
-          "certNo": "AL733583",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-03-19",
-          "dueDate": "2026-09-19",
-          "contribution": 250,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-03-19",
-          "ace": 3000
-        },
-        {
           "name": "Ahmad Redzuan Bin Mahamood",
           "certNo": "AN639604",
           "status": "In Force",
@@ -1239,6 +1083,84 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2024-12-21",
           "ace": 2827.68
+        },
+        {
+          "name": "Saad Bin Ariffin",
+          "certNo": "AN643184",
+          "status": "Lapsed",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-12-24",
+          "dueDate": "2025-01-24",
+          "contribution": 252.09,
+          "payMethod": "Direct Billing (Cash)",
+          "statusUpdatedDate": "2025-02-24",
+          "ace": 3025.08
+        },
+        {
+          "name": "Siti Khadijah Binti Abd Gani",
+          "certNo": "AN670926",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-01-08",
+          "dueDate": "2026-10-08",
+          "contribution": 216.99,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-01-08",
+          "ace": 2603.88
+        },
+        {
+          "name": "Rosilawati Binti Md Yunus",
+          "certNo": "AN675829",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-01-13",
+          "dueDate": "2026-10-13",
+          "contribution": 219.72,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-01-13",
+          "ace": 2636.64
+        },
+        {
+          "name": "Siti Norseha Binti Pairit",
+          "certNo": "AN684939",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-01-25",
+          "dueDate": "2026-10-25",
+          "contribution": 204.3,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-01-25",
+          "ace": 2451.6
+        },
+        {
+          "name": "Samilah Binti Datu Salin",
+          "certNo": "AN705782",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-02-20",
+          "dueDate": "2026-09-20",
+          "contribution": 282.87,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-02-20",
+          "ace": 3394.44
+        },
+        {
+          "name": "Liza Binti Hassan",
+          "certNo": "AN709416",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-02-25",
+          "dueDate": "2026-09-25",
+          "contribution": 288.46,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-02-25",
+          "ace": 3461.52
         },
         {
           "name": "WILLSON LUKAS",
@@ -1254,6 +1176,84 @@
           "ace": 2739
         },
         {
+          "name": "Inah Binti Nafsir",
+          "certNo": "AN712545",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-02-27",
+          "dueDate": "2026-09-27",
+          "contribution": 225.09,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-02-27",
+          "ace": 2701.08
+        },
+        {
+          "name": "Jusbahiranah Binti Abdul Wahid",
+          "certNo": "AN712679",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-02-27",
+          "dueDate": "2026-09-27",
+          "contribution": 223.39,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-02-27",
+          "ace": 2680.68
+        },
+        {
+          "name": "Rukinah Binti Karim",
+          "certNo": "AN713630",
+          "status": "Lapsed",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-02-27",
+          "dueDate": "2025-03-27",
+          "contribution": 240.71,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-04-27",
+          "ace": 2888.52
+        },
+        {
+          "name": "Hazimi Irsyad Bin Johha",
+          "certNo": "AL727857",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-03-11",
+          "dueDate": "2026-10-11",
+          "contribution": 200,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-03-11",
+          "ace": 2400
+        },
+        {
+          "name": "Saheran Binti Ibrahim",
+          "certNo": "AN729924",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-03-12",
+          "dueDate": "2026-10-12",
+          "contribution": 223.39,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-03-12",
+          "ace": 2680.68
+        },
+        {
+          "name": "Saifulamri Bin Sailan",
+          "certNo": "AL733583",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-03-19",
+          "dueDate": "2026-09-19",
+          "contribution": 250,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-03-19",
+          "ace": 3000
+        },
+        {
           "name": "Lanang Binti Amba",
           "certNo": "AN759447",
           "status": "In Force",
@@ -1265,19 +1265,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2025-04-17",
           "ace": 2652.72
-        },
-        {
-          "name": "Saad Bin Ariffin",
-          "certNo": "AN643184",
-          "status": "Lapsed",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-12-24",
-          "dueDate": "2025-01-24",
-          "contribution": 252.09,
-          "payMethod": "Direct Billing (Cash)",
-          "statusUpdatedDate": "2025-02-24",
-          "ace": 3025.08
         },
         {
           "name": "Aslindah Binti Basirian",
@@ -1306,30 +1293,17 @@
           "ace": 3704.16
         },
         {
-          "name": "Siti Khadijah Binti Abd Gani",
-          "certNo": "AN670926",
+          "name": "Norbih Binti Silim",
+          "certNo": "AN804128",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2025-01-08",
-          "dueDate": "2026-10-08",
-          "contribution": 216.99,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-01-08",
-          "ace": 2603.88
-        },
-        {
-          "name": "Inah Binti Nafsir",
-          "certNo": "AN712545",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-02-27",
+          "issueDate": "2025-05-27",
           "dueDate": "2026-09-27",
-          "contribution": 225.09,
+          "contribution": 246.47,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-02-27",
-          "ace": 2701.08
+          "statusUpdatedDate": "2025-05-27",
+          "ace": 2957.64
         },
         {
           "name": "Siti Haida Binti Persan",
@@ -1345,30 +1319,17 @@
           "ace": 2500.08
         },
         {
-          "name": "Rosilawati Binti Md Yunus",
-          "certNo": "AN675829",
+          "name": "Asrah Binti Nain",
+          "certNo": "ANA14885",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2025-01-13",
-          "dueDate": "2026-10-13",
-          "contribution": 219.72,
+          "issueDate": "2025-11-20",
+          "dueDate": "2026-09-20",
+          "contribution": 280.85,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-01-13",
-          "ace": 2636.64
-        },
-        {
-          "name": "Jusbahiranah Binti Abdul Wahid",
-          "certNo": "AN712679",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-02-27",
-          "dueDate": "2026-09-27",
-          "contribution": 223.39,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-02-27",
-          "ace": 2680.68
+          "statusUpdatedDate": "2025-11-20",
+          "ace": 3370.2
         },
         {
           "name": "MAINAH BINTI MAJANUN @ ROSLA",
@@ -1384,30 +1345,17 @@
           "ace": 3126.96
         },
         {
-          "name": "Siti Norseha Binti Pairit",
-          "certNo": "AN684939",
+          "name": "Muhammad Rohimi Bin Jusoh",
+          "certNo": "ANA80374",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2025-01-25",
-          "dueDate": "2026-10-25",
-          "contribution": 204.3,
+          "issueDate": "2026-01-20",
+          "dueDate": "2026-10-20",
+          "contribution": 253.2,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-01-25",
-          "ace": 2451.6
-        },
-        {
-          "name": "Rukinah Binti Karim",
-          "certNo": "AN713630",
-          "status": "Lapsed",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-02-27",
-          "dueDate": "2025-03-27",
-          "contribution": 240.71,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-04-27",
-          "ace": 2888.52
+          "statusUpdatedDate": "2026-01-20",
+          "ace": 3038.4
         },
         {
           "name": "Noraini Binti Pawanei",
@@ -1423,17 +1371,43 @@
           "ace": 3388.08
         },
         {
-          "name": "Hazimi Irsyad Bin Johha",
-          "certNo": "AL727857",
+          "name": "JULITA BINTI SANUI",
+          "certNo": "AN766459",
           "status": "In Force",
           "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-03-11",
-          "dueDate": "2026-10-11",
-          "contribution": 200,
+          "plan": "FWD Life First",
+          "issueDate": "2025-04-24",
+          "dueDate": "2026-09-24",
+          "contribution": 215.2,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-03-11",
-          "ace": 2400
+          "statusUpdatedDate": "2025-04-24",
+          "ace": 2582.4
+        },
+        {
+          "name": "Sumaiza Binti Idris",
+          "certNo": "ANA97365",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-01-29",
+          "dueDate": "2026-09-29",
+          "contribution": 246.96,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-01-29",
+          "ace": 2963.52
+        },
+        {
+          "name": "Munirah Binti Tahir",
+          "certNo": "ANB24060",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-02-25",
+          "dueDate": "2026-09-25",
+          "contribution": 202.25,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-02-25",
+          "ace": 2427
         },
         {
           "name": "Freshixora Jonal",
@@ -1449,19 +1423,6 @@
           "ace": 2400
         },
         {
-          "name": "JULITA BINTI SANUI",
-          "certNo": "AN766459",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-04-24",
-          "dueDate": "2026-09-24",
-          "contribution": 215.2,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-04-24",
-          "ace": 2582.4
-        },
-        {
           "name": "Rohani Binti Othman",
           "certNo": "AN768109",
           "status": "Freelook Cancellation",
@@ -1473,19 +1434,6 @@
           "payMethod": "Direct Billing (Cash)",
           "statusUpdatedDate": "2025-05-21",
           "ace": 0
-        },
-        {
-          "name": "Munirah Binti Tahir",
-          "certNo": "ANB24060",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-02-25",
-          "dueDate": "2026-09-25",
-          "contribution": 202.25,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-02-25",
-          "ace": 2427
         },
         {
           "name": "Nuraisya Binti Abdullah Deru",
@@ -1540,55 +1488,107 @@
           "ace": 2400
         },
         {
-          "name": "Norbih Binti Silim",
-          "certNo": "AN804128",
+          "name": "Natifah Binti Omar",
+          "certNo": "AN462757",
           "status": "In Force",
           "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-05-27",
-          "dueDate": "2026-09-27",
-          "contribution": 246.47,
+          "plan": "FWD Protect First",
+          "issueDate": "2024-07-19",
+          "dueDate": "2026-10-19",
+          "contribution": 530.23,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-05-27",
-          "ace": 2957.64
+          "statusUpdatedDate": "2024-07-19",
+          "ace": 6362.76
         },
         {
-          "name": "Asrah Binti Nain",
-          "certNo": "ANA14885",
+          "name": "PUSHPA A/P MURUGIAH",
+          "certNo": "AN500252",
           "status": "In Force",
           "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-11-20",
-          "dueDate": "2026-09-20",
-          "contribution": 280.85,
+          "plan": "FWD Income First",
+          "issueDate": "2024-08-26",
+          "dueDate": "2026-09-26",
+          "contribution": 200,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-11-20",
-          "ace": 3370.2
+          "statusUpdatedDate": "2024-08-26",
+          "ace": 2400
         },
         {
-          "name": "Muhammad Rohimi Bin Jusoh",
-          "certNo": "ANA80374",
+          "name": "Rosnah Binti Remly",
+          "certNo": "AN500070",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2026-01-20",
-          "dueDate": "2026-10-20",
-          "contribution": 253.2,
+          "issueDate": "2024-08-26",
+          "dueDate": "2026-10-26",
+          "contribution": 201.45,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-01-20",
-          "ace": 3038.4
+          "statusUpdatedDate": "2024-08-26",
+          "ace": 2417.4
         },
         {
-          "name": "Sumaiza Binti Idris",
-          "certNo": "ANA97365",
+          "name": "Khairuddin Bin Abd Kadir",
+          "certNo": "AN503299",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2026-01-29",
-          "dueDate": "2026-09-29",
+          "issueDate": "2024-08-28",
+          "dueDate": "2026-09-28",
+          "contribution": 158.27,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2024-08-28",
+          "ace": 1899.24
+        },
+        {
+          "name": "Maryati Binti Sahudi",
+          "certNo": "AN494145",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-09-04",
+          "dueDate": "2026-09-04",
+          "contribution": 468.08,
+          "payMethod": "Direct Debit",
+          "statusUpdatedDate": "2024-09-04",
+          "ace": 5616.96
+        },
+        {
+          "name": "Maryati Binti Sahudi",
+          "certNo": "AN502773",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-09-05",
+          "dueDate": "2026-09-05",
+          "contribution": 468.08,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2024-09-05",
+          "ace": 5616.96
+        },
+        {
+          "name": "Nurul Farahayu Binti Abd Zalil",
+          "certNo": "AN517631",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-09-10",
+          "dueDate": "2026-10-10",
+          "contribution": 200.66,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2024-09-10",
+          "ace": 2407.92
+        },
+        {
+          "name": "Maznah binti Mohd Yusoff",
+          "certNo": "AN519143",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-09-12",
+          "dueDate": "2026-10-12",
           "contribution": 246.96,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-01-29",
+          "statusUpdatedDate": "2024-09-12",
           "ace": 2963.52
         }
       ],
@@ -1603,58 +1603,6 @@
       "name": "NAQIYUDDIN BIN NAHARUDIN",
       "clients": [
         {
-          "name": "Farinah Binti Faraun",
-          "certNo": "AL804654",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-05-27",
-          "dueDate": "2026-10-27",
-          "contribution": 250,
-          "payMethod": "Direct Debit",
-          "statusUpdatedDate": "2025-05-27",
-          "ace": 3000
-        },
-        {
-          "name": "Nor Fadillah Binti Mujun",
-          "certNo": "AN767884",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-05-27",
-          "dueDate": "2026-09-27",
-          "contribution": 245.63,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-05-27",
-          "ace": 2947.56
-        },
-        {
-          "name": "Raidah Binti Halim",
-          "certNo": "AN797372",
-          "status": "Lapsed",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-05-27",
-          "dueDate": "2025-09-27",
-          "contribution": 360.13,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-12-27",
-          "ace": 4321.56
-        },
-        {
-          "name": "Nik Hasniwati Binti Nik Abdul Majid",
-          "certNo": "AN847875",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-07-02",
-          "dueDate": "2026-09-02",
-          "contribution": 254.35,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-07-02",
-          "ace": 3052.2
-        },
-        {
           "name": "Norhayati Binti Tuslam",
           "certNo": "AN313778",
           "status": "Contract Surrendered",
@@ -1666,19 +1614,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2024-05-14",
           "ace": 5090.76
-        },
-        {
-          "name": "Wahida Binti Hamed",
-          "certNo": "AN847816",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-07-02",
-          "dueDate": "2026-10-02",
-          "contribution": 220.36,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-07-02",
-          "ace": 2644.32
         },
         {
           "name": "Marsiah Binti Md Dahan",
@@ -1694,19 +1629,6 @@
           "ace": 3370.2
         },
         {
-          "name": "Nur Farhana Binti Mohd Saidi",
-          "certNo": "AL890289",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-08-06",
-          "dueDate": "2026-10-06",
-          "contribution": 200,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-08-06",
-          "ace": 2400
-        },
-        {
           "name": "Huzan Zuhana Binti Ghazali",
           "certNo": "AN316241",
           "status": "In Force",
@@ -1718,19 +1640,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2024-02-19",
           "ace": 2506.56
-        },
-        {
-          "name": "Rohayati Binti Mostaffa",
-          "certNo": "AN888702",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-08-11",
-          "dueDate": "2025-10-11",
-          "contribution": 215.2,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-09-26",
-          "ace": 2582.4
         },
         {
           "name": "NOOR SUHAINA BINTI SHAMSUDIN",
@@ -2056,6 +1965,97 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2025-05-25",
           "ace": 3020.88
+        },
+        {
+          "name": "Farinah Binti Faraun",
+          "certNo": "AL804654",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-05-27",
+          "dueDate": "2026-10-27",
+          "contribution": 250,
+          "payMethod": "Direct Debit",
+          "statusUpdatedDate": "2025-05-27",
+          "ace": 3000
+        },
+        {
+          "name": "Nor Fadillah Binti Mujun",
+          "certNo": "AN767884",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-05-27",
+          "dueDate": "2026-09-27",
+          "contribution": 245.63,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-05-27",
+          "ace": 2947.56
+        },
+        {
+          "name": "Raidah Binti Halim",
+          "certNo": "AN797372",
+          "status": "Lapsed",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-05-27",
+          "dueDate": "2025-09-27",
+          "contribution": 360.13,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-12-27",
+          "ace": 4321.56
+        },
+        {
+          "name": "Nik Hasniwati Binti Nik Abdul Majid",
+          "certNo": "AN847875",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-07-02",
+          "dueDate": "2026-09-02",
+          "contribution": 254.35,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-07-02",
+          "ace": 3052.2
+        },
+        {
+          "name": "Wahida Binti Hamed",
+          "certNo": "AN847816",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-07-02",
+          "dueDate": "2026-10-02",
+          "contribution": 220.36,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-07-02",
+          "ace": 2644.32
+        },
+        {
+          "name": "Nur Farhana Binti Mohd Saidi",
+          "certNo": "AL890289",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-08-06",
+          "dueDate": "2026-10-06",
+          "contribution": 200,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-08-06",
+          "ace": 2400
+        },
+        {
+          "name": "Rohayati Binti Mostaffa",
+          "certNo": "AN888702",
+          "status": "Contract Surrendered",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-08-11",
+          "dueDate": "2025-10-11",
+          "contribution": 215.2,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-09-26",
+          "ace": 2582.4
         }
       ]
     },
@@ -2063,58 +2063,6 @@
       "code": "A14252",
       "name": "EMA ROZAZILLA BIN ABDUL RAHIM",
       "clients": [
-        {
-          "name": "Dima Mazlina @ Siti Aishah Binti Abu Bakar",
-          "certNo": "AN456715",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-07-10",
-          "dueDate": "2025-03-10",
-          "contribution": 246.96,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-03-04",
-          "ace": 2963.52
-        },
-        {
-          "name": "Zaiton Binti Muhamad",
-          "certNo": "AN469807",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-07-27",
-          "dueDate": "2026-10-27",
-          "contribution": 512,
-          "payMethod": "Direct Debit",
-          "statusUpdatedDate": "2024-07-27",
-          "ace": 6144
-        },
-        {
-          "name": "Siti Suhailah Binti Mohd Sa'id",
-          "certNo": "AN472026",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2024-07-31",
-          "dueDate": "2025-11-30",
-          "contribution": 107.16,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2024-07-31",
-          "ace": 1285.92
-        },
-        {
-          "name": "Norsafar Binti Md. Kamarzaman",
-          "certNo": "AN484983",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
-          "plan": "FWD Protect First",
-          "issueDate": "2024-08-13",
-          "dueDate": "2026-06-13",
-          "contribution": 256.13,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-06-10",
-          "ace": 3073.56
-        },
         {
           "name": "Norwirda Binti Baharudin",
           "certNo": "AN495909",
@@ -2168,19 +2116,6 @@
           "ace": 0
         },
         {
-          "name": "Nur Najwa Binti Zulkarnain",
-          "certNo": "AN691596",
-          "status": "Lapsed",
-          "payMode": "Monthly",
-          "plan": "FWD CI First",
-          "issueDate": "2025-01-30",
-          "dueDate": "2025-08-30",
-          "contribution": 165.89,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-11-03",
-          "ace": 1990.68
-        },
-        {
           "name": "Rima Melor Binti Mohamad@saad",
           "certNo": "AN518679",
           "status": "In Force",
@@ -2205,19 +2140,6 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2024-12-02",
           "ace": 0
-        },
-        {
-          "name": "Ema Rozazilla Bin Abdul Rahim",
-          "certNo": "AN691769",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Future First",
-          "issueDate": "2025-01-31",
-          "dueDate": "2026-09-30",
-          "contribution": 135.52,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-07-30",
-          "ace": 1626.24
         },
         {
           "name": "Ismawati Binti Ishak",
@@ -2246,19 +2168,6 @@
           "ace": 1355.04
         },
         {
-          "name": "Hasanul Isyraf bin Imran",
-          "certNo": "AN710016",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Future First",
-          "issueDate": "2025-02-25",
-          "dueDate": "2026-09-25",
-          "contribution": 247.95,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-02-25",
-          "ace": 2975.4
-        },
-        {
           "name": "Marlina Binti Kamari",
           "certNo": "AN532261",
           "status": "In Force",
@@ -2283,19 +2192,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2024-11-07",
           "ace": 3610.08
-        },
-        {
-          "name": "Muhammad Zulhilmi Bin Mohd Sa'id",
-          "certNo": "AN715324",
-          "status": "Freelook Cancellation",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-02-28",
-          "dueDate": "2025-02-28",
-          "contribution": 104.4,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-04-14",
-          "ace": 0
         },
         {
           "name": "Ema Rozazilla Bin Abdul Rahim",
@@ -2324,17 +2220,17 @@
           "ace": 1788.84
         },
         {
-          "name": "Theresa Millon",
-          "certNo": "AL715090",
-          "status": "In Force",
+          "name": "Roslinda Binti Razalli",
+          "certNo": "AN563359",
+          "status": "Contract Surrendered",
           "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-02-28",
-          "dueDate": "2026-09-28",
-          "contribution": 200,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-02-28",
-          "ace": 2400
+          "plan": "FWD Life First",
+          "issueDate": "2024-10-28",
+          "dueDate": "2024-11-28",
+          "contribution": 244.93,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2024-12-19",
+          "ace": 2939.16
         },
         {
           "name": "Roslina Binti Surun",
@@ -2350,30 +2246,17 @@
           "ace": 3177.6
         },
         {
-          "name": "Timothy Glare Joniun",
-          "certNo": "AL713174",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-02-28",
-          "dueDate": "2026-09-28",
-          "contribution": 200,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-02-28",
-          "ace": 2400
-        },
-        {
-          "name": "Roslinda Binti Razalli",
-          "certNo": "AN563359",
+          "name": "Nordina Binti Arbain",
+          "certNo": "AN860503",
           "status": "Contract Surrendered",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2024-10-28",
-          "dueDate": "2024-11-28",
-          "contribution": 244.93,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2024-12-19",
-          "ace": 2939.16
+          "issueDate": "2025-07-17",
+          "dueDate": "2026-05-17",
+          "contribution": 368.92,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-05-28",
+          "ace": 4427.04
         },
         {
           "name": "Laila Manja Binti Mohd Yunus",
@@ -2389,30 +2272,17 @@
           "ace": 3561
         },
         {
-          "name": "Noor Najkha Binti Mohd Dawan",
-          "certNo": "AL727691",
+          "name": "Mohammad Sayuti Bin Ahmad",
+          "certNo": "AN875265",
           "status": "In Force",
           "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-03-11",
-          "dueDate": "2026-09-11",
-          "contribution": 258.33,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-03-11",
-          "ace": 3099.96
-        },
-        {
-          "name": "Nordina Binti Arbain",
-          "certNo": "AN860503",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2025-07-17",
-          "dueDate": "2026-05-17",
-          "contribution": 368.92,
+          "issueDate": "2025-07-28",
+          "dueDate": "2026-09-28",
+          "contribution": 178.79,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-05-28",
-          "ace": 4427.04
+          "statusUpdatedDate": "2025-07-28",
+          "ace": 2145.48
         },
         {
           "name": "Hidayati Binti Burham",
@@ -2428,30 +2298,17 @@
           "ace": 3607.8
         },
         {
-          "name": "Noraini Binti Mohamad Sam",
-          "certNo": "AN730179",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-03-12",
-          "dueDate": "2026-10-12",
-          "contribution": 332.04,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-03-12",
-          "ace": 3984.48
-        },
-        {
-          "name": "Mohammad Sayuti Bin Ahmad",
-          "certNo": "AN875265",
+          "name": "Zakini Binti Mamat",
+          "certNo": "AN875182",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
           "issueDate": "2025-07-28",
-          "dueDate": "2026-09-28",
-          "contribution": 178.79,
-          "payMethod": "Biro Angkasa",
+          "dueDate": "2026-07-28",
+          "contribution": 209.96,
+          "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2025-07-28",
-          "ace": 2145.48
+          "ace": 2519.52
         },
         {
           "name": "Zaiwiranorlelawati Binti Ali",
@@ -2467,17 +2324,17 @@
           "ace": 3196.08
         },
         {
-          "name": "Norizan Bte Mohd Yusof",
-          "certNo": "AN731834",
-          "status": "Contract Surrendered",
+          "name": "Ema Rozza Rohaizad Bin Abdul Rahim",
+          "certNo": "AN885064",
+          "status": "Freelook Cancellation",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2025-03-14",
-          "dueDate": "2025-04-14",
-          "contribution": 464,
+          "issueDate": "2025-07-31",
+          "dueDate": "2025-07-31",
+          "contribution": 139.53,
           "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-04-24",
-          "ace": 5568
+          "statusUpdatedDate": "2025-08-22",
+          "ace": 0
         },
         {
           "name": "HAIRUN BINTI SINDA MATHAR",
@@ -2493,30 +2350,17 @@
           "ace": 4175.64
         },
         {
-          "name": "Zakini Binti Mamat",
-          "certNo": "AN875182",
-          "status": "In Force",
+          "name": "Mohamad Fazrul Nizam Bin Abdul Rahim",
+          "certNo": "AL885341",
+          "status": "Freelook Cancellation",
           "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-07-28",
-          "dueDate": "2026-07-28",
-          "contribution": 209.96,
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-07-31",
+          "dueDate": "2025-07-31",
+          "contribution": 470,
           "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-07-28",
-          "ace": 2519.52
-        },
-        {
-          "name": "Siti Suhailah Binti Mohd Sa'id",
-          "certNo": "AN746786",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Future First",
-          "issueDate": "2025-03-28",
-          "dueDate": "2026-09-28",
-          "contribution": 80.83,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-07-30",
-          "ace": 969.96
+          "statusUpdatedDate": "2025-08-18",
+          "ace": 0
         },
         {
           "name": "Zaliyaton Nasirah Binti Si Ramli",
@@ -2532,30 +2376,17 @@
           "ace": 2644.32
         },
         {
-          "name": "Farnun Bin Makadang",
-          "certNo": "AL763020",
+          "name": "Mohamad Fazrul Nizam Bin Abdul Rahim",
+          "certNo": "AN885669",
           "status": "In Force",
           "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-04-24",
-          "dueDate": "2026-09-24",
-          "contribution": 250,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-04-24",
-          "ace": 3000
-        },
-        {
-          "name": "Ema Rozza Rohaizad Bin Abdul Rahim",
-          "certNo": "AN885064",
-          "status": "Freelook Cancellation",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
+          "plan": "FWD Future First",
           "issueDate": "2025-07-31",
-          "dueDate": "2025-07-31",
-          "contribution": 139.53,
+          "dueDate": "2026-09-30",
+          "contribution": 96.12,
           "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-08-22",
-          "ace": 0
+          "statusUpdatedDate": "2025-07-31",
+          "ace": 1153.44
         },
         {
           "name": "Afza Binti Abdul Aziz",
@@ -2571,30 +2402,17 @@
           "ace": 3186.6
         },
         {
-          "name": "Sitti Nurhaida Binti Adman",
-          "certNo": "AN762980",
+          "name": "Siti Suhailah Binti Mohd Sa'id",
+          "certNo": "AL884877",
           "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-04-24",
-          "dueDate": "2026-10-24",
-          "contribution": 205.12,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-04-24",
-          "ace": 2461.44
-        },
-        {
-          "name": "Mohamad Fazrul Nizam Bin Abdul Rahim",
-          "certNo": "AL885341",
-          "status": "Freelook Cancellation",
           "payMode": "Monthly",
           "plan": "FWD Maqbul Link",
           "issueDate": "2025-07-31",
-          "dueDate": "2025-07-31",
-          "contribution": 470,
+          "dueDate": "2026-09-30",
+          "contribution": 150,
           "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-08-18",
-          "ace": 0
+          "statusUpdatedDate": "2025-07-31",
+          "ace": 1800
         },
         {
           "name": "Siti Hajjar Binti Md Aris",
@@ -2610,30 +2428,17 @@
           "ace": 2505.36
         },
         {
-          "name": "Florida Samudi",
-          "certNo": "AL767872",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-04-28",
-          "dueDate": "2025-11-28",
-          "contribution": 229.17,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-12-11",
-          "ace": 2750.04
-        },
-        {
-          "name": "Mohamad Fazrul Nizam Bin Abdul Rahim",
-          "certNo": "AN885669",
+          "name": "Sarimah Binti Saaid",
+          "certNo": "AN899383",
           "status": "In Force",
           "payMode": "Monthly",
-          "plan": "FWD Future First",
-          "issueDate": "2025-07-31",
-          "dueDate": "2026-09-30",
-          "contribution": 96.12,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-07-31",
-          "ace": 1153.44
+          "plan": "FWD Life First",
+          "issueDate": "2025-08-15",
+          "dueDate": "2026-10-15",
+          "contribution": 246.96,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-08-15",
+          "ace": 2963.52
         },
         {
           "name": "Marina Binti Sulaiman",
@@ -2649,30 +2454,17 @@
           "ace": 2676
         },
         {
-          "name": "Sarimah Binti Jatin",
-          "certNo": "AL768221",
+          "name": "Abdul Ghani Bin Awang Puteh",
+          "certNo": "AN931319",
           "status": "In Force",
           "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-04-28",
-          "dueDate": "2026-09-28",
-          "contribution": 208.33,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-04-28",
-          "ace": 2499.96
-        },
-        {
-          "name": "Siti Suhailah Binti Mohd Sa'id",
-          "certNo": "AL884877",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-07-31",
-          "dueDate": "2026-09-30",
-          "contribution": 150,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-07-31",
-          "ace": 1800
+          "plan": "FWD Life First",
+          "issueDate": "2025-09-11",
+          "dueDate": "2026-10-11",
+          "contribution": 415.75,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-09-11",
+          "ace": 4989
         },
         {
           "name": "Khalijah Binti Mamat",
@@ -2688,30 +2480,17 @@
           "ace": 2582.4
         },
         {
-          "name": "Rogayah Binti Mohd Yussof",
-          "certNo": "AN852762",
+          "name": "Nasiriyah Binti Asmuni",
+          "certNo": "AN931063",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2025-07-09",
-          "dueDate": "2026-10-09",
-          "contribution": 327.66,
+          "issueDate": "2025-09-12",
+          "dueDate": "2026-10-12",
+          "contribution": 257.7,
           "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-07-09",
-          "ace": 3931.92
-        },
-        {
-          "name": "Sarimah Binti Saaid",
-          "certNo": "AN899383",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-08-15",
-          "dueDate": "2026-10-15",
-          "contribution": 246.96,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-08-15",
-          "ace": 2963.52
+          "statusUpdatedDate": "2025-09-12",
+          "ace": 3092.4
         },
         {
           "name": "Noraini Binti Abdullah",
@@ -2727,84 +2506,6 @@
           "ace": 2808.48
         },
         {
-          "name": "Norlizawati Binti Mohamad Jarkasi",
-          "certNo": "AN859523",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-07-16",
-          "dueDate": "2026-10-16",
-          "contribution": 312.39,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-07-16",
-          "ace": 3748.68
-        },
-        {
-          "name": "Abdul Ghani Bin Awang Puteh",
-          "certNo": "AN931319",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-09-11",
-          "dueDate": "2026-10-11",
-          "contribution": 415.75,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-09-11",
-          "ace": 4989
-        },
-        {
-          "name": "Khairiah Binti Abdul Rahman",
-          "certNo": "ANA96569",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-01-29",
-          "dueDate": "2026-09-29",
-          "contribution": 245.63,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-01-29",
-          "ace": 2947.56
-        },
-        {
-          "name": "Khairul Hazwan Bin Hud",
-          "certNo": "ANB23371",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-02-25",
-          "dueDate": "2026-09-25",
-          "contribution": 203.56,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-02-25",
-          "ace": 2442.72
-        },
-        {
-          "name": "Nasiriyah Binti Asmuni",
-          "certNo": "AN931063",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-09-12",
-          "dueDate": "2026-10-12",
-          "contribution": 257.7,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-09-12",
-          "ace": 3092.4
-        },
-        {
-          "name": "Iswandi Bin Yad",
-          "certNo": "ANB26259",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-02-26",
-          "dueDate": "2026-09-26",
-          "contribution": 262.55,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-02-26",
-          "ace": 3150.6
-        },
-        {
           "name": "Norihan Binti Kamal",
           "certNo": "AN936355",
           "status": "In Force",
@@ -2818,17 +2519,17 @@
           "ace": 2947.56
         },
         {
-          "name": "Norhabani Binti Jalaluddin",
-          "certNo": "ANB40059",
-          "status": "In Force",
+          "name": "Nur Najwa Binti Zulkarnain",
+          "certNo": "AN691596",
+          "status": "Lapsed",
           "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-03-06",
-          "dueDate": "2026-10-06",
-          "contribution": 225.09,
+          "plan": "FWD CI First",
+          "issueDate": "2025-01-30",
+          "dueDate": "2025-08-30",
+          "contribution": 165.89,
           "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-03-06",
-          "ace": 2701.08
+          "statusUpdatedDate": "2025-11-03",
+          "ace": 1990.68
         },
         {
           "name": "Shazwani Bt Che Zakaria",
@@ -2844,17 +2545,17 @@
           "ace": 0
         },
         {
-          "name": "Siti Aishah Binti Abdullah",
-          "certNo": "ANB42A83",
+          "name": "Ema Rozazilla Bin Abdul Rahim",
+          "certNo": "AN691769",
           "status": "In Force",
           "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-04-23",
-          "dueDate": "2026-09-23",
-          "contribution": 234.04,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-04-23",
-          "ace": 2808.48
+          "plan": "FWD Future First",
+          "issueDate": "2025-01-31",
+          "dueDate": "2026-09-30",
+          "contribution": 135.52,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-07-30",
+          "ace": 1626.24
         },
         {
           "name": "Saiful Akram Bin Ismail",
@@ -2870,6 +2571,19 @@
           "ace": 2535.84
         },
         {
+          "name": "Hasanul Isyraf bin Imran",
+          "certNo": "AN710016",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Future First",
+          "issueDate": "2025-02-25",
+          "dueDate": "2026-09-25",
+          "contribution": 247.95,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-02-25",
+          "ace": 2975.4
+        },
+        {
           "name": "NOORAZILLA BINTI AZMI",
           "certNo": "ANA54769",
           "status": "In Force",
@@ -2881,6 +2595,19 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2025-12-17",
           "ace": 2757.6
+        },
+        {
+          "name": "Muhammad Zulhilmi Bin Mohd Sa'id",
+          "certNo": "AN715324",
+          "status": "Freelook Cancellation",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-02-28",
+          "dueDate": "2025-02-28",
+          "contribution": 104.4,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-04-14",
+          "ace": 0
         },
         {
           "name": "Nur Irdina Batrisya Binti Zaidi",
@@ -2896,6 +2623,19 @@
           "ace": 1431.96
         },
         {
+          "name": "Theresa Millon",
+          "certNo": "AL715090",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-02-28",
+          "dueDate": "2026-09-28",
+          "contribution": 200,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-02-28",
+          "ace": 2400
+        },
+        {
           "name": "Rafidah binti Yaakob",
           "certNo": "ANA94120",
           "status": "In Force",
@@ -2907,6 +2647,266 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-01-28",
           "ace": 2553.96
+        },
+        {
+          "name": "Timothy Glare Joniun",
+          "certNo": "AL713174",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-02-28",
+          "dueDate": "2026-09-28",
+          "contribution": 200,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-02-28",
+          "ace": 2400
+        },
+        {
+          "name": "Khairiah Binti Abdul Rahman",
+          "certNo": "ANA96569",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-01-29",
+          "dueDate": "2026-09-29",
+          "contribution": 245.63,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-01-29",
+          "ace": 2947.56
+        },
+        {
+          "name": "Noor Najkha Binti Mohd Dawan",
+          "certNo": "AL727691",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-03-11",
+          "dueDate": "2026-09-11",
+          "contribution": 258.33,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-03-11",
+          "ace": 3099.96
+        },
+        {
+          "name": "Khairul Hazwan Bin Hud",
+          "certNo": "ANB23371",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-02-25",
+          "dueDate": "2026-09-25",
+          "contribution": 203.56,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-02-25",
+          "ace": 2442.72
+        },
+        {
+          "name": "Noraini Binti Mohamad Sam",
+          "certNo": "AN730179",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-03-12",
+          "dueDate": "2026-10-12",
+          "contribution": 332.04,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-03-12",
+          "ace": 3984.48
+        },
+        {
+          "name": "Iswandi Bin Yad",
+          "certNo": "ANB26259",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-02-26",
+          "dueDate": "2026-09-26",
+          "contribution": 262.55,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-02-26",
+          "ace": 3150.6
+        },
+        {
+          "name": "Norizan Bte Mohd Yusof",
+          "certNo": "AN731834",
+          "status": "Contract Surrendered",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-03-14",
+          "dueDate": "2025-04-14",
+          "contribution": 464,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-04-24",
+          "ace": 5568
+        },
+        {
+          "name": "Norhabani Binti Jalaluddin",
+          "certNo": "ANB40059",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-03-06",
+          "dueDate": "2026-10-06",
+          "contribution": 225.09,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-03-06",
+          "ace": 2701.08
+        },
+        {
+          "name": "Siti Suhailah Binti Mohd Sa'id",
+          "certNo": "AN746786",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Future First",
+          "issueDate": "2025-03-28",
+          "dueDate": "2026-09-28",
+          "contribution": 80.83,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-07-30",
+          "ace": 969.96
+        },
+        {
+          "name": "Siti Aishah Binti Abdullah",
+          "certNo": "ANB42A83",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-04-23",
+          "dueDate": "2026-09-23",
+          "contribution": 234.04,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-04-23",
+          "ace": 2808.48
+        },
+        {
+          "name": "Farnun Bin Makadang",
+          "certNo": "AL763020",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-04-24",
+          "dueDate": "2026-09-24",
+          "contribution": 250,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-04-24",
+          "ace": 3000
+        },
+        {
+          "name": "Sitti Nurhaida Binti Adman",
+          "certNo": "AN762980",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-04-24",
+          "dueDate": "2026-10-24",
+          "contribution": 205.12,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-04-24",
+          "ace": 2461.44
+        },
+        {
+          "name": "Florida Samudi",
+          "certNo": "AL767872",
+          "status": "Contract Surrendered",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-04-28",
+          "dueDate": "2025-11-28",
+          "contribution": 229.17,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-12-11",
+          "ace": 2750.04
+        },
+        {
+          "name": "Sarimah Binti Jatin",
+          "certNo": "AL768221",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-04-28",
+          "dueDate": "2026-09-28",
+          "contribution": 208.33,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-04-28",
+          "ace": 2499.96
+        },
+        {
+          "name": "Rogayah Binti Mohd Yussof",
+          "certNo": "AN852762",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-07-09",
+          "dueDate": "2026-10-09",
+          "contribution": 327.66,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-07-09",
+          "ace": 3931.92
+        },
+        {
+          "name": "Norlizawati Binti Mohamad Jarkasi",
+          "certNo": "AN859523",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-07-16",
+          "dueDate": "2026-10-16",
+          "contribution": 312.39,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-07-16",
+          "ace": 3748.68
+        },
+        {
+          "name": "Dima Mazlina @ Siti Aishah Binti Abu Bakar",
+          "certNo": "AN456715",
+          "status": "Contract Surrendered",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-07-10",
+          "dueDate": "2025-03-10",
+          "contribution": 246.96,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-03-04",
+          "ace": 2963.52
+        },
+        {
+          "name": "Zaiton Binti Muhamad",
+          "certNo": "AN469807",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-07-27",
+          "dueDate": "2026-10-27",
+          "contribution": 512,
+          "payMethod": "Direct Debit",
+          "statusUpdatedDate": "2024-07-27",
+          "ace": 6144
+        },
+        {
+          "name": "Siti Suhailah Binti Mohd Sa'id",
+          "certNo": "AN472026",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2024-07-31",
+          "dueDate": "2025-11-30",
+          "contribution": 107.16,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2024-07-31",
+          "ace": 1285.92
+        },
+        {
+          "name": "Norsafar Binti Md. Kamarzaman",
+          "certNo": "AN484983",
+          "status": "Contract Surrendered",
+          "payMode": "Monthly",
+          "plan": "FWD Protect First",
+          "issueDate": "2024-08-13",
+          "dueDate": "2026-06-13",
+          "contribution": 256.13,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-06-10",
+          "ace": 3073.56
         }
       ]
     },
@@ -2914,6 +2914,175 @@
       "code": "A15475",
       "name": "MUHAMMAD MUAZ BIN AHMAD",
       "clients": [
+        {
+          "name": "Hamadah Binti Harun",
+          "certNo": "AN817608",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-06-12",
+          "dueDate": "2026-10-12",
+          "contribution": 231.85,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-06-12",
+          "ace": 2782.2
+        },
+        {
+          "name": "Khuziamah Binti Osman",
+          "certNo": "AN875645",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-07-28",
+          "dueDate": "2026-09-28",
+          "contribution": 250.37,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-07-28",
+          "ace": 3004.44
+        },
+        {
+          "name": "Nik Noor Azirah Binti Nek Zikri",
+          "certNo": "AN877628",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-07-30",
+          "dueDate": "2026-09-30",
+          "contribution": 144.34,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-07-30",
+          "ace": 1732.08
+        },
+        {
+          "name": "Ahmad Murshidi Bin Ramli",
+          "certNo": "AN900115",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-08-15",
+          "dueDate": "2026-10-15",
+          "contribution": 203.56,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-08-15",
+          "ace": 2442.72
+        },
+        {
+          "name": "Nor Razana Binti Ismail",
+          "certNo": "AN904370",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-08-19",
+          "dueDate": "2026-10-19",
+          "contribution": 208.26,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-08-19",
+          "ace": 2499.12
+        },
+        {
+          "name": "Sarimah Binti Saaid",
+          "certNo": "AN899332",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-08-19",
+          "dueDate": "2026-10-19",
+          "contribution": 259.83,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-08-19",
+          "ace": 3117.96
+        },
+        {
+          "name": "Fatin Nur Alyani",
+          "certNo": "AN923263",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-09-02",
+          "dueDate": "2026-09-02",
+          "contribution": 206.13,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-09-02",
+          "ace": 2473.56
+        },
+        {
+          "name": "Farah Binti Abdullah",
+          "certNo": "AN946526",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-09-30",
+          "dueDate": "2026-09-30",
+          "contribution": 228.99,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-09-30",
+          "ace": 2747.88
+        },
+        {
+          "name": "Muhammad Faiz Bin Ahmad",
+          "certNo": "AN946197",
+          "status": "Freelook Cancellation",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-09-30",
+          "dueDate": "2025-09-30",
+          "contribution": 211.8,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-10-07",
+          "ace": 0
+        },
+        {
+          "name": "Edayu Binti Daud",
+          "certNo": "AN966662",
+          "status": "Lapsed",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-10-15",
+          "dueDate": "2025-11-15",
+          "contribution": 252.18,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-12-15",
+          "ace": 3026.16
+        },
+        {
+          "name": "Mohd Kamal Bin Mohd Miswah",
+          "certNo": "AN968760",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-10-16",
+          "dueDate": "2026-10-16",
+          "contribution": 200.12,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-10-16",
+          "ace": 2401.44
+        },
+        {
+          "name": "Rohana Binti Mat Amin",
+          "certNo": "AN981109",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-10-29",
+          "dueDate": "2026-09-29",
+          "contribution": 260.31,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-10-29",
+          "ace": 3123.72
+        },
+        {
+          "name": "Aniza Binti Mohd Ali",
+          "certNo": "AN991985",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-11-05",
+          "dueDate": "2026-10-05",
+          "contribution": 275.05,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-11-05",
+          "ace": 3300.6
+        },
         {
           "name": "Mastura Binti Harun",
           "certNo": "ANA44373",
@@ -2967,19 +3136,6 @@
           "ace": 2903.4
         },
         {
-          "name": "Khadijah Binti Mazuki",
-          "certNo": "ANA97589",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-01-29",
-          "dueDate": "2026-08-29",
-          "contribution": 298.81,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-08-13",
-          "ace": 3585.72
-        },
-        {
           "name": "Rozita Binti Dol",
           "certNo": "ANA94642",
           "status": "In Force",
@@ -2991,6 +3147,19 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2026-01-29",
           "ace": 3123.72
+        },
+        {
+          "name": "Khadijah Binti Mazuki",
+          "certNo": "ANA97589",
+          "status": "Contract Surrendered",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-01-29",
+          "dueDate": "2026-08-29",
+          "contribution": 298.81,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-08-13",
+          "ace": 3585.72
         },
         {
           "name": "Siti Nur Hasyimah Binti Hashim",
@@ -3032,19 +3201,6 @@
           "ace": 867.6
         },
         {
-          "name": "Hamadah Binti Harun",
-          "certNo": "AN817608",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-06-12",
-          "dueDate": "2026-10-12",
-          "contribution": 231.85,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-06-12",
-          "ace": 2782.2
-        },
-        {
           "name": "Mohd Henyzam Bin Zamri",
           "certNo": "ANB41JL2",
           "status": "In Force",
@@ -3056,19 +3212,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-04-17",
           "ace": 3180.24
-        },
-        {
-          "name": "Khuziamah Binti Osman",
-          "certNo": "AN875645",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-07-28",
-          "dueDate": "2026-09-28",
-          "contribution": 250.37,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-07-28",
-          "ace": 3004.44
         },
         {
           "name": "Norsafira binti ahmad sabri",
@@ -3084,19 +3227,6 @@
           "ace": 2865.84
         },
         {
-          "name": "Nik Noor Azirah Binti Nek Zikri",
-          "certNo": "AN877628",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-07-30",
-          "dueDate": "2026-09-30",
-          "contribution": 144.34,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-07-30",
-          "ace": 1732.08
-        },
-        {
           "name": "NURUL KHAIRANI BINTI NASHRUDDIN",
           "certNo": "ANB43RP6",
           "status": "In Force",
@@ -3108,19 +3238,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-05-15",
           "ace": 3685.44
-        },
-        {
-          "name": "Ahmad Murshidi Bin Ramli",
-          "certNo": "AN900115",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-08-15",
-          "dueDate": "2026-10-15",
-          "contribution": 203.56,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-08-15",
-          "ace": 2442.72
         },
         {
           "name": "Wan Mazira Binti Wan Yusoff",
@@ -3136,32 +3253,6 @@
           "ace": 2500.08
         },
         {
-          "name": "Nor Razana Binti Ismail",
-          "certNo": "AN904370",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-08-19",
-          "dueDate": "2026-10-19",
-          "contribution": 208.26,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-08-19",
-          "ace": 2499.12
-        },
-        {
-          "name": "Sarimah Binti Saaid",
-          "certNo": "AN899332",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-08-19",
-          "dueDate": "2026-10-19",
-          "contribution": 259.83,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-08-19",
-          "ace": 3117.96
-        },
-        {
           "name": "Mariana Binti Musa",
           "certNo": "ANB44M55",
           "status": "In Force",
@@ -3173,19 +3264,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-06-08",
           "ace": 3959.88
-        },
-        {
-          "name": "Fatin Nur Alyani",
-          "certNo": "AN923263",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-09-02",
-          "dueDate": "2026-09-02",
-          "contribution": 206.13,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-09-02",
-          "ace": 2473.56
         },
         {
           "name": "Nariza Binti Ismail",
@@ -3201,19 +3279,6 @@
           "ace": 3273.84
         },
         {
-          "name": "Farah Binti Abdullah",
-          "certNo": "AN946526",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-09-30",
-          "dueDate": "2026-09-30",
-          "contribution": 228.99,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-09-30",
-          "ace": 2747.88
-        },
-        {
           "name": "NUR HIDAYAH BINTI ITHNIN",
           "certNo": "ANB45MI4",
           "status": "In Force",
@@ -3225,19 +3290,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-06-24",
           "ace": 4301.64
-        },
-        {
-          "name": "Muhammad Faiz Bin Ahmad",
-          "certNo": "AN946197",
-          "status": "Freelook Cancellation",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-09-30",
-          "dueDate": "2025-09-30",
-          "contribution": 211.8,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-10-07",
-          "ace": 0
         },
         {
           "name": "Shuib Bin Hamid",
@@ -3253,19 +3305,6 @@
           "ace": 2484.48
         },
         {
-          "name": "Edayu Binti Daud",
-          "certNo": "AN966662",
-          "status": "Lapsed",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-10-15",
-          "dueDate": "2025-11-15",
-          "contribution": 252.18,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-12-15",
-          "ace": 3026.16
-        },
-        {
           "name": "Faizah Binti Muhamad",
           "certNo": "ANB47FO8",
           "status": "Freelook Cancellation",
@@ -3277,19 +3316,6 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2026-07-31",
           "ace": 0
-        },
-        {
-          "name": "Mohd Kamal Bin Mohd Miswah",
-          "certNo": "AN968760",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-10-16",
-          "dueDate": "2026-10-16",
-          "contribution": 200.12,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-10-16",
-          "ace": 2401.44
         },
         {
           "name": "Nuratunhanani Binti Zulkiflee",
@@ -3305,19 +3331,6 @@
           "ace": 3600
         },
         {
-          "name": "Rohana Binti Mat Amin",
-          "certNo": "AN981109",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-10-29",
-          "dueDate": "2026-09-29",
-          "contribution": 260.31,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-10-29",
-          "ace": 3123.72
-        },
-        {
           "name": "Azah Farehah Binti Abu Bakar",
           "certNo": "ANB48PX4",
           "status": "In Force",
@@ -3329,19 +3342,6 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2026-08-05",
           "ace": 3013.2
-        },
-        {
-          "name": "Aniza Binti Mohd Ali",
-          "certNo": "AN991985",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-11-05",
-          "dueDate": "2026-10-05",
-          "contribution": 275.05,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-11-05",
-          "ace": 3300.6
         },
         {
           "name": "Habibah Nabilah Binti Ahmad",
@@ -3473,6 +3473,45 @@
       "name": "MUHAMMAD FADHLAN FIKRI BIN MOHAMAD FAUZI",
       "clients": [
         {
+          "name": "Norliza Binti Azman",
+          "certNo": "ANB25991",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-02-26",
+          "dueDate": "2026-09-26",
+          "contribution": 272.57,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-02-26",
+          "ace": 3270.84
+        },
+        {
+          "name": "Nur Aziehah Binti Ismail",
+          "certNo": "ANB33625",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-03-03",
+          "dueDate": "2026-09-03",
+          "contribution": 259.96,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-03-03",
+          "ace": 3119.52
+        },
+        {
+          "name": "Nurul Ayuni Binti Abdullah",
+          "certNo": "ANB37682",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-03-05",
+          "dueDate": "2026-09-05",
+          "contribution": 297,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-03-05",
+          "ace": 3564
+        },
+        {
           "name": "Salim Bin Muhamud",
           "certNo": "AN852810",
           "status": "In Force",
@@ -3484,6 +3523,19 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2025-07-09",
           "ace": 3018.12
+        },
+        {
+          "name": "Mohd Khairul Anwar Bin Isnin",
+          "certNo": "ANB423A6",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-04-22",
+          "dueDate": "2026-10-22",
+          "contribution": 263.81,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-04-22",
+          "ace": 3165.72
         },
         {
           "name": "Intan Syahirah Binti Md Yusoff",
@@ -3499,17 +3551,17 @@
           "ace": 2427
         },
         {
-          "name": "Nor Hafisah Binti Abd Rashid",
-          "certNo": "AN930580",
+          "name": "Ashyniza Binti Kamal",
+          "certNo": "ANB42CF6",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2025-09-10",
-          "dueDate": "2026-10-10",
-          "contribution": 252.26,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-09-10",
-          "ace": 3027.12
+          "issueDate": "2026-04-23",
+          "dueDate": "2026-09-23",
+          "contribution": 220.36,
+          "payMethod": "Direct Debit",
+          "statusUpdatedDate": "2026-04-23",
+          "ace": 2644.32
         },
         {
           "name": "Nur Alina Aina Binti Mohd Nasir",
@@ -3523,19 +3575,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2025-07-16",
           "ace": 2487.48
-        },
-        {
-          "name": "Sarina Binti Sahari",
-          "certNo": "AN930374",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-09-11",
-          "dueDate": "2026-10-11",
-          "contribution": 247.34,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-09-11",
-          "ace": 2968.08
         },
         {
           "name": "Izundy Ismail",
@@ -3562,6 +3601,110 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2025-07-24",
           "ace": 2747.88
+        },
+        {
+          "name": "Shazrul Bin Samin",
+          "certNo": "ALB42QK9",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2026-09-18",
+          "dueDate": "2026-10-18",
+          "contribution": 200,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-09-18",
+          "ace": 2400
+        },
+        {
+          "name": "Saridah Binti Rashid",
+          "certNo": "AN888662",
+          "status": "Contract Surrendered",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-08-05",
+          "dueDate": "2025-10-05",
+          "contribution": 277.85,
+          "payMethod": "Direct Debit",
+          "statusUpdatedDate": "2025-11-19",
+          "ace": 3334.2
+        },
+        {
+          "name": "Nurulaini Binti Musa",
+          "certNo": "ANB4B532",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-09-23",
+          "dueDate": "2026-10-23",
+          "contribution": 251.74,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-09-23",
+          "ace": 3020.88
+        },
+        {
+          "name": "Hashimah Binti Md Hashim",
+          "certNo": "AN897582",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-08-13",
+          "dueDate": "2026-10-13",
+          "contribution": 256,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-08-13",
+          "ace": 3072
+        },
+        {
+          "name": "Jenifar Anak Peter Ngak",
+          "certNo": "ANB4B7S1",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-09-24",
+          "dueDate": "2026-10-24",
+          "contribution": 217.5,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-09-24",
+          "ace": 2610
+        },
+        {
+          "name": "Zarina Binti Umar",
+          "certNo": "AN897234",
+          "status": "Freelook Cancellation",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-08-13",
+          "dueDate": "2025-08-13",
+          "contribution": 254.35,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-08-29",
+          "ace": 0
+        },
+        {
+          "name": "Nor Hafisah Binti Abd Rashid",
+          "certNo": "AN930580",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-09-10",
+          "dueDate": "2026-10-10",
+          "contribution": 252.26,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-09-10",
+          "ace": 3027.12
+        },
+        {
+          "name": "Sarina Binti Sahari",
+          "certNo": "AN930374",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-09-11",
+          "dueDate": "2026-10-11",
+          "contribution": 247.34,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-09-11",
+          "ace": 2968.08
         },
         {
           "name": "Nurul Khaireyah Hakimah Binti Katnin",
@@ -3746,71 +3889,6 @@
           "ace": 4598.4
         },
         {
-          "name": "Norliza Binti Azman",
-          "certNo": "ANB25991",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-02-26",
-          "dueDate": "2026-09-26",
-          "contribution": 272.57,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-02-26",
-          "ace": 3270.84
-        },
-        {
-          "name": "Nur Aziehah Binti Ismail",
-          "certNo": "ANB33625",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-03-03",
-          "dueDate": "2026-09-03",
-          "contribution": 259.96,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-03-03",
-          "ace": 3119.52
-        },
-        {
-          "name": "Nurul Ayuni Binti Abdullah",
-          "certNo": "ANB37682",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-03-05",
-          "dueDate": "2026-09-05",
-          "contribution": 297,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-03-05",
-          "ace": 3564
-        },
-        {
-          "name": "Mohd Khairul Anwar Bin Isnin",
-          "certNo": "ANB423A6",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-04-22",
-          "dueDate": "2026-10-22",
-          "contribution": 263.81,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-04-22",
-          "ace": 3165.72
-        },
-        {
-          "name": "Ashyniza Binti Kamal",
-          "certNo": "ANB42CF6",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-04-23",
-          "dueDate": "2026-09-23",
-          "contribution": 220.36,
-          "payMethod": "Direct Debit",
-          "statusUpdatedDate": "2026-04-23",
-          "ace": 2644.32
-        },
-        {
           "name": "Emmy Amira Bt Ahmad",
           "certNo": "ANB426U3",
           "status": "In Force",
@@ -3952,84 +4030,6 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2026-08-19",
           "ace": 2963.52
-        },
-        {
-          "name": "Shazrul Bin Samin",
-          "certNo": "ALB42QK9",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2026-09-18",
-          "dueDate": "2026-10-18",
-          "contribution": 200,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-09-18",
-          "ace": 2400
-        },
-        {
-          "name": "Nurulaini Binti Musa",
-          "certNo": "ANB4B532",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-09-23",
-          "dueDate": "2026-10-23",
-          "contribution": 251.74,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-09-23",
-          "ace": 3020.88
-        },
-        {
-          "name": "Jenifar Anak Peter Ngak",
-          "certNo": "ANB4B7S1",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-09-24",
-          "dueDate": "2026-10-24",
-          "contribution": 217.5,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-09-24",
-          "ace": 2610
-        },
-        {
-          "name": "Saridah Binti Rashid",
-          "certNo": "AN888662",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-08-05",
-          "dueDate": "2025-10-05",
-          "contribution": 277.85,
-          "payMethod": "Direct Debit",
-          "statusUpdatedDate": "2025-11-19",
-          "ace": 3334.2
-        },
-        {
-          "name": "Hashimah Binti Md Hashim",
-          "certNo": "AN897582",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-08-13",
-          "dueDate": "2026-10-13",
-          "contribution": 256,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-08-13",
-          "ace": 3072
-        },
-        {
-          "name": "Zarina Binti Umar",
-          "certNo": "AN897234",
-          "status": "Freelook Cancellation",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-08-13",
-          "dueDate": "2025-08-13",
-          "contribution": 254.35,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-08-29",
-          "ace": 0
         }
       ]
     },
@@ -4037,58 +4037,6 @@
       "code": "A15781",
       "name": "AHMAD FAUZAN BIN HASHIM",
       "clients": [
-        {
-          "name": "Siti Hasmah Binti Idris",
-          "certNo": "AN897209",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-08-13",
-          "dueDate": "2026-10-13",
-          "contribution": 201.75,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-08-13",
-          "ace": 2421
-        },
-        {
-          "name": "Suriani Binti Mat Yusoff",
-          "certNo": "AN902976",
-          "status": "Contract Surrendered",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-08-26",
-          "dueDate": "2026-03-26",
-          "contribution": 283.86,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-03-17",
-          "ace": 3406.32
-        },
-        {
-          "name": "Rija Linda Binti Abdul Rahman",
-          "certNo": "AN853253",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-07-09",
-          "dueDate": "2026-10-09",
-          "contribution": 353.58,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2025-07-09",
-          "ace": 4242.96
-        },
-        {
-          "name": "Nor Kamaliya Binti Masran",
-          "certNo": "AN923255",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-09-02",
-          "dueDate": "2026-10-02",
-          "contribution": 254.35,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-09-02",
-          "ace": 3052.2
-        },
         {
           "name": "Roslina Binti Abdul Hamid",
           "certNo": "AN854670",
@@ -4116,19 +4064,6 @@
           "ace": 5860.68
         },
         {
-          "name": "Fairina Binti Johan",
-          "certNo": "AN941582",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-09-27",
-          "dueDate": "2026-10-27",
-          "contribution": 259.45,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-09-27",
-          "ace": 3113.4
-        },
-        {
           "name": "Harisun Binti Abdul Hamid",
           "certNo": "AN869033",
           "status": "Freelook Cancellation",
@@ -4140,19 +4075,6 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2025-08-07",
           "ace": 0
-        },
-        {
-          "name": "Nor Aizam Bin Ab.rahman",
-          "certNo": "AN946641",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-09-30",
-          "dueDate": "2026-09-30",
-          "contribution": 262.55,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-09-30",
-          "ace": 3150.6
         },
         {
           "name": "Haimas Binti Mohamad",
@@ -4168,6 +4090,71 @@
           "ace": 3196.08
         },
         {
+          "name": "Siti Hasmah Binti Idris",
+          "certNo": "AN897209",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-08-13",
+          "dueDate": "2026-10-13",
+          "contribution": 201.75,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-08-13",
+          "ace": 2421
+        },
+        {
+          "name": "Suriani Binti Mat Yusoff",
+          "certNo": "AN902976",
+          "status": "Contract Surrendered",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-08-26",
+          "dueDate": "2026-03-26",
+          "contribution": 283.86,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-03-17",
+          "ace": 3406.32
+        },
+        {
+          "name": "Nor Kamaliya Binti Masran",
+          "certNo": "AN923255",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-09-02",
+          "dueDate": "2026-10-02",
+          "contribution": 254.35,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-09-02",
+          "ace": 3052.2
+        },
+        {
+          "name": "Fairina Binti Johan",
+          "certNo": "AN941582",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-09-27",
+          "dueDate": "2026-10-27",
+          "contribution": 259.45,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-09-27",
+          "ace": 3113.4
+        },
+        {
+          "name": "Nor Aizam Bin Ab.rahman",
+          "certNo": "AN946641",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-09-30",
+          "dueDate": "2026-09-30",
+          "contribution": 262.55,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-09-30",
+          "ace": 3150.6
+        },
+        {
           "name": "Norazlinda Binti Ab Majid",
           "certNo": "AN949950",
           "status": "In Force",
@@ -4179,32 +4166,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2025-10-02",
           "ace": 2447.04
-        },
-        {
-          "name": "Nur Zanariah Adibah Binti Abdul Razak",
-          "certNo": "AN978907",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2025-10-29",
-          "dueDate": "2026-09-29",
-          "contribution": 251.1,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-10-29",
-          "ace": 3013.2
-        },
-        {
-          "name": "Sharul Lizam Bin Omar",
-          "certNo": "ANB426B9",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-04-23",
-          "dueDate": "2026-08-23",
-          "contribution": 302.58,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-04-23",
-          "ace": 3630.96
         },
         {
           "name": "Mansor Bin Yusof",
@@ -4220,6 +4181,32 @@
           "ace": 3169.2
         },
         {
+          "name": "Nur Adila Syahirah Binti Mohd Zamri",
+          "certNo": "AL968170",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Maqbul Link",
+          "issueDate": "2025-10-16",
+          "dueDate": "2026-10-16",
+          "contribution": 200,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-10-16",
+          "ace": 2400
+        },
+        {
+          "name": "Nur Zanariah Adibah Binti Abdul Razak",
+          "certNo": "AN978907",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2025-10-29",
+          "dueDate": "2026-09-29",
+          "contribution": 251.1,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2025-10-29",
+          "ace": 3013.2
+        },
+        {
           "name": "Noraini Binti Atoh",
           "certNo": "AN998888",
           "status": "In Force",
@@ -4231,19 +4218,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2025-11-11",
           "ace": 3338.52
-        },
-        {
-          "name": "Nurul Nurqamarina Binti Mohd Sabri",
-          "certNo": "ANB42G01",
-          "status": "Freelook Cancellation",
-          "payMode": "Monthly",
-          "plan": "FWD Future First",
-          "issueDate": "2026-04-25",
-          "dueDate": "2026-04-25",
-          "contribution": 89.53,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-04-27",
-          "ace": 0
         },
         {
           "name": "Frederica Tijin",
@@ -4259,32 +4233,6 @@
           "ace": 3000
         },
         {
-          "name": "Nur Adila Syahirah Binti Mohd Zamri",
-          "certNo": "AL968170",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Maqbul Link",
-          "issueDate": "2025-10-16",
-          "dueDate": "2026-10-16",
-          "contribution": 200,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2025-10-16",
-          "ace": 2400
-        },
-        {
-          "name": "Nur Darina Binti Mohamed Ashri",
-          "certNo": "ANB42SN4",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-04-29",
-          "dueDate": "2026-09-29",
-          "contribution": 318.67,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-04-29",
-          "ace": 3824.04
-        },
-        {
           "name": "Vincent Dumat",
           "certNo": "ALA11738",
           "status": "In Force",
@@ -4295,32 +4243,6 @@
           "contribution": 250,
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2025-11-19",
-          "ace": 3000
-        },
-        {
-          "name": "Norlinda Binti Mohd Napis",
-          "certNo": "ANB43P82",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-05-14",
-          "dueDate": "2026-10-14",
-          "contribution": 253.3,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-05-14",
-          "ace": 3039.6
-        },
-        {
-          "name": "Nor Fazlina Binti Mohd Musanip",
-          "certNo": "ALB42FF9",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Invest First Plus (Wealth)",
-          "issueDate": "2026-08-26",
-          "dueDate": "2026-10-26",
-          "contribution": 250,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-08-26",
           "ace": 3000
         },
         {
@@ -4337,32 +4259,6 @@
           "ace": 3000
         },
         {
-          "name": "Rayahin Binti Mat Yusof",
-          "certNo": "ANB441S0",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-05-20",
-          "dueDate": "2026-09-20",
-          "contribution": 215.2,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-05-20",
-          "ace": 2582.4
-        },
-        {
-          "name": "Ain Syafiha Binti Zainudin",
-          "certNo": "ALB42QN2",
-          "status": "Freelook Cancellation",
-          "payMode": "Monthly",
-          "plan": "FWD Invest First Plus (Wealth)",
-          "issueDate": "2026-09-18",
-          "dueDate": "2026-09-18",
-          "contribution": 250,
-          "payMethod": "Direct Debit",
-          "statusUpdatedDate": "2026-09-27",
-          "ace": 0
-        },
-        {
           "name": "Marsita Binti Johari",
           "certNo": "ANA40259",
           "status": "Freelook Cancellation",
@@ -4374,32 +4270,6 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2025-12-17",
           "ace": 0
-        },
-        {
-          "name": "Nurul Huda Binti Abd Hadi",
-          "certNo": "ANB44MK6",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-06-08",
-          "dueDate": "2026-09-08",
-          "contribution": 210.41,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-06-08",
-          "ace": 2524.92
-        },
-        {
-          "name": "Hanisah Binti Baharin",
-          "certNo": "ALB42S06",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Invest First Plus (Wealth)",
-          "issueDate": "2026-09-22",
-          "dueDate": "2026-10-22",
-          "contribution": 200,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-09-22",
-          "ace": 2400
         },
         {
           "name": "Suzita Binti Mehat",
@@ -4415,19 +4285,6 @@
           "ace": 3847.2
         },
         {
-          "name": "Ahmad Tarmizi Bin Ramli",
-          "certNo": "ANB44RK1",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-06-11",
-          "dueDate": "2026-09-11",
-          "contribution": 259.95,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-06-11",
-          "ace": 3119.4
-        },
-        {
           "name": "Amri Binti Abdul Rahman",
           "certNo": "ANA96089",
           "status": "In Force",
@@ -4439,32 +4296,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-01-29",
           "ace": 2552.16
-        },
-        {
-          "name": "MIRA EDORA BINTI MISRAN",
-          "certNo": "ANB4BAB1",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-09-25",
-          "dueDate": "2026-10-25",
-          "contribution": 250.79,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-09-25",
-          "ace": 3009.48
-        },
-        {
-          "name": "Nur Iryani Binti Jamaludin",
-          "certNo": "ANB44SE1",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-06-11",
-          "dueDate": "2026-09-11",
-          "contribution": 251.1,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-06-11",
-          "ace": 3013.2
         },
         {
           "name": "Zakiah Binti Omar",
@@ -4480,19 +4311,6 @@
           "ace": 4474.32
         },
         {
-          "name": "Nur Yasmin Syazana Binti Abdull Halim",
-          "certNo": "ANB45J29",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-06-23",
-          "dueDate": "2026-09-23",
-          "contribution": 221.68,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-06-23",
-          "ace": 2660.16
-        },
-        {
           "name": "Hanie Munira Binti Megat",
           "certNo": "ALB25476",
           "status": "In Force",
@@ -4504,19 +4322,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-02-26",
           "ace": 3600
-        },
-        {
-          "name": "Nur Wahida Binti Md Hassan",
-          "certNo": "ALB41SS7",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Invest First Plus (Legacy)",
-          "issueDate": "2026-07-13",
-          "dueDate": "2026-10-13",
-          "contribution": 300,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-08-10",
-          "ace": 3800
         },
         {
           "name": "Mohammad Nur Amirul Bin Ghazali",
@@ -4532,19 +4337,6 @@
           "ace": 2400
         },
         {
-          "name": "Norsidah Binti Latif",
-          "certNo": "ALB41UF0",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Invest First Plus (Wealth)",
-          "issueDate": "2026-07-17",
-          "dueDate": "2026-10-17",
-          "contribution": 250,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-07-17",
-          "ace": 3000
-        },
-        {
           "name": "Mohd Nazri Bin Sebiki",
           "certNo": "ALB26885",
           "status": "In Force",
@@ -4556,19 +4348,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-02-26",
           "ace": 2400
-        },
-        {
-          "name": "Noor Ashikin Binti Ismail",
-          "certNo": "ALB41Z04",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Invest First Plus (Wealth)",
-          "issueDate": "2026-07-28",
-          "dueDate": "2026-09-28",
-          "contribution": 370,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-07-28",
-          "ace": 4440
         },
         {
           "name": "Sahruddin Bin Mohd Saleh",
@@ -4584,19 +4363,6 @@
           "ace": 3306
         },
         {
-          "name": "Azliyani Binti Ariffin @ Azlan",
-          "certNo": "ANB48659",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-07-29",
-          "dueDate": "2026-09-29",
-          "contribution": 300.31,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-07-29",
-          "ace": 3603.72
-        },
-        {
           "name": "Asyurena Binti Dillah",
           "certNo": "ANB28259",
           "status": "In Force",
@@ -4610,19 +4376,6 @@
           "ace": 3532.08
         },
         {
-          "name": "Muhammad Asyraf Bin Mohd Yusri",
-          "certNo": "ALB42715",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Invest First Plus (Wealth)",
-          "issueDate": "2026-08-18",
-          "dueDate": "2026-10-18",
-          "contribution": 200,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-08-18",
-          "ace": 2400
-        },
-        {
           "name": "Jude Enstaine Patrick Anak Edward",
           "certNo": "ALB35548",
           "status": "In Force",
@@ -4633,6 +4386,201 @@
           "contribution": 200,
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-03-04",
+          "ace": 2400
+        },
+        {
+          "name": "Hamilah Binti Abu",
+          "certNo": "ANB41C43",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-04-10",
+          "dueDate": "2026-10-10",
+          "contribution": 240.92,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-04-10",
+          "ace": 2891.04
+        },
+        {
+          "name": "Sharul Lizam Bin Omar",
+          "certNo": "ANB426B9",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-04-23",
+          "dueDate": "2026-08-23",
+          "contribution": 302.58,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-04-23",
+          "ace": 3630.96
+        },
+        {
+          "name": "Nurul Nurqamarina Binti Mohd Sabri",
+          "certNo": "ANB42G01",
+          "status": "Freelook Cancellation",
+          "payMode": "Monthly",
+          "plan": "FWD Future First",
+          "issueDate": "2026-04-25",
+          "dueDate": "2026-04-25",
+          "contribution": 89.53,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-04-27",
+          "ace": 0
+        },
+        {
+          "name": "Nur Darina Binti Mohamed Ashri",
+          "certNo": "ANB42SN4",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-04-29",
+          "dueDate": "2026-09-29",
+          "contribution": 318.67,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-04-29",
+          "ace": 3824.04
+        },
+        {
+          "name": "Norlinda Binti Mohd Napis",
+          "certNo": "ANB43P82",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-05-14",
+          "dueDate": "2026-10-14",
+          "contribution": 253.3,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-05-14",
+          "ace": 3039.6
+        },
+        {
+          "name": "Rayahin Binti Mat Yusof",
+          "certNo": "ANB441S0",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-05-20",
+          "dueDate": "2026-09-20",
+          "contribution": 215.2,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-05-20",
+          "ace": 2582.4
+        },
+        {
+          "name": "Nurul Huda Binti Abd Hadi",
+          "certNo": "ANB44MK6",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-06-08",
+          "dueDate": "2026-09-08",
+          "contribution": 210.41,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-06-08",
+          "ace": 2524.92
+        },
+        {
+          "name": "Ahmad Tarmizi Bin Ramli",
+          "certNo": "ANB44RK1",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-06-11",
+          "dueDate": "2026-09-11",
+          "contribution": 259.95,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-06-11",
+          "ace": 3119.4
+        },
+        {
+          "name": "Nur Iryani Binti Jamaludin",
+          "certNo": "ANB44SE1",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-06-11",
+          "dueDate": "2026-09-11",
+          "contribution": 251.1,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-06-11",
+          "ace": 3013.2
+        },
+        {
+          "name": "Nur Yasmin Syazana Binti Abdull Halim",
+          "certNo": "ANB45J29",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-06-23",
+          "dueDate": "2026-09-23",
+          "contribution": 221.68,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-06-23",
+          "ace": 2660.16
+        },
+        {
+          "name": "Nur Wahida Binti Md Hassan",
+          "certNo": "ALB41SS7",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Invest First Plus (Legacy)",
+          "issueDate": "2026-07-13",
+          "dueDate": "2026-10-13",
+          "contribution": 300,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-08-10",
+          "ace": 3800
+        },
+        {
+          "name": "Norsidah Binti Latif",
+          "certNo": "ALB41UF0",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Invest First Plus (Wealth)",
+          "issueDate": "2026-07-17",
+          "dueDate": "2026-10-17",
+          "contribution": 250,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-07-17",
+          "ace": 3000
+        },
+        {
+          "name": "Noor Ashikin Binti Ismail",
+          "certNo": "ALB41Z04",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Invest First Plus (Wealth)",
+          "issueDate": "2026-07-28",
+          "dueDate": "2026-09-28",
+          "contribution": 370,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-07-28",
+          "ace": 4440
+        },
+        {
+          "name": "Azliyani Binti Ariffin @ Azlan",
+          "certNo": "ANB48659",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-07-29",
+          "dueDate": "2026-09-29",
+          "contribution": 300.31,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-07-29",
+          "ace": 3603.72
+        },
+        {
+          "name": "Muhammad Asyraf Bin Mohd Yusri",
+          "certNo": "ALB42715",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Invest First Plus (Wealth)",
+          "issueDate": "2026-08-18",
+          "dueDate": "2026-10-18",
+          "contribution": 200,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-08-18",
           "ace": 2400
         },
         {
@@ -4649,17 +4597,17 @@
           "ace": 3344.28
         },
         {
-          "name": "Hamilah Binti Abu",
-          "certNo": "ANB41C43",
+          "name": "Rija Linda Binti Abdul Rahman",
+          "certNo": "AN853253",
           "status": "In Force",
           "payMode": "Monthly",
           "plan": "FWD Life First",
-          "issueDate": "2026-04-10",
-          "dueDate": "2026-10-10",
-          "contribution": 240.92,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-04-10",
-          "ace": 2891.04
+          "issueDate": "2025-07-09",
+          "dueDate": "2026-10-09",
+          "contribution": 353.58,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2025-07-09",
+          "ace": 4242.96
         },
         {
           "name": "Aiman Nabilah Binti Abd Aziz",
@@ -4673,6 +4621,58 @@
           "payMethod": "Credit Card - Razer",
           "statusUpdatedDate": "2026-08-27",
           "ace": 0
+        },
+        {
+          "name": "Nor Fazlina Binti Mohd Musanip",
+          "certNo": "ALB42FF9",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Invest First Plus (Wealth)",
+          "issueDate": "2026-08-26",
+          "dueDate": "2026-10-26",
+          "contribution": 250,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-08-26",
+          "ace": 3000
+        },
+        {
+          "name": "Ain Syafiha Binti Zainudin",
+          "certNo": "ALB42QN2",
+          "status": "Freelook Cancellation",
+          "payMode": "Monthly",
+          "plan": "FWD Invest First Plus (Wealth)",
+          "issueDate": "2026-09-18",
+          "dueDate": "2026-09-18",
+          "contribution": 250,
+          "payMethod": "Direct Debit",
+          "statusUpdatedDate": "2026-09-27",
+          "ace": 0
+        },
+        {
+          "name": "Hanisah Binti Baharin",
+          "certNo": "ALB42S06",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Invest First Plus (Wealth)",
+          "issueDate": "2026-09-22",
+          "dueDate": "2026-10-22",
+          "contribution": 200,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-09-22",
+          "ace": 2400
+        },
+        {
+          "name": "MIRA EDORA BINTI MISRAN",
+          "certNo": "ANB4BAB1",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-09-25",
+          "dueDate": "2026-10-25",
+          "contribution": 250.79,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-09-25",
+          "ace": 3009.48
         }
       ]
     },
@@ -4680,84 +4680,6 @@
       "code": "A16553",
       "name": "MUHAMMAD ADAM MUQRIZ BIN MOHD RASHIDI",
       "clients": [
-        {
-          "name": "Razali Bin Haron",
-          "certNo": "ANB46ET5",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-07-02",
-          "dueDate": "2026-10-02",
-          "contribution": 323.76,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-07-02",
-          "ace": 3885.12
-        },
-        {
-          "name": "Nor Rizawati Binti Rejimi",
-          "certNo": "ANB474A8",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-07-17",
-          "dueDate": "2026-10-17",
-          "contribution": 271.79,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-07-17",
-          "ace": 3261.48
-        },
-        {
-          "name": "Kamaruzairi Bin Mohamed",
-          "certNo": "ANB485C6",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-07-29",
-          "dueDate": "2026-09-29",
-          "contribution": 302.5,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-07-29",
-          "ace": 3630
-        },
-        {
-          "name": "Zabidah Bin Mohd Noor",
-          "certNo": "ANB47YX0",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-07-29",
-          "dueDate": "2026-09-29",
-          "contribution": 256,
-          "payMethod": "Biro Angkasa",
-          "statusUpdatedDate": "2026-07-29",
-          "ace": 3072
-        },
-        {
-          "name": "Zuraidah Binti Zainal",
-          "certNo": "ANB48XV9",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-08-13",
-          "dueDate": "2026-10-13",
-          "contribution": 249.83,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-08-13",
-          "ace": 2997.96
-        },
-        {
-          "name": "Siti Raudhah Binti Zamzam",
-          "certNo": "ANB49QL1",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-08-22",
-          "dueDate": "2026-10-22",
-          "contribution": 268.84,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-08-22",
-          "ace": 3226.08
-        },
         {
           "name": "Ami Dahliawati Binti Mohamad",
           "certNo": "ANB41TY7",
@@ -4772,19 +4694,6 @@
           "ace": 3894.48
         },
         {
-          "name": "Razidah Binti Abdul Razak",
-          "certNo": "ANB4B152",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-09-22",
-          "dueDate": "2026-10-22",
-          "contribution": 220.36,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-09-22",
-          "ace": 2644.32
-        },
-        {
           "name": "Nor Zalilah Binti Saaid",
           "certNo": "ANB41XW6",
           "status": "In Force",
@@ -4796,19 +4705,6 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-04-20",
           "ace": 2652.72
-        },
-        {
-          "name": "Nor Azean Binti Ali",
-          "certNo": "ANB4B6X1",
-          "status": "In Force",
-          "payMode": "Monthly",
-          "plan": "FWD Life First",
-          "issueDate": "2026-09-25",
-          "dueDate": "2026-10-25",
-          "contribution": 265.55,
-          "payMethod": "Credit Card - Razer",
-          "statusUpdatedDate": "2026-09-25",
-          "ace": 3186.6
         },
         {
           "name": "Tengku Musa Bin Tengku Ismail",
@@ -4863,6 +4759,19 @@
           "ace": 2799
         },
         {
+          "name": "Razali Bin Haron",
+          "certNo": "ANB46ET5",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-07-02",
+          "dueDate": "2026-10-02",
+          "contribution": 323.76,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-07-02",
+          "ace": 3885.12
+        },
+        {
           "name": "Saadiah Binti Shapiai",
           "certNo": "ANB43O16",
           "status": "In Force",
@@ -4874,6 +4783,19 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-05-14",
           "ace": 2963.52
+        },
+        {
+          "name": "Nor Rizawati Binti Rejimi",
+          "certNo": "ANB474A8",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-07-17",
+          "dueDate": "2026-10-17",
+          "contribution": 271.79,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-07-17",
+          "ace": 3261.48
         },
         {
           "name": "Haniza Binti Ahamad Hanafiah",
@@ -4889,6 +4811,19 @@
           "ace": 3172.2
         },
         {
+          "name": "Kamaruzairi Bin Mohamed",
+          "certNo": "ANB485C6",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-07-29",
+          "dueDate": "2026-09-29",
+          "contribution": 302.5,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-07-29",
+          "ace": 3630
+        },
+        {
           "name": "Hamila Binti Amil",
           "certNo": "ANB44LC1",
           "status": "In Force",
@@ -4900,6 +4835,19 @@
           "payMethod": "Biro Angkasa",
           "statusUpdatedDate": "2026-06-08",
           "ace": 2524.92
+        },
+        {
+          "name": "Zabidah Bin Mohd Noor",
+          "certNo": "ANB47YX0",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-07-29",
+          "dueDate": "2026-09-29",
+          "contribution": 256,
+          "payMethod": "Biro Angkasa",
+          "statusUpdatedDate": "2026-07-29",
+          "ace": 3072
         },
         {
           "name": "Irwazah Aizie Binti Ishaak",
@@ -4915,6 +4863,19 @@
           "ace": 2461.44
         },
         {
+          "name": "Zuraidah Binti Zainal",
+          "certNo": "ANB48XV9",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-08-13",
+          "dueDate": "2026-10-13",
+          "contribution": 249.83,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-08-13",
+          "ace": 2997.96
+        },
+        {
           "name": "Nurlaila Binti Mustakim",
           "certNo": "ANB466I5",
           "status": "In Force",
@@ -4926,6 +4887,45 @@
           "payMethod": "Direct Debit",
           "statusUpdatedDate": "2026-06-30",
           "ace": 2473.56
+        },
+        {
+          "name": "Siti Raudhah Binti Zamzam",
+          "certNo": "ANB49QL1",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-08-22",
+          "dueDate": "2026-10-22",
+          "contribution": 268.84,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-08-22",
+          "ace": 3226.08
+        },
+        {
+          "name": "Razidah Binti Abdul Razak",
+          "certNo": "ANB4B152",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-09-22",
+          "dueDate": "2026-10-22",
+          "contribution": 220.36,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-09-22",
+          "ace": 2644.32
+        },
+        {
+          "name": "Nor Azean Binti Ali",
+          "certNo": "ANB4B6X1",
+          "status": "In Force",
+          "payMode": "Monthly",
+          "plan": "FWD Life First",
+          "issueDate": "2026-09-25",
+          "dueDate": "2026-10-25",
+          "contribution": 265.55,
+          "payMethod": "Credit Card - Razer",
+          "statusUpdatedDate": "2026-09-25",
+          "ace": 3186.6
         }
       ]
     }
